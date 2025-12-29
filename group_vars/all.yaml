@@ -1,0 +1,26 @@
+# ===== Tailscale =====
+tailscale_authkey: "tskey-REEMPLAZA-ESTO"   # mejor: vault
+tailscale_hostname_prefix: "k3s"
+tailscale_tags: "tag:k3s"
+
+# Opciones útiles:
+tailscale_accept_dns: "false"   # si quieres que MagicDNS lo maneje TS, pon true
+tailscale_ssh: "true"           # Tailscale SSH (si lo tienes activado en ACLs)
+
+# ===== k3s =====
+k3s_version: "v1.30.7+k3s1"     # ajusta a tu estándar
+k3s_disable_traefik: true
+k3s_disable_servicelb: true
+
+# ===== Cilium =====
+cilium_version: "1.18.5"        # ejemplo (ajusta)
+cilium_chart_repo: "https://helm.cilium.io/"
+cilium_chart_name: "cilium"
+cilium_namespace: "kube-system"
+
+# Cilium: “no mires tailscale0 para decidir MTU/rutas”
+# Usaremos la interfaz default-route del host (ansible_default_ipv4.interface)
+cilium_devices_from_ansible_default: true
+
+# Si luego necesitas fijar MTU explícito, usa esto (0 = auto)
+cilium_mtu: 0
