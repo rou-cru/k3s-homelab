@@ -2,12 +2,18 @@
   hosts: k3s_server
   become: true
   
+  # Cargar variables sensibles desde archivo externo ignorado por git
+  vars_files:
+    - secrets.yaml
+
   pre_tasks:
     - name: Validate Tailscale AuthKey presence
       assert:
         that:
+          - tailscale_authkey is defined
           - tailscale_authkey | length > 0
-        fail_msg: "ERROR: La variable de entorno TAILSCALE_AUTHKEY no está definida o está vacía."
+          - "tailscale_authkey != 'tskey-auth-REEMPLAZA-ESTO-POR-TU-CLAVE-REAL'"
+        fail_msg: "ERROR: Debes configurar tu 'tailscale_authkey' real en el archivo 'secrets.yaml'."
         success_msg: "Tailscale AuthKey validada correctamente."
 
   roles:

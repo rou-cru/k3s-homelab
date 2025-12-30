@@ -1,6 +1,4 @@
-# ===== Tailscale Secret (Strict Environment Lookup) =====
-# Se espera que TAILSCALE_AUTHKEY esté definida en el host que ejecuta Ansible.
-tailscale_authkey: "{{ lookup('env', 'TAILSCALE_AUTHKEY') }}"
+# Configuración global
+# Las claves secretas se cargan desde secrets.yaml (ver .gitignore)
 
-# Nota: Otras variables específicas están en roles/*/defaults/main.yml
-# Puedes sobrescribirlas aquí si es necesario para todo el grupo.
+# Opciones globales si las hubiera en el futuro
