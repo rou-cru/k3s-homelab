@@ -58,7 +58,7 @@
 
     - name: Set tailscale_ip fact
       set_fact:
-        tailscale_ip: "{{ (ts_ip.stdout_lines | select('match','^[0-9]+\\.') | list | first) | trim }}"
+        tailscale_ip: "{{ (ts_ip.stdout_lines | select('match','^[0-9]+\.') | list | first) | trim }}"
 
 - name: Install k3s server (bind to Tailscale IP, no flannel)
   hosts: k3s_server
@@ -107,6 +107,12 @@
         state: directory
         mode: "0755"
 
+    - name: Copiar archivo values.yaml de Cilium
+      copy:
+        src: cilium-values.yaml
+        dest: /var/lib/rancher/k3s/server/manifests/cilium-values.yaml
+        mode: "0644"
+
     - name: Build Cilium HelmChart manifest (k3s auto-applies)
       copy:
         dest: /var/lib/rancher/k3s/server/manifests/cilium-helmchart.yaml
@@ -122,21 +128,7 @@
             chart: "{{ cilium_chart_name }}"
             version: "{{ cilium_version }}"
             targetNamespace: "{{ cilium_namespace }}"
-            valuesContent: |-
-              # Mantén kube-proxy al inicio (más “boring”, menos incendios)
-              kubeProxyReplacement: "disabled"
-
-              # Muy importante: no tomar tailscale0 como referencia
-              {% if cilium_devices_from_ansible_default | bool %}
-              devices: "{{ ansible_default_ipv4.interface }}"
-              {% endif %}
-
-              # MTU: 0 = auto; si luego necesitas, fija un valor aquí
-              MTU: {{ cilium_mtu }}
-
-              # Cilium en k8s estándar
-              operator:
-                replicas: 1
+            valuesFile: /var/lib/rancher/k3s/server/manifests/cilium-values.yaml
 
     - name: Wait for kube-apiserver to answer (best effort)
       shell: |
@@ -147,29 +139,11 @@
       until: readyz.rc == 0
       changed_when: false
 
-- name: Install k3s agents (join via Tailscale IP)
-  hosts: k3s_agents
-  become: true
-  vars:
-    k3s_token: "{{ hostvars['localhost'].k3s_token }}"
-    server_ts_ip: "{{ hostvars[groups['k3s_server'][0]].tailscale_ip }}"
-  tasks:
-    - name: Install k3s agent
-      shell: |
-        curl -sfL https://get.k3s.io | \
-          K3S_URL="https://{{ server_ts_ip }}:6443" \
-          K3S_TOKEN="{{ k3s_token }}" \
-          INSTALL_K3S_VERSION="{{ k3s_version }}" \
-          INSTALL_K3S_EXEC="agent --node-ip {{ tailscale_ip }}" \
-          sh -
-      args:
-        creates: /usr/local/bin/k3s
-
-- name: Verify cluster (nodes + cilium)
+- name: Verify master node (single node cluster)
   hosts: k3s_server
   become: true
   tasks:
-    - name: Show nodes
+    - name: Show master node
       command: k3s kubectl get nodes -o wide
       register: nodes_out
       changed_when: false
