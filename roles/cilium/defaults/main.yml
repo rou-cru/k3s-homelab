@@ -2,3 +2,6 @@ cilium_version: "1.18.5"
 cilium_chart_repo: "https://helm.cilium.io/"
 cilium_chart_name: "cilium"
 cilium_namespace: "kube-system"
+
+# Timeout for Cilium DaemonSet rollout (seconds)
+cilium_rollout_timeout: 300

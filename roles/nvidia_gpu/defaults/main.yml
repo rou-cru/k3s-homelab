@@ -18,3 +18,10 @@ nvidia_toolkit_gpg_url: "https://nvidia.github.io/libnvidia-container/gpgkey"
 # --- K8s Device Plugin ---
 nvidia_device_plugin_version: "0.14.3"
 nvidia_device_plugin_repo: "https://nvidia.github.io/k8s-device-plugin"
+
+# --- Timeouts ---
+# Reboot timeout after driver installation (seconds)
+nvidia_reboot_timeout: 600
+
+# Timeout for initramfs update (seconds)
+nvidia_initramfs_timeout: 300

@@ -9,3 +9,29 @@ radio_block_enabled: true
 
 # Prepare system for High Performance / Realtime Audio
 audio_optimization_enabled: true
+
+# --- System Tuning Parameters ---
+# File descriptor limits for K3s/etcd workloads
+file_descriptors_soft: 100000
+file_descriptors_hard: 100000
+
+# System-wide file limits
+fs_file_max: 2097152
+
+# Inotify limits (prevents "No space left on device" in K8s logs)
+inotify_max_instances: 8192
+inotify_max_watches: 524288
+
+# Hardware watchdog timeout (seconds) - Auto-reboot on freeze
+watchdog_timeout_sec: 120
+
+# --- RoG Hardware Parameters ---
+# Battery charge threshold (percentage) - Extends battery life
+battery_charge_threshold: 80
+
+# Thermal policy: 0=Balanced, 1=Turbo, 2=Silent
+thermal_policy: 1
+
+# --- Network Optimization Parameters ---
+# Target ring buffer size (will use hardware maximum if higher)
+ring_buffer_target: 4096
