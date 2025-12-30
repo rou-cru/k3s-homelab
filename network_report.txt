@@ -1,0 +1,171 @@
+=== NETWORK DIAGNOSTIC REPORT ===
+Timestamp: Tue Dec 30 01:02:45 AM UTC 2025
+Interface: enp108s0
+
+--- 1. BASIC SETTINGS (ethtool) ---
+Settings for enp108s0:
+	Supported ports: [ TP	 MII ]
+	Supported link modes:   10baseT/Half 10baseT/Full
+	                        100baseT/Half 100baseT/Full
+	                        1000baseT/Full
+	Supported pause frame use: Symmetric Receive-only
+	Supports auto-negotiation: Yes
+	Supported FEC modes: Not reported
+	Advertised link modes:  10baseT/Half 10baseT/Full
+	                        100baseT/Half 100baseT/Full
+	                        1000baseT/Full
+	Advertised pause frame use: Symmetric Receive-only
+	Advertised auto-negotiation: Yes
+	Advertised FEC modes: Not reported
+	Link partner advertised link modes:  10baseT/Half 10baseT/Full
+	                                     100baseT/Half 100baseT/Full
+	                                     1000baseT/Full
+	Link partner advertised pause frame use: Symmetric
+	Link partner advertised auto-negotiation: Yes
+	Link partner advertised FEC modes: Not reported
+	Speed: 1000Mb/s
+	Duplex: Full
+	Auto-negotiation: on
+	master-slave cfg: preferred slave
+	master-slave status: slave
+	Port: Twisted Pair
+	PHYAD: 0
+	Transceiver: external
+	MDI-X: Unknown
+	Supports Wake-on: pumbg
+	Wake-on: d
+	Link detected: yes
+
+--- 2. DRIVER INFO (ethtool -i) ---
+driver: r8169
+version: 6.8.0-90-generic
+firmware-version: rtl8168h-2_0.0.2 02/26/15
+expansion-rom-version: 
+bus-info: 0000:6c:00.0
+supports-statistics: yes
+supports-test: no
+supports-eeprom-access: no
+supports-register-dump: yes
+supports-priv-flags: no
+
+--- 3. ENERGY EFFICIENT ETHERNET (EEE) ---
+EEE settings for enp108s0:
+	EEE status: disabled
+	Tx LPI: disabled
+	Supported EEE link modes:  100baseT/Full
+	                           1000baseT/Full
+	Advertised EEE link modes:  Not reported
+	Link partner advertised EEE link modes:  100baseT/Full
+	                                         1000baseT/Full
+
+--- 4. LINK STATISTICS (ip -s link) ---
+2: enp108s0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP mode DEFAULT group default qlen 1000
+    link/ether c8:7f:54:cc:f0:aa brd ff:ff:ff:ff:ff:ff
+    RX:   bytes  packets errors dropped  missed   mcast           
+    19884988907 14964666      0       0       0     753 
+    TX:   bytes  packets errors dropped carrier collsns           
+     2328537296  4097518      0       0       0       0 
+
+--- 5. EXTENDED STATISTICS (ethtool -S) ---
+     tx_errors: 0
+     rx_errors: 4
+     rx_missed: 0
+     align_errors: 0
+
+--- 6. RING BUFFER SETTINGS (ethtool -g) ---
+Ring parameters for enp108s0:
+Pre-set maximums:
+RX:			256
+RX Mini:		n/a
+RX Jumbo:		n/a
+TX:			256
+TX push buff len:	n/a
+Current hardware settings:
+RX:			256
+RX Mini:		n/a
+RX Jumbo:		n/a
+TX:			256
+RX Buf Len:		n/a
+CQE Size:		n/a
+TX Push:		off
+RX Push:		off
+TX push buff len:	n/a
+TCP data split:		n/a
+
+--- 7. PCI DEVICE DETAILS (lspci) ---
+6c:00.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL8111/8168/8211/8411 PCI Express Gigabit Ethernet Controller (rev 15)
+	Subsystem: ASUSTeK Computer Inc. RTL8111/8168/8411 PCI Express Gigabit Ethernet Controller
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B- DisINTx+
+	Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR- INTx-
+	Latency: 0, Cache Line Size: 64 bytes
+	Interrupt: pin A routed to IRQ 17
+	IOMMU group: 23
+	Region 0: I/O ports at 4000 [size=256]
+	Region 2: Memory at 84d04000 (64-bit, non-prefetchable) [size=4K]
+	Region 4: Memory at 84d00000 (64-bit, non-prefetchable) [size=16K]
+	Capabilities: [40] Power Management version 3
+		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=375mA PME(D0+,D1+,D2+,D3hot+,D3cold+)
+		Status: D0 NoSoftRst+ PME-Enable- DSel=0 DScale=0 PME-
+	Capabilities: [50] MSI: Enable- Count=1/1 Maskable- 64bit+
+		Address: 0000000000000000  Data: 0000
+	Capabilities: [70] Express (v2) Endpoint, MSI 01
+		DevCap:	MaxPayload 128 bytes, PhantFunc 0, Latency L0s <512ns, L1 <64us
+			ExtTag- AttnBtn- AttnInd- PwrInd- RBE+ FLReset- SlotPowerLimit 10W
+		DevCtl:	CorrErr+ NonFatalErr+ FatalErr+ UnsupReq+
+			RlxdOrd+ ExtTag- PhantFunc- AuxPwr- NoSnoop-
+			MaxPayload 128 bytes, MaxReadReq 4096 bytes
+		DevSta:	CorrErr- NonFatalErr- FatalErr- UnsupReq- AuxPwr+ TransPend-
+		LnkCap:	Port #0, Speed 2.5GT/s, Width x1, ASPM L0s L1, Exit Latency L0s unlimited, L1 <64us
+			ClockPM+ Surprise- LLActRep- BwNot- ASPMOptComp+
+		LnkCtl:	ASPM L1 Enabled; RCB 64 bytes, Disabled- CommClk+
+			ExtSynch- ClockPM+ AutWidDis- BWInt- AutBWInt-
+		LnkSta:	Speed 2.5GT/s, Width x1
+			TrErr- Train- SlotClk+ DLActive- BWMgmt- ABWMgmt-
+		DevCap2: Completion Timeout: Range ABCD, TimeoutDis+ NROPrPrP- LTR+
+			 10BitTagComp- 10BitTagReq- OBFF Via message/WAKE#, ExtFmt- EETLPPrefix-
+			 EmergencyPowerReduction Not Supported, EmergencyPowerReductionInit-
+			 FRS- TPHComp- ExtTPHComp-
+			 AtomicOpsCap: 32bit- 64bit- 128bitCAS-
+		DevCtl2: Completion Timeout: 50us to 50ms, TimeoutDis- LTR+ 10BitTagReq- OBFF Disabled,
+			 AtomicOpsCtl: ReqEn-
+		LnkCap2: Supported Link Speeds: 2.5GT/s, Crosslink- Retimer- 2Retimers- DRS-
+		LnkCtl2: Target Link Speed: 2.5GT/s, EnterCompliance- SpeedDis-
+			 Transmit Margin: Normal Operating Range, EnterModifiedCompliance- ComplianceSOS-
+			 Compliance Preset/De-emphasis: -6dB de-emphasis, 0dB preshoot
+		LnkSta2: Current De-emphasis Level: -6dB, EqualizationComplete- EqualizationPhase1-
+			 EqualizationPhase2- EqualizationPhase3- LinkEqualizationRequest-
+			 Retimer- 2Retimers- CrosslinkRes: unsupported
+	Capabilities: [b0] MSI-X: Enable+ Count=4 Masked-
+		Vector table: BAR=4 offset=00000000
+		PBA: BAR=4 offset=00000800
+	Capabilities: [100 v2] Advanced Error Reporting
+		UESta:	DLP- SDES- TLP- FCP- CmpltTO- CmpltAbrt- UnxCmplt- RxOF- MalfTLP- ECRC- UnsupReq- ACSViol-
+		UEMsk:	DLP- SDES- TLP- FCP- CmpltTO- CmpltAbrt- UnxCmplt- RxOF- MalfTLP- ECRC- UnsupReq- ACSViol-
+		UESvrt:	DLP+ SDES+ TLP- FCP+ CmpltTO- CmpltAbrt- UnxCmplt- RxOF+ MalfTLP+ ECRC- UnsupReq- ACSViol-
+		CESta:	RxErr- BadTLP- BadDLLP- Rollover- Timeout- AdvNonFatalErr-
+		CEMsk:	RxErr- BadTLP- BadDLLP- Rollover- Timeout- AdvNonFatalErr+
+		AERCap:	First Error Pointer: 00, ECRCGenCap+ ECRCGenEn- ECRCChkCap+ ECRCChkEn-
+			MultHdrRecCap- MultHdrRecEn- TLPPfxPres- HdrLogCap-
+		HeaderLog: 00000000 00000000 00000000 00000000
+	Capabilities: [140 v1] Virtual Channel
+		Caps:	LPEVC=0 RefClk=100ns PATEntryBits=1
+		Arb:	Fixed- WRR32- WRR64- WRR128-
+		Ctrl:	ArbSelect=Fixed
+		Status:	InProgress-
+		VC0:	Caps:	PATOffset=00 MaxTimeSlots=1 RejSnoopTrans-
+			Arb:	Fixed- WRR32- WRR64- WRR128- TWRR128- WRR256-
+			Ctrl:	Enable+ ID=0 ArbSelect=Fixed TC/VC=ff
+			Status:	NegoPending- InProgress-
+	Capabilities: [160 v1] Device Serial Number 01-00-00-00-68-4c-e0-00
+	Capabilities: [170 v1] Latency Tolerance Reporting
+		Max snoop latency: 3145728ns
+		Max no snoop latency: 3145728ns
+	Capabilities: [178 v1] L1 PM Substates
+		L1SubCap: PCI-PM_L1.2+ PCI-PM_L1.1+ ASPM_L1.2+ ASPM_L1.1+ L1_PM_Substates+
+			  PortCommonModeRestoreTime=150us PortTPowerOnTime=150us
+		L1SubCtl1: PCI-PM_L1.2+ PCI-PM_L1.1+ ASPM_L1.2+ ASPM_L1.1+
+			   T_CommonMode=0us LTR1.2_Threshold=306176ns
+		L1SubCtl2: T_PwrOn=150us
+	Kernel driver in use: r8169
+	Kernel modules: r8169
+

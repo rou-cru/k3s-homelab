@@ -1,0 +1,151 @@
+---
+- name: GPU Setup Block
+  when: gpu_setup | bool
+  block:
+
+    # 1. Hardware Check
+    - name: Check for NVIDIA hardware
+      shell: lspci | grep -i nvidia
+      register: nvidia_hardware
+      changed_when: false
+      failed_when: false
+
+    - name: Abort if no NVIDIA GPU found (and GPU setup is enabled)
+      fail:
+        msg: "GPU_SETUP is true, but no NVIDIA hardware detected on this host."
+      when: nvidia_hardware.rc != 0
+
+    # 2. Driver Selection (Auto-Detect)
+    - name: Install driver management tools
+      apt:
+        name: 
+          - ubuntu-drivers-common
+          - linux-headers-generic
+          - software-properties-common
+        state: present
+        update_cache: true
+
+    - name: Detect recommended NVIDIA driver
+      shell: ubuntu-drivers devices 2>/dev/null | grep -oP 'driver\s+:\s+\K(nvidia-driver-\d+)(?=\s.*recommended)'
+      register: detected_driver
+      changed_when: false
+      when: nvidia_driver_package == "auto"
+
+    - name: Set driver package from detection
+      set_fact:
+        nvidia_driver_target: "{{ detected_driver.stdout | trim }}"
+      when: 
+        - nvidia_driver_package == "auto"
+        - detected_driver.stdout | length > 0
+
+    - name: Set driver package fallback
+      set_fact:
+        nvidia_driver_target: "{{ nvidia_driver_fallback }}"
+      when: 
+        - nvidia_driver_package == "auto"
+        - (detected_driver.skipped is defined and detected_driver.skipped) or (detected_driver.stdout | length == 0)
+
+    - name: Set driver package manual override
+      set_fact:
+        nvidia_driver_target: "{{ nvidia_driver_package }}"
+      when: nvidia_driver_package != "auto"
+
+    - debug:
+        msg: "Selected NVIDIA Driver: {{ nvidia_driver_target }}"
+
+    # 3. Driver Installation & Preparation
+    - name: Blacklist nouveau driver
+      copy:
+        dest: /etc/modprobe.d/blacklist-nouveau.conf
+        content: |
+          blacklist nouveau
+          options nouveau modeset=0
+      register: blacklist_nouveau
+
+    - name: Update initramfs if blacklist changed
+      command: update-initramfs -u
+      when: blacklist_nouveau.changed
+
+    - name: Install NVIDIA Driver ({{ nvidia_driver_target }})
+      apt:
+        name:
+          - "{{ nvidia_driver_target }}"
+          - "nvidia-utils-{{ nvidia_driver_target | regex_replace('^nvidia-driver-', '') }}"
+        state: present
+      register: driver_install
+
+    - name: Reboot if driver installed or nouveau blacklisted
+      reboot:
+        msg: "Rebooting to load NVIDIA drivers"
+        connect_timeout: 5
+        reboot_timeout: 600
+        pre_reboot_delay: 0
+        post_reboot_delay: 30
+        test_command: whoami
+      when: driver_install.changed or blacklist_nouveau.changed
+
+    # 4. Container Toolkit
+    - name: Add NVIDIA Container Toolkit GPG Key
+      apt_key:
+        url: "{{ nvidia_toolkit_gpg_url }}"
+        state: present
+
+    - name: Add NVIDIA Container Toolkit Repository
+      get_url:
+        url: "{{ nvidia_toolkit_repo_url }}"
+        dest: /etc/apt/sources.list.d/nvidia-container-toolkit.list
+        mode: '0644'
+      register: repo_added
+
+    - name: Update apt cache after adding repo
+      apt:
+        update_cache: true
+      when: repo_added.changed
+
+    - name: Install NVIDIA Container Toolkit
+      apt:
+        name: nvidia-container-toolkit
+        state: present
+
+    # 5. K3s Configuration (Containerd)
+    - name: Ensure K3s containerd config directory exists
+      file:
+        path: /var/lib/rancher/k3s/agent/etc/containerd/
+        state: directory
+        mode: '0755'
+
+    - name: Deploy K3s containerd config template (config.toml.tmpl)
+      template:
+        src: config.toml.tmpl
+        dest: /var/lib/rancher/k3s/agent/etc/containerd/config.toml.tmpl
+        mode: '0644'
+      notify: Restart K3s
+
+    # 6. Device Plugin (Helm)
+    - name: Create Device Plugin Manifests directory
+      file:
+        path: /var/lib/rancher/k3s/server/manifests/nvidia-device-plugin
+        state: directory
+        mode: '0755'
+
+    - name: Copy NVIDIA Device Plugin values.yaml
+      copy:
+        src: nvidia-device-plugin-values.yaml
+        dest: /var/lib/rancher/k3s/server/manifests/nvidia-device-plugin/values.yaml
+        mode: '0644'
+
+    - name: Deploy NVIDIA Device Plugin HelmChart
+      copy:
+        dest: /var/lib/rancher/k3s/server/manifests/nvidia-device-plugin-helmchart.yaml
+        content: |
+          apiVersion: helm.cattle.io/v1
+          kind: HelmChart
+          metadata:
+            name: nvidia-device-plugin
+            namespace: kube-system
+          spec:
+            repo: "{{ nvidia_device_plugin_repo }}"
+            chart: "nvidia-device-plugin"
+            version: "{{ nvidia_device_plugin_version }}"
+            targetNamespace: "kube-system"
+            valuesFile: /var/lib/rancher/k3s/server/manifests/nvidia-device-plugin/values.yaml

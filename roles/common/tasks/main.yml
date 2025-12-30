@@ -9,10 +9,26 @@
     regexp: '^(.*\sswap\s.*)$'
     replace: '# \1'
 
-- name: Install base packages
+- name: Install base packages and Kernel HWE
   apt:
     name:
       - curl
       - ca-certificates
       - iptables
+      - ethtool
+      - network-manager
+      - linux-generic-hwe-22.04  # Asumimos Ubuntu 22.04 LTS (Jammy). Ajustar si es 24.04.
+    state: present
     update_cache: true
+  register: base_packages_install
+
+- name: Reboot to load new Kernel/Drivers
+  reboot:
+    msg: "Rebooting to load HWE Kernel"
+    connect_timeout: 5
+    reboot_timeout: 600
+  when: base_packages_install.changed and ("linux-image" in base_packages_install.stdout or "linux-headers" in base_packages_install.stdout)
+
+- name: Apply Network Optimizations
+  include_tasks: network_optimization.yml
+  when: network_optimization_enabled | default(true)

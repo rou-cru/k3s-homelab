@@ -1,0 +1,5 @@
+# Enable generic network optimizations (EEE disable, Ring Buffers)
+network_optimization_enabled: true
+
+# Enable ASUS RoG Strix specific fixes (Realtek r8168 driver + ASPM disable)
+rog_server: true

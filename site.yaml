@@ -20,4 +20,5 @@
     - common
     - tailscale
     - k3s_server
+    - nvidia_gpu
     - cilium
