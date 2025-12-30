@@ -1,0 +1,73 @@
+- name: Add ASUS Linux PPA for asusctl
+  apt_repository:
+    repo: ppa:lukas-puehringer/asus-linux
+    state: present
+
+- name: Install asusctl and acpid
+  apt:
+    name:
+      - asusctl
+      - acpid
+    state: present
+    update_cache: true
+
+- name: Enable and start asusd service
+  systemd:
+    name: asusd
+    enabled: true
+    state: started
+
+- name: Create RoG Server Hardware Tweaks Script
+  copy:
+    dest: /usr/local/bin/apply-rog-tweaks.sh
+    mode: '0755'
+    content: |
+      #!/bin/bash
+      # Ansible Managed: RoG Strix Server Hardware Config
+      
+      # --- 1. Battery Care Mode ---
+      # Limitado al 80% para balancear vida útil y capacidad.
+      BAT_PATH="/sys/class/power_supply/BAT0"
+      if [ -f "$BAT_PATH/charge_control_end_threshold" ]; then
+          echo 80 > "$BAT_PATH/charge_control_end_threshold"
+      fi
+      
+      # --- 2. Thermal Policy (1 = Turbo) ---
+      # 0: Balanced, 1: Turbo, 2: Silent
+      THERMAL_POLICY="/sys/devices/platform/asus-nb-wmi/throttle_thermal_policy"
+      if [ -f "$THERMAL_POLICY" ]; then
+          echo 1 > "$THERMAL_POLICY"
+      fi
+
+      # --- 3. RGB / Keyboard Backlight ---
+      # NO se aplica ningún cambio por defecto (Mantiene ASUS Default).
+      # asusctl está instalado y el daemon asusd está corriendo para control manual.
+      #
+      # Ejemplos de uso manual:
+      # asusctl led-mode static -c ff0000 (Rojo)
+      # asusctl led-mode breathe -c 00ffff (Cyan Respirando)
+      # asusctl -p 3 (Brillo máximo)
+
+- name: Create systemd service for RoG Tweaks
+  copy:
+    dest: /etc/systemd/system/rog-server-tweaks.service
+    content: |
+      [Unit]
+      Description=Apply ASUS RoG Server Hardware Tweaks (Battery/Turbo)
+      After=asusd.service
+      Wants=asusd.service
+
+      [Service]
+      Type=oneshot
+      ExecStart=/usr/local/bin/apply-rog-tweaks.sh
+      RemainAfterExit=yes
+
+      [Install]
+      WantedBy=multi-user.target
+
+- name: Enable and start RoG Tweaks service
+  systemd:
+    name: rog-server-tweaks
+    enabled: true
+    state: started
+    daemon_reload: true

@@ -17,7 +17,8 @@
       - iptables
       - ethtool
       - network-manager
-      - linux-generic-hwe-22.04  # Asumimos Ubuntu 22.04 LTS (Jammy). Ajustar si es 24.04.
+      - acpid  # Handles power button/lid/brightness events in server mode
+      - linux-generic-hwe-22.04
     state: present
     update_cache: true
   register: base_packages_install
@@ -29,6 +30,16 @@
     reboot_timeout: 600
   when: base_packages_install.changed and ("linux-image" in base_packages_install.stdout or "linux-headers" in base_packages_install.stdout)
 
+- name: Configure Power Management (Lid Switch / No Sleep)
+  include_tasks: power_management.yml
+
+- name: Apply Hardware Tuning (CPU/Radios/Audio)
+  include_tasks: hardware_tuning.yml
+
 - name: Apply Network Optimizations
   include_tasks: network_optimization.yml
   when: network_optimization_enabled | default(true)
+
+- name: Apply RoG Server Hardware Tweaks
+  include_tasks: rog_hardware.yml
+  when: rog_server | default(true) | bool
