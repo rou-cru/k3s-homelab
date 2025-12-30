@@ -65,12 +65,17 @@
     - name: Update initramfs if blacklist changed
       command: update-initramfs -u
       when: blacklist_nouveau.changed
+      changed_when: true
+
+    - name: Calculate nvidia-utils package name
+      set_fact:
+        nvidia_utils_package: "nvidia-utils-{{ nvidia_driver_target | regex_replace('^nvidia-driver-', '') }}"
 
     - name: Install NVIDIA Driver ({{ nvidia_driver_target }})
       apt:
         name:
           - "{{ nvidia_driver_target }}"
-          - "nvidia-utils-{{ nvidia_driver_target | regex_replace('^nvidia-driver-', '') }}"
+          - "{{ nvidia_utils_package }}"
         state: present
       register: driver_install
 
@@ -78,7 +83,7 @@
       reboot:
         msg: "Rebooting to load NVIDIA drivers"
         connect_timeout: 5
-        reboot_timeout: 600
+        reboot_timeout: "{{ nvidia_reboot_timeout }}"
         pre_reboot_delay: 0
         post_reboot_delay: 30
         test_command: whoami

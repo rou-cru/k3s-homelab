@@ -29,7 +29,7 @@
 
 - name: Wait for cilium pods
   shell: |
-    k3s kubectl -n kube-system rollout status ds/cilium --timeout=300s
+    k3s kubectl -n kube-system rollout status ds/cilium --timeout="{{ cilium_rollout_timeout }}s"
   register: cilium_rollout
   changed_when: false
   failed_when: cilium_rollout.rc != 0
