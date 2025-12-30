@@ -2,22 +2,20 @@
 - name: GPU Setup Block
   when: gpu_setup | bool
   block:
-
     # 1. Hardware Check
     - name: Check for NVIDIA GPU
-      shell: lspci | grep -i nvidia
+      ansible.builtin.shell: lspci | grep -i nvidia
       register: nvidia_hardware
       changed_when: false
       failed_when: false
 
     - name: Abort if no NVIDIA GPU found
-      fail:
+      ansible.builtin.fail:
         msg: "No NVIDIA GPU detected on this host."
       when: nvidia_hardware.rc != 0
 
-
     - name: Install driver tools
-      apt:
+      ansible.builtin.apt:
         name:
           - ubuntu-drivers-common
           - linux-headers-generic
@@ -25,35 +23,32 @@
         state: present
 
     - name: Detect NVIDIA driver
-      shell: ubuntu-drivers devices 2>/dev/null | grep -oP 'driver\s+:\s+\K(nvidia-driver-\d+)(?=\s.*recommended)'
+      ansible.builtin.shell: ubuntu-drivers devices 2>/dev/null | grep -oP 'driver\s+:\s+\K(nvidia-driver-\d+)(?=\s.*recommended)'
       register: detected_driver
       changed_when: false
       when: nvidia_driver_package == "auto"
 
     - name: Set detected driver
-      set_fact:
+      ansible.builtin.set_fact:
         nvidia_driver_target: "{{ detected_driver.stdout | trim }}"
-      when: 
+      when:
         - nvidia_driver_package == "auto"
         - detected_driver.stdout | length > 0
 
     - name: Set driver fallback
-      set_fact:
+      ansible.builtin.set_fact:
         nvidia_driver_target: "{{ nvidia_driver_fallback }}"
-      when: 
+      when:
         - nvidia_driver_package == "auto"
         - (detected_driver.skipped is defined and detected_driver.skipped) or (detected_driver.stdout | length == 0)
 
     - name: Set manual driver
-      set_fact:
+      ansible.builtin.set_fact:
         nvidia_driver_target: "{{ nvidia_driver_package }}"
       when: nvidia_driver_package != "auto"
 
-
-
-
     - name: Blacklist nouveau driver
-      copy:
+      ansible.builtin.copy:
         dest: /etc/modprobe.d/blacklist-nouveau.conf
         content: |
           blacklist nouveau
@@ -61,16 +56,16 @@
       register: blacklist_nouveau
 
     - name: Update initramfs if blacklist changed
-      command: update-initramfs -u
+      ansible.builtin.command: update-initramfs -u
       when: blacklist_nouveau.changed
       changed_when: true
 
     - name: Calculate nvidia-utils package name
-      set_fact:
+      ansible.builtin.set_fact:
         nvidia_utils_package: "nvidia-utils-{{ nvidia_driver_target | regex_replace('^nvidia-driver-', '') }}"
 
     - name: Install NVIDIA Driver
-      apt:
+      ansible.builtin.apt:
         name:
           - "{{ nvidia_driver_target }}"
           - "{{ nvidia_utils_package }}"
@@ -78,7 +73,7 @@
       register: driver_install
 
     - name: Reboot if driver installed
-      reboot:
+      ansible.builtin.reboot:
         msg: "Rebooting to load NVIDIA drivers"
         connect_timeout: 5
         reboot_timeout: "{{ nvidia_reboot_timeout }}"
@@ -87,53 +82,50 @@
         test_command: whoami
       when: driver_install.changed or blacklist_nouveau.changed
 
-
     - name: Add Toolkit GPG Key
-      apt_key:
+      ansible.builtin.apt_key:
         url: "{{ nvidia_toolkit_gpg_url }}"
         state: present
 
     - name: Add Toolkit Repository
-      get_url:
+      ansible.builtin.get_url:
         url: "{{ nvidia_toolkit_repo_url }}"
         dest: /etc/apt/sources.list.d/nvidia-container-toolkit.list
-        mode: '0644'
+        mode: "0644"
       register: repo_added
 
     - name: Install Toolkit
-      apt:
+      ansible.builtin.apt:
         name: nvidia-container-toolkit
         state: present
 
-
     - name: Ensure containerd config dir exists
-      file:
+      ansible.builtin.file:
         path: /var/lib/rancher/k3s/agent/etc/containerd/
         state: directory
-        mode: '0755'
+        mode: "0755"
 
     - name: Deploy containerd config template
-      template:
+      ansible.builtin.template:
         src: config.toml.tmpl
         dest: /var/lib/rancher/k3s/agent/etc/containerd/config.toml.tmpl
-        mode: '0644'
+        mode: "0644"
       notify: Restart K3s
 
-
     - name: Create Device Plugin directory
-      file:
+      ansible.builtin.file:
         path: /var/lib/rancher/k3s/server/manifests/nvidia-device-plugin
         state: directory
-        mode: '0755'
+        mode: "0755"
 
     - name: Copy Device Plugin values
-      copy:
+      ansible.builtin.copy:
         src: nvidia-device-plugin-values.yaml
         dest: /var/lib/rancher/k3s/server/manifests/nvidia-device-plugin/values.yaml
-        mode: '0644'
+        mode: "0644"
 
     - name: Deploy Device Plugin HelmChart
-      copy:
+      ansible.builtin.copy:
         dest: /var/lib/rancher/k3s/server/manifests/nvidia-device-plugin-helmchart.yaml
         content: |
           apiVersion: helm.cattle.io/v1

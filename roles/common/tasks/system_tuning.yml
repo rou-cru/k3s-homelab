@@ -1,62 +1,63 @@
+---
 - name: Install performance tools
-  apt:
+  ansible.builtin.apt:
     name:
       - cpufrequtils
     state: present
 
 - name: Set CPU Governor to Schedutil
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/default/cpufrequtils
-    regexp: '^GOVERNOR='
+    regexp: "^GOVERNOR="
     line: 'GOVERNOR="schedutil"'
     create: true
   notify: Restart cpufrequtils
 
 - name: Enable TCP BBR Congestion Control
-  sysctl:
+  ansible.posix.sysctl:
     name: "{{ item.key }}"
     value: "{{ item.value }}"
     sysctl_set: true
     state: present
     reload: true
   loop:
-    - { key: 'net.core.default_qdisc', value: 'fq' }
-    - { key: 'net.ipv4.tcp_congestion_control', value: 'bbr' }
+    - { key: "net.core.default_qdisc", value: "fq" }
+    - { key: "net.ipv4.tcp_congestion_control", value: "bbr" }
 
 - name: Increase File Descriptors Limits
-  pam_limits:
+  community.general.pam_limits:
     domain: "*"
     limit_type: "{{ item.type }}"
     limit_item: "{{ item.item }}"
     value: "{{ item.value }}"
   loop:
-    - { type: 'soft', item: 'nofile', value: '{{ file_descriptors_soft }}' }
-    - { type: 'hard', item: 'nofile', value: '{{ file_descriptors_hard }}' }
+    - { type: "soft", item: "nofile", value: "{{ file_descriptors_soft }}" }
+    - { type: "hard", item: "nofile", value: "{{ file_descriptors_hard }}" }
 
 - name: Increase System-wide File Max
-  sysctl:
+  ansible.posix.sysctl:
     name: fs.file-max
-    value: '{{ fs_file_max }}'
+    value: "{{ fs_file_max }}"
     state: present
     reload: true
 
 - name: Increase Inotify Watches
-  sysctl:
+  ansible.posix.sysctl:
     name: fs.inotify.max_user_instances
-    value: '{{ inotify_max_instances }}'
+    value: "{{ inotify_max_instances }}"
     state: present
     reload: true
 
 - name: Increase Inotify User Watches
-  sysctl:
+  ansible.posix.sysctl:
     name: fs.inotify.max_user_watches
-    value: '{{ inotify_max_watches }}'
+    value: "{{ inotify_max_watches }}"
     state: present
     reload: true
 
 - name: Enable Hardware Watchdog (Auto-reboot on freeze)
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/systemd/system.conf
-    regexp: '^#?RuntimeWatchdogSec='
-    line: 'RuntimeWatchdogSec={{ watchdog_timeout_sec }}'
+    regexp: "^#?RuntimeWatchdogSec="
+    line: "RuntimeWatchdogSec={{ watchdog_timeout_sec }}"
     state: present

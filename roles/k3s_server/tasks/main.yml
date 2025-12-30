@@ -1,5 +1,6 @@
+---
 - name: Validate Tailscale IP is defined
-  assert:
+  ansible.builtin.assert:
     that:
       - tailscale_ip is defined
       - tailscale_ip | length > 0
@@ -7,7 +8,7 @@
     success_msg: "Tailscale IP validated: {{ tailscale_ip }}"
 
 - name: Write k3s server install env
-  set_fact:
+  ansible.builtin.set_fact:
     k3s_server_exec: >-
       server
       --node-ip {{ tailscale_ip }}
@@ -19,7 +20,7 @@
       --write-kubeconfig-mode {{ k3s_kubeconfig_mode }}
 
 - name: Install k3s server
-  shell: |
+  ansible.builtin.shell: |
     curl -sfL https://get.k3s.io | \
       INSTALL_K3S_VERSION="{{ k3s_version }}" \
       INSTALL_K3S_EXEC="{{ k3s_server_exec }}" \
@@ -28,23 +29,23 @@
     creates: /usr/local/bin/k3s
 
 - name: Wait for node-token
-  wait_for:
+  ansible.builtin.wait_for:
     path: /var/lib/rancher/k3s/server/node-token
     timeout: "{{ k3s_node_token_timeout }}"
 
 - name: Read node token
-  slurp:
+  ansible.builtin.slurp:
     src: /var/lib/rancher/k3s/server/node-token
   register: token_raw
 
 - name: Set token fact on localhost
-  set_fact:
+  ansible.builtin.set_fact:
     k3s_token: "{{ token_raw.content | b64decode | trim }}"
   delegate_to: localhost
   run_once: true
 
 - name: Wait for kube-apiserver
-  shell: |
+  ansible.builtin.shell: |
     k3s kubectl get --raw=/readyz >/dev/null
   register: readyz
   retries: "{{ k3s_readyz_retries }}"

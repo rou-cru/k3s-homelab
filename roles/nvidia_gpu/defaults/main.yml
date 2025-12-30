@@ -1,3 +1,4 @@
+---
 gpu_setup: true
 nvidia_driver_package: "auto"
 nvidia_driver_fallback: "nvidia-driver-535"

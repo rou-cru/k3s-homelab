@@ -1,35 +1,36 @@
+---
 - name: Add ASUS Linux PPA for asusctl
-  apt_repository:
+  ansible.builtin.apt_repository:
     repo: ppa:lukas-puehringer/asus-linux
     state: present
 
 - name: Install asusctl and acpid
-  apt:
+  ansible.builtin.apt:
     name:
       - asusctl
       - acpid
     state: present
 
 - name: Enable and start asusd service
-  systemd:
+  ansible.builtin.systemd:
     name: asusd
     enabled: true
     state: started
 
 - name: Deploy RoG Hardware Tweaks Script
-  template:
+  ansible.builtin.template:
     src: apply-rog-tweaks.sh.j2
     dest: /usr/local/bin/apply-rog-tweaks.sh
-    mode: '0755'
+    mode: "0755"
 
 - name: Deploy systemd service for RoG Tweaks
-  copy:
+  ansible.builtin.copy:
     src: rog-server-tweaks.service
     dest: /etc/systemd/system/rog-server-tweaks.service
-    mode: '0644'
+    mode: "0644"
 
 - name: Enable and start RoG Tweaks service
-  systemd:
+  ansible.builtin.systemd:
     name: rog-server-tweaks
     enabled: true
     state: started

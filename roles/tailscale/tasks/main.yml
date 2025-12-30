@@ -1,17 +1,18 @@
+---
 - name: Install Tailscale
-  shell: |
+  ansible.builtin.shell: |
     curl -fsSL https://tailscale.com/install.sh | sh
   args:
     creates: /usr/sbin/tailscaled
 
 - name: Enable and start tailscaled
-  systemd:
+  ansible.builtin.systemd:
     name: tailscaled
     enabled: true
     state: started
 
 - name: Tailscale up with auth key
-  shell: |
+  ansible.builtin.shell: |
     tailscale up \
       --auth-key="{{ tailscale_authkey }}" \
       --hostname="{{ tailscale_hostname_prefix }}-{{ inventory_hostname }}" \
@@ -25,10 +26,10 @@
   failed_when: ts_up.rc != 0 and ("already" not in (ts_up.stderr | default("")) | lower)
 
 - name: Get Tailscale IPv4
-  command: tailscale ip -4
+  ansible.builtin.command: tailscale ip -4
   register: ts_ip
   changed_when: false
 
 - name: Set tailscale_ip fact
-  set_fact:
-    tailscale_ip: "{{ (ts_ip.stdout_lines | select('match','^[0-9]+\\.') | list | first) | trim }}"
+  ansible.builtin.set_fact:
+    tailscale_ip: "{{ (ts_ip.stdout_lines | select('match', '^[0-9]+\\.') | list | first) | trim }}"

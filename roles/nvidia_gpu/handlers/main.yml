@@ -1,4 +1,5 @@
+---
 - name: Restart K3s
-  systemd:
+  ansible.builtin.systemd:
     name: k3s
     state: restarted

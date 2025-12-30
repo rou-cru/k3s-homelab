@@ -1,9 +1,10 @@
+---
 - name: Restart logind
-  service:
+  ansible.builtin.service:
     name: systemd-logind
     state: restarted
 
 - name: Restart cpufrequtils
-  service:
+  ansible.builtin.service:
     name: cpufrequtils
     state: restarted

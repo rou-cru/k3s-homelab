@@ -1,17 +1,18 @@
+---
 - name: Configure logind to ignore Lid Switch
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/systemd/logind.conf
     regexp: "^#?{{ item.key }}="
     line: "{{ item.key }}={{ item.value }}"
     state: present
   loop:
-    - { key: 'HandleLidSwitch', value: 'ignore' }
-    - { key: 'HandleLidSwitchExternalPower', value: 'ignore' }
-    - { key: 'HandleLidSwitchDocked', value: 'ignore' }
+    - { key: "HandleLidSwitch", value: "ignore" }
+    - { key: "HandleLidSwitchExternalPower", value: "ignore" }
+    - { key: "HandleLidSwitchDocked", value: "ignore" }
   notify: Restart logind
 
 - name: Mask sleep and suspend targets to prevent accidental suspension
-  systemd:
+  ansible.builtin.systemd:
     name: "{{ item }}"
     masked: true
     enabled: false

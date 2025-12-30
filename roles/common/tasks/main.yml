@@ -1,16 +1,17 @@
+---
 - name: Disable swap now
-  command: swapoff -a
+  ansible.builtin.command: swapoff -a
   changed_when: false
   failed_when: false
 
 - name: Disable swap permanently in fstab
-  replace:
+  ansible.builtin.replace:
     path: /etc/fstab
-    regexp: '^(.*\sswap\s.*)$'
-    replace: '# \1'
+    regexp: "^(.*\\sswap\\s.*)$"
+    replace: "# \\1"
 
 - name: Install base packages and Kernel HWE
-  apt:
+  ansible.builtin.apt:
     name:
       - curl
       - ca-certificates
@@ -23,33 +24,30 @@
   register: base_packages_install
 
 - name: Register kernel changes for consolidated reboot
-  set_fact:
+  ansible.builtin.set_fact:
     kernel_changed: "{{ base_packages_install.changed }}"
 
 - name: Configure Power Management (Lid Switch / No Sleep)
-  include_tasks: power_management.yml
-
+  ansible.builtin.include_tasks: power_management.yml
 - name: Apply Hardware Tuning (CPU/Radios/Audio)
-  include_tasks: hardware_tuning.yml
-
+  ansible.builtin.include_tasks: hardware_tuning.yml
 - name: Apply System Kernel Tuning (BBR/Limits/Watchdog)
-  include_tasks: system_tuning.yml
-
+  ansible.builtin.include_tasks: system_tuning.yml
 - name: Apply Network Optimizations
-  include_tasks: network_optimization.yml
+  ansible.builtin.include_tasks: network_optimization.yml
   when: network_optimization_enabled | default(true)
 
 - name: Apply RoG Server Hardware Tweaks
-  include_tasks: rog_hardware.yml
+  ansible.builtin.include_tasks: rog_hardware.yml
   when: rog_server | default(true) | bool
 
 - name: Initialize network_driver_changed if not set
-  set_fact:
+  ansible.builtin.set_fact:
     network_driver_changed: false
   when: network_driver_changed is not defined
 
 - name: Consolidated Reboot - Phase 1 (Kernel + Network Drivers)
-  reboot:
+  ansible.builtin.reboot:
     msg: "Rebooting to load HWE Kernel and Network Drivers (Consolidated Phase 1)"
     connect_timeout: 5
     reboot_timeout: 600

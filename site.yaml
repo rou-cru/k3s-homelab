@@ -1,20 +1,20 @@
+---
 - name: Setup K3s Master Node
   hosts: k3s_server
   become: true
-  
 
   vars_files:
     - secrets.yaml
 
   pre_tasks:
     - name: Update APT cache once at start
-      apt:
+      ansible.builtin.apt:
         update_cache: true
         cache_valid_time: 3600
       tags: always
 
     - name: Validate Tailscale AuthKey presence
-      assert:
+      ansible.builtin.assert:
         that:
           - tailscale_authkey is defined
           - tailscale_authkey | length > 0
@@ -25,14 +25,14 @@
 
   roles:
     - role: preflight
-      tags: ['preflight', 'validation']
+      tags: ["preflight", "validation"]
     - role: common
-      tags: ['common', 'system']
+      tags: ["common", "system"]
     - role: tailscale
-      tags: ['tailscale', 'network', 'vpn']
+      tags: ["tailscale", "network", "vpn"]
     - role: k3s_server
-      tags: ['k3s', 'kubernetes']
+      tags: ["k3s", "kubernetes"]
     - role: nvidia_gpu
-      tags: ['nvidia', 'gpu']
+      tags: ["nvidia", "gpu"]
     - role: cilium
-      tags: ['cilium', 'cni', 'network']
+      tags: ["cilium", "cni", "network"]

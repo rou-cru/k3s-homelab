@@ -1,3 +1,4 @@
+---
 tailscale_hostname_prefix: "k3s"
 tailscale_tags: "tag:k3s"
 tailscale_accept_dns: "true"

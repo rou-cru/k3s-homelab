@@ -1,6 +1,6 @@
 ---
 - name: Check network connectivity
-  uri:
+  ansible.builtin.uri:
     url: https://get.k3s.io
     method: HEAD
     timeout: 10
@@ -9,40 +9,40 @@
   changed_when: false
 
 - name: Fail if no network connectivity
-  fail:
+  ansible.builtin.fail:
     msg: "No network connectivity detected. Cannot proceed with installation."
   when: network_check.status is not defined or network_check.status != 200
 
 - name: Check available disk space
-  shell: df / | tail -1 | awk '{print $4}'
+  ansible.builtin.shell: df / | tail -1 | awk '{print $4}'
   register: disk_space
   changed_when: false
 
 - name: Fail if insufficient disk space
-  fail:
+  ansible.builtin.fail:
     msg: "Insufficient disk space. Required: 20GB, Available: {{ (disk_space.stdout | int / 1024 / 1024) | round(1) }}GB"
   when: (disk_space.stdout | int) < 20971520
 
 - name: Check available memory
-  shell: free -m | grep Mem | awk '{print $2}'
+  ansible.builtin.shell: free -m | grep Mem | awk '{print $2}'
   register: memory_check
   changed_when: false
 
 - name: Fail if insufficient memory
-  fail:
+  ansible.builtin.fail:
     msg: "Insufficient memory. Required: 4GB, Available: {{ (memory_check.stdout | int / 1024) | round(1) }}GB"
   when: (memory_check.stdout | int) < 4096
 
 - name: Check CPU architecture
-  shell: uname -m
+  ansible.builtin.command: uname -m
   register: arch_check
   changed_when: false
 
 - name: Fail if not x86_64 architecture
-  fail:
+  ansible.builtin.fail:
     msg: "Unsupported architecture: {{ arch_check.stdout }}. Only x86_64 is supported."
   when: arch_check.stdout != "x86_64"
 
 - name: Pre-flight checks passed
-  debug:
+  ansible.builtin.debug:
     msg: "All pre-flight checks passed successfully."
