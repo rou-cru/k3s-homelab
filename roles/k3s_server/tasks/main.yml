@@ -1,3 +1,11 @@
+- name: Validate Tailscale IP is defined
+  assert:
+    that:
+      - tailscale_ip is defined
+      - tailscale_ip | length > 0
+    fail_msg: "ERROR: tailscale_ip fact is not set. Tailscale role must run before k3s_server."
+    success_msg: "Tailscale IP validated: {{ tailscale_ip }}"
+
 - name: Write k3s server install env
   set_fact:
     k3s_server_exec: >-

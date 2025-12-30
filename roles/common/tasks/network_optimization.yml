@@ -38,12 +38,9 @@
       command: update-grub
       when: grub_aspm.changed
 
-    - name: Reboot for Driver/GRUB changes
-      reboot:
-        msg: "Rebooting to apply RoG Network Fixes (Driver + ASPM)"
-        connect_timeout: 5
-        reboot_timeout: 600
-      when: r8168_install.changed or r8169_blacklist.changed or grub_aspm.changed
+    - name: Register network driver changes for consolidated reboot
+      set_fact:
+        network_driver_changed: "{{ r8168_install.changed or r8169_blacklist.changed or grub_aspm.changed }}"
 
 
 - name: Detect primary ethernet interface

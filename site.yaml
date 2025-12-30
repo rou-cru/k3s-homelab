@@ -17,6 +17,7 @@
         success_msg: "Tailscale AuthKey validated successfully."
 
   roles:
+    - preflight
     - common
     - tailscale
     - k3s_server
