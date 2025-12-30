@@ -1,13 +1,7 @@
 k3s_version: "v1.34.3+k3s1"
 k3s_disable_traefik: true
 k3s_disable_servicelb: true
-
-# Kubeconfig file permissions (644 for non-root access)
 k3s_kubeconfig_mode: "644"
-
-# Timeout waiting for node-token file (seconds)
 k3s_node_token_timeout: 180
-
-# API readiness check parameters
 k3s_readyz_retries: 30
 k3s_readyz_delay: 2

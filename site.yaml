@@ -2,7 +2,7 @@
   hosts: k3s_server
   become: true
   
-  # Cargar variables sensibles desde archivo externo ignorado por git
+
   vars_files:
     - secrets.yaml
 
@@ -12,9 +12,9 @@
         that:
           - tailscale_authkey is defined
           - tailscale_authkey | length > 0
-          - "tailscale_authkey != 'tskey-auth-REEMPLAZA-ESTO-POR-TU-CLAVE-REAL'"
-        fail_msg: "ERROR: Debes configurar tu 'tailscale_authkey' real en el archivo 'secrets.yaml'."
-        success_msg: "Tailscale AuthKey validada correctamente."
+          - "tailscale_authkey != 'tskey-auth-REPLACE-WITH-REAL-KEY'"
+        fail_msg: "ERROR: Configure your real 'tailscale_authkey' in 'secrets.yaml'."
+        success_msg: "Tailscale AuthKey validated successfully."
 
   roles:
     - common

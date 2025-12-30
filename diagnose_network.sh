@@ -11,25 +11,25 @@ echo "=== NETWORK DIAGNOSTIC REPORT ===" > $OUTPUT
 echo "Timestamp: $(date)" >> $OUTPUT
 echo "Interface: $INTERFACE" >> $OUTPUT
 
-echo -e "\n--- 1. BASIC SETTINGS (ethtool) ---" >> $OUTPUT
+echo -e "\n--- 1. BASIC SETTINGS ---" >> $OUTPUT
 ethtool $INTERFACE >> $OUTPUT 2>&1
 
-echo -e "\n--- 2. DRIVER INFO (ethtool -i) ---" >> $OUTPUT
+echo -e "\n--- 2. DRIVER INFO ---" >> $OUTPUT
 ethtool -i $INTERFACE >> $OUTPUT 2>&1
 
-echo -e "\n--- 3. ENERGY EFFICIENT ETHERNET (EEE) ---" >> $OUTPUT
+echo -e "\n--- 3. EEE ---" >> $OUTPUT
 ethtool --show-eee $INTERFACE >> $OUTPUT 2>&1
 
-echo -e "\n--- 4. LINK STATISTICS (ip -s link) ---" >> $OUTPUT
+echo -e "\n--- 4. LINK STATISTICS ---" >> $OUTPUT
 ip -s link show $INTERFACE >> $OUTPUT 2>&1
 
-echo -e "\n--- 5. EXTENDED STATISTICS (ethtool -S) ---" >> $OUTPUT
+echo -e "\n--- 5. EXTENDED STATISTICS ---" >> $OUTPUT
 ethtool -S $INTERFACE | grep -iE "drop|fail|error|reset|miss|discard" >> $OUTPUT 2>&1
 
-echo -e "\n--- 6. RING BUFFER SETTINGS (ethtool -g) ---" >> $OUTPUT
+echo -e "\n--- 6. RING BUFFER SETTINGS ---" >> $OUTPUT
 ethtool -g $INTERFACE >> $OUTPUT 2>&1
 
-echo -e "\n--- 7. PCI DEVICE DETAILS (lspci) ---" >> $OUTPUT
+echo -e "\n--- 7. PCI DEVICE DETAILS ---" >> $OUTPUT
 lspci -vv -s $(lspci | grep -i ethernet | awk '{print $1}') >> $OUTPUT 2>&1
 
 echo "Report generated at: $OUTPUT"

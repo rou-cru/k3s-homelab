@@ -17,7 +17,7 @@
     enabled: true
     state: started
 
-- name: Deploy RoG Server Hardware Tweaks Script
+- name: Deploy RoG Hardware Tweaks Script
   template:
     src: apply-rog-tweaks.sh.j2
     dest: /usr/local/bin/apply-rog-tweaks.sh

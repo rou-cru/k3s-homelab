@@ -1,4 +1,4 @@
-- name: Configure logind to ignore Lid Switch (Laptop Server Mode)
+- name: Configure logind to ignore Lid Switch
   lineinfile:
     path: /etc/systemd/logind.conf
     regexp: "^#?{{ item.key }}="

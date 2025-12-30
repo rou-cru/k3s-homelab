@@ -4,9 +4,7 @@
       - cpufrequtils
     state: present
 
-- name: Set CPU Governor to Schedutil (Balance Performance/Heat)
-  # 'schedutil' uses kernel scheduling data to ramp up clocks instantly on demand,
-  # but drops them when idle to save heat. Safer for i9 laptops than 'performance'.
+- name: Set CPU Governor to Schedutil
   lineinfile:
     path: /etc/default/cpufrequtils
     regexp: '^GOVERNOR='
@@ -14,7 +12,7 @@
     create: true
   notify: Restart cpufrequtils
 
-- name: Enable TCP BBR Congestion Control (Better Tailscale/Network performance)
+- name: Enable TCP BBR Congestion Control
   sysctl:
     name: "{{ item.key }}"
     value: "{{ item.value }}"
@@ -25,8 +23,7 @@
     - { key: 'net.core.default_qdisc', value: 'fq' }
     - { key: 'net.ipv4.tcp_congestion_control', value: 'bbr' }
 
-- name: Increase File Descriptors Limits (Prevent K3s/Etcd crashes)
-  # K3s and heavy workloads need more than the default 1024 open files.
+- name: Increase File Descriptors Limits
   pam_limits:
     domain: "*"
     limit_type: "{{ item.type }}"
@@ -43,7 +40,7 @@
     state: present
     reload: true
 
-- name: Increase Inotify Watches (Fixes "No space left on device" in K8s logs)
+- name: Increase Inotify Watches
   sysctl:
     name: fs.inotify.max_user_instances
     value: '{{ inotify_max_instances }}'

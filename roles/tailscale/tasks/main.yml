@@ -1,4 +1,4 @@
-- name: Install Tailscale (official install script)
+- name: Install Tailscale
   shell: |
     curl -fsSL https://tailscale.com/install.sh | sh
   args:
@@ -10,7 +10,7 @@
     enabled: true
     state: started
 
-- name: Tailscale up (headless, auth key)
+- name: Tailscale up with auth key
   shell: |
     tailscale up \
       --auth-key="{{ tailscale_authkey }}" \

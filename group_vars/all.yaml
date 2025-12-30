@@ -1,4 +1,1 @@
-# Configuración global
-# Las claves secretas se cargan desde secrets.yaml (ver .gitignore)
-
-# Opciones globales si las hubiera en el futuro
+---

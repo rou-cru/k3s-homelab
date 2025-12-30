@@ -1,27 +1,9 @@
-# --- Feature Toggle ---
-# Default to true as requested.
-# It will fail safely if no NVIDIA GPU is found (due to the check in tasks).
 gpu_setup: true
-
-# --- Drivers ---
-# "auto" enables the usage of ubuntu-drivers tool to pick the best driver.
-# If set to a specific string (e.g. "nvidia-driver-550"), it skips detection.
 nvidia_driver_package: "auto"
-
-# Fallback in case auto-detection fails completely
 nvidia_driver_fallback: "nvidia-driver-535"
-
-# --- Toolkit ---
 nvidia_toolkit_repo_url: "https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list"
 nvidia_toolkit_gpg_url: "https://nvidia.github.io/libnvidia-container/gpgkey"
-
-# --- K8s Device Plugin ---
 nvidia_device_plugin_version: "0.14.3"
 nvidia_device_plugin_repo: "https://nvidia.github.io/k8s-device-plugin"
-
-# --- Timeouts ---
-# Reboot timeout after driver installation (seconds)
 nvidia_reboot_timeout: 600
-
-# Timeout for initramfs update (seconds)
 nvidia_initramfs_timeout: 300

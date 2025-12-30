@@ -1,8 +1,8 @@
-# --- 1. ASUS RoG Strix Specifics (Kernel & Driver Layer) ---
+
 - name: RoG/Realtek Specific Optimizations
   when: rog_server | bool
   block:
-    - name: Install Realtek proprietary driver (r8168-dkms)
+    - name: Install Realtek driver (r8168-dkms)
       apt:
         name: r8168-dkms
         state: present
@@ -16,19 +16,17 @@
           blacklist r8169
       register: r8169_blacklist
 
-    - name: Disable ASPM in GRUB (fixes latency/disconnects on RoG laptops)
+    - name: Disable ASPM in GRUB
       lineinfile:
         path: /etc/default/grub
         regexp: '^GRUB_CMDLINE_LINUX_DEFAULT="(.*)"'
         line: 'GRUB_CMDLINE_LINUX_DEFAULT="\1 pcie_aspm=off"'
         backrefs: true
       register: grub_aspm
-      # Check if already present to avoid duplication/loop (simple check)
       failed_when: false
       changed_when: grub_aspm.changed and "pcie_aspm=off" not in grub_aspm.diff.before
 
-    # Clean up duplicate flags if Ansible appended it multiple times in previous runs
-    # This is a safety measure.
+
     - name: Ensure pcie_aspm=off is present exactly once
       replace:
         path: /etc/default/grub
@@ -47,7 +45,7 @@
         reboot_timeout: 600
       when: r8168_install.changed or r8169_blacklist.changed or grub_aspm.changed
 
-# --- 2. Generic Optimizations (Runtime Layer) ---
+
 - name: Detect primary ethernet interface
   set_fact:
     primary_interface: "{{ ansible_default_ipv4.interface }}"

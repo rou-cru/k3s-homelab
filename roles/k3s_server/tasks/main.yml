@@ -35,7 +35,7 @@
   delegate_to: localhost
   run_once: true
 
-- name: Wait for kube-apiserver to answer (best effort)
+- name: Wait for kube-apiserver
   shell: |
     k3s kubectl get --raw=/readyz >/dev/null
   register: readyz

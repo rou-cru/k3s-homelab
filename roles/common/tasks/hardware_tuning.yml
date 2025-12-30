@@ -1,15 +1,15 @@
 - name: Install General Hardware Tuning Tools
   apt:
     name:
-      - irqbalance   # Distribute interrupts across i9 cores
-      - rfkill       # Soft-block radios (SIGINT readiness)
+      - irqbalance
+      - rfkill
     state: present
     update_cache: true
 
 - name: Install Audio Tuning Tools
   apt:
     name:
-      - alsa-utils   # Audio control
+      - alsa-utils
     state: present
   when: audio_optimization_enabled | bool
 

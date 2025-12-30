@@ -17,7 +17,7 @@
       - iptables
       - ethtool
       - network-manager
-      - acpid  # Handles power button/lid/brightness events in server mode
+      - acpid
       - linux-generic-hwe-22.04
     state: present
     update_cache: true
