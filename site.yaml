@@ -1,159 +1,17 @@
-- name: Base OS hygiene
-  hosts: all
-  become: true
-  tasks:
-    - name: Disable swap now
-      command: swapoff -a
-      changed_when: false
-      failed_when: false
-
-    - name: Disable swap permanently in fstab
-      replace:
-        path: /etc/fstab
-        regexp: '^(.*\sswap\s.*)$'
-        replace: '# \1'
-
-    - name: Install base packages
-      apt:
-        name:
-          - curl
-          - ca-certificates
-          - iptables
-        update_cache: true
-
-- name: Install & bring up Tailscale
-  hosts: all
-  become: true
-  tasks:
-    - name: Install Tailscale (official install script)
-      shell: |
-        curl -fsSL https://tailscale.com/install.sh | sh
-      args:
-        creates: /usr/sbin/tailscaled
-
-    - name: Enable and start tailscaled
-      systemd:
-        name: tailscaled
-        enabled: true
-        state: started
-
-    - name: Tailscale up (headless, auth key)
-      shell: |
-        tailscale up \
-          --auth-key="{{ tailscale_authkey }}" \
-          --hostname="{{ tailscale_hostname_prefix }}-{{ inventory_hostname }}" \
-          --advertise-tags="{{ tailscale_tags }}" \
-          --accept-dns="{{ tailscale_accept_dns }}" \
-          {% if tailscale_ssh | bool %}--ssh{% endif %}
-      args:
-        creates: /var/lib/tailscale/tailscaled.state
-      register: ts_up
-      changed_when: ts_up.rc == 0
-      failed_when: ts_up.rc != 0 and ("already" not in (ts_up.stderr | default("")) | lower)
-
-    - name: Get Tailscale IPv4
-      command: tailscale ip -4
-      register: ts_ip
-      changed_when: false
-
-    - name: Set tailscale_ip fact
-      set_fact:
-        tailscale_ip: "{{ (ts_ip.stdout_lines | select('match','^[0-9]+\.') | list | first) | trim }}"
-
-- name: Install k3s server (bind to Tailscale IP, no flannel)
+- name: Setup K3s Master Node
   hosts: k3s_server
   become: true
-  tasks:
-    - name: Write k3s server install env
-      set_fact:
-        k3s_server_exec: >-
-          server
-          --node-ip {{ tailscale_ip }}
-          --advertise-address {{ tailscale_ip }}
-          --flannel-backend=none
-          --disable-network-policy
-          {% if k3s_disable_traefik | bool %}--disable traefik{% endif %}
-          {% if k3s_disable_servicelb | bool %}--disable servicelb{% endif %}
-          --write-kubeconfig-mode 644
+  
+  pre_tasks:
+    - name: Validate Tailscale AuthKey presence
+      assert:
+        that:
+          - tailscale_authkey | length > 0
+        fail_msg: "ERROR: La variable de entorno TAILSCALE_AUTHKEY no está definida o está vacía."
+        success_msg: "Tailscale AuthKey validada correctamente."
 
-    - name: Install k3s server
-      shell: |
-        curl -sfL https://get.k3s.io | \
-          INSTALL_K3S_VERSION="{{ k3s_version }}" \
-          INSTALL_K3S_EXEC="{{ k3s_server_exec }}" \
-          sh -
-      args:
-        creates: /usr/local/bin/k3s
-
-    - name: Wait for node-token
-      wait_for:
-        path: /var/lib/rancher/k3s/server/node-token
-        timeout: 180
-
-    - name: Read node token
-      slurp:
-        src: /var/lib/rancher/k3s/server/node-token
-      register: token_raw
-
-    - name: Set token fact on localhost
-      set_fact:
-        k3s_token: "{{ token_raw.content | b64decode | trim }}"
-      delegate_to: localhost
-      run_once: true
-
-    - name: Ensure k3s manifests dir exists
-      file:
-        path: /var/lib/rancher/k3s/server/manifests
-        state: directory
-        mode: "0755"
-
-    - name: Copiar archivo values.yaml de Cilium
-      copy:
-        src: cilium-values.yaml
-        dest: /var/lib/rancher/k3s/server/manifests/cilium-values.yaml
-        mode: "0644"
-
-    - name: Build Cilium HelmChart manifest (k3s auto-applies)
-      copy:
-        dest: /var/lib/rancher/k3s/server/manifests/cilium-helmchart.yaml
-        mode: "0644"
-        content: |
-          apiVersion: helm.cattle.io/v1
-          kind: HelmChart
-          metadata:
-            name: cilium
-            namespace: kube-system
-          spec:
-            repo: "{{ cilium_chart_repo }}"
-            chart: "{{ cilium_chart_name }}"
-            version: "{{ cilium_version }}"
-            targetNamespace: "{{ cilium_namespace }}"
-            valuesFile: /var/lib/rancher/k3s/server/manifests/cilium-values.yaml
-
-    - name: Wait for kube-apiserver to answer (best effort)
-      shell: |
-        k3s kubectl get --raw=/readyz >/dev/null
-      register: readyz
-      retries: 30
-      delay: 2
-      until: readyz.rc == 0
-      changed_when: false
-
-- name: Verify master node (single node cluster)
-  hosts: k3s_server
-  become: true
-  tasks:
-    - name: Show master node
-      command: k3s kubectl get nodes -o wide
-      register: nodes_out
-      changed_when: false
-
-    - debug:
-        msg: "{{ nodes_out.stdout }}"
-
-    - name: Wait for cilium pods
-      shell: |
-        k3s kubectl -n kube-system rollout status ds/cilium --timeout=300s
-      register: cilium_rollout
-      changed_when: false
-      failed_when: cilium_rollout.rc != 0
+  roles:
+    - common
+    - tailscale
+    - k3s_server
+    - cilium

@@ -1,0 +1,18 @@
+- name: Disable swap now
+  command: swapoff -a
+  changed_when: false
+  failed_when: false
+
+- name: Disable swap permanently in fstab
+  replace:
+    path: /etc/fstab
+    regexp: '^(.*\sswap\s.*)$'
+    replace: '# \1'
+
+- name: Install base packages
+  apt:
+    name:
+      - curl
+      - ca-certificates
+      - iptables
+    update_cache: true

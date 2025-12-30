@@ -1,0 +1,4 @@
+cilium_version: "1.18.5"
+cilium_chart_repo: "https://helm.cilium.io/"
+cilium_chart_name: "cilium"
+cilium_namespace: "kube-system"
