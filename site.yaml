@@ -7,6 +7,12 @@
     - secrets.yaml
 
   pre_tasks:
+    - name: Update APT cache once at start
+      apt:
+        update_cache: true
+        cache_valid_time: 3600
+      tags: always
+
     - name: Validate Tailscale AuthKey presence
       assert:
         that:
@@ -15,11 +21,18 @@
           - "tailscale_authkey != 'tskey-auth-REPLACE-WITH-REAL-KEY'"
         fail_msg: "ERROR: Configure your real 'tailscale_authkey' in 'secrets.yaml'."
         success_msg: "Tailscale AuthKey validated successfully."
+      tags: always
 
   roles:
-    - preflight
-    - common
-    - tailscale
-    - k3s_server
-    - nvidia_gpu
-    - cilium
+    - role: preflight
+      tags: ['preflight', 'validation']
+    - role: common
+      tags: ['common', 'system']
+    - role: tailscale
+      tags: ['tailscale', 'network', 'vpn']
+    - role: k3s_server
+      tags: ['k3s', 'kubernetes']
+    - role: nvidia_gpu
+      tags: ['nvidia', 'gpu']
+    - role: cilium
+      tags: ['cilium', 'cni', 'network']

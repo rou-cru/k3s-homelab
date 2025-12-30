@@ -20,7 +20,6 @@
       - acpid
       - linux-generic-hwe-22.04
     state: present
-    update_cache: true
   register: base_packages_install
 
 - name: Register kernel changes for consolidated reboot

@@ -6,7 +6,6 @@
       apt:
         name: r8168-dkms
         state: present
-        update_cache: true
       register: r8168_install
 
     - name: Blacklist unstable generic driver (r8169)

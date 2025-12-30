@@ -4,7 +4,6 @@
       - irqbalance
       - rfkill
     state: present
-    update_cache: true
 
 - name: Install Audio Tuning Tools
   apt:

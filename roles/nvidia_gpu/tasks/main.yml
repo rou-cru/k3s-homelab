@@ -18,12 +18,11 @@
 
     - name: Install driver tools
       apt:
-        name: 
+        name:
           - ubuntu-drivers-common
           - linux-headers-generic
           - software-properties-common
         state: present
-        update_cache: true
 
     - name: Detect NVIDIA driver
       shell: ubuntu-drivers devices 2>/dev/null | grep -oP 'driver\s+:\s+\K(nvidia-driver-\d+)(?=\s.*recommended)'
@@ -100,11 +99,6 @@
         dest: /etc/apt/sources.list.d/nvidia-container-toolkit.list
         mode: '0644'
       register: repo_added
-
-    - name: Update apt cache after adding repo
-      apt:
-        update_cache: true
-      when: repo_added.changed
 
     - name: Install Toolkit
       apt:

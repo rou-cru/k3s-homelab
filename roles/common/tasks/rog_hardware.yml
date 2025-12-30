@@ -9,7 +9,6 @@
       - asusctl
       - acpid
     state: present
-    update_cache: true
 
 - name: Enable and start asusd service
   systemd:
