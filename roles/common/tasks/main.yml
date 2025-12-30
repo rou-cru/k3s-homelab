@@ -36,6 +36,9 @@
 - name: Apply Hardware Tuning (CPU/Radios/Audio)
   include_tasks: hardware_tuning.yml
 
+- name: Apply System Kernel Tuning (BBR/Limits/Watchdog)
+  include_tasks: system_tuning.yml
+
 - name: Apply Network Optimizations
   include_tasks: network_optimization.yml
   when: network_optimization_enabled | default(true)

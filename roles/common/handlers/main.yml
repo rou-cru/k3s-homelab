@@ -2,3 +2,8 @@
   service:
     name: systemd-logind
     state: restarted
+
+- name: Restart cpufrequtils
+  service:
+    name: cpufrequtils
+    state: restarted
