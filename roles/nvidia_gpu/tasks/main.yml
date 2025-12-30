@@ -3,20 +3,15 @@
   when: gpu_setup | bool
   block:
     # 1. Hardware Check
-    - name: Check for NVIDIA GPU
-      ansible.builtin.shell: |
-        set -o pipefail
-        lspci | grep -i nvidia
-      args:
-        executable: /bin/bash
-      register: nvidia_hardware
+    - name: Detect NVIDIA GPU (Vendor ID 10de)
+      ansible.builtin.command: lspci -nm
+      register: lspci_out
       changed_when: false
-      failed_when: false
 
     - name: Abort if no NVIDIA GPU found
       ansible.builtin.fail:
-        msg: "No NVIDIA GPU detected on this host."
-      when: nvidia_hardware.rc != 0
+        msg: "No NVIDIA GPU (Vendor ID 10de) detected on this host."
+      when: '"10de" not in lspci_out.stdout'
 
     - name: Install driver tools
       ansible.builtin.apt:

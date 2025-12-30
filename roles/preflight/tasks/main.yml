@@ -13,43 +13,25 @@
     msg: "No network connectivity detected. Cannot proceed with installation."
   when: network_check.status is not defined or network_check.status != 200
 
-- name: Check available disk space
-  ansible.builtin.shell: |
-    set -o pipefail
-    df / | tail -1 | awk '{print $4}'
-  args:
-    executable: /bin/bash
-  register: disk_space
-  changed_when: false
+- name: Assert Disk Space (Root Partition > 20GB)
+  ansible.builtin.assert:
+    that:
+      - item.size_available > 21474836480
+    fail_msg: "Insufficient disk space on {{ item.mount }}. Required: 20GB, Available: {{ (item.size_available / 1024 / 1024 / 1024) | round(2) }}GB"
+  loop: "{{ ansible_mounts }}"
+  when: item.mount == '/'
 
-- name: Fail if insufficient disk space
-  ansible.builtin.fail:
-    msg: "Insufficient disk space. Required: 20GB, Available: {{ (disk_space.stdout | int / 1024 / 1024) | round(1) }}GB"
-  when: (disk_space.stdout | int) < 20971520
+- name: Assert Memory (> 4GB)
+  ansible.builtin.assert:
+    that:
+      - ansible_memtotal_mb >= 4096
+    fail_msg: "Insufficient memory. Required: 4GB, Available: {{ ansible_memtotal_mb }}MB"
 
-- name: Check available memory
-  ansible.builtin.shell: |
-    set -o pipefail
-    free -m | grep Mem | awk '{print $2}'
-  args:
-    executable: /bin/bash
-  register: memory_check
-  changed_when: false
-
-- name: Fail if insufficient memory
-  ansible.builtin.fail:
-    msg: "Insufficient memory. Required: 4GB, Available: {{ (memory_check.stdout | int / 1024) | round(1) }}GB"
-  when: (memory_check.stdout | int) < 4096
-
-- name: Check CPU architecture
-  ansible.builtin.command: uname -m
-  register: arch_check
-  changed_when: false
-
-- name: Fail if not x86_64 architecture
-  ansible.builtin.fail:
-    msg: "Unsupported architecture: {{ arch_check.stdout }}. Only x86_64 is supported."
-  when: arch_check.stdout != "x86_64"
+- name: Assert Architecture (x86_64)
+  ansible.builtin.assert:
+    that:
+      - ansible_architecture == 'x86_64'
+    fail_msg: "Unsupported architecture: {{ ansible_architecture }}. Only x86_64 is supported."
 
 - name: Pre-flight checks passed
   ansible.builtin.debug:
