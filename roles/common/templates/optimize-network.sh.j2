@@ -1,0 +1,33 @@
+#!/bin/bash
+set -euo pipefail
+
+# Managed by Ansible - Network Optimization Script
+# Optimizes network interface for stability and performance
+
+INTERFACE="{{ primary_interface | default('') }}"
+RING_BUFFER_SIZE={{ ring_buffer_target }}
+
+if [ -z "$INTERFACE" ]; then
+  echo "No interface detected. Exiting."
+  exit 0
+fi
+
+echo "Optimizing interface: $INTERFACE"
+
+# 1. Disable Energy Efficient Ethernet (EEE)
+ethtool --show-eee "$INTERFACE" | grep -q "EEE is enabled" && ethtool --set-eee "$INTERFACE" eee off && echo "EEE disabled." || echo "EEE check passed."
+
+# 2. Disable Wake-on-LAN (Power Saving)
+ethtool -s "$INTERFACE" wol d || true
+
+# 3. Maximize Ring Buffers (Crucial for 1Gbps/2.5Gbps stability)
+# Try to set to target size or use hardware maximum
+MAX_RX=$(ethtool -g "$INTERFACE" | grep -m1 "RX:" | awk '{print $2}')
+MAX_TX=$(ethtool -g "$INTERFACE" | grep -m1 "TX:" | awk '{print $2}')
+
+# If we can read the maximums, apply them. Otherwise try safe value.
+if [ -n "$MAX_RX" ] && [ "$MAX_RX" -gt 256 ]; then
+   ethtool -G "$INTERFACE" rx "$MAX_RX" tx "$MAX_TX" 2>/dev/null && echo "Ring Buffers maximized to RX:$MAX_RX TX:$MAX_TX" || echo "Failed to set Ring Buffers."
+else
+   echo "Ring buffers already maxed or undetectable."
+fi

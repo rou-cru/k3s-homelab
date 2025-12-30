@@ -1,0 +1,33 @@
+#!/bin/bash
+set -euo pipefail
+
+# Managed by Ansible - ASUS RoG Strix Server Hardware Configuration
+
+# --- 1. Battery Care Mode ---
+# Limit charge to configured threshold to extend battery lifespan
+BAT_PATH="/sys/class/power_supply/BAT0"
+BATTERY_THRESHOLD={{ battery_charge_threshold }}
+
+if [ -f "$BAT_PATH/charge_control_end_threshold" ]; then
+    echo "$BATTERY_THRESHOLD" > "$BAT_PATH/charge_control_end_threshold"
+    echo "Battery charge threshold set to ${BATTERY_THRESHOLD}%"
+fi
+
+# --- 2. Thermal Policy ---
+# 0: Balanced, 1: Turbo, 2: Silent
+THERMAL_POLICY_PATH="/sys/devices/platform/asus-nb-wmi/throttle_thermal_policy"
+THERMAL_MODE={{ thermal_policy }}
+
+if [ -f "$THERMAL_POLICY_PATH" ]; then
+    echo "$THERMAL_MODE" > "$THERMAL_POLICY_PATH"
+    echo "Thermal policy set to mode $THERMAL_MODE"
+fi
+
+# --- 3. RGB / Keyboard Backlight ---
+# No default changes applied (maintains ASUS defaults)
+# asusctl daemon is running for manual control
+#
+# Manual control examples:
+# asusctl led-mode static -c ff0000 (Red)
+# asusctl led-mode breathe -c 00ffff (Cyan breathing)
+# asusctl -p 3 (Maximum brightness)
