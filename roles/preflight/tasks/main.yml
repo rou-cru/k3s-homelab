@@ -14,7 +14,11 @@
   when: network_check.status is not defined or network_check.status != 200
 
 - name: Check available disk space
-  ansible.builtin.shell: df / | tail -1 | awk '{print $4}'
+  ansible.builtin.shell: |
+    set -o pipefail
+    df / | tail -1 | awk '{print $4}'
+  args:
+    executable: /bin/bash
   register: disk_space
   changed_when: false
 
@@ -24,7 +28,11 @@
   when: (disk_space.stdout | int) < 20971520
 
 - name: Check available memory
-  ansible.builtin.shell: free -m | grep Mem | awk '{print $2}'
+  ansible.builtin.shell: |
+    set -o pipefail
+    free -m | grep Mem | awk '{print $2}'
+  args:
+    executable: /bin/bash
   register: memory_check
   changed_when: false
 

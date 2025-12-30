@@ -11,6 +11,7 @@
     regexp: "^GOVERNOR="
     line: 'GOVERNOR="schedutil"'
     create: true
+    mode: "0644"
   notify: Restart cpufrequtils
 
 - name: Enable TCP BBR Congestion Control
