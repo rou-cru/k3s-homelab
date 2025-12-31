@@ -1,4 +1,5 @@
 ---
+# Handlers para reiniciar servicios tras cambios de configuración
 - name: Restart logind
   ansible.builtin.service:
     name: systemd-logind

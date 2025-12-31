@@ -1,4 +1,5 @@
 ---
+# Instalación de drivers NVIDIA y plugin de dispositivos para Kubernetes
 - name: GPU Setup Block
   when: gpu_setup | bool
   block:
@@ -8,6 +9,7 @@
       register: lspci_out
       changed_when: false
 
+    # Valida hardware requerido antes de continuar con instalación
     - name: Abort if no NVIDIA GPU found
       ansible.builtin.fail:
         msg: "No NVIDIA GPU (Vendor ID 10de) detected on this host."
@@ -64,6 +66,7 @@
       when: blacklist_nouveau.changed
       changed_when: true
 
+    # Deriva el paquete nvidia-utils del driver detectado (ej: nvidia-driver-535 -> nvidia-utils-535)
     - name: Calculate nvidia-utils package name
       ansible.builtin.set_fact:
         nvidia_utils_package: "nvidia-utils-{{ nvidia_driver_target | regex_replace('^nvidia-driver-', '') }}"
@@ -128,6 +131,7 @@
         dest: /var/lib/rancher/k3s/server/manifests/nvidia-device-plugin/values.yaml
         mode: "0644"
 
+    # HelmChart CRD para K3s - instala el plugin de dispositivos NVIDIA automáticamente
     - name: Deploy Device Plugin HelmChart
       ansible.builtin.copy:
         dest: /var/lib/rancher/k3s/server/manifests/nvidia-device-plugin-helmchart.yaml

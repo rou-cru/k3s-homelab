@@ -1,4 +1,5 @@
 ---
+# Optimización de red: drivers Realtek y configuración de red
 - name: RoG/Realtek Specific Optimizations
   when: rog_server | bool
   block:
@@ -26,6 +27,7 @@
       failed_when: false
       changed_when: grub_aspm.changed and "pcie_aspm=off" not in grub_aspm.diff.before
 
+    # Previene duplicación de parámetro si el regex ya lo agregó
     - name: Ensure pcie_aspm=off is present exactly once  # noqa: no-handler
       ansible.builtin.replace:
         path: /etc/default/grub

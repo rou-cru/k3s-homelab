@@ -1,4 +1,5 @@
 ---
+# Configuración específica para hardware ASUS RoG
 - name: Add ASUS Linux PPA for asusctl
   ansible.builtin.apt_repository:
     repo: ppa:lukas-puehringer/asus-linux

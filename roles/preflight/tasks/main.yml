@@ -1,4 +1,5 @@
 ---
+# Validaciones previas de infraestructura y recursos
 - name: Check network connectivity
   ansible.builtin.uri:
     url: https://get.k3s.io

@@ -1,4 +1,5 @@
 ---
+# Handler para reiniciar K3s tras cambios de configuración
 - name: Restart K3s
   ansible.builtin.systemd:
     name: k3s

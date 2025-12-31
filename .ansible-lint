@@ -1,5 +1,5 @@
 ---
-# Ansible-lint configuration for k3s-homelab
+# Configuración de ansible-lint para validación de playbooks y roles
 
 # Exclude upstream files from linting
 exclude_paths:

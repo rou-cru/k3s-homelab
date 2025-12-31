@@ -1,4 +1,5 @@
 ---
+# Optimización de hardware: IRQ balance, radios, audio y NVMe
 - name: Install General Hardware Tuning Tools
   ansible.builtin.apt:
     name:
@@ -19,6 +20,8 @@
     enabled: true
     state: started
 
+# Bloquea WiFi/Bluetooth para ahorro energético y reducir interferencias
+# El hardware permanece disponible para desbloqueo manual si es necesario
 - name: Soft-block Wireless Radios (Save power/noise, keep HW available for SIGINT)
   ansible.builtin.shell: |
     rfkill block wifi

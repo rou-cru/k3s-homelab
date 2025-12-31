@@ -1,4 +1,5 @@
 ---
+# Instalación de K3s con configuración de red Tailscale
 - name: Validate Tailscale IP is defined
   ansible.builtin.assert:
     that:
@@ -38,6 +39,7 @@
 - name: Read node token
   ansible.builtin.slurp:
     src: /var/lib/rancher/k3s/server/node-token
+  # Lee el token del servidor para posibles usos futuros (cluster multi-nodo)
   register: token_raw
 
 - name: Set token fact on localhost

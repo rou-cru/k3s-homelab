@@ -1,4 +1,5 @@
 ---
+# Instalación de Cilium CNI como HelmChart en K3s
 - name: Ensure manifests directory exists
   ansible.builtin.file:
     path: /var/lib/rancher/k3s/server/manifests
@@ -35,6 +36,7 @@
   changed_when: false
   failed_when: cilium_rollout.rc != 0
 
+# Verificación final - muestra estado del nodo con Cilium operativo
 - name: Show node status
   ansible.builtin.command: k3s kubectl get nodes -o wide
   register: nodes_out

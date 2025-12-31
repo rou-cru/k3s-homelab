@@ -1,4 +1,5 @@
 ---
+# Instalación y configuración de Tailscale VPN
 - name: Install Tailscale  # noqa: command-instead-of-module
   ansible.builtin.shell: |
     set -o pipefail
@@ -25,6 +26,7 @@
     creates: /var/lib/tailscale/tailscaled.state
   register: ts_up
   changed_when: ts_up.rc == 0
+  # Acepta "already connected" como éxito - permite re-ejecución idempotente
   failed_when: ts_up.rc != 0 and ("already" not in (ts_up.stderr | default("")) | lower)
 
 - name: Get Tailscale IPv4
