@@ -11,7 +11,16 @@
     regexp: "^(.*\\sswap\\s.*)$"
     replace: "# \\1"
 
-- name: Install base packages and Kernel HWE
+- name: Detect Ubuntu version for HWE kernel
+  ansible.builtin.set_fact:
+    ubuntu_version: "{{ ansible_facts['distribution_version'] }}"
+
+- name: Set HWE kernel package name
+  ansible.builtin.set_fact:
+    hwe_kernel_package: "linux-generic-hwe-{{ ubuntu_version }}"
+  when: ubuntu_version is version('20.04', '>=') and ubuntu_version is version('24.04', '<=')
+
+- name: Install base packages
   ansible.builtin.apt:
     name:
       - curl
@@ -20,13 +29,26 @@
       - ethtool
       - network-manager
       - acpid
-      - linux-generic-hwe-22.04
     state: present
-  register: common_base_packages_install
+
+- name: Install HWE kernel (Ubuntu 20.04-24.04)
+  ansible.builtin.apt:
+    name: "{{ hwe_kernel_package }}"
+    state: present
+  when: hwe_kernel_package is defined
+  register: common_hwe_kernel_install
+  ignore_errors: true
+
+- name: Install generic kernel as fallback
+  ansible.builtin.apt:
+    name: linux-generic
+    state: present
+  when: common_hwe_kernel_install is failed or hwe_kernel_package is not defined
+  register: common_generic_kernel_install
 
 - name: Register kernel changes for consolidated reboot
   ansible.builtin.set_fact:
-    common_kernel_changed: "{{ common_base_packages_install.changed }}"
+    common_kernel_changed: "{{ (common_hwe_kernel_install.changed | default(false)) or (common_generic_kernel_install.changed | default(false)) }}"
 
 - name: Configure Power Management (Lid Switch / No Sleep)
   ansible.builtin.include_tasks: power_management.yml

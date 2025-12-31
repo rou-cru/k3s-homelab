@@ -1,0 +1,156 @@
+---
+# Instalación de herramientas de desarrollo y utilidades CLI
+
+# ============================================================================
+# 1. Base system packages (APT)
+# ============================================================================
+- name: Install base CLI tools and dependencies via APT
+  ansible.builtin.apt:
+    name:
+      # Terminal utilities
+      - bpytop
+      - bat
+      - tree
+      - tmux
+      - jq
+      - curl
+      # Python ecosystem
+      - python3-pip
+      - python3-venv
+      - pipx
+      # System tools
+      - gnupg
+      - ca-certificates
+      - snapd
+    state: present
+    update_cache: true
+
+# ============================================================================
+# 2. Kubernetes tools (snap)
+# ============================================================================
+- name: Install kubectl via snap
+  ansible.builtin.snap:
+    name: kubectl
+    classic: true
+
+- name: Install Helm via snap
+  ansible.builtin.snap:
+    name: helm
+    classic: true
+
+- name: Install yq via snap
+  ansible.builtin.snap:
+    name: yq
+    classic: true
+
+# ============================================================================
+# 3. Development environments
+# ============================================================================
+- name: Install Node.js via snap
+  ansible.builtin.snap:
+    name: node
+    classic: true
+
+- name: Install pnpm globally
+  community.general.npm:
+    name: pnpm
+    global: true
+    state: present
+
+- name: Install Devbox
+  ansible.builtin.shell: |
+    curl -fsSL https://get.jetpack.io/devbox | bash
+  args:
+    creates: /usr/local/bin/devbox
+
+# ============================================================================
+# 4. Python package manager (uv)
+# ============================================================================
+- name: Install uv (Python package installer)
+  ansible.builtin.shell: |
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+  args:
+    creates: /root/.cargo/bin/uv
+  environment:
+    CARGO_HOME: /root/.cargo
+
+# ============================================================================
+# 5. Python CLI tools (pipx/uv)
+# ============================================================================
+- name: Install nvitop for NVIDIA GPU monitoring
+  ansible.builtin.command: pipx install nvitop
+  args:
+    creates: /root/.local/bin/nvitop
+  when: nvidia_gpu_setup | default(false) | bool
+
+- name: Install Kimi CLI via uv
+  ansible.builtin.command: uv tool install kimi-cli
+  args:
+    creates: /root/.local/bin/kimi
+  environment:
+    PATH: "/root/.cargo/bin:{{ ansible_env.PATH }}"
+  ignore_errors: true
+
+# ============================================================================
+# 6. AI CLI tools (npm)
+# ============================================================================
+- name: Install AI CLI tools via npm
+  community.general.npm:
+    name: "{{ item }}"
+    global: true
+    state: present
+  loop:
+    - "@anthropic-ai/claude-code"
+    - "@google/gemini-cli"
+    - "@qwen-code/qwen-code"
+    - "@openai/codex"
+  ignore_errors: true
+
+# ============================================================================
+# 7. Docker (optional, disabled by default)
+# ============================================================================
+- name: Docker installation (optional)
+  when: devtools_install_docker | default(false) | bool
+  block:
+    - name: Add Docker APT key
+      ansible.builtin.shell: |
+        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+      args:
+        creates: /usr/share/keyrings/docker-archive-keyring.gpg
+
+    - name: Add Docker APT repository
+      ansible.builtin.apt_repository:
+        repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+        state: present
+        filename: docker
+
+    - name: Install Docker CLI only
+      ansible.builtin.apt:
+        name:
+          - docker-ce-cli
+          - docker-buildx-plugin
+          - docker-compose-plugin
+        state: present
+        update_cache: true
+
+    - name: Show Docker warning
+      ansible.builtin.debug:
+        msg:
+          - "⚠️  Docker CLI installed for build purposes only"
+          - "⚠️  K3s uses containerd, not Docker daemon"
+          - "⚠️  Use 'kubectl' for container management"
+
+# ============================================================================
+# Summary
+# ============================================================================
+- name: Show installed tools
+  ansible.builtin.debug:
+    msg:
+      - "✅ Developer tools installed"
+      - ""
+      - "Kubernetes: kubectl, helm, yq"
+      - "Terminal: bpytop, bat, tree, tmux, jq"
+      - "Python: uv{% if nvidia_gpu_setup | default(false) | bool %}, nvitop{% endif %}, kimi-cli"
+      - "Node.js: node, pnpm"
+      - "AI CLIs: claude-code, gemini-cli, qwen-cli, codex"
+      - "Other: devbox{% if devtools_install_docker | default(false) | bool %}, docker-cli{% endif %}"

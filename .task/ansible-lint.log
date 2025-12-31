@@ -1,0 +1,72 @@
+[WARNING]: Deprecation warnings can be disabled by setting `deprecation_warnings=False` in ansible.cfg.
+[DEPRECATION WARNING]: Importing 'to_bytes' from 'ansible.module_utils._text' is deprecated. This feature will be removed from ansible-core version 2.24. Use ansible.module_utils.common.text.converters instead.
+WARNING  Listing 21 violation(s) that are fatal
+
+# Rule Violation Summary
+
+ 21 load-failure profile:min tags:core,unskippable
+
+Failed: 21 failure(s), 0 warning(s) on 21 files.
+load-failure[runtimeerror]: The `src` field must be an absolute path. (warning)
+roles/cilium/defaults/main.yml:1 None
+
+load-failure[runtimeerror]: The `src` field must be an absolute path. (warning)
+roles/cilium/files/cilium-values.yaml:1 None
+
+load-failure[runtimeerror]: The `src` field must be an absolute path. (warning)
+roles/cilium/tasks/main.yml:1 None
+
+load-failure[runtimeerror]: The `src` field must be an absolute path. (warning)
+roles/common/defaults/main.yml:1 None
+
+load-failure[runtimeerror]: The `src` field must be an absolute path. (warning)
+roles/common/handlers/main.yml:1 None
+
+load-failure[runtimeerror]: The `src` field must be an absolute path. (warning)
+roles/common/tasks/hardware_tuning.yml:1 None
+
+load-failure[runtimeerror]: The `src` field must be an absolute path. (warning)
+roles/common/tasks/main.yml:1 None
+
+load-failure[runtimeerror]: The `src` field must be an absolute path. (warning)
+roles/common/tasks/network_optimization.yml:1 None
+
+load-failure[runtimeerror]: The `src` field must be an absolute path. (warning)
+roles/common/tasks/power_management.yml:1 None
+
+load-failure[runtimeerror]: The `src` field must be an absolute path. (warning)
+roles/common/tasks/rog_hardware.yml:1 None
+
+load-failure[runtimeerror]: The `src` field must be an absolute path. (warning)
+roles/common/tasks/system_tuning.yml:1 None
+
+load-failure[runtimeerror]: The `src` field must be an absolute path. (warning)
+roles/k3s_server/defaults/main.yml:1 None
+
+load-failure[runtimeerror]: The `src` field must be an absolute path. (warning)
+roles/k3s_server/tasks/main.yml:1 None
+
+load-failure[runtimeerror]: The `src` field must be an absolute path. (warning)
+roles/nvidia_gpu/defaults/main.yml:1 None
+
+load-failure[runtimeerror]: The `src` field must be an absolute path. (warning)
+roles/nvidia_gpu/files/nvidia-device-plugin-values.yaml:1 None
+
+load-failure[runtimeerror]: The `src` field must be an absolute path. (warning)
+roles/nvidia_gpu/handlers/main.yml:1 None
+
+load-failure[runtimeerror]: The `src` field must be an absolute path. (warning)
+roles/nvidia_gpu/tasks/main.yml:1 None
+
+load-failure[runtimeerror]: The `src` field must be an absolute path. (warning)
+roles/preflight/tasks/main.yml:1 None
+
+load-failure[runtimeerror]: The `src` field must be an absolute path. (warning)
+roles/tailscale/defaults/main.yml:1 None
+
+load-failure[runtimeerror]: The `src` field must be an absolute path. (warning)
+roles/tailscale/tasks/main.yml:1 None
+
+load-failure[runtimeerror]: The `src` field must be an absolute path. (warning)
+site.yaml:1 None
+

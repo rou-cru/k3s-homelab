@@ -1,0 +1,5 @@
+---
+# Developer tools installation
+devtools_enabled: true
+devtools_nodejs_version: "22"  # NodeJS LTS version
+devtools_install_docker: false  # Docker no recomendado con K3s (usa containerd)

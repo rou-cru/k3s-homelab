@@ -1,0 +1,206 @@
+---
+# Cilium Optimized Configuration for K3s + Tailscale
+# Version: {{ cilium_version }}
+# Generated: Optimized values focusing on performance and features
+
+# ============================================================================
+# K3s + Tailscale Integration
+# ============================================================================
+# Cilium connects to K3s API server via Tailscale overlay IP
+k8sServiceHost: "{{ tailscale_ip }}"
+k8sServicePort: 6443
+
+# ============================================================================
+# kube-proxy Replacement (CRITICAL for K3s)
+# ============================================================================
+# Cilium completely replaces kube-proxy for service load balancing
+kubeProxyReplacement: true
+
+# Enable socket-based load balancing for accelerated local service access
+socketLB:
+  enabled: true
+
+# ============================================================================
+# Gateway API (Modern Ingress/Routing)
+# ============================================================================
+# Enable Cilium Gateway API implementation
+# Replaces need for external Ingress Controllers
+gatewayAPI:
+  enabled: true
+  # Auto-create GatewayClass resource
+  gatewayClass:
+    create: auto
+  # Secret namespace for TLS certificates
+  secretsNamespace:
+    create: true
+    name: cilium-secrets
+    sync: true
+
+# ============================================================================
+# Hubble - Network Observability & Security
+# ============================================================================
+hubble:
+  # Enable Hubble for flow visibility
+  enabled: true
+
+  # Hubble Metrics - Prometheus-compatible metrics
+  metrics:
+    enabled:
+      - dns:query;ignoreAAAA    # DNS queries (ignore AAAA to reduce noise)
+      - drop                    # Dropped packets
+      - tcp                     # TCP metrics
+      - flow                    # Network flows
+      - icmp                    # ICMP metrics
+      - http                    # HTTP L7 metrics
+    port: 9965
+    enableOpenMetrics: false
+
+  # Hubble Relay - Required for UI and external access
+  relay:
+    enabled: true
+    replicas: 1
+    # Prometheus metrics for relay
+    prometheus:
+      enabled: false
+
+  # Hubble UI - Web-based flow visualization
+  ui:
+    enabled: true
+    replicas: 1
+
+  # TLS auto-generation for Hubble components
+  tls:
+    auto:
+      enabled: true
+      method: helm
+      certValidityDuration: 365
+
+# ============================================================================
+# eBPF Optimizations
+# ============================================================================
+bpf:
+  # Auto-mount BPF filesystem
+  autoMount:
+    enabled: true
+  root: /sys/fs/bpf
+
+  # Pre-allocate eBPF map values (reduces latency, increases memory usage)
+  preallocateMaps: true
+
+  # Distributed LRU backend for core BPF maps
+  # Significantly improves multi-core performance
+  distributedLRU:
+    enabled: true
+
+  # Maximum entries in load balancer maps
+  # Increase if you have many services (default: 65536)
+  lbMapMax: 131072
+
+  # Connection tracking accounting
+  ctAccounting: false
+
+  # Enable datapath events for Hubble
+  events:
+    drop:
+      enabled: true
+    policyVerdict:
+      enabled: true
+    trace:
+      enabled: true
+
+# ============================================================================
+# Bandwidth Manager - QoS & Performance
+# ============================================================================
+bandwidthManager:
+  # Enable bandwidth manager infrastructure
+  enabled: true
+  # Activate BBR TCP congestion control for Pods
+  bbr: true
+
+# ============================================================================
+# IPAM - IP Address Management
+# ============================================================================
+ipam:
+  # cluster-pool mode: Cilium allocates Pod IPs from defined CIDR
+  mode: "cluster-pool"
+  operator:
+    # Pod CIDR for cluster (10.x avoids conflict with Tailscale 100.x)
+    clusterPoolIPv4PodCIDRList: ["10.0.0.0/8"]
+    clusterPoolIPv4MaskSize: 24
+
+# ============================================================================
+# Routing & Networking
+# ============================================================================
+# Routing mode: tunnel (VXLAN overlay, compatible with Tailscale)
+# Alternative: "native" (requires L2 adjacency or configured routes)
+routingMode: "tunnel"
+
+# Tunnel protocol (default: vxlan)
+# tunnelProtocol: vxlan
+
+# Enable endpoint health checking
+endpointHealthChecking:
+  enabled: true
+
+# ============================================================================
+# Security & Policies
+# ============================================================================
+# Enable Kubernetes NetworkPolicy support
+k8sNetworkPolicy:
+  enabled: true
+
+# ============================================================================
+# LoadBalancer IPAM
+# ============================================================================
+# Default LoadBalancer Service IPAM mode
+# "lbipam" enables Cilium's built-in LB IP management (useful with Gateway API)
+defaultLBServiceIPAM: lbipam
+
+# ============================================================================
+# Operator
+# ============================================================================
+operator:
+  replicas: 1
+
+# ============================================================================
+# Features NOT Enabled (Rationale)
+# ============================================================================
+# encryption.enabled: false
+#   Reason: Tailscale already provides WireGuard encryption for node-to-node traffic
+#
+# l2announcements.enabled: false
+#   Reason: Tailscale handles overlay routing; L2 announcements unnecessary
+#
+# bgpControlPlane.enabled: false
+#   Reason: Not needed for homelab setup with Tailscale overlay
+#
+# hostFirewall.enabled: false
+#   Reason: Can be enabled later if host-level firewall policies needed
+
+# ============================================================================
+# Optional: Enable if needed
+# ============================================================================
+# Debug logging (disable in production)
+debug:
+  enabled: false
+
+# RBAC
+rbac:
+  create: true
+
+# Resource requirements (tune based on cluster size)
+# resources:
+#   limits:
+#     memory: 4Gi
+#   requests:
+#     cpu: 100m
+#     memory: 512Mi
+
+# Operator resources
+# operator:
+#   resources:
+#     limits:
+#       memory: 1Gi
+#     requests:
+#       cpu: 100m
+#       memory: 128Mi

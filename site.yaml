@@ -29,11 +29,20 @@
       tags: ["preflight", "validation"]
     - role: common
       tags: ["common", "system"]
+    - role: developer_tools
+      tags: ["devtools", "cli", "utilities"]
+      when: devtools_enabled | default(true) | bool
+    # NVIDIA GPU Host Setup - BEFORE K3s (drivers, toolkit, containerd runtime)
+    - role: nvidia_gpu
+      tasks_from: host.yml
+      tags: ["nvidia", "gpu", "nvidia-host"]
     - role: tailscale
       tags: ["tailscale", "network", "vpn"]
     - role: k3s_server
       tags: ["k3s", "kubernetes"]
-    - role: nvidia_gpu
-      tags: ["nvidia", "gpu"]
     - role: cilium
       tags: ["cilium", "cni", "network"]
+    # NVIDIA GPU Cluster Setup - AFTER Cilium (device plugin Helm chart)
+    - role: nvidia_gpu
+      tasks_from: cluster.yml
+      tags: ["nvidia", "gpu", "nvidia-cluster"]

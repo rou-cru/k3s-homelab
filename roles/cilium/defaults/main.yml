@@ -5,3 +5,5 @@ cilium_chart_repo: "https://helm.cilium.io/"
 cilium_chart_name: "cilium"
 cilium_namespace: "kube-system"
 cilium_rollout_timeout: 300
+cilium_wait_retries: 60
+cilium_wait_delay: 5

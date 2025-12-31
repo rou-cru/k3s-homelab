@@ -8,6 +8,14 @@
     "ansible-lint@25.8.2",
     "j2lint@1.2.0",
     "j2cli@0.3.10",
-    "go-task@3.45.5"
-  ]
+    "go-task@3.45.5",
+    "helm@latest",
+    "k9s@latest"
+  ],
+  "shell": {
+    "init_hook": [
+      "export workspaceFolder=$PWD",
+      "export CODEX_HOME=$workspaceFolder/.codex"
+    ]
+  }
 }

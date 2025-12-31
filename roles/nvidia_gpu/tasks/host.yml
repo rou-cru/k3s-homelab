@@ -1,6 +1,8 @@
 ---
-# Instalación de drivers NVIDIA y plugin de dispositivos para Kubernetes
-- name: GPU Setup Block
+# NVIDIA GPU Host Setup - Drivers and Container Runtime
+# This runs BEFORE K3s installation so nvidia runtime is detected on startup
+
+- name: GPU Host Setup Block
   when: nvidia_gpu_setup | bool
   block:
     - name: Ensure pciutils installed for lspci
@@ -153,49 +155,3 @@
         src: config.toml.tmpl
         dest: /var/lib/rancher/k3s/agent/etc/containerd/config.toml.tmpl
         mode: "0644"
-      notify: Restart K3s
-
-    # Instalación directa con Helm
-    - name: Add NVIDIA Helm repository
-      ansible.builtin.command: helm repo add nvdp https://nvidia.github.io/k8s-device-plugin
-      register: nvidia_helm_repo_add
-      changed_when: "'has been added' in nvidia_helm_repo_add.stdout"
-      failed_when: nvidia_helm_repo_add.rc != 0 and 'already exists' not in nvidia_helm_repo_add.stderr
-
-    - name: Update Helm repositories
-      ansible.builtin.command: helm repo update
-      register: nvidia_helm_repo_update
-      changed_when: "'Update Complete' in nvidia_helm_repo_update.stdout"
-
-    - name: Create temporary values file for device plugin
-      ansible.builtin.tempfile:
-        state: file
-        suffix: "-nvidia-device-plugin-values.yaml"
-      register: nvidia_device_plugin_values_tmp
-
-    - name: Copy device plugin values to temp file
-      ansible.builtin.copy:
-        src: nvidia-device-plugin-values.yaml
-        dest: "{{ nvidia_device_plugin_values_tmp.path }}"
-        mode: "0600"
-
-    - name: Install/upgrade NVIDIA device plugin with Helm
-      ansible.builtin.command: >
-        helm upgrade --install nvidia-device-plugin nvdp/nvidia-device-plugin
-        --version {{ nvidia_gpu_device_plugin_version }}
-        --namespace kube-system
-        --values {{ nvidia_device_plugin_values_tmp.path }}
-        --kubeconfig /etc/rancher/k3s/k3s.yaml
-      register: nvidia_device_plugin_helm_install
-      changed_when: "'STATUS: deployed' in nvidia_device_plugin_helm_install.stdout or 'STATUS: upgraded' in nvidia_device_plugin_helm_install.stdout"
-
-    - name: Remove temporary values file
-      ansible.builtin.file:
-        path: "{{ nvidia_device_plugin_values_tmp.path }}"
-        state: absent
-      changed_when: false
-
-    - name: Wait for device plugin daemonset
-      ansible.builtin.command: k3s kubectl -n kube-system rollout status ds/nvidia-device-plugin --timeout=300s
-      register: nvidia_device_plugin_rollout
-      changed_when: false

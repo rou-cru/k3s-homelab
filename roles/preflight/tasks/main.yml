@@ -8,33 +8,39 @@
   register: preflight_network_check
   failed_when: false
   changed_when: false
+  check_mode: false
 
 - name: Fail if no network connectivity
   ansible.builtin.fail:
     msg: "No network connectivity detected. Cannot proceed with installation."
   when: preflight_network_check.status is not defined or preflight_network_check.status != 200
 
+- name: Get actual disk space on root partition
+  ansible.builtin.shell:
+    cmd: df --output=avail / | tail -1
+  register: root_disk_space
+  changed_when: false
+  check_mode: false
+
 - name: Assert Disk Space (Root Partition > 20GB)
   ansible.builtin.assert:
     that:
-      - item.size_available > 21474836480
+      - root_disk_space.stdout | int > 20971520
     fail_msg: >-
-      Insufficient disk space on {{ item.mount }}.
-      Required: 20GB, Available: {{ (item.size_available / 1024 / 1024 / 1024) | round(2) }}GB
-  loop: "{{ ansible_mounts }}"
-  when: item.mount == '/'
+      Insufficient disk space on /.
+      Required: 20GB, Available: {{ (root_disk_space.stdout | int / 1024 / 1024) | round(2) }}GB
 
 - name: Assert Memory (> 4GB)
   ansible.builtin.assert:
     that:
-      - ansible_memtotal_mb >= 4096
-    fail_msg: "Insufficient memory. Required: 4GB, Available: {{ ansible_memtotal_mb }}MB"
+      - ansible_facts['memtotal_mb'] >= 4096
+    fail_msg: "Insufficient memory. Required: 4GB, Available: {{ ansible_facts['memtotal_mb'] }}MB"
 
 - name: Assert Architecture (x86_64)
   ansible.builtin.assert:
     that:
-      - ansible_architecture == 'x86_64'
-    fail_msg: "Unsupported architecture: {{ ansible_architecture }}. Only x86_64 is supported."
+      - ansible_facts['architecture'] == 'x86_64'
+    fail_msg: "Unsupported architecture: {{ ansible_facts['architecture'] }}. Only x86_64 is supported."
 
 - name: Pre-flight checks passed
   ansible.builtin.debug:

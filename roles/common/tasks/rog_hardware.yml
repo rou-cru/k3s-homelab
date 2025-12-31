@@ -1,23 +1,128 @@
 ---
 # Configuración específica para hardware ASUS RoG
-- name: Add ASUS Linux PPA for asusctl
-  ansible.builtin.apt_repository:
-    repo: ppa:lukas-puehringer/asus-linux
-    state: present
 
-- name: Install asusctl and acpid
-  ansible.builtin.apt:
-    name:
-      - asusctl
-      - acpid
-    state: present
+# ============================================================================
+# ASUSCTL - Control de hardware específico ASUS (opcional, deshabilitado por defecto)
+# ============================================================================
+- name: ASUSCTL Installation Block
+  when: common_asusctl_enabled | default(false) | bool
+  block:
+    - name: Install asusctl build dependencies
+      ansible.builtin.apt:
+        name:
+          # Build tools
+          - cmake
+          - curl
+          - g++
+          - git
+          - pkg-config
+          - ruby
+          - build-essential
+          # asusctl specific libraries
+          - libasound2-dev
+          - libfreetype6-dev
+          - libexpat1-dev
+          - libxcb-composite0-dev
+          - libssl-dev
+          - libx11-dev
+          - libfontconfig1-dev
+          - libclang-dev
+          - libseat-dev
+          - libinput-dev
+          - libxkbcommon-dev
+          - libgbm-dev
+          - libgtk-3-dev
+          - libpango1.0-dev
+          - libgdk-pixbuf-2.0-dev
+          - libglib2.0-dev
+          # supergfxctl specific
+          - libudev-dev
+          # Runtime dependencies
+          - acpid
+        state: present
+        update_cache: true
 
-- name: Enable and start asusd service
-  ansible.builtin.systemd:
-    name: asusd
-    enabled: true
-    state: started
+    - name: Install fpm gem for package building
+      community.general.gem:
+        name: fpm
+        state: present
+        user_install: false
+      ignore_errors: "{{ ansible_check_mode }}"
 
+    - name: Check if Rust is installed
+      ansible.builtin.command: rustc --version
+      register: rust_check
+      changed_when: false
+      failed_when: false
+
+    - name: Install Rust toolchain via rustup
+      ansible.builtin.shell: |
+        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+      args:
+        creates: /root/.cargo/bin/rustc
+      when:
+        - rust_check.rc != 0
+        - not ansible_check_mode
+
+    - name: Clone asus-ubuntu repository
+      ansible.builtin.git:
+        repo: https://github.com/dariomncs/asus-ubuntu.git
+        dest: /tmp/asus-ubuntu
+        version: main
+        force: true
+      when: not ansible_check_mode
+
+    - name: Build asusctl and supergfxctl packages
+      ansible.builtin.shell: |
+        export PATH="$HOME/.cargo/bin:$PATH"
+        bash ./asus-ubuntu-builder.sh
+      args:
+        chdir: /tmp/asus-ubuntu
+        creates: /tmp/asus-ubuntu/target/asusctl*.deb
+      environment:
+        HOME: /root
+      when: not ansible_check_mode
+
+    - name: Find built asusctl deb package
+      ansible.builtin.find:
+        paths: /tmp/asus-ubuntu/target
+        patterns: "asusctl*.deb"
+      register: asusctl_deb
+      when: not ansible_check_mode
+
+    - name: Find built supergfxctl deb package
+      ansible.builtin.find:
+        paths: /tmp/asus-ubuntu/target
+        patterns: "supergfxctl*.deb"
+      register: supergfxctl_deb
+      when: not ansible_check_mode
+
+    - name: Install asusctl deb package
+      ansible.builtin.apt:
+        deb: "{{ asusctl_deb.files[0].path }}"
+        state: present
+      when:
+        - not ansible_check_mode
+        - asusctl_deb.matched > 0
+
+    - name: Install supergfxctl deb package
+      ansible.builtin.apt:
+        deb: "{{ supergfxctl_deb.files[0].path }}"
+        state: present
+      when:
+        - not ansible_check_mode
+        - supergfxctl_deb.matched > 0
+
+    - name: Enable and start asusd service
+      ansible.builtin.systemd:
+        name: asusd
+        enabled: true
+        state: started
+      ignore_errors: "{{ ansible_check_mode }}"
+
+# ============================================================================
+# ROG HARDWARE TWEAKS - Optimizaciones de bajo nivel (siempre habilitadas)
+# ============================================================================
 - name: Deploy RoG Hardware Tweaks Script
   ansible.builtin.template:
     src: apply-rog-tweaks.sh.j2
@@ -36,3 +141,4 @@
     enabled: true
     state: started
     daemon_reload: true
+  ignore_errors: "{{ ansible_check_mode }}"

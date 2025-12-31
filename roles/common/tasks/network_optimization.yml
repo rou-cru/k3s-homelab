@@ -25,7 +25,12 @@
         backrefs: true
       register: common_grub_aspm
       failed_when: false
-      changed_when: common_grub_aspm.changed and "pcie_aspm=off" not in common_grub_aspm.diff.before
+      changed_when: >-
+        common_grub_aspm.changed and
+        common_grub_aspm.diff is defined and
+        common_grub_aspm.diff.before is defined and
+        common_grub_aspm.diff.before is string and
+        "pcie_aspm=off" not in common_grub_aspm.diff.before
 
     # Previene duplicación de parámetro si el regex ya lo agregó
     - name: Ensure pcie_aspm=off is present exactly once  # noqa: no-handler
@@ -70,3 +75,4 @@
     enabled: true
     state: started
     daemon_reload: true
+  ignore_errors: "{{ ansible_check_mode }}"

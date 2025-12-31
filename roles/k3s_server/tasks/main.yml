@@ -1,12 +1,54 @@
----
 # Instalación de K3s con configuración de red Tailscale
 - name: Validate Tailscale IP is defined
   ansible.builtin.assert:
     that:
       - tailscale_ip is defined
       - tailscale_ip | length > 0
-    fail_msg: "ERROR: tailscale_ip fact is not set. Tailscale role must run before k3s_server."
-    success_msg: "Tailscale IP validated: {{ tailscale_ip }}"
+      - tailscale_ip is match('^100\.')
+    fail_msg: "ERROR: Invalid tailscale_ip ({{ tailscale_ip | default('undefined') }}). Must be 100.x.x.x"
+
+# --- Lógica de Auto-Reparación ---
+- name: Check current K3s bind IP configuration
+  ansible.builtin.shell: |
+    set -o pipefail
+    grep -oP -- '--node-ip[= ]\K[^ ]+' /etc/systemd/system/k3s.service 2>/dev/null || echo "not_installed"
+  register: current_k3s_bind_ip
+  changed_when: false
+  failed_when: false
+
+- name: Detect configuration drift (IP Mismatch)
+  ansible.builtin.set_fact:
+    k3s_server_force_reinstall: true
+  when: 
+    - current_k3s_bind_ip.stdout != "not_installed"
+    - current_k3s_bind_ip.stdout != tailscale_ip
+    - not (k3s_server_force_reinstall | default(false))
+
+- name: Announce Auto-Repair
+  ansible.builtin.debug:
+    msg: "⚠️ Configuration Drift Detected: K3s bound to {{ current_k3s_bind_ip.stdout }}, but Tailscale IP is {{ tailscale_ip }}. Triggering FORCE REINSTALL."
+  when: k3s_server_force_reinstall | default(false) | bool
+# --------------------------------
+
+- name: Check if K3s uninstall script exists
+  ansible.builtin.stat:
+    path: /usr/local/bin/k3s-uninstall.sh
+  register: k3s_server_uninstall_script
+
+- name: Uninstall existing K3s if reinstall requested or if installation is broken
+  ansible.builtin.command: /usr/local/bin/k3s-uninstall.sh
+  when:
+    - k3s_server_uninstall_script.stat.exists
+    - k3s_server_force_reinstall | default(false) | bool
+  register: k3s_server_uninstall
+  changed_when: k3s_server_uninstall.rc == 0
+
+- name: Kill any remaining K3s processes  # noqa: command-instead-of-module
+  ansible.builtin.shell: |
+    killall -9 k3s containerd-shim-runc-v2 || true
+    sleep 2
+  when: k3s_server_force_reinstall | default(false) | bool
+  changed_when: false
 
 - name: Write k3s server install env
   ansible.builtin.set_fact:
@@ -14,11 +56,23 @@
       server
       --node-ip {{ tailscale_ip }}
       --advertise-address {{ tailscale_ip }}
+      --tls-san {{ tailscale_ip }}
       --flannel-backend=none
       --disable-network-policy
       {% if k3s_server_disable_traefik | bool %}--disable traefik{% endif %}
       {% if k3s_server_disable_servicelb | bool %}--disable servicelb{% endif %}
       --write-kubeconfig-mode {{ k3s_server_kubeconfig_mode }}
+
+- name: Clean residual CNI configurations from previous installations
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /etc/cni/net.d/10-calico.conflist
+    - /etc/cni/net.d/calico-kubeconfig
+    - /etc/cni/net.d/10-flannel.conflist
+    - /etc/cni/net.d/87-podman-bridge.conflist
+  failed_when: false
 
 - name: Install k3s server  # noqa: command-instead-of-module
   ansible.builtin.shell: |
@@ -26,7 +80,7 @@
     curl -sfL https://get.k3s.io | \
       INSTALL_K3S_VERSION="{{ k3s_server_version }}" \
       INSTALL_K3S_EXEC="{{ k3s_server_exec }}" \
-      sh -
+      sh - 
   args:
     creates: /usr/local/bin/k3s
     executable: /bin/bash
@@ -35,18 +89,21 @@
   ansible.builtin.wait_for:
     path: /var/lib/rancher/k3s/server/node-token
     timeout: "{{ k3s_server_node_token_timeout }}"
+  when: not ansible_check_mode
 
 - name: Read node token
   ansible.builtin.slurp:
     src: /var/lib/rancher/k3s/server/node-token
   # Lee el token del servidor para posibles usos futuros (cluster multi-nodo)
   register: k3s_server_token_raw
+  when: not ansible_check_mode
 
 - name: Set token fact on localhost
   ansible.builtin.set_fact:
     k3s_server_token: "{{ k3s_server_token_raw.content | b64decode | trim }}"
   delegate_to: localhost
   run_once: true
+  when: not ansible_check_mode
 
 - name: Wait for kube-apiserver
   ansible.builtin.shell: |
@@ -56,3 +113,56 @@
   delay: "{{ k3s_server_readyz_delay }}"
   until: k3s_server_readyz.rc == 0
   changed_when: false
+  when: not ansible_check_mode
+
+# ============================================================================ 
+# Copy kubeconfig to control machine
+# ============================================================================ 
+- name: Copy kubeconfig to local machine
+  when:
+    - k3s_server_copy_kubeconfig_local | default(true) | bool
+    - not ansible_check_mode
+  delegate_to: localhost
+  become: false
+  run_once: true
+  block:
+    - name: Ensure local .kube directory exists
+      ansible.builtin.file:
+        path: "{{ k3s_server_local_kubeconfig_path | dirname }}"
+        state: directory
+        mode: "0700"
+
+    - name: Fetch kubeconfig from K3s server
+      ansible.builtin.slurp:
+        src: /etc/rancher/k3s/k3s.yaml
+      register: k3s_server_kubeconfig_b64
+      delegate_to: "{{ inventory_hostname }}"
+      become: true
+
+    - name: Parse and modify kubeconfig
+      ansible.builtin.set_fact:
+        k3s_server_kubeconfig_local: |
+          {{ k3s_server_kubeconfig_b64.content | b64decode |
+             regex_replace('https://127.0.0.1:6443', 'https://' + tailscale_ip + ':6443') |
+             regex_replace('name: default', 'name: k3s-' + inventory_hostname) |
+             regex_replace('cluster: default', 'cluster: k3s-' + inventory_hostname) |
+             regex_replace('user: default', 'user: k3s-' + inventory_hostname) |
+             regex_replace('current-context: default', 'current-context: k3s-' + inventory_hostname)
+          }}
+
+    - name: Write kubeconfig to local path
+      ansible.builtin.copy:
+        content: "{{ k3s_server_kubeconfig_local }}"
+        dest: "{{ k3s_server_local_kubeconfig_path }}"
+        mode: "0600"
+
+    - name: Show kubeconfig info
+      ansible.builtin.debug:
+        msg:
+          - "✅ Kubeconfig copied to: {{ k3s_server_local_kubeconfig_path }}"
+          - "✅ Context name: k3s-{{ inventory_hostname }}"
+          - "✅ Server URL: https://{{ tailscale_ip }}:6443"
+          - ""
+          - "Use kubectl with your existing installation:"
+          - "  kubectl get nodes"
+          - "  kubectl get pods -A"
