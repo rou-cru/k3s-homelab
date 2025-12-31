@@ -22,8 +22,6 @@
       --advertise-tags="{{ tailscale_tags }}" \
       --accept-dns="{{ tailscale_accept_dns }}" \
       {% if tailscale_ssh | bool %}--ssh{% endif %}
-  args:
-    creates: /var/lib/tailscale/tailscaled.state
   register: tailscale_up
   changed_when: tailscale_up.rc == 0
   # Acepta "already connected" como éxito - permite re-ejecución idempotente

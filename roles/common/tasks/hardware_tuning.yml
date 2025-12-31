@@ -12,7 +12,7 @@
     name:
       - alsa-utils
     state: present
-  when: audio_optimization_enabled | bool
+  when: common_audio_optimization_enabled | bool
 
 - name: Enable and start irqbalance
   ansible.builtin.systemd:
@@ -23,12 +23,14 @@
 # Bloquea WiFi/Bluetooth para ahorro energético y reducir interferencias
 # El hardware permanece disponible para desbloqueo manual si es necesario
 - name: Soft-block Wireless Radios (Save power/noise, keep HW available for SIGINT)
-  ansible.builtin.shell: |
-    rfkill block wifi
-    rfkill block bluetooth
-  when: radio_block_enabled | bool
-  changed_when: false
-  failed_when: false
+  community.general.rfkill:
+    name: "{{ item }}"
+    state: soft_blocked
+  loop:
+    - wifi
+    - bluetooth
+  when: common_radio_block_enabled | bool
+  failed_when: false  # Graceful: hardware puede no tener wifi/BT
 
 - name: Optimize System Limits for High Performance Audio (Realtime)
   community.general.pam_limits:
@@ -39,7 +41,7 @@
   loop:
     - {type: "-", item: "memlock", value: "unlimited"}
     - {type: "-", item: "rtprio", value: "95"}
-  when: audio_optimization_enabled | bool
+  when: common_audio_optimization_enabled | bool
 
 - name: Ensure fstrim.timer is enabled (NVMe Health)
   ansible.builtin.systemd:
