@@ -16,15 +16,15 @@
       --advertise-address {{ tailscale_ip }}
       --flannel-backend=none
       --disable-network-policy
-      {% if k3s_disable_traefik | bool %}--disable traefik{% endif %}
-      {% if k3s_disable_servicelb | bool %}--disable servicelb{% endif %}
-      --write-kubeconfig-mode {{ k3s_kubeconfig_mode }}
+      {% if k3s_server_disable_traefik | bool %}--disable traefik{% endif %}
+      {% if k3s_server_disable_servicelb | bool %}--disable servicelb{% endif %}
+      --write-kubeconfig-mode {{ k3s_server_kubeconfig_mode }}
 
 - name: Install k3s server  # noqa: command-instead-of-module
   ansible.builtin.shell: |
     set -o pipefail
     curl -sfL https://get.k3s.io | \
-      INSTALL_K3S_VERSION="{{ k3s_version }}" \
+      INSTALL_K3S_VERSION="{{ k3s_server_version }}" \
       INSTALL_K3S_EXEC="{{ k3s_server_exec }}" \
       sh -
   args:
@@ -34,25 +34,25 @@
 - name: Wait for node-token
   ansible.builtin.wait_for:
     path: /var/lib/rancher/k3s/server/node-token
-    timeout: "{{ k3s_node_token_timeout }}"
+    timeout: "{{ k3s_server_node_token_timeout }}"
 
 - name: Read node token
   ansible.builtin.slurp:
     src: /var/lib/rancher/k3s/server/node-token
   # Lee el token del servidor para posibles usos futuros (cluster multi-nodo)
-  register: token_raw
+  register: k3s_server_token_raw
 
 - name: Set token fact on localhost
   ansible.builtin.set_fact:
-    k3s_token: "{{ token_raw.content | b64decode | trim }}"
+    k3s_server_token: "{{ k3s_server_token_raw.content | b64decode | trim }}"
   delegate_to: localhost
   run_once: true
 
 - name: Wait for kube-apiserver
   ansible.builtin.shell: |
     k3s kubectl get --raw=/readyz >/dev/null
-  register: readyz
-  retries: "{{ k3s_readyz_retries }}"
-  delay: "{{ k3s_readyz_delay }}"
-  until: readyz.rc == 0
+  register: k3s_server_readyz
+  retries: "{{ k3s_server_readyz_retries }}"
+  delay: "{{ k3s_server_readyz_delay }}"
+  until: k3s_server_readyz.rc == 0
   changed_when: false

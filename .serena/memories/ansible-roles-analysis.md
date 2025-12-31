@@ -7,7 +7,7 @@
     *   Disk space (Requires > 20GB).
     *   Memory (Requires > 4GB).
     *   Architecture (Requires x86_64).
-*   **Implementation:** Relies heavily on `shell` module with awk/grep parsing.
+*   **Implementation:** Uses Ansible's `uri` module for network checks and `assert` module for validations.
 
 ## 2. Role: `common`
 *   **Purpose:** Base system configuration and tuning.
@@ -15,9 +15,10 @@
     *   **Packages:** Installs base utils (curl, iptables, etc.) and HWE kernel.
     *   **Swap:** Disables swap (command + fstab).
     *   **Hardware Tuning:**
-        *   Installs `irqbalance`, `rfkill`, `alsa-utils`.
-        *   Soft-blocks wifi/bluetooth via `rfkill` shell commands.
-        *   Configures PAM limits for audio (realtime).
+        *   Installs `irqbalance`, `rfkill`.
+        *   Installs `alsa-utils` (when `audio_optimization_enabled` is true).
+        *   Soft-blocks wifi/bluetooth via `rfkill` shell commands (when `radio_block_enabled` is true).
+        *   Configures PAM limits for audio (realtime, when `audio_optimization_enabled` is true).
     *   **Network Optimization:**
         *   Deploys custom systemd service (`network-optimization.service`) wrapping a script (`optimize-network.sh`).
         *   Script tweaks: EEE off, WOL off, Ring Buffers max.
@@ -40,7 +41,7 @@
 *   **Purpose:** Installs and configures Tailscale VPN.
 *   **Installation:** `curl | sh` script.
 *   **Configuration:**
-    *   `tailscale up` with AuthKey (Note: Key passed via CLI command).
+    *   `tailscale up` with AuthKey from secrets file, passed via CLI command.
     *   Sets fact `tailscale_ip` for use in K3s role.
 
 ## 4. Role: `k3s_server`
@@ -54,7 +55,7 @@
 
 ## 5. Role: `nvidia_gpu`
 *   **Purpose:** Configures NVIDIA drivers and Container Toolkit.
-*   **Detection:** Uses `lspci` and `ubuntu-drivers` (shell parsing).
+*   **Detection:** Uses `lspci` to detect NVIDIA GPU and `ubuntu-drivers` for driver detection (shell parsing, when `nvidia_driver_package` is set to "auto").
 *   **Driver Install:** APT (managed driver or fallback).
 *   **Container Runtime:**
     *   Installs `nvidia-container-toolkit`.

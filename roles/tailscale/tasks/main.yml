@@ -24,16 +24,16 @@
       {% if tailscale_ssh | bool %}--ssh{% endif %}
   args:
     creates: /var/lib/tailscale/tailscaled.state
-  register: ts_up
-  changed_when: ts_up.rc == 0
+  register: tailscale_up
+  changed_when: tailscale_up.rc == 0
   # Acepta "already connected" como éxito - permite re-ejecución idempotente
-  failed_when: ts_up.rc != 0 and ("already" not in (ts_up.stderr | default("")) | lower)
+  failed_when: tailscale_up.rc != 0 and ("already" not in (tailscale_up.stderr | default("")) | lower)
 
 - name: Get Tailscale IPv4
   ansible.builtin.command: tailscale ip -4
-  register: ts_ip
+  register: tailscale_ip_cmd
   changed_when: false
 
 - name: Set tailscale_ip fact
   ansible.builtin.set_fact:
-    tailscale_ip: "{{ (ts_ip.stdout_lines | select('match', '^[0-9]+\\.') | list | first) | trim }}"
+    tailscale_ip: "{{ (tailscale_ip_cmd.stdout_lines | select('match', '^[0-9]+\\.') | list | first) | trim }}"

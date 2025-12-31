@@ -6,7 +6,7 @@ The project follows a standard Ansible directory structure:
 *   **Configuration:** `ansible.cfg` (Root)
 *   **Inventory:** `inventory.ini` (INI format)
 *   **Playbook:** `site.yaml` (Main entry point)
-*   **Variables:** `group_vars/all.yaml`
+
 *   **Roles:** Located in `roles/` directory.
     *   `cilium`
     *   `common`

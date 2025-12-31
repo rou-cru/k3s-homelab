@@ -1,13 +1,13 @@
 ---
 # Optimización de red: drivers Realtek y configuración de red
 - name: RoG/Realtek Specific Optimizations
-  when: rog_server | bool
+  when: common_rog_server | bool
   block:
     - name: Install Realtek driver (r8168-dkms)
       ansible.builtin.apt:
         name: r8168-dkms
         state: present
-      register: r8168_install
+      register: common_r8168_install
 
     - name: Blacklist unstable generic driver (r8169)
       ansible.builtin.copy:
@@ -15,7 +15,7 @@
         content: |
           blacklist r8169
         mode: "0644"
-      register: r8169_blacklist
+      register: common_r8169_blacklist
 
     - name: Disable ASPM in GRUB
       ansible.builtin.lineinfile:
@@ -23,9 +23,9 @@
         regexp: '^GRUB_CMDLINE_LINUX_DEFAULT="(.*)"'
         line: 'GRUB_CMDLINE_LINUX_DEFAULT="\1 pcie_aspm=off"'
         backrefs: true
-      register: grub_aspm
+      register: common_grub_aspm
       failed_when: false
-      changed_when: grub_aspm.changed and "pcie_aspm=off" not in grub_aspm.diff.before
+      changed_when: common_grub_aspm.changed and "pcie_aspm=off" not in common_grub_aspm.diff.before
 
     # Previene duplicación de parámetro si el regex ya lo agregó
     - name: Ensure pcie_aspm=off is present exactly once  # noqa: no-handler
@@ -33,20 +33,23 @@
         path: /etc/default/grub
         regexp: "(pcie_aspm=off\\s?)+"
         replace: "pcie_aspm=off "
-      when: grub_aspm.changed
+      when: common_grub_aspm.changed
 
     - name: Update GRUB  # noqa: no-handler
       ansible.builtin.command: update-grub
-      when: grub_aspm.changed
+      when: common_grub_aspm.changed
       changed_when: true
 
     - name: Register network driver changes for consolidated reboot
       ansible.builtin.set_fact:
-        network_driver_changed: "{{ r8168_install.changed or r8169_blacklist.changed or grub_aspm.changed }}"
+        common_network_driver_changed: >-
+          {{ common_r8168_install.changed or
+             common_r8169_blacklist.changed or
+             common_grub_aspm.changed }}
 
 - name: Detect primary ethernet interface
   ansible.builtin.set_fact:
-    primary_interface: "{{ ansible_default_ipv4.interface }}"
+    common_primary_interface: "{{ ansible_default_ipv4.interface }}"
   when: ansible_default_ipv4.interface is defined
 
 - name: Deploy network optimization script

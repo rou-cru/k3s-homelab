@@ -5,20 +5,22 @@
     url: https://get.k3s.io
     method: HEAD
     timeout: 10
-  register: network_check
+  register: preflight_network_check
   failed_when: false
   changed_when: false
 
 - name: Fail if no network connectivity
   ansible.builtin.fail:
     msg: "No network connectivity detected. Cannot proceed with installation."
-  when: network_check.status is not defined or network_check.status != 200
+  when: preflight_network_check.status is not defined or preflight_network_check.status != 200
 
 - name: Assert Disk Space (Root Partition > 20GB)
   ansible.builtin.assert:
     that:
       - item.size_available > 21474836480
-    fail_msg: "Insufficient disk space on {{ item.mount }}. Required: 20GB, Available: {{ (item.size_available / 1024 / 1024 / 1024) | round(2) }}GB"
+    fail_msg: >-
+      Insufficient disk space on {{ item.mount }}.
+      Required: 20GB, Available: {{ (item.size_available / 1024 / 1024 / 1024) | round(2) }}GB
   loop: "{{ ansible_mounts }}"
   when: item.mount == '/'
 

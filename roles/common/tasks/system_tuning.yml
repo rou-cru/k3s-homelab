@@ -23,8 +23,8 @@
     state: present
     reload: true
   loop:
-    - { key: "net.core.default_qdisc", value: "fq" }
-    - { key: "net.ipv4.tcp_congestion_control", value: "bbr" }
+    - {key: "net.core.default_qdisc", value: "fq"}
+    - {key: "net.ipv4.tcp_congestion_control", value: "bbr"}
 
 - name: Increase File Descriptors Limits
   community.general.pam_limits:
@@ -33,8 +33,8 @@
     limit_item: "{{ item.item }}"
     value: "{{ item.value }}"
   loop:
-    - { type: "soft", item: "nofile", value: "{{ file_descriptors_soft }}" }
-    - { type: "hard", item: "nofile", value: "{{ file_descriptors_hard }}" }
+    - {type: "soft", item: "nofile", value: "{{ file_descriptors_soft }}"}
+    - {type: "hard", item: "nofile", value: "{{ file_descriptors_hard }}"}
 
 - name: Increase System-wide File Max
   ansible.posix.sysctl:

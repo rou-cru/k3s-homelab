@@ -1,9 +1,9 @@
 ---
 # Configuración de K3s - requiere Tailscale IP previamente configurada
-k3s_version: "v1.34.3+k3s1"
-k3s_disable_traefik: true
-k3s_disable_servicelb: true
-k3s_kubeconfig_mode: "644"
-k3s_node_token_timeout: 180
-k3s_readyz_retries: 30
-k3s_readyz_delay: 2
+k3s_server_version: "v1.34.3+k3s1"
+k3s_server_disable_traefik: true
+k3s_server_disable_servicelb: true
+k3s_server_kubeconfig_mode: "644"
+k3s_server_node_token_timeout: 180
+k3s_server_readyz_retries: 30
+k3s_server_readyz_delay: 2

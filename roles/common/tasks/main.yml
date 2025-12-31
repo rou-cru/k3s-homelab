@@ -22,11 +22,11 @@
       - acpid
       - linux-generic-hwe-22.04
     state: present
-  register: base_packages_install
+  register: common_base_packages_install
 
 - name: Register kernel changes for consolidated reboot
   ansible.builtin.set_fact:
-    kernel_changed: "{{ base_packages_install.changed }}"
+    common_kernel_changed: "{{ common_base_packages_install.changed }}"
 
 - name: Configure Power Management (Lid Switch / No Sleep)
   ansible.builtin.include_tasks: power_management.yml
@@ -36,16 +36,16 @@
   ansible.builtin.include_tasks: system_tuning.yml
 - name: Apply Network Optimizations
   ansible.builtin.include_tasks: network_optimization.yml
-  when: network_optimization_enabled | default(true)
+  when: common_network_optimization_enabled | default(true)
 
 - name: Apply RoG Server Hardware Tweaks
   ansible.builtin.include_tasks: rog_hardware.yml
-  when: rog_server | default(true) | bool
+  when: common_rog_server | default(true) | bool
 
 - name: Initialize network_driver_changed if not set
   ansible.builtin.set_fact:
-    network_driver_changed: false
-  when: network_driver_changed is not defined
+    common_network_driver_changed: false
+  when: common_network_driver_changed is not defined
 
 # Reinicio consolidado para aplicar cambios de kernel y drivers de red
 - name: Consolidated Reboot - Phase 1 (Kernel + Network Drivers)
@@ -56,4 +56,4 @@
     pre_reboot_delay: 0
     post_reboot_delay: 30
     test_command: whoami
-  when: (kernel_changed | default(false)) or (network_driver_changed | default(false))
+  when: (common_kernel_changed | default(false)) or (common_network_driver_changed | default(false))

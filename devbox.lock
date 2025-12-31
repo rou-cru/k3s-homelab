@@ -1,7 +1,7 @@
 {
   "lockfile_version": "1",
   "packages": {
-    "ansible-lint@latest": {
+    "ansible-lint@25.8.2": {
       "last_modified": "2025-12-09T08:49:39Z",
       "resolved": "github:NixOS/nixpkgs/677fbe97984e7af3175b6c121f3c39ee5c8d62c9#ansible-lint",
       "source": "devbox-search",
@@ -69,7 +69,7 @@
       "last_modified": "2025-12-27T12:56:01Z",
       "resolved": "github:NixOS/nixpkgs/3edc4a30ed3903fdf6f90c837f961fa6b49582d1?lastModified=1766840161&narHash=sha256-Ss%2FLHpJJsng8vz1Pe33RSGIWUOcqM1fjrehjUkdrWio%3D"
     },
-    "go-task@latest": {
+    "go-task@3.45.5": {
       "last_modified": "2025-11-23T21:50:36Z",
       "resolved": "github:NixOS/nixpkgs/ee09932cedcef15aaf476f9343d1dea2cb77e261#go-task",
       "source": "devbox-search",
@@ -117,7 +117,71 @@
         }
       }
     },
-    "j2lint@latest": {
+    "j2cli@0.3.10": {
+      "last_modified": "2025-11-23T21:50:36Z",
+      "resolved": "github:NixOS/nixpkgs/ee09932cedcef15aaf476f9343d1dea2cb77e261#j2cli",
+      "source": "devbox-search",
+      "version": "0.3.10",
+      "systems": {
+        "aarch64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/27aigmsnh5wvb2kwhv92dlara4kjay4q-python3.11-j2cli-0.3.10",
+              "default": true
+            },
+            {
+              "name": "dist",
+              "path": "/nix/store/g46sx4kfh85pz2nd23hbi24pxb7gjpvm-python3.11-j2cli-0.3.10-dist"
+            }
+          ],
+          "store_path": "/nix/store/27aigmsnh5wvb2kwhv92dlara4kjay4q-python3.11-j2cli-0.3.10"
+        },
+        "aarch64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/hn19grjrk1i2k0f7k53azjnqrqr6c9fv-python3.11-j2cli-0.3.10",
+              "default": true
+            },
+            {
+              "name": "dist",
+              "path": "/nix/store/6fqsfislprlxjfblys7ysp20yivybg0m-python3.11-j2cli-0.3.10-dist"
+            }
+          ],
+          "store_path": "/nix/store/hn19grjrk1i2k0f7k53azjnqrqr6c9fv-python3.11-j2cli-0.3.10"
+        },
+        "x86_64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/sq8hpl7k2vg25a2i2hfc7abswscw7y1n-python3.11-j2cli-0.3.10",
+              "default": true
+            },
+            {
+              "name": "dist",
+              "path": "/nix/store/m229v93l4lp4vssrjlbkrb2yfb7zfjwd-python3.11-j2cli-0.3.10-dist"
+            }
+          ],
+          "store_path": "/nix/store/sq8hpl7k2vg25a2i2hfc7abswscw7y1n-python3.11-j2cli-0.3.10"
+        },
+        "x86_64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/rh2bvswafkcpl8kq79l0nv4gkcwncv18-python3.11-j2cli-0.3.10",
+              "default": true
+            },
+            {
+              "name": "dist",
+              "path": "/nix/store/gzwpz0rns624a22ckjy9v2gcpklkpacw-python3.11-j2cli-0.3.10-dist"
+            }
+          ],
+          "store_path": "/nix/store/rh2bvswafkcpl8kq79l0nv4gkcwncv18-python3.11-j2cli-0.3.10"
+        }
+      }
+    },
+    "j2lint@1.2.0": {
       "last_modified": "2025-11-23T21:50:36Z",
       "resolved": "github:NixOS/nixpkgs/ee09932cedcef15aaf476f9343d1dea2cb77e261#j2lint",
       "source": "devbox-search",
@@ -181,7 +245,7 @@
         }
       }
     },
-    "shellcheck@latest": {
+    "shellcheck@0.11.0": {
       "last_modified": "2025-11-23T21:50:36Z",
       "resolved": "github:NixOS/nixpkgs/ee09932cedcef15aaf476f9343d1dea2cb77e261#shellcheck",
       "source": "devbox-search",
@@ -285,7 +349,7 @@
         }
       }
     },
-    "shfmt@latest": {
+    "shfmt@3.12.0": {
       "last_modified": "2025-12-13T16:46:16Z",
       "resolved": "github:NixOS/nixpkgs/23735a82a828372c4ef92c660864e82fbe2f5fbe#shfmt",
       "source": "devbox-search",
@@ -333,7 +397,7 @@
         }
       }
     },
-    "yamlfmt@latest": {
+    "yamlfmt@0.20.0": {
       "last_modified": "2025-11-23T21:50:36Z",
       "resolved": "github:NixOS/nixpkgs/ee09932cedcef15aaf476f9343d1dea2cb77e261#yamlfmt",
       "source": "devbox-search",
@@ -381,7 +445,7 @@
         }
       }
     },
-    "yamllint@latest": {
+    "yamllint@1.37.1": {
       "last_modified": "2025-11-23T21:50:36Z",
       "resolved": "github:NixOS/nixpkgs/ee09932cedcef15aaf476f9343d1dea2cb77e261#yamllint",
       "source": "devbox-search",

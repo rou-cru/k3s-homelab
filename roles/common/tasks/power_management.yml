@@ -7,9 +7,9 @@
     line: "{{ item.key }}={{ item.value }}"
     state: present
   loop:
-    - { key: "HandleLidSwitch", value: "ignore" }
-    - { key: "HandleLidSwitchExternalPower", value: "ignore" }
-    - { key: "HandleLidSwitchDocked", value: "ignore" }
+    - {key: "HandleLidSwitch", value: "ignore"}
+    - {key: "HandleLidSwitchExternalPower", value: "ignore"}
+    - {key: "HandleLidSwitchDocked", value: "ignore"}
   notify: Restart logind
 
 - name: Mask sleep and suspend targets to prevent accidental suspension

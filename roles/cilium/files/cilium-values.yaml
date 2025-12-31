@@ -2158,7 +2158,7 @@ maglev: {}
 # type: [null, boolean]
 # @schema
 # -- (bool) Enables masquerading of IPv4 traffic leaving the node from endpoints.
-# @default -- `true` unless ipam eni mode is active 
+# @default -- `true` unless ipam eni mode is active
 enableIPv4Masquerade:
 # -- Enables masquerading of IPv6 traffic leaving the node from endpoints.
 enableIPv6Masquerade: true

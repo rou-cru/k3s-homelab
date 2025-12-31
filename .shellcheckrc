@@ -1,0 +1,4 @@
+# ShellCheck configuration for rendered bash scripts
+
+# Shell target
+shell=bash

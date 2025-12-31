@@ -1,19 +1,19 @@
 ---
 # Instalación de drivers NVIDIA y plugin de dispositivos para Kubernetes
 - name: GPU Setup Block
-  when: gpu_setup | bool
+  when: nvidia_gpu_setup | bool
   block:
     # 1. Hardware Check
     - name: Detect NVIDIA GPU (Vendor ID 10de)
       ansible.builtin.command: lspci -nm
-      register: lspci_out
+      register: nvidia_gpu_lspci_out
       changed_when: false
 
     # Valida hardware requerido antes de continuar con instalación
     - name: Abort if no NVIDIA GPU found
       ansible.builtin.fail:
         msg: "No NVIDIA GPU (Vendor ID 10de) detected on this host."
-      when: '"10de" not in lspci_out.stdout'
+      when: '"10de" not in nvidia_gpu_lspci_out.stdout'
 
     - name: Install driver tools
       ansible.builtin.apt:
@@ -29,28 +29,30 @@
         ubuntu-drivers devices 2>/dev/null | grep -oP 'driver\s+:\s+\K(nvidia-driver-\d+)(?=\s.*recommended)'
       args:
         executable: /bin/bash
-      register: detected_driver
+      register: nvidia_gpu_detected_driver
       changed_when: false
-      when: nvidia_driver_package == "auto"
+      when: nvidia_gpu_driver_package == "auto"
 
     - name: Set detected driver
       ansible.builtin.set_fact:
-        nvidia_driver_target: "{{ detected_driver.stdout | trim }}"
+        nvidia_gpu_driver_target: "{{ nvidia_gpu_detected_driver.stdout | trim }}"
       when:
-        - nvidia_driver_package == "auto"
-        - detected_driver.stdout | length > 0
+        - nvidia_gpu_driver_package == "auto"
+        - nvidia_gpu_detected_driver.stdout | length > 0
 
     - name: Set driver fallback
       ansible.builtin.set_fact:
-        nvidia_driver_target: "{{ nvidia_driver_fallback }}"
+        nvidia_gpu_driver_target: "{{ nvidia_gpu_driver_fallback }}"
       when:
-        - nvidia_driver_package == "auto"
-        - (detected_driver.skipped is defined and detected_driver.skipped) or (detected_driver.stdout | length == 0)
+        - nvidia_gpu_driver_package == "auto"
+        - >-
+          (nvidia_gpu_detected_driver.skipped is defined and nvidia_gpu_detected_driver.skipped) or
+          (nvidia_gpu_detected_driver.stdout | length == 0)
 
     - name: Set manual driver
       ansible.builtin.set_fact:
-        nvidia_driver_target: "{{ nvidia_driver_package }}"
-      when: nvidia_driver_package != "auto"
+        nvidia_gpu_driver_target: "{{ nvidia_gpu_driver_package }}"
+      when: nvidia_gpu_driver_package != "auto"
 
     - name: Blacklist nouveau driver
       ansible.builtin.copy:
@@ -59,47 +61,47 @@
           blacklist nouveau
           options nouveau modeset=0
         mode: "0644"
-      register: blacklist_nouveau
+      register: nvidia_gpu_blacklist_nouveau
 
     - name: Update initramfs if blacklist changed  # noqa: no-handler
       ansible.builtin.command: update-initramfs -u
-      when: blacklist_nouveau.changed
+      when: nvidia_gpu_blacklist_nouveau.changed
       changed_when: true
 
     # Deriva el paquete nvidia-utils del driver detectado (ej: nvidia-driver-535 -> nvidia-utils-535)
     - name: Calculate nvidia-utils package name
       ansible.builtin.set_fact:
-        nvidia_utils_package: "nvidia-utils-{{ nvidia_driver_target | regex_replace('^nvidia-driver-', '') }}"
+        nvidia_gpu_utils_package: "nvidia-utils-{{ nvidia_gpu_driver_target | regex_replace('^nvidia-driver-', '') }}"
 
     - name: Install NVIDIA Driver
       ansible.builtin.apt:
         name:
-          - "{{ nvidia_driver_target }}"
-          - "{{ nvidia_utils_package }}"
+          - "{{ nvidia_gpu_driver_target }}"
+          - "{{ nvidia_gpu_utils_package }}"
         state: present
-      register: driver_install
+      register: nvidia_gpu_driver_install
 
     - name: Reboot if driver installed
       ansible.builtin.reboot:
         msg: "Rebooting to load NVIDIA drivers"
         connect_timeout: 5
-        reboot_timeout: "{{ nvidia_reboot_timeout }}"
+        reboot_timeout: "{{ nvidia_gpu_reboot_timeout }}"
         pre_reboot_delay: 0
         post_reboot_delay: 30
         test_command: whoami
-      when: driver_install.changed or blacklist_nouveau.changed
+      when: nvidia_gpu_driver_install.changed or nvidia_gpu_blacklist_nouveau.changed
 
     - name: Add Toolkit GPG Key
       ansible.builtin.apt_key:
-        url: "{{ nvidia_toolkit_gpg_url }}"
+        url: "{{ nvidia_gpu_toolkit_gpg_url }}"
         state: present
 
     - name: Add Toolkit Repository
       ansible.builtin.get_url:
-        url: "{{ nvidia_toolkit_repo_url }}"
+        url: "{{ nvidia_gpu_toolkit_repo_url }}"
         dest: /etc/apt/sources.list.d/nvidia-container-toolkit.list
         mode: "0644"
-      register: repo_added
+      register: nvidia_gpu_repo_added
 
     - name: Install Toolkit
       ansible.builtin.apt:
@@ -143,8 +145,8 @@
             name: nvidia-device-plugin
             namespace: kube-system
           spec:
-            repo: "{{ nvidia_device_plugin_repo }}"
+            repo: "{{ nvidia_gpu_device_plugin_repo }}"
             chart: "nvidia-device-plugin"
-            version: "{{ nvidia_device_plugin_version }}"
+            version: "{{ nvidia_gpu_device_plugin_version }}"
             targetNamespace: "kube-system"
             valuesFile: /var/lib/rancher/k3s/server/manifests/nvidia-device-plugin/values.yaml

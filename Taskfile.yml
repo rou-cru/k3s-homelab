@@ -1,0 +1,215 @@
+---
+version: '3'
+
+# Taskfile for k3s-homelab validation and formatting
+# All tasks in a single flat file for simplicity and reliability
+
+vars:
+  TEMPLATE_DIR: roles/common/templates
+  DEFAULTS_FILE: roles/common/defaults/main.yml
+  TEST_VARS_FILE: .task/test-vars.yml
+  OUTPUT_DIR: .task/rendered
+
+tasks:
+  # ==================== Default ====================
+  default:
+    desc: "Show available tasks"
+    cmds:
+      - task --list
+
+  # ==================== Render Tasks (Internal) ====================
+  render-rog-tweaks:
+    internal: true
+    sources:
+      - "{{.TEMPLATE_DIR}}/apply-rog-tweaks.sh.j2"
+      - "{{.DEFAULTS_FILE}}"
+    generates:
+      - "{{.OUTPUT_DIR}}/apply-rog-tweaks.sh"
+    cmds:
+      - mkdir -p {{.OUTPUT_DIR}}
+      - j2 {{.TEMPLATE_DIR}}/apply-rog-tweaks.sh.j2 {{.DEFAULTS_FILE}} > {{.OUTPUT_DIR}}/apply-rog-tweaks.sh
+      - chmod +x {{.OUTPUT_DIR}}/apply-rog-tweaks.sh
+
+  render-network-opt:
+    internal: true
+    sources:
+      - "{{.TEMPLATE_DIR}}/optimize-network.sh.j2"
+      - "{{.DEFAULTS_FILE}}"
+      - "{{.TEST_VARS_FILE}}"
+    generates:
+      - "{{.OUTPUT_DIR}}/optimize-network.sh"
+    cmds:
+      - mkdir -p {{.OUTPUT_DIR}}
+      - j2 {{.TEMPLATE_DIR}}/optimize-network.sh.j2 {{.TEST_VARS_FILE}} > {{.OUTPUT_DIR}}/optimize-network.sh
+      - chmod +x {{.OUTPUT_DIR}}/optimize-network.sh
+
+  render-all:
+    internal: true
+    deps:
+      - render-rog-tweaks
+      - render-network-opt
+
+  # ==================== Validation Tasks ====================
+  validate:
+    desc: "Validate all files (YAML, Ansible, Jinja2, Bash)"
+    cmds:
+      - task: validate-yaml
+      - task: validate-ansible
+      - task: validate-jinja2
+      - task: validate-bash
+      - defer: rm -rf {{.OUTPUT_DIR}}/ .task/checksum/
+
+  validate-yaml:
+    desc: "Validate all YAML files with yamllint"
+    sources:
+      - "**/*.yml"
+      - "**/*.yaml"
+      - ".yamllint.yml"
+    preconditions:
+      - sh: command -v yamllint
+        msg: "yamllint not found. Run: devbox shell"
+    cmds:
+      - yamllint .
+
+  validate-ansible:
+    desc: "Validate Ansible files with ansible-lint"
+    sources:
+      - "site.yaml"
+      - "roles/**/*.yml"
+      - ".ansible-lint"
+    preconditions:
+      - sh: command -v ansible-lint
+        msg: "ansible-lint not found. Run: devbox shell"
+    cmds:
+      - ansible-lint --force-color
+
+  validate-jinja2:
+    desc: "Lint Jinja2 templates with j2lint"
+    sources:
+      - "roles/**/templates/*.j2"
+    preconditions:
+      - sh: command -v j2lint
+        msg: "j2lint not found. Run: devbox shell"
+    cmds:
+      - j2lint roles/**/templates/*.j2
+
+  validate-bash:
+    desc: "Validate rendered bash scripts"
+    cmds:
+      - task: validate-bash-rog-tweaks
+      - task: validate-bash-network-opt
+
+  validate-bash-rog-tweaks:
+    desc: "Validate apply-rog-tweaks.sh (rendered)"
+    deps:
+      - render-rog-tweaks
+    vars:
+      SCRIPT: "{{.OUTPUT_DIR}}/apply-rog-tweaks.sh"
+    sources:
+      - "{{.SCRIPT}}"
+    preconditions:
+      - sh: command -v shellcheck
+        msg: "shellcheck not found. Run: devbox shell"
+      - sh: test -f {{.SCRIPT}}
+        msg: "Script not rendered"
+    cmds:
+      - bash -n {{.SCRIPT}}
+      - shellcheck {{.SCRIPT}}
+
+  validate-bash-network-opt:
+    desc: "Validate optimize-network.sh (rendered)"
+    deps:
+      - render-network-opt
+    vars:
+      SCRIPT: "{{.OUTPUT_DIR}}/optimize-network.sh"
+    sources:
+      - "{{.SCRIPT}}"
+    preconditions:
+      - sh: command -v shellcheck
+        msg: "shellcheck not found. Run: devbox shell"
+      - sh: test -f {{.SCRIPT}}
+        msg: "Script not rendered"
+    cmds:
+      - bash -n {{.SCRIPT}}
+      - shellcheck {{.SCRIPT}}
+
+  # ==================== Format Tasks ====================
+  format:
+    desc: "Auto-format all files (YAML + Bash)"
+    cmds:
+      - task: format-yaml
+      - task: format-bash
+
+  format-yaml:
+    desc: "Auto-format YAML files with yamlfmt"
+    sources:
+      - "**/*.yml"
+      - "**/*.yaml"
+    preconditions:
+      - sh: command -v yamlfmt
+        msg: "yamlfmt not found. Run: devbox shell"
+    cmds:
+      - yamlfmt .
+
+  format-bash:
+    desc: "Auto-format rendered bash scripts with shfmt"
+    deps:
+      - render-all
+    cmds:
+      - task: format-bash-rog-tweaks
+      - task: format-bash-network-opt
+
+  format-bash-rog-tweaks:
+    desc: "Format apply-rog-tweaks.sh"
+    deps:
+      - render-rog-tweaks
+    vars:
+      SCRIPT: "{{.OUTPUT_DIR}}/apply-rog-tweaks.sh"
+    preconditions:
+      - sh: command -v shfmt
+        msg: "shfmt not found. Run: devbox shell"
+    cmds:
+      - shfmt -w {{.SCRIPT}}
+      - echo "Formatted {{.SCRIPT}}"
+
+  format-bash-network-opt:
+    desc: "Format optimize-network.sh"
+    deps:
+      - render-network-opt
+    vars:
+      SCRIPT: "{{.OUTPUT_DIR}}/optimize-network.sh"
+    preconditions:
+      - sh: command -v shfmt
+        msg: "shfmt not found. Run: devbox shell"
+    cmds:
+      - shfmt -w {{.SCRIPT}}
+      - echo "Formatted {{.SCRIPT}}"
+
+  # ==================== CI/CD Tasks ====================
+  ci-full:
+    desc: "Run full CI pipeline (validate + format check)"
+    cmds:
+      - echo "🔍 Running full CI pipeline..."
+      - task: validate
+      - task: ci-format-check
+
+  ci-quick:
+    desc: "Quick validation (ansible-lint + bash syntax)"
+    cmds:
+      - echo "⚡ Running quick checks..."
+      - task: validate-ansible
+      - task: validate-bash
+
+  ci-format-check:
+    desc: "Check formatting without modifying files"
+    cmds:
+      - yamlfmt -dry .
+      - task: render-all
+      - shfmt -d {{.OUTPUT_DIR}}/*.sh
+
+  # ==================== Utility Tasks ====================
+  clean:
+    desc: "Clean rendered files and cache"
+    cmds:
+      - rm -rf {{.OUTPUT_DIR}}/ .task/checksum/
+      - echo "✓ Cleaned {{.OUTPUT_DIR}}/ and cache"

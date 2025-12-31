@@ -6,8 +6,8 @@ exclude_paths:
   - roles/cilium/files/cilium-values.yaml  # Upstream Cilium Helm values
 
 # Skip var-naming rule (we use consistent prefixes already)
-skip_list:
-  - var-naming[no-role-prefix]
+# skip_list:
+#   - var-naming[no-role-prefix]
 
 # Use production profile for strict validation
 profile: production

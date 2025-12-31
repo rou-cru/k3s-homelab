@@ -37,8 +37,8 @@
     limit_item: "{{ item.item }}"
     value: "{{ item.value }}"
   loop:
-    - { type: "-", item: "memlock", value: "unlimited" }
-    - { type: "-", item: "rtprio", value: "95" }
+    - {type: "-", item: "memlock", value: "unlimited"}
+    - {type: "-", item: "rtprio", value: "95"}
   when: audio_optimization_enabled | bool
 
 - name: Ensure fstrim.timer is enabled (NVMe Health)

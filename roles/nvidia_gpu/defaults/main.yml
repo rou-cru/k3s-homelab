@@ -1,12 +1,12 @@
 ---
 # Configuración de GPU NVIDIA - detección automática de drivers
 # Requiere GPU NVIDIA (Vendor ID 10de) presente en el sistema
-gpu_setup: true
-nvidia_driver_package: "auto"
-nvidia_driver_fallback: "nvidia-driver-535"
-nvidia_toolkit_repo_url: "https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list"
-nvidia_toolkit_gpg_url: "https://nvidia.github.io/libnvidia-container/gpgkey"
-nvidia_device_plugin_version: "0.14.3"
-nvidia_device_plugin_repo: "https://nvidia.github.io/k8s-device-plugin"
-nvidia_reboot_timeout: 600
-nvidia_initramfs_timeout: 300
+nvidia_gpu_setup: true
+nvidia_gpu_driver_package: "auto"
+nvidia_gpu_driver_fallback: "nvidia-driver-535"
+nvidia_gpu_toolkit_repo_url: "https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list"
+nvidia_gpu_toolkit_gpg_url: "https://nvidia.github.io/libnvidia-container/gpgkey"
+nvidia_gpu_device_plugin_version: "0.14.3"
+nvidia_gpu_device_plugin_repo: "https://nvidia.github.io/k8s-device-plugin"
+nvidia_gpu_reboot_timeout: 600
+nvidia_gpu_initramfs_timeout: 300
