@@ -1,22 +1,17 @@
----
 version: '3'
-
 # Taskfile for k3s-homelab validation and formatting
 # All tasks in a single flat file for simplicity and reliability
-
 vars:
   TEMPLATE_DIR: roles/common/templates
   DEFAULTS_FILE: roles/common/defaults/main.yml
   TEST_VARS_FILE: .task/test-vars.yml
   OUTPUT_DIR: .task/rendered
-
 tasks:
   # ==================== Default ====================
   default:
     desc: "Show available tasks"
     cmds:
       - task --list
-
   # ==================== Render Tasks (Internal) ====================
   render-rog-tweaks:
     internal: true
@@ -29,7 +24,6 @@ tasks:
       - mkdir -p {{.OUTPUT_DIR}}
       - j2 {{.TEMPLATE_DIR}}/apply-rog-tweaks.sh.j2 {{.DEFAULTS_FILE}} > {{.OUTPUT_DIR}}/apply-rog-tweaks.sh
       - chmod +x {{.OUTPUT_DIR}}/apply-rog-tweaks.sh
-
   render-network-opt:
     internal: true
     sources:
@@ -42,13 +36,11 @@ tasks:
       - mkdir -p {{.OUTPUT_DIR}}
       - j2 {{.TEMPLATE_DIR}}/optimize-network.sh.j2 {{.TEST_VARS_FILE}} > {{.OUTPUT_DIR}}/optimize-network.sh
       - chmod +x {{.OUTPUT_DIR}}/optimize-network.sh
-
   render-all:
     internal: true
     deps:
       - render-rog-tweaks
       - render-network-opt
-
   # ==================== Validation Tasks ====================
   validate:
     desc: "Validate all files (YAML, Ansible, Jinja2, Bash)"
@@ -58,7 +50,6 @@ tasks:
       - task: validate-jinja2
       - task: validate-bash
       - defer: rm -rf {{.OUTPUT_DIR}}/ .task/checksum/
-
   validate-yaml:
     desc: "Validate all YAML files with yamllint"
     sources:
@@ -70,7 +61,6 @@ tasks:
         msg: "yamllint not found. Run: devbox shell"
     cmds:
       - yamllint .
-
   validate-ansible:
     desc: "Validate Ansible files with ansible-lint"
     sources:
@@ -108,7 +98,6 @@ tasks:
           if [ -f .task/mock-secrets.created ]; then
             rm -f secrets.yaml .task/mock-secrets.yaml .task/mock-secrets.created
           fi
-
   validate-jinja2:
     desc: "Lint Jinja2 templates with j2lint"
     sources:
@@ -118,13 +107,11 @@ tasks:
         msg: "j2lint not found. Run: devbox shell"
     cmds:
       - j2lint roles/**/templates/*.j2
-
   validate-bash:
     desc: "Validate rendered bash scripts"
     cmds:
       - task: validate-bash-rog-tweaks
       - task: validate-bash-network-opt
-
   validate-bash-rog-tweaks:
     desc: "Validate apply-rog-tweaks.sh (rendered)"
     deps:
@@ -141,7 +128,6 @@ tasks:
     cmds:
       - bash -n {{.SCRIPT}}
       - shellcheck {{.SCRIPT}}
-
   validate-bash-network-opt:
     desc: "Validate optimize-network.sh (rendered)"
     deps:
@@ -158,14 +144,12 @@ tasks:
     cmds:
       - bash -n {{.SCRIPT}}
       - shellcheck {{.SCRIPT}}
-
   # ==================== Format Tasks ====================
   format:
     desc: "Auto-format all files (YAML + Bash)"
     cmds:
       - task: format-yaml
       - task: format-bash
-
   format-yaml:
     desc: "Auto-format YAML files with yamlfmt"
     sources:
@@ -176,7 +160,6 @@ tasks:
         msg: "yamlfmt not found. Run: devbox shell"
     cmds:
       - yamlfmt .
-
   format-bash:
     desc: "Auto-format rendered bash scripts with shfmt"
     deps:
@@ -184,7 +167,6 @@ tasks:
     cmds:
       - task: format-bash-rog-tweaks
       - task: format-bash-network-opt
-
   format-bash-rog-tweaks:
     desc: "Format apply-rog-tweaks.sh"
     deps:
@@ -197,7 +179,6 @@ tasks:
     cmds:
       - shfmt -w {{.SCRIPT}}
       - echo "Formatted {{.SCRIPT}}"
-
   format-bash-network-opt:
     desc: "Format optimize-network.sh"
     deps:
@@ -210,7 +191,6 @@ tasks:
     cmds:
       - shfmt -w {{.SCRIPT}}
       - echo "Formatted {{.SCRIPT}}"
-
   # ==================== CI/CD Tasks ====================
   ci-full:
     desc: "Run full CI pipeline (validate + format check)"
@@ -218,28 +198,24 @@ tasks:
       - echo "🔍 Running full CI pipeline..."
       - task: validate
       - task: ci-format-check
-
   ci-quick:
     desc: "Quick validation (ansible-lint + bash syntax)"
     cmds:
       - echo "⚡ Running quick checks..."
       - task: validate-ansible
       - task: validate-bash
-
   ci-format-check:
     desc: "Check formatting without modifying files"
     cmds:
       - yamlfmt -dry .
       - task: render-all
       - shfmt -d {{.OUTPUT_DIR}}/*.sh
-
   # ==================== Utility Tasks ====================
   clean:
     desc: "Clean rendered files and cache"
     cmds:
       - rm -rf {{.OUTPUT_DIR}}/ .task/checksum/
       - echo "✓ Cleaned {{.OUTPUT_DIR}}/ and cache"
-
   # ==================== Ansible Vault ====================
   setup-vault:
     desc: "Setup Ansible Vault with Tailscale authkey (task setup-vault -- tskey-auth-XXX)"

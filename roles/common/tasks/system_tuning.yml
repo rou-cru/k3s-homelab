@@ -1,11 +1,9 @@
----
 # Optimización del kernel: CPU, red y límites del sistema
 - name: Install performance tools
   ansible.builtin.apt:
     name:
       - cpufrequtils
     state: present
-
 - name: Set CPU Governor to Schedutil
   ansible.builtin.lineinfile:
     path: /etc/default/cpufrequtils
@@ -14,7 +12,6 @@
     create: true
     mode: "0644"
   notify: Restart cpufrequtils
-
 - name: Enable TCP BBR Congestion Control
   ansible.posix.sysctl:
     name: "{{ item.key }}"
@@ -25,7 +22,6 @@
   loop:
     - {key: "net.core.default_qdisc", value: "fq"}
     - {key: "net.ipv4.tcp_congestion_control", value: "bbr"}
-
 - name: Increase File Descriptors Limits
   community.general.pam_limits:
     domain: "*"
@@ -35,28 +31,24 @@
   loop:
     - {type: "soft", item: "nofile", value: "{{ common_file_descriptors_soft }}"}
     - {type: "hard", item: "nofile", value: "{{ common_file_descriptors_hard }}"}
-
 - name: Increase System-wide File Max
   ansible.posix.sysctl:
     name: fs.file-max
     value: "{{ common_fs_file_max }}"
     state: present
     reload: true
-
 - name: Increase Inotify Watches
   ansible.posix.sysctl:
     name: fs.inotify.max_user_instances
     value: "{{ common_inotify_max_instances }}"
     state: present
     reload: true
-
 - name: Increase Inotify User Watches
   ansible.posix.sysctl:
     name: fs.inotify.max_user_watches
     value: "{{ common_inotify_max_watches }}"
     state: present
     reload: true
-
 - name: Enable Hardware Watchdog (Auto-reboot on freeze)
   ansible.builtin.lineinfile:
     path: /etc/systemd/system.conf

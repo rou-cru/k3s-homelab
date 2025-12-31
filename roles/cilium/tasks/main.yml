@@ -1,44 +1,33 @@
----
 # Instalación de Cilium CNI con Helm (estándar)
 - name: Create temporary values file
   ansible.builtin.tempfile:
     state: file
     suffix: "-cilium-values.yaml"
   register: cilium_values_tmp
-
 - name: Template Cilium values file
   ansible.builtin.template:
     src: cilium-values.yaml.j2
     dest: "{{ cilium_values_tmp.path }}"
     mode: "0600"
-
 - name: Verify Helm is installed
   ansible.builtin.command: helm version --short
   register: cilium_helm_version
   changed_when: false
-
 - name: Add Cilium Helm repository
   ansible.builtin.command: helm repo add cilium {{ cilium_chart_repo }}
   register: cilium_helm_repo_add
   changed_when: "'has been added' in cilium_helm_repo_add.stdout"
   failed_when: cilium_helm_repo_add.rc != 0 and 'already exists' not in cilium_helm_repo_add.stderr
-
 - name: Update Helm repositories
   ansible.builtin.command: helm repo update
   register: cilium_helm_repo_update
   changed_when: "'Update Complete' in cilium_helm_repo_update.stdout"
-
 - name: Install/upgrade Cilium with Helm
   ansible.builtin.command: >
-    helm upgrade --install cilium cilium/{{ cilium_chart_name }}
-    --version {{ cilium_version }}
-    --namespace {{ cilium_namespace }}
-    --create-namespace
-    --values {{ cilium_values_tmp.path }}
-    --kubeconfig /etc/rancher/k3s/k3s.yaml
+    helm upgrade --install cilium cilium/{{ cilium_chart_name }} --version {{ cilium_version }} --namespace {{ cilium_namespace }} --create-namespace --values {{ cilium_values_tmp.path }} --kubeconfig /etc/rancher/k3s/k3s.yaml
+
   register: cilium_helm_install
   changed_when: "'STATUS: deployed' in cilium_helm_install.stdout or 'STATUS: upgraded' in cilium_helm_install.stdout"
-
 - name: Wait for Cilium DaemonSet to be created
   ansible.builtin.command: k3s kubectl -n {{ cilium_namespace }} get ds cilium
   register: cilium_ds_check
@@ -46,20 +35,17 @@
   retries: "{{ cilium_wait_retries | default(60) }}"
   delay: "{{ cilium_wait_delay | default(5) }}"
   changed_when: false
-
 - name: Wait for cilium pods
   ansible.builtin.command: k3s kubectl -n {{ cilium_namespace }} rollout status ds/cilium --timeout="{{ cilium_rollout_timeout }}s"
   register: cilium_rollout
   changed_when: false
   failed_when: cilium_rollout.rc != 0
-
 # Limpieza del archivo temporal
 - name: Remove temporary values file
   ansible.builtin.file:
     path: "{{ cilium_values_tmp.path }}"
     state: absent
   changed_when: false
-
 # Verificación final - muestra estado del nodo con Cilium operativo
 - name: Show node status
   ansible.builtin.command: k3s kubectl get nodes -o wide

@@ -1,4 +1,3 @@
----
 # Ansible Collections required for k3s-homelab playbook
 collections:
   - name: community.general

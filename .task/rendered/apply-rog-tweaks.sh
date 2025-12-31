@@ -1,0 +1,64 @@
+#!/bin/bash
+set -euo pipefail
+
+# Managed by Ansible - ASUS RoG Strix Server Hardware Configuration
+
+# --- Configuration Variables (from Ansible) ---
+BATTERY_THRESHOLD=80
+THERMAL_MODE=1
+
+# --- Input Validation ---
+# Validate battery_charge_threshold range (0-100)
+if ! [[ "$BATTERY_THRESHOLD" =~ ^[0-9]+$ ]] ||
+	[ "$BATTERY_THRESHOLD" -lt 0 ] ||
+	[ "$BATTERY_THRESHOLD" -gt 100 ]; then
+	logger -t rog-tweaks -p err "Invalid battery_charge_threshold: ${BATTERY_THRESHOLD}. Must be 0-100."
+	exit 1
+fi
+
+# Validate thermal_policy (0, 1, or 2)
+if ! [[ "$THERMAL_MODE" =~ ^[0-2]$ ]]; then
+	logger -t rog-tweaks -p err "Invalid thermal_policy: ${THERMAL_MODE}. Must be 0, 1, or 2."
+	exit 1
+fi
+
+# --- 1. Battery Care Mode ---
+# Limit charge to configured threshold to extend battery lifespan
+BAT_PATH="/sys/class/power_supply/BAT0"
+
+if [ -f "$BAT_PATH/charge_control_end_threshold" ]; then
+	echo "$BATTERY_THRESHOLD" >"$BAT_PATH/charge_control_end_threshold"
+	CURRENT=$(cat "$BAT_PATH/charge_control_end_threshold" 2>/dev/null)
+	if [ "$CURRENT" = "$BATTERY_THRESHOLD" ]; then
+		logger -t rog-tweaks -p info "Battery threshold set to ${BATTERY_THRESHOLD}%"
+	else
+		logger -t rog-tweaks -p warning "Battery threshold write failed: current=${CURRENT}, expected=${BATTERY_THRESHOLD}"
+	fi
+else
+	logger -t rog-tweaks -p info "Battery control not available (sysfs path missing)"
+fi
+
+# --- 2. Thermal Policy ---
+# 0: Balanced, 1: Turbo, 2: Silent
+THERMAL_POLICY_PATH="/sys/devices/platform/asus-nb-wmi/throttle_thermal_policy"
+
+if [ -f "$THERMAL_POLICY_PATH" ]; then
+	echo "$THERMAL_MODE" >"$THERMAL_POLICY_PATH"
+	CURRENT=$(cat "$THERMAL_POLICY_PATH" 2>/dev/null)
+	if [ "$CURRENT" = "$THERMAL_MODE" ]; then
+		logger -t rog-tweaks -p info "Thermal policy set to mode ${THERMAL_MODE}"
+	else
+		logger -t rog-tweaks -p warning "Thermal policy write failed: current=${CURRENT}, expected=${THERMAL_MODE}"
+	fi
+else
+	logger -t rog-tweaks -p info "Thermal policy control not available (sysfs path missing)"
+fi
+
+# --- 3. RGB / Keyboard Backlight ---
+# No default changes applied (maintains ASUS defaults)
+# asusctl daemon is running for manual control
+#
+# Manual control examples:
+# asusctl led-mode static -c ff0000 (Red)
+# asusctl led-mode breathe -c 00ffff (Cyan breathing)
+# asusctl -p 3 (Maximum brightness)

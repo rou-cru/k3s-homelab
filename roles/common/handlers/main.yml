@@ -1,11 +1,9 @@
----
 # Handlers para reiniciar servicios tras cambios de configuración
 - name: Restart logind
   ansible.builtin.service:
     name: systemd-logind
     state: restarted
   ignore_errors: "{{ ansible_check_mode }}"
-
 - name: Restart cpufrequtils
   ansible.builtin.service:
     name: cpufrequtils

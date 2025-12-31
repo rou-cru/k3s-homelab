@@ -1,4 +1,3 @@
----
 # Gestión de energía: deshabilitar suspensión y gestión de tapa
 - name: Configure logind to ignore Lid Switch
   ansible.builtin.lineinfile:
@@ -11,7 +10,6 @@
     - {key: "HandleLidSwitchExternalPower", value: "ignore"}
     - {key: "HandleLidSwitchDocked", value: "ignore"}
   notify: Restart logind
-
 - name: Mask sleep and suspend targets to prevent accidental suspension
   ansible.builtin.systemd:
     name: "{{ item }}"

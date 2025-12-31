@@ -1,18 +1,15 @@
----
 # Variables de configuración para el rol common
 common_network_optimization_enabled: true
 common_rog_server: true
-common_asusctl_enabled: false  # Compilación de asusctl (requiere Rust, ~20min, riesgo medio)
+common_asusctl_enabled: false # Compilación de asusctl (requiere Rust, ~20min, riesgo medio)
 common_radio_block_enabled: true
 common_audio_optimization_enabled: true
-
 common_file_descriptors_soft: 100000
 common_file_descriptors_hard: 100000
 common_fs_file_max: 2097152
 common_inotify_max_instances: 8192
 common_inotify_max_watches: 524288
 common_watchdog_timeout_sec: 120
-
 common_battery_charge_threshold: 80
 common_thermal_policy: 1
 common_ring_buffer_target: 4096

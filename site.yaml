@@ -1,19 +1,15 @@
----
 # Playbook principal para configurar el nodo maestro K3s con Tailscale y Cilium
 - name: Setup K3s Master Node
   hosts: k3s_server
   become: true
-
   vars_files:
     - secrets.yaml
-
   pre_tasks:
     - name: Update APT cache once at start
       ansible.builtin.apt:
         update_cache: true
         cache_valid_time: 3600
       tags: always
-
     - name: Validate Tailscale AuthKey presence
       ansible.builtin.assert:
         that:
@@ -23,7 +19,6 @@
         fail_msg: "ERROR: Configure your real 'tailscale_authkey' in 'secrets.yaml'."
         success_msg: "Tailscale AuthKey validated successfully."
       tags: always
-
   roles:
     - role: preflight
       tags: ["preflight", "validation"]

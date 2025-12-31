@@ -1,4 +1,3 @@
----
 # Optimización de hardware: IRQ balance, radios, audio y NVMe
 - name: Install General Hardware Tuning Tools
   ansible.builtin.apt:
@@ -6,21 +5,18 @@
       - irqbalance
       - rfkill
     state: present
-
 - name: Install Audio Tuning Tools
   ansible.builtin.apt:
     name:
       - alsa-utils
     state: present
   when: common_audio_optimization_enabled | bool
-
 - name: Enable and start irqbalance
   ansible.builtin.systemd:
     name: irqbalance
     enabled: true
     state: started
   ignore_errors: "{{ ansible_check_mode }}"
-
 # Bloquea WiFi/Bluetooth para ahorro energético y reducir interferencias
 # El hardware permanece disponible para desbloqueo manual si es necesario
 - name: Soft-block Wireless Radios (Save power/noise, keep HW available for SIGINT)
@@ -30,8 +26,7 @@
     - bluetooth
   when: common_radio_block_enabled | bool
   changed_when: false
-  failed_when: false  # Graceful: hardware puede no tener wifi/BT
-
+  failed_when: false # Graceful: hardware puede no tener wifi/BT
 - name: Optimize System Limits for High Performance Audio (Realtime)
   community.general.pam_limits:
     domain: "*"
@@ -42,7 +37,6 @@
     - {type: "-", item: "memlock", value: "unlimited"}
     - {type: "-", item: "rtprio", value: "95"}
   when: common_audio_optimization_enabled | bool
-
 - name: Ensure fstrim.timer is enabled (NVMe Health)
   ansible.builtin.systemd:
     name: fstrim.timer

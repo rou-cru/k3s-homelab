@@ -1,25 +1,20 @@
----
 # Configuración base del sistema: swap, paquetes y optimizaciones
 - name: Disable swap now
   ansible.builtin.command: swapoff -a
   changed_when: false
   failed_when: false
-
 - name: Disable swap permanently in fstab
   ansible.builtin.replace:
     path: /etc/fstab
     regexp: "^(.*\\sswap\\s.*)$"
     replace: "# \\1"
-
 - name: Detect Ubuntu version for HWE kernel
   ansible.builtin.set_fact:
     ubuntu_version: "{{ ansible_facts['distribution_version'] }}"
-
 - name: Set HWE kernel package name
   ansible.builtin.set_fact:
     hwe_kernel_package: "linux-generic-hwe-{{ ubuntu_version }}"
   when: ubuntu_version is version('20.04', '>=') and ubuntu_version is version('24.04', '<=')
-
 - name: Install base packages
   ansible.builtin.apt:
     name:
@@ -30,7 +25,6 @@
       - network-manager
       - acpid
     state: present
-
 - name: Install HWE kernel (Ubuntu 20.04-24.04)
   ansible.builtin.apt:
     name: "{{ hwe_kernel_package }}"
@@ -38,18 +32,15 @@
   when: hwe_kernel_package is defined
   register: common_hwe_kernel_install
   ignore_errors: true
-
 - name: Install generic kernel as fallback
   ansible.builtin.apt:
     name: linux-generic
     state: present
   when: common_hwe_kernel_install is failed or hwe_kernel_package is not defined
   register: common_generic_kernel_install
-
 - name: Register kernel changes for consolidated reboot
   ansible.builtin.set_fact:
     common_kernel_changed: "{{ (common_hwe_kernel_install.changed | default(false)) or (common_generic_kernel_install.changed | default(false)) }}"
-
 - name: Configure Power Management (Lid Switch / No Sleep)
   ansible.builtin.include_tasks: power_management.yml
 - name: Apply Hardware Tuning (CPU/Radios/Audio)
@@ -59,16 +50,13 @@
 - name: Apply Network Optimizations
   ansible.builtin.include_tasks: network_optimization.yml
   when: common_network_optimization_enabled | default(true)
-
 - name: Apply RoG Server Hardware Tweaks
   ansible.builtin.include_tasks: rog_hardware.yml
   when: common_rog_server | default(true) | bool
-
 - name: Initialize network_driver_changed if not set
   ansible.builtin.set_fact:
     common_network_driver_changed: false
   when: common_network_driver_changed is not defined
-
 # Reinicio consolidado para aplicar cambios de kernel y drivers de red
 - name: Consolidated Reboot - Phase 1 (Kernel + Network Drivers)
   ansible.builtin.reboot:
