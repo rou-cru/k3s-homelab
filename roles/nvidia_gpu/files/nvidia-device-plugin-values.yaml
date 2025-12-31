@@ -58,9 +58,8 @@ resources:
   requests:
     cpu: 100m
     memory: 128Mi
-# NodeSelector: Only deploy on nodes with NVIDIA GPU (detected by GFD)
-nodeSelector:
-  nvidia.com/gpu.present: "true"
+# NodeSelector disabled; rely on affinity for NFD/GFD labels
+nodeSelector: {}
 # Affinity: Fallback to NFD label if GFD not ready yet
 affinity:
   nodeAffinity:

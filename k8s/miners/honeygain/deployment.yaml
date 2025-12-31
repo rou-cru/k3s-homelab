@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: honeygain
+  namespace: miners
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: honeygain
+  template:
+    metadata:
+      labels:
+        app: honeygain
+    spec:
+      containers:
+        - name: honeygain
+          image: honeygain/honeygain:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: HONEYGAIN_EMAIL
+              valueFrom:
+                configMapKeyRef:
+                  name: honeygain-config
+                  key: HONEYGAIN_EMAIL
+            - name: HONEYGAIN_DEVICE
+              valueFrom:
+                configMapKeyRef:
+                  name: honeygain-config
+                  key: HONEYGAIN_DEVICE
+            - name: HONEYGAIN_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: honeygain-secret
+                  key: HONEYGAIN_PASS
+          args:
+            - "-tou-accept"
+            - "-email"
+            - "$(HONEYGAIN_EMAIL)"
+            - "-pass"
+            - "$(HONEYGAIN_PASS)"
+            - "-device"
+            - "$(HONEYGAIN_DEVICE)"

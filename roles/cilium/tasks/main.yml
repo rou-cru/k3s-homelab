@@ -33,8 +33,8 @@
 
   register: cilium_helm_install
   changed_when: >
-    "'STATUS: deployed' in cilium_helm_install.stdout or
-    'STATUS: upgraded' in cilium_helm_install.stdout"
+    'STATUS: deployed' in cilium_helm_install.stdout or
+    'STATUS: upgraded' in cilium_helm_install.stdout
 - name: Wait for Cilium DaemonSet to be created
   ansible.builtin.command: k3s kubectl -n {{ cilium_namespace }} get ds cilium
   register: cilium_ds_check

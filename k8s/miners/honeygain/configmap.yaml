@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: honeygain-config
+  namespace: miners
+data:
+  HONEYGAIN_DEVICE: "k8s-server"
+  HONEYGAIN_EMAIL: "roura.cruz.al@gmail.com"
