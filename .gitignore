@@ -1,4 +1,11 @@
-secrets.yaml
+# Ansible Vault password file (NEVER commit this)
+.ansible_vault_pass
+
+# Ansible retry files
 .retry
+
+# Python bytecode
 *.pyc
+
+# Vim swap files
 *.swp
