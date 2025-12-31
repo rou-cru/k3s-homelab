@@ -28,7 +28,7 @@
     - name: Run common role
       ansible.builtin.import_role:
         name: common
-      tags: ["common", "system"]
+      tags: ["common", "system", "mining", "hugepages", "msr"]
     - name: Run developer tools role
       ansible.builtin.import_role:
         name: developer_tools
@@ -58,3 +58,23 @@
         name: nvidia_gpu
         tasks_from: cluster.yml
       tags: ["nvidia", "gpu", "nvidia-cluster"]
+  post_tasks:
+    - name: Copy K8s manifests to remote host
+      ansible.builtin.copy:
+        src: k8s/
+        dest: /tmp/k8s-manifests/
+        mode: "0644"
+      tags: ["k8s-deploy", "workloads"]
+    - name: Apply K8s manifests
+      ansible.builtin.shell:
+        cmd: |
+          export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+          kubectl apply -R -f /tmp/k8s-manifests/
+        executable: /bin/bash
+      changed_when: true
+      tags: ["k8s-deploy", "workloads"]
+    - name: Cleanup temporary manifests
+      ansible.builtin.file:
+        path: /tmp/k8s-manifests/
+        state: absent
+      tags: ["k8s-deploy", "workloads"]

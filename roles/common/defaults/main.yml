@@ -14,3 +14,6 @@ common_watchdog_timeout_sec: 120
 common_battery_charge_threshold: 80
 common_thermal_policy: 1
 common_ring_buffer_target: 4096
+# Mining optimizations
+common_mining_enabled: true
+common_hugepages_count: 1280 # ~2.5GB for RandomX (1168 needed + buffer)

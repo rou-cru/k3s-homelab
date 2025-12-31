@@ -56,3 +56,18 @@
     regexp: "^#?RuntimeWatchdogSec="
     line: "RuntimeWatchdogSec={{ common_watchdog_timeout_sec }}"
     state: present
+- name: Configure Huge Pages for mining (RandomX)
+  ansible.posix.sysctl:
+    name: vm.nr_hugepages
+    value: "{{ common_hugepages_count }}"
+    state: present
+    reload: true
+  when: common_mining_enabled | default(false)
+  tags: ["mining", "hugepages"]
+- name: Load MSR kernel module for CPU optimization
+  community.general.modprobe:
+    name: msr
+    state: present
+    persistent: present
+  when: common_mining_enabled | default(false)
+  tags: ["mining", "msr"]

@@ -1,0 +1,82 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: unmineable
+  namespace: miners
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: unmineable
+  template:
+    metadata:
+      labels:
+        app: unmineable
+    spec:
+      containers:
+        - name: unmineable
+          image: thechristech/unmineable:latest
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            privileged: true
+            runAsUser: 0
+          volumeMounts:
+            - name: dev-cpu
+              mountPath: /dev/cpu
+            - name: hugepages
+              mountPath: /dev/hugepages
+          env:
+            - name: POOL
+              valueFrom:
+                configMapKeyRef:
+                  name: unmineable-config
+                  key: POOL
+            - name: COIN
+              valueFrom:
+                configMapKeyRef:
+                  name: unmineable-config
+                  key: COIN
+            - name: REFERRAL_CODE
+              valueFrom:
+                configMapKeyRef:
+                  name: unmineable-config
+                  key: REFERRAL_CODE
+            - name: WALLET_ADDRESS
+              valueFrom:
+                secretKeyRef:
+                  name: unmineable-secret
+                  key: WALLET_ADDRESS
+            - name: WORKER_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: unmineable-config
+                  key: WORKER_NAME
+            - name: CPU_LIMIT_ENABLE
+              valueFrom:
+                configMapKeyRef:
+                  name: unmineable-config
+                  key: CPU_LIMIT_ENABLE
+            - name: CPU_LIMIT_PERCENT
+              valueFrom:
+                configMapKeyRef:
+                  name: unmineable-config
+                  key: CPU_LIMIT_PERCENT
+          resources:
+            requests:
+              cpu: "2000m"
+              memory: "3Gi"
+              hugepages-2Mi: "2560Mi"
+            limits:
+              cpu: "12000m"
+              memory: "3Gi"
+              hugepages-2Mi: "2560Mi"
+      volumes:
+        - name: dev-cpu
+          hostPath:
+            path: /dev/cpu
+            type: Directory
+        - name: hugepages
+          emptyDir:
+            medium: HugePages-2Mi
