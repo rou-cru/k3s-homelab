@@ -1,3 +1,4 @@
+---
 # Configuración de Cilium CNI - reemplaza Flannel por defecto de K3s
 cilium_version: "1.18.5"
 cilium_chart_repo: "https://helm.cilium.io/"

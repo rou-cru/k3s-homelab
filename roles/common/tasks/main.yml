@@ -1,4 +1,4 @@
-# Configuración base del sistema: swap, paquetes y optimizaciones
+---
 - name: Disable swap now
   ansible.builtin.command: swapoff -a
   changed_when: false
@@ -40,7 +40,9 @@
   register: common_generic_kernel_install
 - name: Register kernel changes for consolidated reboot
   ansible.builtin.set_fact:
-    common_kernel_changed: "{{ (common_hwe_kernel_install.changed | default(false)) or (common_generic_kernel_install.changed | default(false)) }}"
+    common_kernel_changed: >-
+      {{ (common_hwe_kernel_install.changed | default(false)) or
+      (common_generic_kernel_install.changed | default(false)) }}
 - name: Configure Power Management (Lid Switch / No Sleep)
   ansible.builtin.include_tasks: power_management.yml
 - name: Apply Hardware Tuning (CPU/Radios/Audio)

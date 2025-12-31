@@ -1,3 +1,4 @@
+---
 # Gestión de energía: deshabilitar suspensión y gestión de tapa
 - name: Configure logind to ignore Lid Switch
   ansible.builtin.lineinfile:

@@ -1,3 +1,4 @@
+---
 # Playbook principal para configurar el nodo maestro K3s con Tailscale y Cilium
 - name: Setup K3s Master Node
   hosts: k3s_server

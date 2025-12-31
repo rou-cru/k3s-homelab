@@ -1,3 +1,4 @@
+---
 # Plugin configuration
 # Only one of "name" or "map" should ever be set for a given deployment.
 # Use "name" to point to an external ConfigMap with a list of configurations.

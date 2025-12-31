@@ -1,4 +1,4 @@
-# Instalación de K3s con configuración de red Tailscale
+---
 - name: Validate Tailscale IP is defined
   ansible.builtin.assert:
     that:
@@ -6,7 +6,6 @@
       - tailscale_ip | length > 0
       - tailscale_ip is match('^100\.')
     fail_msg: "ERROR: Invalid tailscale_ip ({{ tailscale_ip | default('undefined') }}). Must be 100.x.x.x"
-# --- Lógica de Auto-Reparación ---
 - name: Check current K3s bind IP configuration
   ansible.builtin.shell: |
     set -o pipefail
@@ -23,11 +22,13 @@
     - not (k3s_server_force_reinstall | default(false))
 - name: Announce Auto-Repair
   ansible.builtin.debug:
-    msg: "⚠️ Configuration Drift Detected: K3s bound to {{ current_k3s_bind_ip.stdout }}, but Tailscale IP is {{ tailscale_ip }}. Triggering FORCE REINSTALL."
+    msg: >-
+      ⚠️ Configuration Drift Detected:
+      K3s bound to {{ current_k3s_bind_ip.stdout }},
+      but Tailscale IP is {{ tailscale_ip }}.
+      Triggering FORCE REINSTALL.
   when: k3s_server_force_reinstall | default(false) | bool
 - name: Check if K3s uninstall script exists
-  # --------------------------------
-
   ansible.builtin.stat:
     path: /usr/local/bin/k3s-uninstall.sh
   register: k3s_server_uninstall_script
@@ -47,7 +48,14 @@
 - name: Write k3s server install env
   ansible.builtin.set_fact:
     k3s_server_exec: >-
-      server --node-ip {{ tailscale_ip }} --advertise-address {{ tailscale_ip }} --tls-san {{ tailscale_ip }} --flannel-backend=none --disable-network-policy {% if k3s_server_disable_traefik | bool %}--disable traefik{% endif %} {% if k3s_server_disable_servicelb | bool %}--disable servicelb{% endif %} --write-kubeconfig-mode {{ k3s_server_kubeconfig_mode }}
+      server --node-ip {{ tailscale_ip }}
+      --advertise-address {{ tailscale_ip }}
+      --tls-san {{ tailscale_ip }}
+      --flannel-backend=none
+      --disable-network-policy
+      {% if k3s_server_disable_traefik | bool %}--disable traefik{% endif %}
+      {% if k3s_server_disable_servicelb | bool %}--disable servicelb{% endif %}
+      --write-kubeconfig-mode {{ k3s_server_kubeconfig_mode }}
 - name: Clean residual CNI configurations from previous installations
   ansible.builtin.file:
     path: "{{ item }}"
@@ -59,7 +67,12 @@
     - /etc/cni/net.d/87-podman-bridge.conflist
   failed_when: false
 - name: Install k3s server # noqa: command-instead-of-module
-  ansible.builtin.shell: "set -o pipefail\ncurl -sfL https://get.k3s.io | \\\n  INSTALL_K3S_VERSION=\"{{ k3s_server_version }}\" \\\n  INSTALL_K3S_EXEC=\"{{ k3s_server_exec }}\" \\\n  sh - \n"
+  ansible.builtin.shell: |
+    set -o pipefail
+    curl -sfL https://get.k3s.io | \
+      INSTALL_K3S_VERSION="{{ k3s_server_version }}" \
+      INSTALL_K3S_EXEC="{{ k3s_server_exec }}" \
+      sh -
   args:
     creates: /usr/local/bin/k3s
     executable: /bin/bash
@@ -71,7 +84,6 @@
 - name: Read node token
   ansible.builtin.slurp:
     src: /var/lib/rancher/k3s/server/node-token
-  # Lee el token del servidor para posibles usos futuros (cluster multi-nodo)
   register: k3s_server_token_raw
   when: not ansible_check_mode
 - name: Set token fact on localhost
@@ -89,9 +101,6 @@
   until: k3s_server_readyz.rc == 0
   changed_when: false
   when: not ansible_check_mode
-# ============================================================================
-# Copy kubeconfig to control machine
-# ============================================================================
 - name: Copy kubeconfig to local machine
   when:
     - k3s_server_copy_kubeconfig_local | default(true) | bool

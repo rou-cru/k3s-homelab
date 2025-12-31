@@ -9,3 +9,17 @@
 
 # Vim swap files
 *.swp
+
+# Log files
+*.log
+.task/*.log
+
+# Temporary files
+network_report.txt
+*.tmp
+*.bak
+
+# IDE and editor directories
+.codex/log/
+.vscode/
+.idea/

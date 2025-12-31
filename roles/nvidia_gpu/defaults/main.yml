@@ -1,3 +1,4 @@
+---
 # Configuración de GPU NVIDIA - detección automática de drivers
 # Requiere GPU NVIDIA (Vendor ID 10de) presente en el sistema
 nvidia_gpu_setup: true

@@ -1,3 +1,4 @@
+---
 # Variables de configuración para el rol common
 common_network_optimization_enabled: true
 common_rog_server: true

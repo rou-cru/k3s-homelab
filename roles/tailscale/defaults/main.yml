@@ -1,3 +1,4 @@
+---
 # Configuración de Tailscale VPN
 # Requiere tailscale_authkey definido en secrets.yaml
 tailscale_hostname_prefix: "k3s"

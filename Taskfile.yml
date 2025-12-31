@@ -1,18 +1,18 @@
+---
 version: '3'
 # Taskfile for k3s-homelab validation and formatting
-# All tasks in a single flat file for simplicity and reliability
 vars:
   TEMPLATE_DIR: roles/common/templates
   DEFAULTS_FILE: roles/common/defaults/main.yml
   TEST_VARS_FILE: .task/test-vars.yml
   OUTPUT_DIR: .task/rendered
 tasks:
-  # ==================== Default ====================
+  # Default
   default:
     desc: "Show available tasks"
     cmds:
       - task --list
-  # ==================== Render Tasks (Internal) ====================
+  # Render Tasks (Internal)
   render-rog-tweaks:
     internal: true
     sources:
@@ -41,7 +41,7 @@ tasks:
     deps:
       - render-rog-tweaks
       - render-network-opt
-  # ==================== Validation Tasks ====================
+  # Validation Tasks
   validate:
     desc: "Validate all files (YAML, Ansible, Jinja2, Bash)"
     cmds:
@@ -144,7 +144,7 @@ tasks:
     cmds:
       - bash -n {{.SCRIPT}}
       - shellcheck {{.SCRIPT}}
-  # ==================== Format Tasks ====================
+  # Format Tasks
   format:
     desc: "Auto-format all files (YAML + Bash)"
     cmds:
@@ -191,7 +191,7 @@ tasks:
     cmds:
       - shfmt -w {{.SCRIPT}}
       - echo "Formatted {{.SCRIPT}}"
-  # ==================== CI/CD Tasks ====================
+  # CI/CD Tasks
   ci-full:
     desc: "Run full CI pipeline (validate + format check)"
     cmds:
@@ -210,13 +210,13 @@ tasks:
       - yamlfmt -dry .
       - task: render-all
       - shfmt -d {{.OUTPUT_DIR}}/*.sh
-  # ==================== Utility Tasks ====================
+  # Utility Tasks
   clean:
     desc: "Clean rendered files and cache"
     cmds:
       - rm -rf {{.OUTPUT_DIR}}/ .task/checksum/
       - echo "✓ Cleaned {{.OUTPUT_DIR}}/ and cache"
-  # ==================== Ansible Vault ====================
+  # Ansible Vault
   setup-vault:
     desc: "Setup Ansible Vault with Tailscale authkey (task setup-vault -- tskey-auth-XXX)"
     preconditions:

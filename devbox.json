@@ -10,7 +10,8 @@
     "j2cli@0.3.10",
     "go-task@3.45.5",
     "helm@latest",
-    "k9s@latest"
+    "k9s@latest",
+    "ripgrep@latest"
   ],
   "shell": {
     "init_hook": [

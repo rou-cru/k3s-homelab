@@ -1,3 +1,4 @@
+---
 # Optimización de hardware: IRQ balance, radios, audio y NVMe
 - name: Install General Hardware Tuning Tools
   ansible.builtin.apt:

@@ -1,4 +1,4 @@
-# Instalación de Cilium CNI con Helm (estándar)
+---
 - name: Create temporary values file
   ansible.builtin.tempfile:
     state: file
@@ -24,10 +24,17 @@
   changed_when: "'Update Complete' in cilium_helm_repo_update.stdout"
 - name: Install/upgrade Cilium with Helm
   ansible.builtin.command: >
-    helm upgrade --install cilium cilium/{{ cilium_chart_name }} --version {{ cilium_version }} --namespace {{ cilium_namespace }} --create-namespace --values {{ cilium_values_tmp.path }} --kubeconfig /etc/rancher/k3s/k3s.yaml
+    helm upgrade --install cilium cilium/{{ cilium_chart_name }}
+    --version {{ cilium_version }}
+    --namespace {{ cilium_namespace }}
+    --create-namespace
+    --values {{ cilium_values_tmp.path }}
+    --kubeconfig /etc/rancher/k3s/k3s.yaml
 
   register: cilium_helm_install
-  changed_when: "'STATUS: deployed' in cilium_helm_install.stdout or 'STATUS: upgraded' in cilium_helm_install.stdout"
+  changed_when: >
+    "'STATUS: deployed' in cilium_helm_install.stdout or
+    'STATUS: upgraded' in cilium_helm_install.stdout"
 - name: Wait for Cilium DaemonSet to be created
   ansible.builtin.command: k3s kubectl -n {{ cilium_namespace }} get ds cilium
   register: cilium_ds_check
@@ -36,17 +43,17 @@
   delay: "{{ cilium_wait_delay | default(5) }}"
   changed_when: false
 - name: Wait for cilium pods
-  ansible.builtin.command: k3s kubectl -n {{ cilium_namespace }} rollout status ds/cilium --timeout="{{ cilium_rollout_timeout }}s"
+  ansible.builtin.command: >-
+    k3s kubectl -n {{ cilium_namespace }} rollout status ds/cilium
+    --timeout="{{ cilium_rollout_timeout }}s"
   register: cilium_rollout
   changed_when: false
   failed_when: cilium_rollout.rc != 0
-# Limpieza del archivo temporal
 - name: Remove temporary values file
   ansible.builtin.file:
     path: "{{ cilium_values_tmp.path }}"
     state: absent
   changed_when: false
-# Verificación final - muestra estado del nodo con Cilium operativo
 - name: Show node status
   ansible.builtin.command: k3s kubectl get nodes -o wide
   register: cilium_nodes_out

@@ -47,7 +47,9 @@
   when:
     - nvidia_gpu_driver_package == "auto"
     - >-
-      (nvidia_gpu_detected_driver.skipped is defined and nvidia_gpu_detected_driver.skipped) or (nvidia_gpu_detected_driver.stdout | length == 0)
+      (nvidia_gpu_detected_driver.skipped is defined and
+      nvidia_gpu_detected_driver.skipped) or
+      (nvidia_gpu_detected_driver.stdout | length == 0)
 - name: Set manual driver
   ansible.builtin.set_fact:
     nvidia_gpu_driver_target: "{{ nvidia_gpu_driver_package }}"
@@ -76,7 +78,6 @@
   ansible.builtin.shell: |
     # Get list of broken nvidia packages and force remove them
     dpkg -l | grep '^iU' | grep nvidia | awk '{print $2}' | xargs -r dpkg --remove --force-remove-reinstreq
-    # Clean up any remaining nvidia packages
     apt-get purge -y 'nvidia-*' 'libnvidia-*' || true
     apt-get autoremove -y
     apt-get autoclean
