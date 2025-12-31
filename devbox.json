@@ -1,5 +1,12 @@
 {
   "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.16.0/.schema/devbox.schema.json",
-  "packages": []
+  "packages": [
+    "shellcheck@0.11.0",
+    "shfmt@3.12.0",
+    "yamllint@1.37.1",
+    "yamlfmt@0.20.0",
+    "ansible-lint@25.8.2",
+    "j2lint@1.2.0",
+    "go-task@3.45.5"
+  ]
 }
-  
