@@ -8,4 +8,5 @@ data:
   COIN: "BNB"
   REFERRAL_CODE: "18ps-7t5s"
   WORKER_NAME: "home-miner"
-  MINING_THREADS: "12"
+  MINING_THREADS: "8"
+  CPU_AFFINITY_MASK: "0x5555"

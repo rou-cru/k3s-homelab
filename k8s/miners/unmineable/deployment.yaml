@@ -61,13 +61,18 @@ spec:
                 configMapKeyRef:
                   name: unmineable-config
                   key: MINING_THREADS
+            - name: CPU_AFFINITY_MASK
+              valueFrom:
+                configMapKeyRef:
+                  name: unmineable-config
+                  key: CPU_AFFINITY_MASK
           resources:
             requests:
-              cpu: "2000m"
+              cpu: "8000m"
               memory: "3Gi"
               hugepages-2Mi: "2560Mi"
             limits:
-              cpu: "12000m"
+              cpu: "8000m"
               memory: "3Gi"
               hugepages-2Mi: "2560Mi"
       volumes:
