@@ -8,5 +8,4 @@ data:
   COIN: "BNB"
   REFERRAL_CODE: "18ps-7t5s"
   WORKER_NAME: "home-miner"
-  CPU_LIMIT_ENABLE: "true"
-  CPU_LIMIT_PERCENT: "100"
+  MINING_THREADS: "12"

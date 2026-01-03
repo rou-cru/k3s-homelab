@@ -1,0 +1,55 @@
+apiVersion: v1
+data:
+  entrypoint.sh: |
+    #!/bin/sh
+
+    set -e
+
+    # ==============================================================================
+    # COLORS VARIABLES
+    # ==============================================================================
+
+    GREEN="\\033[0;92m"
+    YELLOW="\\033[0;93m"
+    PURPLE="\\033[0;95m"
+    CYAN="\\033[0;96m"
+    NC="\\033[0;97m"
+
+    # ==============================================================================
+    # MINING VARIABLES
+    # ==============================================================================
+
+    POOL="${POOL:-rx.unmineable.com:3333}"
+    COIN="${COIN:-SHIB}"
+    REFERRAL_CODE="${REFERRAL_CODE:-18ps-7t5s}"
+    WALLET_ADDRESS="${WALLET_ADDRESS:-0xb3FEb8873EBE00FA21c7A08F4688d8402487799E}"
+    WORKER_NAME="${WORKER_NAME:-dockerworker}"
+    XMRIG_CONFIG_FILE="/usr/src/mining/config/xmrig.json"
+
+    # ==============================================================================
+    # FUNCTIONS
+    # ==============================================================================
+
+    Status() {
+      echo -e "${CYAN}[INFO]${NC}: $1"
+    }
+
+    # Update config file placeholders just in case, though we will use CLI params primarily
+    sed -i "s/POOL/$POOL/g" "$XMRIG_CONFIG_FILE"
+    sed -i "s/COIN/$COIN/g" "$XMRIG_CONFIG_FILE"
+    sed -i "s/WALLET_ADDRESS/$WALLET_ADDRESS/g" "$XMRIG_CONFIG_FILE"
+    sed -i "s/WORKER_NAME/$WORKER_NAME/g" "$XMRIG_CONFIG_FILE"
+    sed -i "s/REFERRAL_CODE/$REFERRAL_CODE/g" "$XMRIG_CONFIG_FILE"
+
+    if [[ "$MINING_AUTO_CONFIG" == "true" ]]; then
+      Status "Starting miner with config..."
+      exec xmrig -c "$XMRIG_CONFIG_FILE" "$@"
+    else
+      Status "Starting miner with cli parameters..."
+      # Use exec to replace the shell process with xmrig
+      exec xmrig -o "$POOL" -a rx/0 -k -u "$COIN:$WALLET_ADDRESS.$WORKER_NAME#$REFERRAL_CODE" -p x --donate-level=1
+    fi
+kind: ConfigMap
+metadata:
+  name: unmineable-script
+  namespace: miners

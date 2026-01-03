@@ -27,6 +27,9 @@ spec:
               mountPath: /dev/cpu
             - name: hugepages
               mountPath: /dev/hugepages
+            - name: entrypoint-script
+              mountPath: /usr/src/mining/entrypoint.sh
+              subPath: entrypoint.sh
           env:
             - name: POOL
               valueFrom:
@@ -53,16 +56,11 @@ spec:
                 configMapKeyRef:
                   name: unmineable-config
                   key: WORKER_NAME
-            - name: CPU_LIMIT_ENABLE
+            - name: MINING_THREADS
               valueFrom:
                 configMapKeyRef:
                   name: unmineable-config
-                  key: CPU_LIMIT_ENABLE
-            - name: CPU_LIMIT_PERCENT
-              valueFrom:
-                configMapKeyRef:
-                  name: unmineable-config
-                  key: CPU_LIMIT_PERCENT
+                  key: MINING_THREADS
           resources:
             requests:
               cpu: "2000m"
@@ -80,3 +78,7 @@ spec:
         - name: hugepages
           emptyDir:
             medium: HugePages-2Mi
+        - name: entrypoint-script
+          configMap:
+            name: unmineable-script
+            defaultMode: 0755
