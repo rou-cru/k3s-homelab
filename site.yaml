@@ -40,6 +40,13 @@
         name: nvidia_gpu
         tasks_from: host.yml
       tags: ["nvidia", "gpu", "nvidia-host"]
+    # NVIDIA GPU Headless Optimization - X11, persistence mode
+    - name: Run NVIDIA GPU headless optimization
+      ansible.builtin.import_role:
+        name: nvidia_gpu
+        tasks_from: headless_optimization.yml
+      tags: ["nvidia", "gpu", "nvidia-headless"]
+      when: nvidia_gpu_headless_enabled | default(true) | bool
     - name: Run tailscale role
       ansible.builtin.import_role:
         name: tailscale

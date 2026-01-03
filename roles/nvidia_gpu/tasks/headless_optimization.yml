@@ -1,0 +1,63 @@
+---
+- name: NVIDIA GPU headless optimization setup
+  tags: ["nvidia", "gpu", "nvidia-headless"]
+  block:
+    - name: Install X11 packages for headless GPU management
+      ansible.builtin.apt:
+        name:
+          - xserver-xorg-core
+          - xserver-xorg-video-nvidia-{{ nvidia_gpu_driver_target | regex_replace('^nvidia-driver-', '') }}
+        state: present
+        update_cache: true
+        cache_valid_time: 3600
+
+    - name: Deploy xorg.conf with coolbits for GPU management
+      ansible.builtin.template:
+        src: xorg.conf.j2
+        dest: /etc/X11/xorg.conf
+        mode: "0644"
+        owner: root
+        group: root
+      register: nvidia_gpu_xorg_conf
+
+    - name: Deploy NVIDIA persistence mode systemd service
+      ansible.builtin.copy:
+        src: nvidia-persistence.service
+        dest: /etc/systemd/system/nvidia-persistence.service
+        mode: "0644"
+        owner: root
+        group: root
+      register: nvidia_gpu_persistence_service
+
+    - name: Deploy NVIDIA X server systemd service
+      ansible.builtin.copy:
+        src: nvidia-xorg.service
+        dest: /etc/systemd/system/nvidia-xorg.service
+        mode: "0644"
+        owner: root
+        group: root
+      register: nvidia_gpu_xorg_service
+
+    - name: Reload systemd daemon
+      ansible.builtin.systemd:
+        daemon_reload: true
+      when: nvidia_gpu_persistence_service.changed or nvidia_gpu_xorg_service.changed
+
+    - name: Enable and start NVIDIA persistence mode service
+      ansible.builtin.systemd:
+        name: nvidia-persistence.service
+        enabled: true
+        state: started
+
+    - name: Enable and start NVIDIA X server service
+      ansible.builtin.systemd:
+        name: nvidia-xorg.service
+        enabled: true
+        state: started
+      when: nvidia_gpu_headless_x11_enabled | default(true) | bool
+
+    - name: Wait for X server to be ready
+      ansible.builtin.wait_for:
+        path: /tmp/.X0-lock
+        timeout: 30
+      when: nvidia_gpu_headless_x11_enabled | default(true) | bool

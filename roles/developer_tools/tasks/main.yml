@@ -4,7 +4,6 @@
   ansible.builtin.apt:
     name:
       # Terminal utilities
-      - bpytop
       - bat
       - tree
       - tmux
@@ -20,6 +19,11 @@
       - snapd
     state: present
     update_cache: true
+# Terminal monitoring tools (snap)
+- name: Install btop via snap
+  ansible.builtin.snap:
+    name: btop
+    classic: true
 # Kubernetes tools (snap)
 - name: Install kubectl via snap
   ansible.builtin.snap:
@@ -121,7 +125,7 @@
       - "✅ Developer tools installed"
       - ""
       - "Kubernetes: kubectl, helm, yq"
-      - "Terminal: bpytop, bat, tree, tmux, jq"
+      - "Terminal: btop, bat, tree, tmux, jq"
       - "Python: uv{% if nvidia_gpu_setup | default(false) | bool %}, nvitop{% endif %}, kimi-cli"
       - "Node.js: node, pnpm"
       - "AI CLIs: claude-code, gemini-cli, qwen-cli, codex"

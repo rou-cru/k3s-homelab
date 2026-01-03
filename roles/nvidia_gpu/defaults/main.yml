@@ -10,3 +10,9 @@ nvidia_gpu_device_plugin_version: "0.14.3"
 nvidia_gpu_device_plugin_repo: "https://nvidia.github.io/k8s-device-plugin"
 nvidia_gpu_reboot_timeout: 600
 nvidia_gpu_initramfs_timeout: 300
+
+# Headless GPU management configuration
+nvidia_gpu_headless_enabled: true
+nvidia_gpu_headless_x11_enabled: true
+nvidia_gpu_pci_bus_id: "1:0:0"
+nvidia_gpu_coolbits: "28"
