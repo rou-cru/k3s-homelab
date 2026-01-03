@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nicehash
+  namespace: miners
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: nicehash
+  template:
+    metadata:
+      labels:
+        app: nicehash
+    spec:
+      runtimeClassName: nvidia
+      containers:
+        - name: nicehash
+          image: compscidr/lolminer-docker:ubuntu22.04-cuda-12.2.0-1.81
+          imagePullPolicy: IfNotPresent
+          command: ["/config/entrypoint.sh"]
+          env:
+            - name: MINING_ADDRESS
+              valueFrom:
+                secretKeyRef:
+                  name: nicehash-secret
+                  key: MINING_ADDRESS
+            - name: MINING_WORKER_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: nicehash-config
+                  key: MINING_WORKER_NAME
+            - name: MINING_POOL
+              valueFrom:
+                configMapKeyRef:
+                  name: nicehash-config
+                  key: MINING_POOL
+            - name: MINING_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: nicehash-config
+                  key: MINING_PORT
+            - name: MINING_ALGO
+              valueFrom:
+                configMapKeyRef:
+                  name: nicehash-config
+                  key: MINING_ALGO
+            - name: MINING_PASS
+              valueFrom:
+                configMapKeyRef:
+                  name: nicehash-config
+                  key: MINING_PASS
+            - name: NVIDIA_VISIBLE_DEVICES
+              value: "all"
+            - name: NVIDIA_DRIVER_CAPABILITIES
+              value: "all"
+          resources:
+            limits:
+              nvidia.com/gpu: "1"
+          volumeMounts:
+            - name: nicehash-entrypoint
+              mountPath: /config/entrypoint.sh
+              subPath: entrypoint.sh
+              readOnly: true
+      volumes:
+        - name: nicehash-entrypoint
+          configMap:
+            name: nicehash-entrypoint
+            defaultMode: 0755

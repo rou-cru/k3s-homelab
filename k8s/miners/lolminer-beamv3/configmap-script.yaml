@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nicehash-entrypoint
+  namespace: miners
+data:
+  entrypoint.sh: |
+    #!/usr/bin/env sh
+    set -eu
+
+    : "${MINING_ADDRESS:?MINING_ADDRESS is required}"
+    : "${MINING_WORKER_NAME:?MINING_WORKER_NAME is required}"
+    : "${MINING_POOL:?MINING_POOL is required}"
+    : "${MINING_PORT:?MINING_PORT is required}"
+    : "${MINING_ALGO:?MINING_ALGO is required}"
+    : "${MINING_PASS:=x}"
+    : "${MINING_TLS:=off}"
+
+    exec /lolminer/lolMiner \
+      --algo "${MINING_ALGO}" \
+      --pool "${MINING_POOL}:${MINING_PORT}" \
+      --user "${MINING_ADDRESS}.${MINING_WORKER_NAME}" \
+      --pass "${MINING_PASS}" \
+      --tls "${MINING_TLS}" \
+      --dns-over-https 0 \
+      --apihost 0.0.0.0 \
+      --apiport 4069

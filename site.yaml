@@ -69,6 +69,9 @@
       ansible.builtin.shell:
         cmd: |
           export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+          find /tmp/k8s-manifests -type f -name '*.yaml' -print0 \
+            | xargs -0 -r grep -l '^kind: Namespace' \
+            | xargs -r kubectl apply -f
           kubectl apply -R -f /tmp/k8s-manifests/
         executable: /bin/bash
       changed_when: true
