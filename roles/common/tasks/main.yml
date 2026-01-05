@@ -2,7 +2,7 @@
 - name: Disable swap now
   ansible.builtin.command: swapoff -a
   changed_when: true
-  when: ansible_swaptotal_mb > 0
+  when: ansible_facts['swaptotal_mb'] > 0
 - name: Disable swap permanently in fstab
   ansible.builtin.replace:
     path: /etc/fstab
