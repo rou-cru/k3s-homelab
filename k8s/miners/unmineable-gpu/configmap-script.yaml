@@ -1,0 +1,47 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: unmineable-gpu-entrypoint
+  namespace: miners
+data:
+  entrypoint.sh: |
+    #!/bin/bash
+    set -eu
+
+    : "${WALLET_ADDRESS:?WALLET_ADDRESS is required}"
+    : "${MINING_WORKER_NAME:?MINING_WORKER_NAME is required}"
+    : "${MINING_POOL:?MINING_POOL is required}"
+    : "${MINING_PORT:?MINING_PORT is required}"
+    : "${MINING_COIN:?MINING_COIN is required}"
+    : "${REFERRAL_CODE:?REFERRAL_CODE is required}"
+    : "${MINING_PASS:=x}"
+
+    TREX_VERSION="0.26.8"
+    TREX_DIR="/tmp/trex"
+    TREX_BIN="${TREX_DIR}/t-rex"
+
+    # Unmineable format: COIN:WALLET.WORKER#REFERRAL
+    UNMINEABLE_USER="${MINING_COIN}:${WALLET_ADDRESS}.${MINING_WORKER_NAME}#${REFERRAL_CODE}"
+
+    echo "Downloading T-Rex Miner v${TREX_VERSION}..."
+    apt-get update -qq && apt-get install -y -qq wget >/dev/null 2>&1
+
+    mkdir -p "${TREX_DIR}"
+    wget -q -O /tmp/trex.tar.gz "https://github.com/trexminer/T-Rex/releases/download/${TREX_VERSION}/t-rex-${TREX_VERSION}-linux.tar.gz"
+    tar -xzf /tmp/trex.tar.gz -C "${TREX_DIR}"
+    chmod +x "${TREX_BIN}"
+    rm /tmp/trex.tar.gz
+
+    echo "Starting T-Rex Miner for Unmineable..."
+    echo "Pool: ${MINING_POOL}:${MINING_PORT}"
+    echo "Algorithm: autolykos2"
+    echo "Coin: ${MINING_COIN}"
+    echo "Worker: ${MINING_WORKER_NAME}"
+
+    exec "${TREX_BIN}" \
+      -a autolykos2 \
+      -o stratum+tcp://${MINING_POOL}:${MINING_PORT} \
+      -u "${UNMINEABLE_USER}" \
+      -p "${MINING_PASS}" \
+      --api-bind-http 0.0.0.0:4067 \
+      --no-watchdog

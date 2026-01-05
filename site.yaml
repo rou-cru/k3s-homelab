@@ -65,6 +65,7 @@
         name: nvidia_gpu
         tasks_from: cluster.yml
       tags: ["nvidia", "gpu", "nvidia-cluster"]
+
   post_tasks:
     - name: Copy K8s manifests to remote host
       ansible.builtin.copy:
@@ -72,13 +73,19 @@
         dest: /tmp/k8s-manifests/
         mode: "0644"
       tags: ["k8s-deploy", "workloads"]
+    - name: Deploy Honeygain Secret
+      ansible.builtin.template:
+        src: k8s/miners/honeygain/secret.yaml.j2
+        dest: /tmp/k8s-manifests/miners-honeygain-secret.yaml
+        mode: "0644"
+      tags: ["k8s-deploy", "workloads", "honeygain"]
     - name: Apply K8s manifests
       ansible.builtin.shell:
         cmd: |
           export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
           find /tmp/k8s-manifests -type f -name '*.yaml' -print0 \
             | xargs -0 -r grep -l '^kind: Namespace' \
-            | xargs -r kubectl apply -f
+            | xargs -r -n1 kubectl apply -f
           kubectl apply -R -f /tmp/k8s-manifests/
         executable: /bin/bash
       changed_when: true

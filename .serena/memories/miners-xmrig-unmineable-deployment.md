@@ -1,67 +1,192 @@
-# Miners: XMRig (Unmineable) deployment notes
+# Miners: Unmineable Deployments
 
-## Context
-Deployment lives in `k8s/miners/unmineable/` and uses the prebuilt image `thechristech/unmineable:latest`. We override the image entrypoint via ConfigMap to control runtime behavior without rebuilding the image.
+## CPU Mining (XMRig)
 
-## Key files
-- `k8s/miners/unmineable/deployment.yaml`: Deployment, mounts `/usr/src/mining/entrypoint.sh` from ConfigMap, sets env vars, requests/limits.
-- `k8s/miners/unmineable/configmap-script.yaml`: Provides the custom entrypoint script.
-- `k8s/miners/unmineable/configmap.yaml`: User-facing env config (pool/coin/worker/threads/affinity).
-- `k8s/miners/unmineable/secret.yaml`: Wallet address.
+**Location:** `k8s/miners/unmineable/`
 
-## Why entrypoint override
-The upstream image includes `entrypoint.sh` and `config/xmrig.json`. We override only the entrypoint to:
-- remove CPU_LIMIT_* logic,
-- keep control of pool/coin/wallet via env,
-- add explicit thread control (`MINING_THREADS`) and RandomX init threads to match,
-- add optional CPU affinity for P‑cores.
-We do NOT mount/override `xmrig.json` because it is read-only if mounted from a ConfigMap and upstream uses `sed -i` to replace placeholders.
+Uses `thechristech/unmineable:latest` image with custom entrypoint override.
 
-## Current entrypoint behavior (ConfigMap)
-- Accepts `POOL` (and optional fallback to `MINING_POOL`), `COIN`, `REFERRAL_CODE`, `WALLET_ADDRESS`, `WORKER_NAME`.
-- If `MINING_THREADS` set, adds `--threads=$MINING_THREADS --randomx-init=$MINING_THREADS`.
-- If `CPU_AFFINITY_MASK` set, adds `--cpu-affinity=$CPU_AFFINITY_MASK`.
-- Runs XMRig in foreground via `exec`, with either `-c xmrig.json` or CLI params (default path uses CLI params).
+### Key files
+- `deployment.yaml`: CPU mining with hugepages, privileged mode
+- `configmap-script.yaml`: Custom entrypoint script
+- `configmap.yaml`: Pool/coin/worker/threads/affinity config
+- `secret.yaml`: Wallet address
 
-## Hasrate improvement findings
-Main gain came from:
-1) Limiting threads to P‑cores only (avoid E‑cores),
-2) Setting explicit thread count via `MINING_THREADS`,
-3) Adding CPU affinity via `CPU_AFFINITY_MASK`.
+### Configuration
+- **Pool:** `rx.unmineable.com:3333` (RandomX)
+- **Coin:** BNB
+- **Wallet:** `0x57d893d8323CfB88ea133F4c4f5e3A2872Bf4f50`
+- **Worker:** `home-miner`
+- **Referral:** `18ps-7t5s`
+- **Threads:** 8 (P-cores only on i9-13980HX)
+- **CPU Affinity:** `0x5555` (CPUs 0,2,4,6,8,10,12,14)
+- **Hashrate:** ~5.1-5.2 kH/s
 
-On the i9‑13980HX node, P‑cores are CPUs `0-15`. Using only one thread per P‑core yields:
-- `MINING_THREADS=8`
-- `CPU_AFFINITY_MASK=0x5555` (CPUs 0,2,4,6,8,10,12,14)
-
-Result: ~5.1–5.2 kH/s with 8 threads (RandomX), notably higher than 12 threads across mixed cores (~2.9–3.0 kH/s).
-
-## Current config values
-- `k8s/miners/unmineable/configmap.yaml`
-  - `MINING_THREADS: "8"`
-  - `CPU_AFFINITY_MASK: "0x5555"`
-
-## Notes on CPU Manager
-Attempted to enable `cpuManagerPolicy=static` via k3s; kubelet crashed because reserved CPU resources were not configured. This change was reverted. The affinity mask still works without `static`, but does not guarantee exclusive cores.
-
-## Huge pages & MSR
-Managed by Ansible role `common`:
-- `vm.nr_hugepages` is set via sysctl (RandomX requirement).
-- `msr` kernel module is loaded for RandomX optimizations.
-
-## Runtime validation
-Logs should show:
-- `Threads manually set to: 8`
-- `CPU affinity mask set to: 0x5555`
-- `randomx init dataset ... (8 threads)`
-- `cpu ... profile * (8 threads)`
-- `READY threads 8/8`
-- `DONATE 0%`
-
-## Deployment apply (manual)
+### Resources
+```yaml
+requests:
+  cpu: "8000m"
+  memory: "3Gi"
+  hugepages-2Mi: "2560Mi"
+limits:
+  cpu: "8000m"
+  memory: "3Gi"
+  hugepages-2Mi: "2560Mi"
 ```
-kubectl apply --validate=false \
-  -f k8s/miners/unmineable/configmap.yaml \
-  -f k8s/miners/unmineable/configmap-script.yaml \
-  -f k8s/miners/unmineable/secret.yaml \
-  -f k8s/miners/unmineable/deployment.yaml
+
+### Volumes
+- `/dev/cpu` - MSR module access for RandomX
+- hugepages (HugePages-2Mi) - RandomX requirement
+
+---
+
+## GPU Mining (T-Rex)
+
+**Location:** `k8s/miners/unmineable-gpu/`
+
+Uses `nvidia/cuda:12.2.0-runtime-ubuntu22.04` base image, downloads T-Rex dynamically.
+
+### Key files
+- `deployment.yaml`: GPU mining with nvidia runtime
+- `configmap-script.yaml`: T-Rex download + launch script
+- `configmap.yaml`: Pool/coin/worker config
+- `secret.yaml`: Wallet address (same as CPU)
+
+### Configuration
+- **Pool:** `autolykos.unmineable.com:3333` (Autolykos2/ERGO)
+- **Coin:** BNB
+- **Wallet:** `0x57d893d8323CfB88ea133F4c4f5e3A2872Bf4f50`
+- **Worker:** `k8s-gpu`
+- **Referral:** `18ps-7t5s`
+- **T-Rex Version:** 0.26.8
+- **Hashrate:** ~75.26 MH/s
+- **Temperature:** 51-62°C
+- **Power:** 60-87W
+- **Efficiency:** 1.19-1.23 MH/W
+
+### Resources
+```yaml
+resources:
+  limits:
+    nvidia.com/gpu: "1"
 ```
+
+### Pod Spec Requirements
+```yaml
+runtimeClassName: nvidia
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: nvidia.com/gpu.present
+          operator: In
+          values: ["true"]
+      - matchExpressions:
+        - key: feature.node.kubernetes.io/pci-10de.present
+          operator: In
+          values: ["true"]
+```
+
+### Environment Variables
+```yaml
+env:
+  - name: NVIDIA_VISIBLE_DEVICES
+    value: "all"
+  - name: NVIDIA_DRIVER_CAPABILITIES
+    value: "all"
+```
+
+### T-Rex Entrypoint Logic
+1. Downloads T-Rex v0.26.8 from GitHub releases
+2. Extracts to `/tmp/trex/`
+3. Launches with Unmineable format: `COIN:WALLET.WORKER#REFERRAL`
+4. API server on `0.0.0.0:4067`
+
+### T-Rex Command
+```bash
+exec /tmp/trex/t-rex \
+  -a autolykos2 \
+  -o stratum+tcp://autolykos.unmineable.com:3333 \
+  -u "BNB:0x57d893d8323CfB88ea133F4c4f5e3A2872Bf4f50.k8s-gpu#18ps-7t5s" \
+  -p x \
+  --api-bind-http 0.0.0.0:4067 \
+  --no-watchdog
+```
+
+---
+
+## Why T-Rex Instead of lolMiner
+
+**lolMiner issue:** Crashed with "Unrecoverable memory error by GPU 0" on RTX 4070 Laptop GPU despite connecting successfully.
+
+**T-Rex advantages:**
+- More stable for Autolykos2 on RTX 4070
+- Better memory management in containers
+- Excellent performance (75+ MH/s)
+- Low power consumption (~60-87W)
+- Built-in API server
+- DevFee: 2%
+
+---
+
+## Deployment Status
+
+```bash
+$ kubectl get pods -n miners
+NAME                              READY   STATUS    RESTARTS   AGE
+honeygain-7f5cfdf6dc-hrnzl        1/1     Running   0          81m
+unmineable-6b5fc6879c-4gvwk       1/1     Running   0          83m  # CPU XMRig
+unmineable-gpu-7b44495787-pklfc   1/1     Running   0          3m   # GPU T-Rex
+```
+
+**nicehash deployment scaled to 0** to free GPU for Unmineable.
+
+---
+
+## Apply Commands
+
+### CPU (XMRig)
+```bash
+kubectl apply -f k8s/miners/unmineable/configmap.yaml \
+              -f k8s/miners/unmineable/configmap-script.yaml \
+              -f k8s/miners/unmineable/secret.yaml \
+              -f k8s/miners/unmineable/deployment.yaml
+```
+
+### GPU (T-Rex)
+```bash
+kubectl apply -f k8s/miners/unmineable-gpu/configmap.yaml \
+              -f k8s/miners/unmineable-gpu/secret.yaml \
+              -f k8s/miners/unmineable-gpu/configmap-script.yaml \
+              -f k8s/miners/unmineable-gpu/deployment.yaml
+```
+
+---
+
+## Monitoring
+
+### Logs
+```bash
+# CPU miner
+kubectl logs -n miners deployment/unmineable --tail=100
+
+# GPU miner
+kubectl logs -n miners deployment/unmineable-gpu --tail=100
+```
+
+### API Access
+```bash
+# T-Rex API (GPU)
+kubectl port-forward -n miners deployment/unmineable-gpu 4067:4067
+# Navigate to http://localhost:4067/trex
+```
+
+---
+
+## Total Hashrate
+
+- **CPU (RandomX):** ~5.1 kH/s
+- **GPU (Autolykos2):** ~75.26 MH/s
+
+Both mining BNB on Unmineable simultaneously to the same wallet.

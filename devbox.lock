@@ -1,9 +1,73 @@
 {
   "lockfile_version": "1",
   "packages": {
-    "ansible-lint@25.8.2": {
-      "last_modified": "2025-12-09T08:49:39Z",
-      "resolved": "github:NixOS/nixpkgs/677fbe97984e7af3175b6c121f3c39ee5c8d62c9#ansible-lint",
+    "ansible-doctor@latest": {
+      "last_modified": "2025-12-25T09:06:15Z",
+      "resolved": "github:NixOS/nixpkgs/3c1016e6acd16ad96053116d0d3043029c9e2649#ansible-doctor",
+      "source": "devbox-search",
+      "version": "8.0.1",
+      "systems": {
+        "aarch64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/9lq342wf299ghdbw5m1f8010dy7d3jxg-ansible-doctor-8.0.1",
+              "default": true
+            },
+            {
+              "name": "dist",
+              "path": "/nix/store/dc6mrscagx04w6qyyc4axb8y4dmlx9jk-ansible-doctor-8.0.1-dist"
+            }
+          ],
+          "store_path": "/nix/store/9lq342wf299ghdbw5m1f8010dy7d3jxg-ansible-doctor-8.0.1"
+        },
+        "aarch64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/7mrh2gf9blnpa2hg2aqkz3yr7w3qnfy7-ansible-doctor-8.0.1",
+              "default": true
+            },
+            {
+              "name": "dist",
+              "path": "/nix/store/n5cd781gwyzbwnwjz9p16rlvhd4a4whv-ansible-doctor-8.0.1-dist"
+            }
+          ],
+          "store_path": "/nix/store/7mrh2gf9blnpa2hg2aqkz3yr7w3qnfy7-ansible-doctor-8.0.1"
+        },
+        "x86_64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/gxnzzac5xsm092mpnkfbd6c1y7vmhhw6-ansible-doctor-8.0.1",
+              "default": true
+            },
+            {
+              "name": "dist",
+              "path": "/nix/store/kl9fslqz70pxzr7bs8gia5n3cifxi2q5-ansible-doctor-8.0.1-dist"
+            }
+          ],
+          "store_path": "/nix/store/gxnzzac5xsm092mpnkfbd6c1y7vmhhw6-ansible-doctor-8.0.1"
+        },
+        "x86_64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/h1m5wfakk8q89n7mrr0k9fbpnakdi0x4-ansible-doctor-8.0.1",
+              "default": true
+            },
+            {
+              "name": "dist",
+              "path": "/nix/store/iyzb5373m8dq01cpszb6y4n9vh778y2y-ansible-doctor-8.0.1-dist"
+            }
+          ],
+          "store_path": "/nix/store/h1m5wfakk8q89n7mrr0k9fbpnakdi0x4-ansible-doctor-8.0.1"
+        }
+      }
+    },
+    "ansible-lint@latest": {
+      "last_modified": "2025-12-25T09:06:15Z",
+      "resolved": "github:NixOS/nixpkgs/3c1016e6acd16ad96053116d0d3043029c9e2649#ansible-lint",
       "source": "devbox-search",
       "version": "25.8.2",
       "systems": {
@@ -11,57 +75,121 @@
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/s0mbmwnxlvq2l7xmprynyyryrl10hph1-ansible-lint-25.8.2",
+              "path": "/nix/store/gi4if5qy8qirglqmggbxc7ln8bgk9skb-ansible-lint-25.8.2",
               "default": true
             },
             {
               "name": "dist",
-              "path": "/nix/store/mzzh5fq5z87l1bf6i2n4nmcydbfwb0sk-ansible-lint-25.8.2-dist"
+              "path": "/nix/store/ijin2g8439l5y1hmp47gr6vkp3cvq85a-ansible-lint-25.8.2-dist"
             }
           ],
-          "store_path": "/nix/store/s0mbmwnxlvq2l7xmprynyyryrl10hph1-ansible-lint-25.8.2"
+          "store_path": "/nix/store/gi4if5qy8qirglqmggbxc7ln8bgk9skb-ansible-lint-25.8.2"
         },
         "aarch64-linux": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/dfwyllp6dggy5374n3cl1bbyvjl4xnb1-ansible-lint-25.8.2",
+              "path": "/nix/store/d2jqciibcz7dqkkk4viql5lmd8jq5s75-ansible-lint-25.8.2",
               "default": true
             },
             {
               "name": "dist",
-              "path": "/nix/store/fpijwg3lpwksjzj9lp0djdwqkjfgclc2-ansible-lint-25.8.2-dist"
+              "path": "/nix/store/yaivfj828rx54k5a13hq378l1v97i785-ansible-lint-25.8.2-dist"
             }
           ],
-          "store_path": "/nix/store/dfwyllp6dggy5374n3cl1bbyvjl4xnb1-ansible-lint-25.8.2"
+          "store_path": "/nix/store/d2jqciibcz7dqkkk4viql5lmd8jq5s75-ansible-lint-25.8.2"
         },
         "x86_64-darwin": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/xakl8rm934ggnbsjvad7ra2p0dfhzi2k-ansible-lint-25.8.2",
+              "path": "/nix/store/n2wwhyg5rnv98bcxzbdxfs71id7gwn5n-ansible-lint-25.8.2",
               "default": true
             },
             {
               "name": "dist",
-              "path": "/nix/store/36ag80szg2mlhj1bbxi74x88idqchys5-ansible-lint-25.8.2-dist"
+              "path": "/nix/store/a5cs2xai11q92j8f7nc5gyix9p7xvhpk-ansible-lint-25.8.2-dist"
             }
           ],
-          "store_path": "/nix/store/xakl8rm934ggnbsjvad7ra2p0dfhzi2k-ansible-lint-25.8.2"
+          "store_path": "/nix/store/n2wwhyg5rnv98bcxzbdxfs71id7gwn5n-ansible-lint-25.8.2"
         },
         "x86_64-linux": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/y1cdaqphznk83cqlknp2s56aa736q5yw-ansible-lint-25.8.2",
+              "path": "/nix/store/27vi3pws2g35iik7xvhlfqwimwcsljwz-ansible-lint-25.8.2",
               "default": true
             },
             {
               "name": "dist",
-              "path": "/nix/store/dp320mqs6bz17w6xanym6h6d9zz2dk9f-ansible-lint-25.8.2-dist"
+              "path": "/nix/store/yjf1hh5i5ynh826ngpbg8gy34qynfz08-ansible-lint-25.8.2-dist"
             }
           ],
-          "store_path": "/nix/store/y1cdaqphznk83cqlknp2s56aa736q5yw-ansible-lint-25.8.2"
+          "store_path": "/nix/store/27vi3pws2g35iik7xvhlfqwimwcsljwz-ansible-lint-25.8.2"
+        }
+      }
+    },
+    "ansible@latest": {
+      "last_modified": "2025-12-25T09:06:15Z",
+      "resolved": "github:NixOS/nixpkgs/3c1016e6acd16ad96053116d0d3043029c9e2649#ansible",
+      "source": "devbox-search",
+      "version": "2.20.0",
+      "systems": {
+        "aarch64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/7jkqidccnsmgywd9bzmv6n9ky0xml5pq-python3.13-ansible-core-2.20.0",
+              "default": true
+            },
+            {
+              "name": "dist",
+              "path": "/nix/store/cj98jamcwl4hhsg3afvz7ansmbgchdyj-python3.13-ansible-core-2.20.0-dist"
+            }
+          ],
+          "store_path": "/nix/store/7jkqidccnsmgywd9bzmv6n9ky0xml5pq-python3.13-ansible-core-2.20.0"
+        },
+        "aarch64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/ir7x2rhjasava9zdgd9spiz8mb5j23yk-python3.13-ansible-core-2.20.0",
+              "default": true
+            },
+            {
+              "name": "dist",
+              "path": "/nix/store/wyyxhplia83qgri265cd0ghcg8hz5l0s-python3.13-ansible-core-2.20.0-dist"
+            }
+          ],
+          "store_path": "/nix/store/ir7x2rhjasava9zdgd9spiz8mb5j23yk-python3.13-ansible-core-2.20.0"
+        },
+        "x86_64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/x70qqdhynnfkzsdz1d23ypnbv1ps0w0h-python3.13-ansible-core-2.20.0",
+              "default": true
+            },
+            {
+              "name": "dist",
+              "path": "/nix/store/b1bn147j9dm2b7wbgbymz31jw5942pds-python3.13-ansible-core-2.20.0-dist"
+            }
+          ],
+          "store_path": "/nix/store/x70qqdhynnfkzsdz1d23ypnbv1ps0w0h-python3.13-ansible-core-2.20.0"
+        },
+        "x86_64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/aiby7sd3i40fjh1gx0yipww3pnsynfnm-python3.13-ansible-core-2.20.0",
+              "default": true
+            },
+            {
+              "name": "dist",
+              "path": "/nix/store/bjgajnafaw8pnjl384v1ww9906vv0w8a-python3.13-ansible-core-2.20.0-dist"
+            }
+          ],
+          "store_path": "/nix/store/aiby7sd3i40fjh1gx0yipww3pnsynfnm-python3.13-ansible-core-2.20.0"
         }
       }
     },
