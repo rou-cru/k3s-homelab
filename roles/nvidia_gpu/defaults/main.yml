@@ -1,7 +1,7 @@
 ---
 # Configuración de GPU NVIDIA - detección automática de drivers
 # Requiere GPU NVIDIA (Vendor ID 10de) presente en el sistema
-nvidia_gpu_setup: true
+nvidia_gpu_setup: 'auto'
 nvidia_gpu_driver_package: "auto"
 nvidia_gpu_driver_fallback: "nvidia-driver-535"
 nvidia_gpu_toolkit_repo_url: "https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list"

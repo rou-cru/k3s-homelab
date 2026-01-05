@@ -18,10 +18,7 @@
       failed_when: false
       changed_when: false
 
-    - name: Debug GPU Check
-      ansible.builtin.debug:
-        var: gpu_check
-      when: nvidia_gpu_setup | default('auto') != false
+
 
     - name: Set GPU Active Fact (Auto)
       ansible.builtin.set_fact:
