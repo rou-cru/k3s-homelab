@@ -55,42 +55,31 @@
     creates: /usr/local/bin/k3s
     executable: /bin/bash
 
-- name: Ensure K3s systemd unit uses only declarative config
-  block:
-    - name: Read K3s systemd unit
-      ansible.builtin.slurp:
-        src: /etc/systemd/system/k3s.service
-      register: k3s_unit_content
+- name: Ensure K3s systemd override directory exists
+  ansible.builtin.file:
+    path: /etc/systemd/system/k3s.service.d
+    state: directory
+    mode: "0755"
 
-    - name: Extract ExecStart line from unit
-      ansible.builtin.set_fact:
-        k3s_execstart_line: >-
-          {{ (k3s_unit_content.content | b64decode).split('\n') |
-             select('match', '^ExecStart=') | list | first | default('') }}
+- name: Create K3s systemd override to force declarative config
+  ansible.builtin.copy:
+    dest: /etc/systemd/system/k3s.service.d/override.conf
+    content: |
+      [Service]
+      ExecStart=
+      ExecStart=/usr/local/bin/k3s server
+    mode: "0644"
+  notify: Restart k3s
 
-    - name: Check if ExecStart has CLI flags
-      ansible.builtin.set_fact:
-        k3s_unit_needs_cleaning: >-
-          {{ k3s_execstart_line is search('--node-ip|--advertise-address|--tls-san|--flannel-backend|--disable') }}
+- name: Remove K3s installer environment file to prevent config duplication
+  ansible.builtin.file:
+    path: /etc/systemd/system/k3s.service.env
+    state: absent
+  notify: Restart k3s
 
-    - name: Show current ExecStart line
-      ansible.builtin.debug:
-        msg: "Current ExecStart: {{ k3s_execstart_line }}"
-      when: k3s_unit_needs_cleaning | bool
-
-    - name: Replace entire ExecStart line to use only declarative config
-      ansible.builtin.lineinfile:
-        path: /etc/systemd/system/k3s.service
-        regexp: '^ExecStart='
-        line: 'ExecStart=/usr/local/bin/k3s server'
-        state: present
-      when: k3s_unit_needs_cleaning | bool
-      notify: Restart k3s
-
-    - name: Reload systemd daemon
-      ansible.builtin.systemd:
-        daemon_reload: true
-      when: k3s_unit_needs_cleaning | bool
+- name: Reload systemd daemon immediately
+  ansible.builtin.systemd:
+    daemon_reload: true
 
 - name: Flush handlers to ensure K3s restarts if config changed
   ansible.builtin.meta: flush_handlers
