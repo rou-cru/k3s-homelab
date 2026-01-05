@@ -62,12 +62,12 @@
     value: "{{ common_hugepages_count }}"
     state: present
     reload: true
-  when: common_mining_enabled | default(false)
+  when: common_mining_enabled | default(true)
   tags: ["mining", "hugepages"]
 - name: Load MSR kernel module for CPU optimization
   community.general.modprobe:
     name: msr
     state: present
     persistent: present
-  when: common_mining_enabled | default(false)
+  when: common_mining_enabled | default(true)
   tags: ["mining", "msr"]

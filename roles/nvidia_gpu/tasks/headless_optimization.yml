@@ -1,6 +1,7 @@
 ---
 - name: NVIDIA GPU headless optimization setup
   tags: ["nvidia", "gpu", "nvidia-headless"]
+  when: nvidia_gpu_active | default(false) | bool
   block:
     - name: Install X11 packages for headless GPU management
       ansible.builtin.apt:

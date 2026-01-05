@@ -8,19 +8,38 @@
         state: present
         update_cache: true
         cache_valid_time: 3600
-    - name: Detect NVIDIA GPU (Vendor ID 10de)
-      ansible.builtin.command: lspci -nm
-      register: nvidia_gpu_lspci_out
+      # Always run pciutils install to allow detection
+      # Always run pciutils install to allow detection
+      # Always run pciutils install to allow detection
+
+    - name: Check GPU presence
+      shell: lspci -nm | grep -q 10de
+      register: gpu_check
+      failed_when: false
       changed_when: false
-    - name: Set GPU detected fact
+
+    - name: Set GPU Active Fact (Auto)
       ansible.builtin.set_fact:
-        nvidia_gpu_detected: "{{ '10de' in nvidia_gpu_lspci_out.stdout }}"
-    - name: Abort if no NVIDIA GPU found
+        nvidia_gpu_active: "{{ gpu_check.rc == 0 }}"
+      when: nvidia_gpu_setup | default('auto') == 'auto'
+
+    - name: Set GPU Active Fact (Forced)
+      ansible.builtin.set_fact:
+        nvidia_gpu_active: true
+      when: nvidia_gpu_setup | default('auto') == true
+
+    - name: Fail if forced but missing
       ansible.builtin.fail:
-        msg: "No NVIDIA GPU (Vendor ID 10de) detected on this host."
-      when:
-        - not nvidia_gpu_detected
-        - not ansible_check_mode
+        msg: "GPU Setup forced but no NVIDIA GPU detected"
+      when: 
+        - nvidia_gpu_setup | default('auto') == true
+        - gpu_check.rc != 0
+
+    - name: Set GPU Active Fact (Disabled)
+      ansible.builtin.set_fact:
+        nvidia_gpu_active: false
+      when: nvidia_gpu_setup | default('auto') == false
+
     - name: Install driver tools
       ansible.builtin.apt:
         name:
@@ -37,11 +56,12 @@
       register: nvidia_gpu_detected_driver
       changed_when: false
       failed_when: false
-      when: nvidia_gpu_driver_package == "auto"
+      when: nvidia_gpu_active | default(false) | bool and nvidia_gpu_driver_package == "auto"
     - name: Set detected driver
       ansible.builtin.set_fact:
         nvidia_gpu_driver_target: "{{ nvidia_gpu_detected_driver.stdout | trim }}"
       when:
+        - nvidia_gpu_active | default(false) | bool
         - nvidia_gpu_driver_package == "auto"
         - nvidia_gpu_detected_driver.stdout | length > 0
     - name: Set driver fallback
@@ -53,10 +73,13 @@
           (nvidia_gpu_detected_driver.skipped is defined and
           nvidia_gpu_detected_driver.skipped) or
           (nvidia_gpu_detected_driver.stdout | length == 0)
+        - nvidia_gpu_active | default(false) | bool
     - name: Set manual driver
       ansible.builtin.set_fact:
         nvidia_gpu_driver_target: "{{ nvidia_gpu_driver_package }}"
-      when: nvidia_gpu_driver_package != "auto"
+      when: 
+        - nvidia_gpu_active | default(false) | bool
+        - nvidia_gpu_driver_package != "auto"
     - name: Blacklist nouveau driver
       ansible.builtin.copy:
         dest: /etc/modprobe.d/blacklist-nouveau.conf
@@ -64,6 +87,7 @@
           blacklist nouveau
           options nouveau modeset=0
         mode: "0644"
+      when: nvidia_gpu_active | default(false) | bool
       register: nvidia_gpu_blacklist_nouveau
     - name: Update initramfs if blacklist changed # noqa: no-handler
       ansible.builtin.command: update-initramfs -u
@@ -73,10 +97,12 @@
     - name: Calculate nvidia-utils package name
       ansible.builtin.set_fact:
         nvidia_gpu_utils_package: "nvidia-utils-{{ nvidia_gpu_driver_target | regex_replace('^nvidia-driver-', '') }}"
+      when: nvidia_gpu_active | default(false) | bool
     - name: Check if NVIDIA packages are in broken state # noqa: command-instead-of-module
       ansible.builtin.shell: dpkg -l | grep nvidia | grep -c ^iU || true
       register: nvidia_gpu_broken_check
       changed_when: false
+      when: nvidia_gpu_active | default(false) | bool
     - name: Force remove broken NVIDIA packages # noqa: command-instead-of-module
       ansible.builtin.shell: |
         # Get list of broken nvidia packages and force remove them
@@ -84,7 +110,9 @@
         apt-get purge -y 'nvidia-*' 'libnvidia-*' || true
         apt-get autoremove -y
         apt-get autoclean
-      when: nvidia_gpu_broken_check.stdout | int > 0
+      when: 
+        - nvidia_gpu_active | default(false) | bool
+        - nvidia_gpu_broken_check.stdout | int > 0
       register: nvidia_gpu_purge
       changed_when: nvidia_gpu_purge.rc == 0
     - name: Install NVIDIA Driver
@@ -95,6 +123,7 @@
         state: present
         update_cache: true
       register: nvidia_gpu_driver_install
+      when: nvidia_gpu_active | default(false) | bool
     - name: Reboot if driver installed
       ansible.builtin.reboot:
         msg: "Rebooting to load NVIDIA drivers"
@@ -108,11 +137,13 @@
       ansible.builtin.apt_key:
         url: "{{ nvidia_gpu_toolkit_gpg_url }}"
         state: present
+      when: nvidia_gpu_active | default(false) | bool
     - name: Add Toolkit Repository
       ansible.builtin.get_url:
         url: "{{ nvidia_gpu_toolkit_repo_url }}"
         dest: /etc/apt/sources.list.d/nvidia-container-toolkit.list
         mode: "0644"
+      when: nvidia_gpu_active | default(false) | bool
       register: nvidia_gpu_repo_added
     - name: Install Toolkit
       ansible.builtin.apt:
@@ -120,13 +151,16 @@
         state: present
         update_cache: true
         cache_valid_time: 3600
+      when: nvidia_gpu_active | default(false) | bool
     - name: Ensure containerd config dir exists
       ansible.builtin.file:
         path: /var/lib/rancher/k3s/agent/etc/containerd/
         state: directory
         mode: "0755"
+      when: nvidia_gpu_active | default(false) | bool
     - name: Deploy containerd config template
       ansible.builtin.template:
         src: config.toml.tmpl
         dest: /var/lib/rancher/k3s/agent/etc/containerd/config.toml.tmpl
         mode: "0644"
+      when: nvidia_gpu_active | default(false) | bool

@@ -2,7 +2,7 @@
 # Variables de configuración para el rol common
 common_network_optimization_enabled: true
 common_rog_server: true
-common_asusctl_enabled: false # Compilación de asusctl (requiere Rust, ~20min, riesgo medio)
+
 common_radio_block_enabled: true
 common_audio_optimization_enabled: true
 common_file_descriptors_soft: 100000

@@ -1,6 +1,7 @@
 ---
 - name: NVIDIA GPU cluster setup
   tags: ["nvidia", "gpu", "nvidia-cluster"]
+  when: nvidia_gpu_active | default(false) | bool
   block:
     - name: Add NVIDIA Helm repository
       ansible.builtin.command: helm repo add nvdp https://nvidia.github.io/k8s-device-plugin
