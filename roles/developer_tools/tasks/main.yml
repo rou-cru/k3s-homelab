@@ -65,7 +65,7 @@
   ansible.builtin.command: pipx install nvitop
   args:
     creates: /root/.local/bin/nvitop
-  when: nvidia_gpu_setup | default(false) | bool
+  when: nvidia_gpu_setup | default('auto') != false
 - name: Install Kimi CLI via uv
   ansible.builtin.command: uv tool install kimi-cli
   args:

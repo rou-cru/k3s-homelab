@@ -28,19 +28,19 @@
     - name: Set GPU Active Fact (Forced)
       ansible.builtin.set_fact:
         nvidia_gpu_active: true
-      when: nvidia_gpu_setup | default('auto') == true
+      when: nvidia_gpu_setup | default('auto') | string | lower == 'true'
 
     - name: Fail if forced but missing
       ansible.builtin.fail:
         msg: "GPU Setup forced but no NVIDIA GPU detected"
       when: 
-        - nvidia_gpu_setup | default('auto') == true
+        - nvidia_gpu_setup | default('auto') | string | lower == 'true'
         - gpu_check.rc != 0
 
     - name: Set GPU Active Fact (Disabled)
       ansible.builtin.set_fact:
         nvidia_gpu_active: false
-      when: nvidia_gpu_setup | default('auto') == false
+      when: nvidia_gpu_setup | default('auto') | string | lower == 'false'
 
     - name: Install driver tools
       ansible.builtin.apt:

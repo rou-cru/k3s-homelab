@@ -6,25 +6,38 @@
       - tailscale_ip | length > 0
       - tailscale_ip is match('^100\.')
     fail_msg: "ERROR: Invalid tailscale_ip ({{ tailscale_ip | default('undefined') }}). Must be 100.x.x.x"
-- name: Check current K3s bind IP configuration
-  ansible.builtin.shell: |
-    set -o pipefail
-    grep -oP -- '--node-ip[= ]\K[^ ]+' /etc/systemd/system/k3s.service 2>/dev/null || echo "not_installed"
-  register: current_k3s_bind_ip
-  changed_when: false
-  failed_when: false
+- name: Check if K3s service file exists
+  ansible.builtin.stat:
+    path: /etc/systemd/system/k3s.service
+  register: k3s_service_file
+
+- name: Read K3s service configuration
+  ansible.builtin.slurp:
+    src: /etc/systemd/system/k3s.service
+  register: k3s_service_content
+  when: k3s_service_file.stat.exists
+
+- name: Extract current K3s IP
+  ansible.builtin.set_fact:
+    current_k3s_ip: >-
+      {{ 
+        (k3s_service_content['content'] | b64decode | 
+        regex_search('--node-ip[= ]([0-9\.]+)', '\1') | first) 
+        if (k3s_service_file.stat.exists and k3s_service_content.content is defined) 
+        else "not_installed" 
+      }}
+
 - name: Detect configuration drift (IP Mismatch)
   ansible.builtin.set_fact:
     k3s_server_force_reinstall: true
   when:
-    - current_k3s_bind_ip.stdout != "not_installed"
-    - current_k3s_bind_ip.stdout != tailscale_ip
-    - not (k3s_server_force_reinstall | default(false))
+    - current_k3s_ip != "not_installed"
+    - current_k3s_ip != tailscale_ip
 - name: Announce Auto-Repair
   ansible.builtin.debug:
     msg: >-
       ⚠️ Configuration Drift Detected:
-      K3s bound to {{ current_k3s_bind_ip.stdout }},
+      K3s bound to {{ current_k3s_ip | default('UNKNOWN') }},
       but Tailscale IP is {{ tailscale_ip }}.
       Triggering FORCE REINSTALL.
   when: k3s_server_force_reinstall | default(false) | bool
