@@ -71,7 +71,7 @@
   args:
     creates: /root/.local/bin/kimi
   environment:
-    PATH: "/root/.cargo/bin:{{ ansible_env.PATH }}"
+    PATH: "/root/.cargo/bin:{{ ansible_facts['env']['PATH'] }}"
   ignore_errors: true
 # AI CLI tools (npm)
 - name: Install AI CLI tools via npm

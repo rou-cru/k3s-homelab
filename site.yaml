@@ -84,7 +84,7 @@
         dest: /tmp/k8s-manifests/miners-honeygain-secret.yaml
         mode: "0644"
       tags: ["k8s-deploy", "workloads", "honeygain"]
-      tags: ["k8s-deploy", "workloads", "honeygain"]
+
 
     # Safe K8s Manifest Deployment Logic
     # 1. Calculate deployment decision

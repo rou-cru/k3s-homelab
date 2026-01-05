@@ -49,8 +49,8 @@
              common_grub_aspm.changed }}
 - name: Detect primary ethernet interface
   ansible.builtin.set_fact:
-    common_primary_interface: "{{ ansible_default_ipv4.interface }}"
-  when: ansible_default_ipv4.interface is defined
+    common_primary_interface: "{{ ansible_facts['default_ipv4']['interface'] }}"
+  when: ansible_facts['default_ipv4']['interface'] is defined
 - name: Deploy network optimization script
   ansible.builtin.template:
     src: optimize-network.sh.j2
