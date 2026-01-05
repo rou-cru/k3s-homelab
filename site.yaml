@@ -42,6 +42,17 @@
       tags: ["nvidia", "gpu", "nvidia-host"]
       when: nvidia_gpu_setup | default('auto') != false
 
+    # NVIDIA GPU Headless Optimization - X11, persistence mode (host-only)
+    - name: Run NVIDIA GPU headless optimization
+      ansible.builtin.import_role:
+        name: nvidia_gpu
+        tasks_from: headless_optimization.yml
+      tags: ["nvidia", "gpu", "nvidia-headless"]
+      when:
+        - nvidia_gpu_active | default(false) | bool
+        - nvidia_gpu_headless_enabled | default(true) | bool
+      ignore_errors: true
+
     - name: Run tailscale role
       ansible.builtin.import_role:
         name: tailscale
@@ -64,29 +75,39 @@
       when: nvidia_gpu_setup | default('auto') != false
       become: false
 
-    # NVIDIA GPU Headless Optimization - X11, persistence mode (non-blocking)
-    - name: Run NVIDIA GPU headless optimization
-      ansible.builtin.import_role:
-        name: nvidia_gpu
-        tasks_from: headless_optimization.yml
-      tags: ["nvidia", "gpu", "nvidia-headless"]
-      when:
-        - nvidia_gpu_active | default(false) | bool
-        - nvidia_gpu_headless_enabled | default(true) | bool
-      ignore_errors: true
-
   post_tasks:
-    - name: Copy K8s manifests to remote host
-      ansible.builtin.copy:
-        src: k8s/
-        dest: /tmp/k8s-manifests/
-        mode: "0644"
-      tags: ["k8s-deploy", "workloads"]
-    - name: Deploy Honeygain Secret
+    - name: Create temporary Honeygain secret file
+      ansible.builtin.tempfile:
+        state: file
+        suffix: "-honeygain-secret.yaml"
+      register: honeygain_secret_tmp
+      delegate_to: localhost
+      become: false
+      tags: ["k8s-deploy", "workloads", "honeygain"]
+
+    - name: Render Honeygain Secret
       ansible.builtin.template:
         src: k8s/miners/honeygain/secret.yaml.j2
-        dest: /tmp/k8s-manifests/miners/honeygain-secret.yaml
+        dest: "{{ honeygain_secret_tmp.path }}"
         mode: "0644"
+      delegate_to: localhost
+      become: false
+      tags: ["k8s-deploy", "workloads", "honeygain"]
+
+    - name: Apply Honeygain Secret
+      ansible.builtin.command: kubectl apply -f {{ honeygain_secret_tmp.path }}
+      delegate_to: localhost
+      become: false
+      tags: ["k8s-deploy", "workloads", "honeygain"]
+      environment:
+        KUBECONFIG: "{{ k3s_server_local_kubeconfig_path }}"
+
+    - name: Remove temporary Honeygain secret file
+      ansible.builtin.file:
+        path: "{{ honeygain_secret_tmp.path }}"
+        state: absent
+      delegate_to: localhost
+      become: false
       tags: ["k8s-deploy", "workloads", "honeygain"]
 
 
@@ -101,18 +122,11 @@
           }}
       tags: ["k8s-deploy", "workloads"]
 
-    # 2. Cleanup unwanted GPU manifests
-    - name: Remove GPU manifests if nvidia not available
-      ansible.builtin.file:
-        path: /tmp/k8s-manifests/miners/unmineable-gpu
-        state: absent
-      when: not (should_deploy_gpu_manifests | bool)
-      tags: ["k8s-deploy", "workloads"]
-
-    # 3. Apply Namespaces first
-    - name: Apply K8s Namespaces first
+    # 2. Apply Namespaces first
+    - name: Apply K8s Namespaces first (with GPU)
       ansible.builtin.shell: |
-        find /tmp/k8s-manifests -name '*.yaml' -exec grep -l '^kind: Namespace' {} \; | xargs -r kubectl apply -f
+        find {{ playbook_dir }}/k8s -name '*.yaml' -exec grep -l '^kind: Namespace' {} \; | xargs -r kubectl apply -f
+      when: should_deploy_gpu_manifests | bool
       tags: ["k8s-deploy", "workloads"]
       register: namespace_apply
       until: namespace_apply.rc == 0
@@ -121,11 +135,29 @@
       changed_when: true
       become: false
       environment:
-        KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
+        KUBECONFIG: "{{ k3s_server_local_kubeconfig_path }}"
+      delegate_to: localhost
 
-    # 4. Apply all remaining manifests
-    - name: Apply all K8s manifests
-      ansible.builtin.command: kubectl apply -R -f /tmp/k8s-manifests/
+    - name: Apply K8s Namespaces first (without GPU)
+      ansible.builtin.shell: |
+        find {{ playbook_dir }}/k8s -path '*/unmineable-gpu/*' -prune -o -name '*.yaml' \
+          -exec grep -l '^kind: Namespace' {} \; | xargs -r kubectl apply -f
+      when: not (should_deploy_gpu_manifests | bool)
+      tags: ["k8s-deploy", "workloads"]
+      register: namespace_apply
+      until: namespace_apply.rc == 0
+      retries: 10
+      delay: 5
+      changed_when: true
+      become: false
+      environment:
+        KUBECONFIG: "{{ k3s_server_local_kubeconfig_path }}"
+      delegate_to: localhost
+
+    # 3. Apply all remaining manifests
+    - name: Apply all K8s manifests (with GPU)
+      ansible.builtin.command: kubectl apply -R -f {{ playbook_dir }}/k8s/
+      when: should_deploy_gpu_manifests | bool
       register: manifest_apply
       until: manifest_apply.rc == 0
       retries: 10
@@ -134,9 +166,21 @@
       tags: ["k8s-deploy", "workloads"]
       become: false
       environment:
-        KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
-    - name: Cleanup temporary manifests
-      ansible.builtin.file:
-        path: /tmp/k8s-manifests/
-        state: absent
+        KUBECONFIG: "{{ k3s_server_local_kubeconfig_path }}"
+      delegate_to: localhost
+
+    - name: Apply all K8s manifests (without GPU)
+      ansible.builtin.shell: |
+        find {{ playbook_dir }}/k8s -path '*/unmineable-gpu/*' -prune -o -name '*.yaml' -print \
+          | xargs -r kubectl apply -f
+      when: not (should_deploy_gpu_manifests | bool)
+      register: manifest_apply
+      until: manifest_apply.rc == 0
+      retries: 10
+      delay: 5
+      changed_when: true
       tags: ["k8s-deploy", "workloads"]
+      become: false
+      environment:
+        KUBECONFIG: "{{ k3s_server_local_kubeconfig_path }}"
+      delegate_to: localhost

@@ -7,9 +7,8 @@ k3s_server_kubeconfig_mode: "644"
 k3s_server_node_token_timeout: 180
 k3s_server_readyz_retries: 30
 k3s_server_readyz_delay: 2
-# Reinstalación - forzar desinstalación completa antes de instalar
-# Útil para limpiar instalaciones corruptas o cambiar configuración
-k3s_server_force_reinstall: false
+# Recreate cluster to guarantee a clean, consistent state on every run
+k3s_server_recreate: true
 # Configuración de kubeconfig local (solo copia, sin instalar kubectl)
 k3s_server_copy_kubeconfig_local: true
 k3s_server_local_kubeconfig_path: "{{ lookup('env', 'HOME') }}/.kube/config"

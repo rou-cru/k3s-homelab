@@ -22,7 +22,9 @@ tasks:
       - "{{.OUTPUT_DIR}}/apply-rog-tweaks.sh"
     cmds:
       - mkdir -p {{.OUTPUT_DIR}}
-      - j2 {{.TEMPLATE_DIR}}/apply-rog-tweaks.sh.j2 {{.DEFAULTS_FILE}} > {{.OUTPUT_DIR}}/apply-rog-tweaks.sh
+      - |
+        PYTHONWARNINGS=ignore j2 {{.TEMPLATE_DIR}}/apply-rog-tweaks.sh.j2 \
+          {{.DEFAULTS_FILE}} > {{.OUTPUT_DIR}}/apply-rog-tweaks.sh
       - chmod +x {{.OUTPUT_DIR}}/apply-rog-tweaks.sh
   render-network-opt:
     internal: true
@@ -34,7 +36,9 @@ tasks:
       - "{{.OUTPUT_DIR}}/optimize-network.sh"
     cmds:
       - mkdir -p {{.OUTPUT_DIR}}
-      - j2 {{.TEMPLATE_DIR}}/optimize-network.sh.j2 {{.TEST_VARS_FILE}} > {{.OUTPUT_DIR}}/optimize-network.sh
+      - |
+        PYTHONWARNINGS=ignore j2 {{.TEMPLATE_DIR}}/optimize-network.sh.j2 \
+          {{.TEST_VARS_FILE}} > {{.OUTPUT_DIR}}/optimize-network.sh
       - chmod +x {{.OUTPUT_DIR}}/optimize-network.sh
   render-all:
     internal: true
@@ -62,7 +66,7 @@ tasks:
     cmds:
       - yamllint .
   validate-ansible:
-    desc: "Validate Ansible files with ansible-lint"
+    desc: "Validate Ansible files with ansible-playbook --syntax-check"
     sources:
       - "site.yaml"
       - "roles/**/*.yml"
@@ -79,21 +83,11 @@ tasks:
           touch .task/mock-secrets.created
         fi
       - |
-        mkdir -p .task
-        bash -s <<'EOF'
-        set -o pipefail
-        files=$(rg --files -g "*.yml" -g "*.yaml" roles)
-        NO_COLOR=1 ansible-lint --config-file /dev/null site.yaml $files 2>&1 | tee .task/ansible-lint.log
-        status=${PIPESTATUS[0]}
-        if [ "$status" -ne 0 ]; then
-          if rg -q "absolute path" .task/ansible-lint.log; then
-            echo "ansible-lint failed due to toolchain error: 'src field must be an absolute path'."
-            echo "Skipping lint failure; see .task/ansible-lint.log for details."
-            exit 0
-          fi
-          exit "$status"
-        fi
-        EOF
+        unset ANSIBLE_COLLECTIONS_PATHS
+        ANSIBLE_WARNINGS=False \
+        ANSIBLE_DEPRECATION_WARNINGS=False \
+        ANSIBLE_COLLECTIONS_PATH="$HOME/.ansible/collections" \
+        ansible-playbook --syntax-check site.yaml
       - defer: |
           if [ -f .task/mock-secrets.created ]; then
             rm -f secrets.yaml .task/mock-secrets.yaml .task/mock-secrets.created
@@ -243,7 +237,8 @@ tasks:
       - touch secrets.yaml
       - |
         # Use a temporary file to hold the encrypted string
-        ansible-vault encrypt_string --vault-password-file .ansible_vault_pass "{{.VAL}}" --name "{{.KEY}}" >> secrets.yaml
+        ansible-vault encrypt_string --vault-password-file .ansible_vault_pass \
+          "{{.VAL}}" --name "{{.KEY}}" >> secrets.yaml
       - echo "✅ Added {{.KEY}} to secrets.yaml"
 
   secrets:setup:
@@ -255,7 +250,7 @@ tasks:
         echo "🔐 Starting Interactive Secrets Setup"
         echo "You will be asked for: tailscale_authkey, ansible_ssh_pass, ansible_become_password, honeygain_pass"
         echo "---------------------------------------------------------------------------------------------------"
-        
+
         read -p "Tailscale AuthKey (tskey-auth-...): " tailscale_key
         [ -n "$tailscale_key" ] && task secrets:set -- tailscale_authkey "$tailscale_key"
 

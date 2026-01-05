@@ -7,6 +7,33 @@
       - tailscale_ip is match('^100\.')
     fail_msg: "ERROR: Invalid tailscale_ip ({{ tailscale_ip | default('undefined') }}). Must be 100.x.x.x"
 
+- name: Check if K3s uninstall script exists
+  ansible.builtin.stat:
+    path: /usr/local/bin/k3s-uninstall.sh
+  register: k3s_uninstall_script
+
+- name: Recreate K3s cluster for a clean state
+  ansible.builtin.command: /usr/local/bin/k3s-uninstall.sh
+  when:
+    - k3s_server_recreate | bool
+    - k3s_uninstall_script.stat.exists
+  register: k3s_uninstall
+  changed_when: k3s_uninstall.rc == 0
+
+- name: Remove residual K3s state directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /var/lib/rancher/k3s
+    - /etc/rancher/k3s
+    - /var/lib/kubelet
+    - /var/lib/cni
+    - /etc/cni/net.d
+  when:
+    - k3s_server_recreate | bool
+    - k3s_uninstall_script.stat.exists
+
 - name: Ensure K3s config directory exists
   ansible.builtin.file:
     path: /etc/rancher/k3s
@@ -20,53 +47,6 @@
     mode: "0600"
   notify: Restart k3s
 
-- name: Check for CNI directory existence
-  ansible.builtin.stat:
-    path: /etc/cni/net.d
-  register: cni_net_dir
-
-- name: Find residual CNI configurations
-  ansible.builtin.find:
-    paths: /etc/cni/net.d
-    patterns:
-      - "10-calico.conflist"
-      - "calico-kubeconfig"
-      - "10-flannel.conflist"
-      - "87-podman-bridge.conflist"
-  register: residual_cni_files
-  when: cni_net_dir.stat.exists and cni_net_dir.stat.isdir
-
-- name: Remove residual CNI configurations
-  ansible.builtin.file:
-    path: "{{ item.path }}"
-    state: absent
-  loop: "{{ residual_cni_files.files | default([]) }}"
-  loop_control:
-    label: "{{ item.path }}"
-
-
-- name: Check if K3s uninstall script exists
-  ansible.builtin.stat:
-    path: /usr/local/bin/k3s-uninstall.sh
-  register: k3s_uninstall_script
-
-- name: Uninstall existing K3s to start clean
-  ansible.builtin.command: /usr/local/bin/k3s-uninstall.sh
-  when: k3s_uninstall_script.stat.exists
-  register: k3s_uninstall
-  changed_when: k3s_uninstall.rc == 0
-
-- name: Remove residual K3s state directories
-  ansible.builtin.file:
-    path: "{{ item }}"
-    state: absent
-  loop:
-    - /var/lib/rancher/k3s
-    - /etc/rancher/k3s
-    - /var/lib/kubelet
-    - /var/lib/cni
-  when: k3s_uninstall_script.stat.exists
-
 - name: Install k3s server
   ansible.builtin.shell: |
     set -o pipefail
@@ -75,6 +55,7 @@
       sh -
   args:
     executable: /bin/bash
+    creates: /usr/local/bin/k3s
 
 - name: Ensure K3s systemd override directory exists
   ansible.builtin.file:
@@ -102,32 +83,20 @@
   ansible.builtin.systemd:
     daemon_reload: true
 
-- name: Wait for node-token
+- name: Ensure K3s service is enabled and running
+  ansible.builtin.systemd:
+    name: k3s
+    enabled: true
+    state: started
+
+- name: Apply pending K3s restarts before readiness checks
+  ansible.builtin.meta: flush_handlers
+
+- name: Wait for kubeconfig to be generated
   ansible.builtin.wait_for:
-    path: /var/lib/rancher/k3s/server/node-token
+    path: /etc/rancher/k3s/k3s.yaml
     timeout: "{{ k3s_server_node_token_timeout }}"
   when: not ansible_check_mode
-
-- name: Read node token
-  ansible.builtin.slurp:
-    src: /var/lib/rancher/k3s/server/node-token
-  register: k3s_server_token_raw
-  when: not ansible_check_mode
-
-- name: Set token fact on localhost
-  ansible.builtin.set_fact:
-    k3s_server_token: "{{ k3s_server_token_raw.content | b64decode | trim }}"
-  delegate_to: localhost
-  run_once: true
-  when: not ansible_check_mode
-
-- name: Ensure .kube directory exists for user {{ ansible_user }}
-  ansible.builtin.file:
-    path: "/home/{{ ansible_user }}/.kube"
-    state: directory
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
-    mode: "0700"
 
 - name: Read K3s kubeconfig
   ansible.builtin.slurp:
@@ -148,6 +117,14 @@
     group: root
     mode: "{{ k3s_server_kubeconfig_mode }}"
 
+- name: Ensure .kube directory exists for user {{ ansible_user }}
+  ansible.builtin.file:
+    path: "/home/{{ ansible_user }}/.kube"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: "0700"
+
 - name: Write kubeconfig for target user
   ansible.builtin.copy:
     content: "{{ k3s_kubeconfig_canonical }}"
@@ -164,6 +141,18 @@
   until: k3s_server_readyz.rc == 0
   changed_when: false
   when: not ansible_check_mode
+  become: false
+  environment:
+    KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
+
+- name: Remove Traefik HelmCharts when disabled
+  ansible.builtin.command: >
+    kubectl -n kube-system delete helmchart traefik traefik-crd --ignore-not-found
+  register: k3s_traefik_cleanup
+  changed_when: "'deleted' in k3s_traefik_cleanup.stdout"
+  when:
+    - not ansible_check_mode
+    - k3s_server_disable_traefik | bool
   become: false
   environment:
     KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"

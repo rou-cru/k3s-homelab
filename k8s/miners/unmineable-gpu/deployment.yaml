@@ -1,3 +1,4 @@
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -20,14 +21,14 @@ spec:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
-            - matchExpressions:
-              - key: nvidia.com/gpu.present
-                operator: In
-                values: ["true"]
-            - matchExpressions:
-              - key: feature.node.kubernetes.io/pci-10de.present
-                operator: In
-                values: ["true"]
+              - matchExpressions:
+                  - key: nvidia.com/gpu.present
+                    operator: In
+                    values: ["true"]
+              - matchExpressions:
+                  - key: feature.node.kubernetes.io/pci-10de.present
+                    operator: In
+                    values: ["true"]
       containers:
         - name: unmineable-gpu
           image: nvidia/cuda:12.2.0-runtime-ubuntu22.04
@@ -95,4 +96,4 @@ spec:
         - name: unmineable-gpu-entrypoint
           configMap:
             name: unmineable-gpu-entrypoint
-            defaultMode: 0755
+            defaultMode: "0755"

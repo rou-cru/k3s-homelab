@@ -1,3 +1,4 @@
+---
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -27,7 +28,8 @@ data:
     apt-get update -qq && apt-get install -y -qq wget >/dev/null 2>&1
 
     mkdir -p "${TREX_DIR}"
-    wget -q -O /tmp/trex.tar.gz "https://github.com/trexminer/T-Rex/releases/download/${TREX_VERSION}/t-rex-${TREX_VERSION}-linux.tar.gz"
+    wget -q -O /tmp/trex.tar.gz \
+      "https://github.com/trexminer/T-Rex/releases/download/${TREX_VERSION}/t-rex-${TREX_VERSION}-linux.tar.gz"
     tar -xzf /tmp/trex.tar.gz -C "${TREX_DIR}"
     chmod +x "${TREX_BIN}"
     rm /tmp/trex.tar.gz
