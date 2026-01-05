@@ -77,16 +77,6 @@
   run_once: true
   when: not ansible_check_mode
 
-- name: Wait for kube-apiserver (Standard Kubectl + Discovery)
-  ansible.builtin.command: kubectl api-resources
-  register: k3s_server_readyz
-  retries: "{{ k3s_server_readyz_retries }}"
-  delay: "{{ k3s_server_readyz_delay }}"
-  until: k3s_server_readyz.rc == 0
-  changed_when: false
-  when: not ansible_check_mode
-  become: false
-
 - name: Ensure .kube directory exists for root
   ansible.builtin.file:
     path: /root/.kube
@@ -116,6 +106,16 @@
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
     mode: "0600"
+
+- name: Wait for kube-apiserver (Standard Kubectl + Discovery)
+  ansible.builtin.command: kubectl api-resources
+  register: k3s_server_readyz
+  retries: "{{ k3s_server_readyz_retries }}"
+  delay: "{{ k3s_server_readyz_delay }}"
+  until: k3s_server_readyz.rc == 0
+  changed_when: false
+  when: not ansible_check_mode
+  become: false
 
 - name: Copy kubeconfig to local machine
   when:
