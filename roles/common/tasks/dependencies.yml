@@ -1,0 +1,16 @@
+---
+- name: Install Python dependencies for K8s Ansible modules
+  ansible.builtin.apt:
+    name:
+      - python3-kubernetes
+      - python3-pip
+      - python3-yaml
+      - python3-jsonpatch
+    state: present
+
+- name: Install Helm (if not present)
+  ansible.builtin.shell: |
+    curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+  args:
+    creates: /usr/local/bin/helm
+  tags: [helm]

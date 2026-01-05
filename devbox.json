@@ -8,17 +8,24 @@
     "j2lint@1.2.0",
     "j2cli@0.3.10",
     "go-task@3.45.5",
-    "helm@latest",
-    "k9s@latest",
-    "ripgrep@latest",
-    "ansible@latest",
-    "ansible-lint@latest",
-    "ansible-doctor@latest"
+            "helm@latest",
+            "k9s@latest",
+            "ripgrep@latest",
+            "trivy@latest",
+            "checkov@latest",
+            "ansible@latest",
+            "ansible-lint@latest",
+            "ansible-doctor@latest"
+        
+    ,
+    "rsync@latest"
   ],
   "shell": {
     "init_hook": [
       "export workspaceFolder=$PWD",
-      "export CODEX_HOME=$workspaceFolder/.codex"
+      "export CODEX_HOME=$workspaceFolder/.codex",
+      "export ANSIBLE_COLLECTIONS_PATH=$workspaceFolder/.ansible/collections",
+      "export ANSIBLE_ROLES_PATH=$workspaceFolder/roles"
     ]
   }
 }

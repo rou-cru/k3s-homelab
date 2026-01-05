@@ -24,7 +24,11 @@
       - ethtool
       - network-manager
       - acpid
+      - rsync
     state: present
+- name: Install Common Dependencies (Python/Helm)
+  ansible.builtin.include_tasks: dependencies.yml
+
 - name: Install HWE kernel (Ubuntu 20.04-24.04)
   ansible.builtin.apt:
     name: "{{ hwe_kernel_package }}"
@@ -69,3 +73,6 @@
     post_reboot_delay: 30
     test_command: whoami
   when: (common_kernel_changed | default(false)) or (common_network_driver_changed | default(false))
+
+- name: Configure Helm Repositories (User Level)
+  ansible.builtin.include_tasks: helm_setup.yml

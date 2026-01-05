@@ -50,7 +50,7 @@ tasks:
     desc: "Validate all files (YAML, Ansible, Jinja2, Bash)"
     cmds:
       - task: validate-yaml
-      - task: validate-ansible
+      - task: validate-ansible-checkov
       - task: validate-ansible-syntax
       - task: validate-jinja2
       - task: validate-bash
@@ -66,6 +66,13 @@ tasks:
         msg: "yamllint not found. Run: devbox shell"
     cmds:
       - yamllint .
+  validate-ansible-checkov:
+    desc: "Validate Ansible files with checkov"
+    preconditions:
+      - sh: command -v checkov
+        msg: "checkov not found. Run: devbox shell"
+    cmds:
+      - checkov -d . --framework ansible
   validate-ansible:
     desc: "Validate Ansible files with ansible-lint"
     sources:

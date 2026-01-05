@@ -17,3 +17,10 @@ common_ring_buffer_target: 4096
 # Mining optimizations
 common_mining_enabled: true
 common_hugepages_count: 1280 # ~2.5GB for RandomX (1168 needed + buffer)
+
+# Helm Repositories Configuration
+common_helm_repositories:
+  - name: cilium
+    repo_url: "https://helm.cilium.io/"
+  - name: nvdp
+    repo_url: "https://nvidia.github.io/k8s-device-plugin"

@@ -4,30 +4,12 @@
     state: file
     suffix: "-cilium-values.yaml"
   register: cilium_values_tmp
+
 - name: Template Cilium values file
   ansible.builtin.template:
     src: cilium-values.yaml.j2
     dest: "{{ cilium_values_tmp.path }}"
     mode: "0600"
-- name: Verify Helm is installed
-  ansible.builtin.command: helm version --short
-  register: cilium_helm_version
-  changed_when: false
-  environment:
-    KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
-- name: Add Cilium Helm repository
-  ansible.builtin.command: helm repo add cilium {{ cilium_chart_repo }}
-  register: cilium_helm_repo_add
-  changed_when: "'has been added' in cilium_helm_repo_add.stdout"
-  failed_when: cilium_helm_repo_add.rc != 0 and 'already exists' not in cilium_helm_repo_add.stderr
-  environment:
-    KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
-- name: Update Helm repositories
-  ansible.builtin.command: helm repo update
-  register: cilium_helm_repo_update
-  changed_when: "'Update Complete' in cilium_helm_repo_update.stdout"
-  environment:
-    KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
 
 - name: Wait for K3s API server to be ready
   ansible.builtin.command: kubectl get nodes
@@ -39,19 +21,18 @@
   environment:
     KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
 
-- name: Install/upgrade Cilium with Helm
-  ansible.builtin.command: >
-    helm upgrade --install cilium cilium/{{ cilium_chart_name }}
-    --version {{ cilium_version }}
-    --namespace {{ cilium_namespace }}
-    --values {{ cilium_values_tmp.path }}
+- name: Install Cilium via Helm
+  kubernetes.core.helm:
+    release_name: cilium
+    chart_ref: cilium/{{ cilium_chart_name }}
+    release_namespace: "{{ cilium_namespace }}"
+    create_namespace: true
+    values_files:
+      - "{{ cilium_values_tmp.path }}"
+    chart_version: "{{ cilium_version }}"
+    kubeconfig: "/home/{{ ansible_user }}/.kube/config"
+    update_repo_cache: true # Good practice to update cache once per install just in case
 
-  register: cilium_helm_install
-  changed_when: >
-    'STATUS: deployed' in cilium_helm_install.stdout or
-    'STATUS: upgraded' in cilium_helm_install.stdout
-  environment:
-    KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
 - name: Wait for Cilium DaemonSet to be created
   ansible.builtin.command: kubectl -n {{ cilium_namespace }} get ds cilium
   register: cilium_ds_check
@@ -61,6 +42,7 @@
   changed_when: false
   environment:
     KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
+
 - name: Wait for cilium pods
   ansible.builtin.command: >-
     kubectl -n {{ cilium_namespace }} rollout status ds/cilium
@@ -70,23 +52,18 @@
   failed_when: cilium_rollout.rc != 0
   environment:
     KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
+
 - name: Remove temporary values file
   ansible.builtin.file:
     path: "{{ cilium_values_tmp.path }}"
     state: absent
   changed_when: false
+
 - name: Wait for node to be Ready with Cilium
   ansible.builtin.command: kubectl wait --for=condition=Ready nodes --all --timeout=120s
   register: node_ready_wait
   changed_when: false
   failed_when: false
-  environment:
-    KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
-
-- name: Show node status if not ready
-  ansible.builtin.command: kubectl get nodes -o wide
-  when: node_ready_wait.rc != 0
-  changed_when: false
   environment:
     KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
 
