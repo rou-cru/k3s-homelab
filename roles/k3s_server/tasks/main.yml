@@ -28,7 +28,7 @@
 - name: Find residual CNI configurations
   ansible.builtin.find:
     paths: /etc/cni/net.d
-    patterns: 
+    patterns:
       - "10-calico.conflist"
       - "calico-kubeconfig"
       - "10-flannel.conflist"
@@ -57,6 +57,7 @@
 
 - name: Flush handlers to ensure K3s restarts if config changed
   ansible.builtin.meta: flush_handlers
+  when: ansible_facts['service_mgr'] == 'systemd'
 
 - name: Wait for node-token
   ansible.builtin.wait_for:
@@ -85,11 +86,21 @@
     group: "{{ ansible_user }}"
     mode: "0700"
 
-- name: Setup standard kubeconfig for user {{ ansible_user }}
-  ansible.builtin.copy:
+- name: Read K3s kubeconfig
+  ansible.builtin.slurp:
     src: /etc/rancher/k3s/k3s.yaml
+  register: k3s_kubeconfig_raw
+
+- name: Parse and modify kubeconfig for target user
+  ansible.builtin.set_fact:
+    k3s_kubeconfig_target: |
+      {{ k3s_kubeconfig_raw.content | b64decode |
+         regex_replace('https://127.0.0.1:6443', 'https://' + tailscale_ip + ':6443') }}
+
+- name: Write kubeconfig for target user
+  ansible.builtin.copy:
+    content: "{{ k3s_kubeconfig_target }}"
     dest: "/home/{{ ansible_user }}/.kube/config"
-    remote_src: true
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
     mode: "0600"

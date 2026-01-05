@@ -23,9 +23,9 @@
   ansible.builtin.set_fact:
     # Check if BackendState is Running and Self.Online is true
     tailscale_is_running: >-
-      {{ 
-        tailscale_status_json.rc == 0 and 
-        (tailscale_status_json.stdout | from_json).BackendState == 'Running' 
+      {{
+        tailscale_status_json.rc == 0 and
+        (tailscale_status_json.stdout | from_json).BackendState == 'Running'
       }}
 
 
@@ -41,9 +41,9 @@
   # Execute if NOT running (repair) OR if we suspect drift (can be improved later)
   when: not tailscale_is_running | bool
   # Smart change detection: If output differs significantly or returns success
-  changed_when: 
+  changed_when:
     - tailscale_up.rc == 0
-    - "'Success' not in tailscale_up.stdout" 
+    - "'Success' not in tailscale_up.stdout"
     - tailscale_up.stderr | length > 0
 
 - name: Wait for valid Tailscale IPv4 (100.x.y.z)
@@ -66,3 +66,15 @@
       {{ (tailscale_ip_cmd.stdout_lines | default([])) |
       first |
       default(tailscale_ip_cmd.stdout | trim) }}
+- name: Validate Tailscale IP is reachable
+  ansible.builtin.wait_for:
+    host: "{{ tailscale_ip }}"
+    port: 22
+    timeout: 10
+  ignore_errors: true
+  register: tailscale_connectivity_check
+
+- name: Warn if Tailscale connectivity issues
+  ansible.builtin.debug:
+    msg: "WARNING: Cannot reach {{ tailscale_ip }}:22. K3s setup may fail."
+  when: tailscale_connectivity_check.failed | default(false)

@@ -40,3 +40,12 @@
       ansible.builtin.command: kubectl -n kube-system rollout status ds/nvidia-device-plugin --timeout=300s
       register: nvidia_device_plugin_rollout
       changed_when: false
+    - name: Check GPU resources available
+      ansible.builtin.shell: kubectl get nodes -o json | jq -r '.items[].status.capacity["nvidia.com/gpu"]'
+      register: gpu_resources_check
+      changed_when: false
+      failed_when: false
+
+    - name: Debug GPU resources
+      ansible.builtin.debug:
+        msg: "GPU resources: {{ gpu_resources_check.stdout_lines }}"

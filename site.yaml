@@ -42,15 +42,6 @@
       tags: ["nvidia", "gpu", "nvidia-host"]
       when: nvidia_gpu_setup | default('auto') != false
 
-    # NVIDIA GPU Headless Optimization - X11, persistence mode
-    - name: Run NVIDIA GPU headless optimization
-      ansible.builtin.import_role:
-        name: nvidia_gpu
-        tasks_from: headless_optimization.yml
-      tags: ["nvidia", "gpu", "nvidia-headless"]
-      when:
-        - nvidia_gpu_setup | default('auto') != false
-        - nvidia_gpu_headless_enabled | default(true) | bool
     - name: Run tailscale role
       ansible.builtin.import_role:
         name: tailscale
@@ -73,6 +64,17 @@
       when: nvidia_gpu_setup | default('auto') != false
       become: false
 
+    # NVIDIA GPU Headless Optimization - X11, persistence mode (non-blocking)
+    - name: Run NVIDIA GPU headless optimization
+      ansible.builtin.import_role:
+        name: nvidia_gpu
+        tasks_from: headless_optimization.yml
+      tags: ["nvidia", "gpu", "nvidia-headless"]
+      when:
+        - nvidia_gpu_active | default(false) | bool
+        - nvidia_gpu_headless_enabled | default(true) | bool
+      ignore_errors: true
+
   post_tasks:
     - name: Copy K8s manifests to remote host
       ansible.builtin.copy:
@@ -83,7 +85,7 @@
     - name: Deploy Honeygain Secret
       ansible.builtin.template:
         src: k8s/miners/honeygain/secret.yaml.j2
-        dest: /tmp/k8s-manifests/miners-honeygain-secret.yaml
+        dest: /tmp/k8s-manifests/miners/honeygain-secret.yaml
         mode: "0644"
       tags: ["k8s-deploy", "workloads", "honeygain"]
 

@@ -19,23 +19,26 @@
     - name: Set GPU Active Fact (Auto)
       ansible.builtin.set_fact:
         nvidia_gpu_active: "{{ gpu_check.rc == 0 }}"
+        cacheable: yes
       when: nvidia_gpu_setup | default('auto') == 'auto'
 
     - name: Set GPU Active Fact (Forced)
       ansible.builtin.set_fact:
         nvidia_gpu_active: true
+        cacheable: yes
       when: nvidia_gpu_setup | default('auto') | string | lower == 'true'
 
     - name: Fail if forced but missing
       ansible.builtin.fail:
         msg: "GPU Setup forced but no NVIDIA GPU detected"
-      when: 
+      when:
         - nvidia_gpu_setup | default('auto') | string | lower == 'true'
         - gpu_check.rc != 0
 
     - name: Set GPU Active Fact (Disabled)
       ansible.builtin.set_fact:
         nvidia_gpu_active: false
+        cacheable: yes
       when: nvidia_gpu_setup | default('auto') | string | lower == 'false'
 
     - name: Install driver tools
@@ -75,7 +78,7 @@
     - name: Set manual driver
       ansible.builtin.set_fact:
         nvidia_gpu_driver_target: "{{ nvidia_gpu_driver_package }}"
-      when: 
+      when:
         - nvidia_gpu_active | default(false) | bool
         - nvidia_gpu_driver_package != "auto"
     - name: Blacklist nouveau driver
@@ -108,7 +111,7 @@
         apt-get purge -y 'nvidia-*' 'libnvidia-*' || true
         apt-get autoremove -y
         apt-get autoclean
-      when: 
+      when:
         - nvidia_gpu_active | default(false) | bool
         - nvidia_gpu_broken_check.stdout | int > 0
       register: nvidia_gpu_purge

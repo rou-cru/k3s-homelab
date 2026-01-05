@@ -1,49 +1,7 @@
-# Ansible Project Structure & Configuration
+# Estructura del proyecto Ansible (hechos)
 
-## File Layout
-The project follows a standard Ansible directory structure:
-
-*   **Configuration:** `ansible.cfg` (Root)
-*   **Inventory:** `inventory.ini` (INI format)
-*   **Playbook:** `site.yaml` (Main entry point)
-
-*   **Roles:** Located in `roles/` directory.
-    *   `cilium`
-    *   `common`
-    *   `k3s_server`
-    *   `nvidia_gpu`
-    *   `preflight`
-    *   `tailscale`
-
-## Base Configuration (`ansible.cfg`)
-*   **Inventory source:** `inventory.ini`
-*   **Callbacks:** `stdout_callback = yaml` (Readable output)
-*   **Pipelining:** Enabled (`True`) for performance.
-*   **Fact Caching:** JSON file based (`/tmp/ansible_facts`), timeout 1h.
-*   **Host Key Checking:** Disabled.
-
-## Inventory (`inventory.ini`)
-*   **Groups:** `k3s_server`
-*   **Hosts:** Single node `master1` (10.10.10.10).
-*   **Host Variables:** `gpu_setup=true` defined inline.
-*   **Global Variables:** `ansible_user=ubuntu`, `ansible_become=true`.
-
-## Main Playbook (`site.yaml`)
-*   **Target:** `k3s_server` group.
-*   **Privilege Escalation:** `become: true`.
-*   **Secret Management:** Loads `secrets.yaml` via `vars_files`.
-*   **Pre-tasks:**
-    *   Updates APT cache.
-    *   Validates `tailscale_authkey`.
-*   **Role Order:**
-    1.  `preflight` (Tags: preflight, validation)
-    2.  `common` (Tags: common, system)
-    3.  `tailscale` (Tags: tailscale, network, vpn)
-    4.  `k3s_server` (Tags: k3s, kubernetes)
-    5.  `nvidia_gpu` (Tags: nvidia, gpu)
-    6.  `cilium` (Tags: cilium, cni, network)
-
-## Linting (`.ansible-lint`)
-*   **Profile:** Production.
-*   **Exclusions:** `roles/cilium/files/cilium-values.yaml`.
-*   **Skipped Rules:** `var-naming[no-role-prefix]`.
+- Raiz contiene: ansible.cfg, inventory.ini, site.yaml, requirements.yml, Taskfile.yml, devbox.json/devbox.lock, secrets.example.yaml, secrets.yaml (local), directorios roles/ y k8s/.
+- roles/ incluye: preflight, common, developer_tools, tailscale, k3s_server, cilium, nvidia_gpu.
+- k8s/ contiene manifiestos de workloads bajo namespaces/miners y miners/{unmineable,unmineable-gpu,honeygain}.
+- ansible.cfg usa inventory.ini, roles_path=./roles, pipelining=true, fact caching jsonfile en /tmp/ansible_facts, vault_password_file=.ansible_vault_pass.
+- inventory.ini define grupo k3s_server con host master1 (ansible_host=192.168.65.16) y vars globales ansible_user=rc, ansible_become=true, ansible_python_interpreter=/usr/bin/python3.
