@@ -28,6 +28,17 @@
   changed_when: "'Update Complete' in cilium_helm_repo_update.stdout"
   environment:
     KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
+
+- name: Wait for K3s API server to be ready
+  ansible.builtin.command: kubectl get nodes
+  register: k3s_api_ready
+  until: k3s_api_ready.rc == 0
+  retries: 60
+  delay: 5
+  changed_when: false
+  environment:
+    KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
+
 - name: Install/upgrade Cilium with Helm
   ansible.builtin.command: >
     helm upgrade --install cilium cilium/{{ cilium_chart_name }}

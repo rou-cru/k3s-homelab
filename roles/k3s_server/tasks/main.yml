@@ -45,6 +45,28 @@
     label: "{{ item.path }}"
 
 
+- name: Check if K3s uninstall script exists
+  ansible.builtin.stat:
+    path: /usr/local/bin/k3s-uninstall.sh
+  register: k3s_uninstall_script
+
+- name: Uninstall existing K3s to start clean
+  ansible.builtin.command: /usr/local/bin/k3s-uninstall.sh
+  when: k3s_uninstall_script.stat.exists
+  register: k3s_uninstall
+  changed_when: k3s_uninstall.rc == 0
+
+- name: Remove residual K3s state directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /var/lib/rancher/k3s
+    - /etc/rancher/k3s
+    - /var/lib/kubelet
+    - /var/lib/cni
+  when: k3s_uninstall_script.stat.exists
+
 - name: Install k3s server
   ansible.builtin.shell: |
     set -o pipefail
@@ -52,7 +74,6 @@
       INSTALL_K3S_VERSION="{{ k3s_server_version }}" \
       sh -
   args:
-    creates: /usr/local/bin/k3s
     executable: /bin/bash
 
 - name: Ensure K3s systemd override directory exists
@@ -80,10 +101,6 @@
 - name: Reload systemd daemon immediately
   ansible.builtin.systemd:
     daemon_reload: true
-
-- name: Flush handlers to ensure K3s restarts if config changed
-  ansible.builtin.meta: flush_handlers
-  when: ansible_facts['service_mgr'] == 'systemd'
 
 - name: Wait for node-token
   ansible.builtin.wait_for:
