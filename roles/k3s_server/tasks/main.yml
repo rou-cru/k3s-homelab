@@ -85,18 +85,36 @@
   until: k3s_server_readyz.rc == 0
   changed_when: false
   when: not ansible_check_mode
+  become: false
 
-- name: Ensure .kube directory exists for executing user
+- name: Ensure .kube directory exists for root
   ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/.kube"
+    path: /root/.kube
     state: directory
     mode: "0700"
 
-- name: Setup standard kubeconfig for executing user
+- name: Setup standard kubeconfig for root
   ansible.builtin.copy:
     src: /etc/rancher/k3s/k3s.yaml
-    dest: "{{ ansible_env.HOME }}/.kube/config"
+    dest: /root/.kube/config
     remote_src: true
+    mode: "0600"
+
+- name: Ensure .kube directory exists for user {{ ansible_user }}
+  ansible.builtin.file:
+    path: "/home/{{ ansible_user }}/.kube"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: "0700"
+
+- name: Setup standard kubeconfig for user {{ ansible_user }}
+  ansible.builtin.copy:
+    src: /etc/rancher/k3s/k3s.yaml
+    dest: "/home/{{ ansible_user }}/.kube/config"
+    remote_src: true
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
     mode: "0600"
 
 - name: Copy kubeconfig to local machine

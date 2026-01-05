@@ -63,6 +63,7 @@
       ansible.builtin.import_role:
         name: cilium
       tags: ["cilium", "cni", "network"]
+      become: false
     # NVIDIA GPU Cluster Setup - AFTER Cilium (device plugin Helm chart)
     - name: Run NVIDIA GPU cluster role
       ansible.builtin.import_role:
@@ -70,6 +71,7 @@
         tasks_from: cluster.yml
       tags: ["nvidia", "gpu", "nvidia-cluster"]
       when: nvidia_gpu_setup | default('auto') != false
+      become: false
 
   post_tasks:
     - name: Copy K8s manifests to remote host
@@ -115,6 +117,7 @@
       retries: 10
       delay: 5
       changed_when: true
+      become: false
 
     # 4. Apply all remaining manifests
     - name: Apply all K8s manifests
@@ -125,6 +128,7 @@
       delay: 5
       changed_when: true
       tags: ["k8s-deploy", "workloads"]
+      become: false
     - name: Cleanup temporary manifests
       ansible.builtin.file:
         path: /tmp/k8s-manifests/
