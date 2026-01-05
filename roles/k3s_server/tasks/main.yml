@@ -55,6 +55,9 @@
     creates: /usr/local/bin/k3s
     executable: /bin/bash
 
+- name: Flush handlers to ensure K3s restarts if config changed
+  ansible.builtin.meta: flush_handlers
+
 - name: Wait for node-token
   ansible.builtin.wait_for:
     path: /var/lib/rancher/k3s/server/node-token
@@ -75,8 +78,7 @@
   when: not ansible_check_mode
 
 - name: Wait for kube-apiserver
-  ansible.builtin.shell: |
-    k3s kubectl get --raw=/readyz >/dev/null
+  ansible.builtin.command: k3s kubectl get nodes
   register: k3s_server_readyz
   retries: "{{ k3s_server_readyz_retries }}"
   delay: "{{ k3s_server_readyz_delay }}"
