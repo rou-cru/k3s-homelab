@@ -23,3 +23,9 @@ network_report.txt
 .codex/log/
 .vscode/
 .idea/
+
+# Ansible local
+.ansible/
+
+# Generated manifests
+k8s-manifests/
