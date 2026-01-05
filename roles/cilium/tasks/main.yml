@@ -12,7 +12,7 @@
     mode: "0600"
 
 - name: Wait for K3s API server to be ready
-  ansible.builtin.command: kubectl get nodes
+  ansible.builtin.command: kubectl get nodes >/dev/null 2>&1
   register: k3s_api_ready
   until: k3s_api_ready.rc == 0
   retries: 60
@@ -34,7 +34,7 @@
     update_repo_cache: true # Good practice to update cache once per install just in case
 
 - name: Wait for Cilium DaemonSet to be created
-  ansible.builtin.command: kubectl -n {{ cilium_namespace }} get ds cilium
+  ansible.builtin.command: kubectl -n {{ cilium_namespace }} get ds cilium >/dev/null 2>&1
   register: cilium_ds_check
   until: cilium_ds_check.rc == 0
   retries: "{{ cilium_wait_retries | default(60) }}"
@@ -46,7 +46,7 @@
 - name: Wait for cilium pods
   ansible.builtin.command: >-
     kubectl -n {{ cilium_namespace }} rollout status ds/cilium
-    --timeout="{{ cilium_rollout_timeout }}s"
+    --timeout="{{ cilium_rollout_timeout }}s" >/dev/null 2>&1
   register: cilium_rollout
   changed_when: false
   failed_when: cilium_rollout.rc != 0
@@ -60,7 +60,7 @@
   changed_when: false
 
 - name: Wait for node to be Ready with Cilium
-  ansible.builtin.command: kubectl wait --for=condition=Ready nodes --all --timeout=120s
+  ansible.builtin.command: kubectl wait --for=condition=Ready nodes --all --timeout=120s >/dev/null 2>&1
   register: node_ready_wait
   changed_when: false
   failed_when: false
@@ -68,7 +68,7 @@
     KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
 
 - name: Show node status
-  ansible.builtin.command: kubectl get nodes -o wide
+  ansible.builtin.command: kubectl get nodes -o wide >/dev/null 2>&1
   register: cilium_nodes_out
   changed_when: false
   environment:

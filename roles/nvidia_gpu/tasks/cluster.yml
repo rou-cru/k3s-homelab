@@ -33,7 +33,7 @@
 
     - name: Wait for device plugin daemonset
       ansible.builtin.command: >-
-        kubectl -n kube-system rollout status ds/nvidia-device-plugin --timeout=300s
+        kubectl -n kube-system rollout status ds/nvidia-device-plugin --timeout=300s >/dev/null 2>&1
       register: nvidia_device_plugin_rollout
       changed_when: false
       environment:
@@ -50,4 +50,4 @@
 
     - name: Debug GPU resources
       ansible.builtin.debug:
-        msg: "GPU resources: {{ gpu_resources_check.stdout_lines }}"
+        msg: "✅ GPU resources detected: {{ gpu_resources_check.stdout_lines | join(', ') }}"

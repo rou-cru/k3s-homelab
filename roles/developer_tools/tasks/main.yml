@@ -1,5 +1,4 @@
 ---
-
 - name: Install base CLI tools and dependencies via APT
   ansible.builtin.apt:
     name:
@@ -49,13 +48,13 @@
     state: present
 - name: Install Devbox
   ansible.builtin.shell: |
-    curl -fsSL https://get.jetpack.io/devbox | bash
+    curl -fsSL https://get.jetpack.io/devbox | bash >/dev/null 2>&1
   args:
     creates: /usr/local/bin/devbox
 # Python package manager (uv)
 - name: Install uv (Python package installer)
   ansible.builtin.shell: |
-    curl -LsSf https://astral.sh/uv/install.sh | sh
+    curl -LsSf https://astral.sh/uv/install.sh | sh >/dev/null 2>&1
   args:
     creates: /root/.cargo/bin/uv
   environment:
@@ -91,7 +90,7 @@
   block:
     - name: Add Docker APT key
       ansible.builtin.shell: |
-        curl -fsSL https://download.docker.com/linux/ubuntu/gpg |
+        curl -fsSL https://download.docker.com/linux/ubuntu/gpg >/dev/null 2>&1 |
         gpg --dearmor -o
         /usr/share/keyrings/docker-archive-keyring.gpg
       args:
@@ -115,18 +114,4 @@
         update_cache: true
     - name: Show Docker warning
       ansible.builtin.debug:
-        msg:
-          - "⚠️  Docker CLI installed for build purposes only"
-          - "⚠️  K3s uses containerd, not Docker daemon"
-          - "⚠️  Use 'kubectl' for container management"
-- name: Show installed tools
-  ansible.builtin.debug:
-    msg:
-      - "✅ Developer tools installed"
-      - ""
-      - "Kubernetes: kubectl, helm, yq"
-      - "Terminal: btop, bat, tree, tmux, jq"
-      - "Python: uv{% if nvidia_gpu_setup | default('auto') != false %}, nvitop{% endif %}, kimi-cli"
-      - "Node.js: node, pnpm"
-      - "AI CLIs: claude-code, gemini-cli, qwen-cli, codex"
-      - "Other: devbox{% if devtools_install_docker | default(false) | bool %}, docker-cli{% endif %}"
+        msg: "⚠️  Docker CLI installed (containerd used by K3s)"

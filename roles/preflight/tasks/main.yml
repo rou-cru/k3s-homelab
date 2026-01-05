@@ -36,6 +36,3 @@
     that:
       - ansible_facts['architecture'] == 'x86_64'
     fail_msg: "Unsupported architecture: {{ ansible_facts['architecture'] }}. Only x86_64 is supported."
-- name: Pre-flight checks passed
-  ansible.builtin.debug:
-    msg: "All pre-flight checks passed successfully."

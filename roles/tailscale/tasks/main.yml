@@ -2,7 +2,7 @@
 - name: Install Tailscale # noqa: command-instead-of-module
   ansible.builtin.shell: |
     set -o pipefail
-    curl -fsSL https://tailscale.com/install.sh | sh
+    curl -fsSL https://tailscale.com/install.sh | sh >/dev/null 2>&1
   args:
     creates: /usr/sbin/tailscaled
     executable: /bin/bash
@@ -76,5 +76,5 @@
 
 - name: Warn if Tailscale connectivity issues
   ansible.builtin.debug:
-    msg: "WARNING: Cannot reach {{ tailscale_ip }}:22. K3s setup may fail."
+    msg: "⚠️  Tailscale connectivity failed: {{ tailscale_ip }}:22"
   when: tailscale_connectivity_check.failed | default(false)

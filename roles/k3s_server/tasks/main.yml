@@ -134,7 +134,7 @@
     mode: "0600"
 
 - name: Wait for kube-apiserver (Standard Kubectl + Discovery)
-  ansible.builtin.command: kubectl api-resources
+  ansible.builtin.command: kubectl cluster-info dump --output-format=yaml >/dev/null 2>&1
   register: k3s_server_readyz
   retries: "{{ k3s_server_readyz_retries }}"
   delay: "{{ k3s_server_readyz_delay }}"
@@ -147,7 +147,7 @@
 
 - name: Remove Traefik HelmCharts when disabled
   ansible.builtin.command: >
-    kubectl -n kube-system delete helmchart traefik traefik-crd --ignore-not-found
+    kubectl -n kube-system delete helmchart traefik traefik-crd --ignore-not-found >/dev/null 2>&1
   register: k3s_traefik_cleanup
   changed_when: "'deleted' in k3s_traefik_cleanup.stdout"
   when:
@@ -192,11 +192,4 @@
         mode: "0600"
     - name: Show kubeconfig info
       ansible.builtin.debug:
-        msg:
-          - "✅ Kubeconfig copied to: {{ k3s_server_local_kubeconfig_path }}"
-          - "✅ Context name: k3s-{{ inventory_hostname }}"
-          - "✅ Server URL: https://{{ tailscale_ip }}:6443"
-          - ""
-          - "Use kubectl with your existing installation:"
-          - "  kubectl get nodes"
-          - "  kubectl get pods -A"
+        msg: "✅ Kubeconfig ready: {{ k3s_server_local_kubeconfig_path }}"

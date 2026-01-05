@@ -28,12 +28,12 @@ if [ -f "$BAT_PATH/charge_control_end_threshold" ]; then
     echo "$BATTERY_THRESHOLD" > "$BAT_PATH/charge_control_end_threshold"
     CURRENT=$(cat "$BAT_PATH/charge_control_end_threshold" 2>/dev/null)
     if [ "$CURRENT" = "$BATTERY_THRESHOLD" ]; then
-        logger -t rog-tweaks -p info "Battery threshold set to ${BATTERY_THRESHOLD}%"
+        logger -t rog-tweaks -p info "Battery threshold: ${BATTERY_THRESHOLD}%"
     else
         logger -t rog-tweaks -p warning "Battery threshold write failed: current=${CURRENT}, expected=${BATTERY_THRESHOLD}"
     fi
 else
-    logger -t rog-tweaks -p info "Battery control not available (sysfs path missing)"
+    logger -t rog-tweaks -p info "Battery control unavailable"
 fi
 
 # --- 2. Thermal Policy ---
@@ -43,12 +43,12 @@ if [ -f "$THERMAL_POLICY_PATH" ]; then
     echo "$THERMAL_MODE" > "$THERMAL_POLICY_PATH"
     CURRENT=$(cat "$THERMAL_POLICY_PATH" 2>/dev/null)
     if [ "$CURRENT" = "$THERMAL_MODE" ]; then
-        logger -t rog-tweaks -p info "Thermal policy set to mode ${THERMAL_MODE}"
+        logger -t rog-tweaks -p info "Thermal policy: mode ${THERMAL_MODE}"
     else
         logger -t rog-tweaks -p warning "Thermal policy write failed: current=${CURRENT}, expected=${THERMAL_MODE}"
     fi
 else
-    logger -t rog-tweaks -p info "Thermal policy control not available (sysfs path missing)"
+    logger -t rog-tweaks -p info "Thermal control unavailable"
 fi
 
 
