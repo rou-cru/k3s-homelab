@@ -51,6 +51,7 @@ tasks:
     cmds:
       - task: validate-yaml
       - task: validate-ansible
+      - task: validate-ansible-syntax
       - task: validate-jinja2
       - task: validate-bash
       - defer: rm -rf {{.OUTPUT_DIR}}/ .task/checksum/
@@ -66,7 +67,7 @@ tasks:
     cmds:
       - yamllint .
   validate-ansible:
-    desc: "Validate Ansible files with ansible-playbook --syntax-check"
+    desc: "Validate Ansible files with ansible-lint"
     sources:
       - "site.yaml"
       - "roles/**/*.yml"
@@ -76,18 +77,22 @@ tasks:
         msg: "ansible-lint not found. Run: devbox shell"
     cmds:
       - |
+        project_dir=$(pwd)
+        ansible-lint "$project_dir/site.yaml" "$project_dir/roles"
+  validate-ansible-syntax:
+    desc: "Validate Ansible files with ansible-playbook --syntax-check"
+    preconditions:
+      - sh: command -v ansible-playbook
+        msg: "ansible-playbook not found. Run: devbox shell"
+    cmds:
+      - |
         if [ ! -f secrets.yaml ]; then
           mkdir -p .task
           cp secrets.example.yaml .task/mock-secrets.yaml
           cp .task/mock-secrets.yaml secrets.yaml
           touch .task/mock-secrets.created
         fi
-      - |
-        unset ANSIBLE_COLLECTIONS_PATHS
-        ANSIBLE_WARNINGS=False \
-        ANSIBLE_DEPRECATION_WARNINGS=False \
-        ANSIBLE_COLLECTIONS_PATH="$HOME/.ansible/collections" \
-        ansible-playbook --syntax-check site.yaml
+      - ansible-playbook --syntax-check site.yaml
       - defer: |
           if [ -f .task/mock-secrets.created ]; then
             rm -f secrets.yaml .task/mock-secrets.yaml .task/mock-secrets.created
