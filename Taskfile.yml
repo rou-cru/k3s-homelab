@@ -217,30 +217,58 @@ tasks:
       - rm -rf {{.OUTPUT_DIR}}/ .task/checksum/
       - echo "✓ Cleaned {{.OUTPUT_DIR}}/ and cache"
   # Ansible Vault
-  setup-vault:
-    desc: "Setup Ansible Vault with Tailscale authkey (task setup-vault -- tskey-auth-XXX)"
+  # Secrets Management
+  secrets:init:
+    desc: "Initialize Vault password file if missing"
+    status:
+      - test -f .ansible_vault_pass
+    cmds:
+      - openssl rand -base64 32 > .ansible_vault_pass
+      - chmod 600 .ansible_vault_pass
+      - echo "🔑 Generated .ansible_vault_pass"
+
+  secrets:set:
+    desc: "Encrypt and set a secret (usage: task secrets:set -- KEY VALUE)"
+    deps:
+      - secrets:init
     preconditions:
       - sh: command -v ansible-vault
         msg: "ansible-vault not found"
-      - sh: '[ "{{.CLI_ARGS}}" != "" ]'
-        msg: "Usage: task setup-vault -- tskey-auth-YOUR-KEY"
+      - sh: '[ $# -eq 2 ]'
+        msg: "Usage: task secrets:set -- KEY VALUE"
     vars:
-      AUTHKEY: "{{.CLI_ARGS}}"
+      KEY: "{{index .CLI_ARGS 0}}"
+      VAL: "{{index .CLI_ARGS 1}}"
+    cmds:
+      - touch secrets.yaml
+      - |
+        # Use a temporary file to hold the encrypted string
+        ansible-vault encrypt_string --vault-password-file .ansible_vault_pass "{{.VAL}}" --name "{{.KEY}}" >> secrets.yaml
+      - echo "✅ Added {{.KEY}} to secrets.yaml"
+
+  secrets:setup:
+    desc: "Interactive setup for all required secrets"
+    deps:
+      - secrets:init
     cmds:
       - |
-        # Generate vault password if needed
-        [ -f .ansible_vault_pass ] || (openssl rand -base64 32 > .ansible_vault_pass && chmod 600 .ansible_vault_pass)
+        echo "🔐 Starting Interactive Secrets Setup"
+        echo "You will be asked for: tailscale_authkey, ansible_ssh_pass, ansible_become_password, honeygain_pass"
+        echo "---------------------------------------------------------------------------------------------------"
+        
+        read -p "Tailscale AuthKey (tskey-auth-...): " tailscale_key
+        [ -n "$tailscale_key" ] && task secrets:set -- tailscale_authkey "$tailscale_key"
 
-        # Decrypt if already encrypted
-        [ -f secrets.yaml ] && grep -q ANSIBLE_VAULT secrets.yaml && ansible-vault decrypt secrets.yaml || true
+        read -s -p "SSH Password (ansible_ssh_pass): " ssh_pass
+        echo ""
+        [ -n "$ssh_pass" ] && task secrets:set -- ansible_ssh_pass "$ssh_pass"
 
-        # Create/update secrets.yaml
-        cat > secrets.yaml <<EOF
-        ---
-        tailscale_authkey: "{{.AUTHKEY}}"
-        EOF
+        read -s -p "Sudo Password (ansible_become_password): " sudo_pass
+        echo ""
+        [ -n "$sudo_pass" ] && task secrets:set -- ansible_become_password "$sudo_pass"
 
-        # Encrypt
-        ansible-vault encrypt secrets.yaml
+        read -s -p "Honeygain Password: " honey_pass
+        echo ""
+        [ -n "$honey_pass" ] && task secrets:set -- honeygain_pass "$honey_pass"
 
-        echo "✅ secrets.yaml encrypted with Ansible Vault"
+        echo "🎉 Setup complete! secrets.yaml is ready."
