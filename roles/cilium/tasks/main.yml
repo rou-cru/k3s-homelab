@@ -23,13 +23,10 @@
   register: cilium_helm_repo_update
   changed_when: "'Update Complete' in cilium_helm_repo_update.stdout"
 - name: Install/upgrade Cilium with Helm
-  ansible.builtin.command: >
     helm upgrade --install cilium cilium/{{ cilium_chart_name }}
     --version {{ cilium_version }}
     --namespace {{ cilium_namespace }}
-    --create-namespace
     --values {{ cilium_values_tmp.path }}
-    --kubeconfig /etc/rancher/k3s/k3s.yaml
 
   register: cilium_helm_install
   changed_when: >

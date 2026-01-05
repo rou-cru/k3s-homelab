@@ -109,8 +109,6 @@
     - name: Apply K8s Namespaces first
       ansible.builtin.shell: |
         find /tmp/k8s-manifests -name '*.yaml' -exec grep -l '^kind: Namespace' {} \; | xargs -r kubectl apply -f
-      environment:
-        KUBECONFIG: /etc/rancher/k3s/k3s.yaml
       tags: ["k8s-deploy", "workloads"]
       register: namespace_apply
       until: namespace_apply.rc == 0
@@ -121,8 +119,6 @@
     # 4. Apply all remaining manifests
     - name: Apply all K8s manifests
       ansible.builtin.command: kubectl apply -R -f /tmp/k8s-manifests/
-      environment:
-        KUBECONFIG: /etc/rancher/k3s/k3s.yaml
       register: manifest_apply
       until: manifest_apply.rc == 0
       retries: 10

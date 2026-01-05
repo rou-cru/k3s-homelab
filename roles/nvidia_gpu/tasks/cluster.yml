@@ -28,7 +28,6 @@
         --version {{ nvidia_gpu_device_plugin_version }}
         --namespace kube-system
         --values {{ nvidia_device_plugin_values_tmp.path }}
-        --kubeconfig /etc/rancher/k3s/k3s.yaml
 
       register: nvidia_device_plugin_helm_install
       changed_when: "'STATUS: deployed' in nvidia_device_plugin_helm_install.stdout or 'STATUS: upgraded' in nvidia_device_plugin_helm_install.stdout"

@@ -77,14 +77,27 @@
   run_once: true
   when: not ansible_check_mode
 
-- name: Wait for kube-apiserver
-  ansible.builtin.command: k3s kubectl get nodes
+- name: Wait for kube-apiserver (Standard Kubectl + Discovery)
+  ansible.builtin.command: kubectl api-resources
   register: k3s_server_readyz
   retries: "{{ k3s_server_readyz_retries }}"
   delay: "{{ k3s_server_readyz_delay }}"
   until: k3s_server_readyz.rc == 0
   changed_when: false
   when: not ansible_check_mode
+
+- name: Ensure .kube directory exists for executing user
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.kube"
+    state: directory
+    mode: "0700"
+
+- name: Setup standard kubeconfig for executing user
+  ansible.builtin.copy:
+    src: /etc/rancher/k3s/k3s.yaml
+    dest: "{{ ansible_env.HOME }}/.kube/config"
+    remote_src: true
+    mode: "0600"
 
 - name: Copy kubeconfig to local machine
   when:
