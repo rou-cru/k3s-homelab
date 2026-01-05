@@ -126,7 +126,7 @@
       - ""
       - "Kubernetes: kubectl, helm, yq"
       - "Terminal: btop, bat, tree, tmux, jq"
-      - "Python: uv{% if nvidia_gpu_setup | default(false) | bool %}, nvitop{% endif %}, kimi-cli"
+      - "Python: uv{% if nvidia_gpu_setup | default('auto') != false %}, nvitop{% endif %}, kimi-cli"
       - "Node.js: node, pnpm"
       - "AI CLIs: claude-code, gemini-cli, qwen-cli, codex"
       - "Other: devbox{% if devtools_install_docker | default(false) | bool %}, docker-cli{% endif %}"

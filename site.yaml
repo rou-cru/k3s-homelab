@@ -112,6 +112,10 @@
       environment:
         KUBECONFIG: /etc/rancher/k3s/k3s.yaml
       tags: ["k8s-deploy", "workloads"]
+      register: namespace_apply
+      until: namespace_apply.rc == 0
+      retries: 10
+      delay: 5
       changed_when: true
 
     # 4. Apply all remaining manifests
@@ -119,6 +123,10 @@
       ansible.builtin.command: kubectl apply -R -f /tmp/k8s-manifests/
       environment:
         KUBECONFIG: /etc/rancher/k3s/k3s.yaml
+      register: manifest_apply
+      until: manifest_apply.rc == 0
+      retries: 10
+      delay: 5
       changed_when: true
       tags: ["k8s-deploy", "workloads"]
     - name: Cleanup temporary manifests
