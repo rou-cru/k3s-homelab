@@ -8,17 +8,13 @@
         state: present
         update_cache: true
         cache_valid_time: 3600
-      # Always run pciutils install to allow detection
-      # Always run pciutils install to allow detection
-      # Always run pciutils install to allow detection
+      # Ensure pciutils for GPU detection
 
     - name: Check GPU presence
       shell: lspci -nm | grep -q 10de
       register: gpu_check
       failed_when: false
       changed_when: false
-
-
 
     - name: Set GPU Active Fact (Auto)
       ansible.builtin.set_fact:

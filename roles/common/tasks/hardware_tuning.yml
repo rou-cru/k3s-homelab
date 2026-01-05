@@ -18,8 +18,6 @@
     enabled: true
     state: started
   ignore_errors: "{{ ansible_check_mode }}"
-# Bloquea WiFi/Bluetooth para ahorro energético y reducir interferencias
-# El hardware permanece disponible para desbloqueo manual si es necesario
 - name: Soft-block Wireless Radios (Save power/noise, keep HW available for SIGINT)
   ansible.builtin.command: rfkill block {{ item }}
   loop:

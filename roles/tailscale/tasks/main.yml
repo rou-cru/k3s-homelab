@@ -27,9 +27,7 @@
         tailscale_status_json.rc == 0 and 
         (tailscale_status_json.stdout | from_json).BackendState == 'Running' 
       }}
-    # Check if SSH option matches desired state (drift detection)
-    # Note: Requires parsing "Tailscale SSH" from status or verifying via 'tailscale show' which is harder.
-    # For robust V1, we rely on running state. If running, we assume config is OK unless force_reconfig is set.
+
 
 - name: Configure Tailscale (Up)
   ansible.builtin.shell: |

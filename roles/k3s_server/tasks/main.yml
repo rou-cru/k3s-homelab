@@ -77,8 +77,6 @@
   run_once: true
   when: not ansible_check_mode
 
-
-
 - name: Ensure .kube directory exists for user {{ ansible_user }}
   ansible.builtin.file:
     path: "/home/{{ ansible_user }}/.kube"

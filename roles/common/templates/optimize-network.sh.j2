@@ -20,8 +20,6 @@ if ethtool --show-eee "$INTERFACE" 2>/dev/null | grep -q "EEE is enabled"; then
 else
     logger -t network-optimization -p info "EEE already disabled or not supported"
 fi
-
-# Verify EEE is actually disabled
 if ethtool --show-eee "$INTERFACE" 2>/dev/null | grep -q "EEE is enabled"; then
     logger -t network-optimization -p warning "EEE still enabled after disable attempt"
 else
@@ -36,11 +34,10 @@ else
 fi
 
 # 3. Maximize Ring Buffers (Crucial for 1Gbps/2.5Gbps stability)
-# Try to set to target size or use hardware maximum
 MAX_RX=$(ethtool -g "$INTERFACE" | grep -m1 "RX:" | awk '{print $2}')
 MAX_TX=$(ethtool -g "$INTERFACE" | grep -m1 "TX:" | awk '{print $2}')
 
-# If we can read the maximums, apply them. Otherwise try safe value.
+
 if [ -n "$MAX_RX" ] && [ "$MAX_RX" -gt 256 ]; then
     if ethtool -G "$INTERFACE" rx "$MAX_RX" tx "$MAX_TX" 2>/dev/null; then
         CURRENT_RX=$(ethtool -g "$INTERFACE" 2>/dev/null | grep -A 4 "Current hardware settings:" | grep "RX:" | awk '{print $2}')

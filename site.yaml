@@ -48,7 +48,7 @@
         name: nvidia_gpu
         tasks_from: headless_optimization.yml
       tags: ["nvidia", "gpu", "nvidia-headless"]
-      when: 
+      when:
         - nvidia_gpu_setup | default('auto') != false
         - nvidia_gpu_headless_enabled | default(true) | bool
     - name: Run tailscale role
@@ -93,9 +93,9 @@
     - name: Determine if GPU manifests should be deployed
       ansible.builtin.set_fact:
         should_deploy_gpu_manifests: >-
-          {{ 
-            (nvidia_gpu_active is defined and nvidia_gpu_active) or 
-            (nvidia_gpu_active is not defined and nvidia_gpu_setup | default('auto') == true) 
+          {{
+            (nvidia_gpu_active is defined and nvidia_gpu_active) or
+            (nvidia_gpu_active is not defined and nvidia_gpu_setup | default('auto') == true)
           }}
       tags: ["k8s-deploy", "workloads"]
 

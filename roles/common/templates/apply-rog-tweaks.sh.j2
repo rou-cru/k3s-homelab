@@ -8,7 +8,6 @@ BATTERY_THRESHOLD={{ common_battery_charge_threshold }}
 THERMAL_MODE={{ common_thermal_policy }}
 
 # --- Input Validation ---
-# Validate battery_charge_threshold range (0-100)
 if ! [[ "$BATTERY_THRESHOLD" =~ ^[0-9]+$ ]] || \
    [ "$BATTERY_THRESHOLD" -lt 0 ] || \
    [ "$BATTERY_THRESHOLD" -gt 100 ]; then
@@ -16,14 +15,13 @@ if ! [[ "$BATTERY_THRESHOLD" =~ ^[0-9]+$ ]] || \
     exit 1
 fi
 
-# Validate thermal_policy (0, 1, or 2)
+
 if ! [[ "$THERMAL_MODE" =~ ^[0-2]$ ]]; then
     logger -t rog-tweaks -p err "Invalid thermal_policy: ${THERMAL_MODE}. Must be 0, 1, or 2."
     exit 1
 fi
 
 # --- 1. Battery Care Mode ---
-# Limit charge to configured threshold to extend battery lifespan
 BAT_PATH="/sys/class/power_supply/BAT0"
 
 if [ -f "$BAT_PATH/charge_control_end_threshold" ]; then
@@ -39,7 +37,6 @@ else
 fi
 
 # --- 2. Thermal Policy ---
-# 0: Balanced, 1: Turbo, 2: Silent
 THERMAL_POLICY_PATH="/sys/devices/platform/asus-nb-wmi/throttle_thermal_policy"
 
 if [ -f "$THERMAL_POLICY_PATH" ]; then
