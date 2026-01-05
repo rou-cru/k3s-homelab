@@ -120,6 +120,8 @@
       delay: 5
       changed_when: true
       become: false
+      environment:
+        KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
 
     # 4. Apply all remaining manifests
     - name: Apply all K8s manifests
@@ -131,6 +133,8 @@
       changed_when: true
       tags: ["k8s-deploy", "workloads"]
       become: false
+      environment:
+        KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
     - name: Cleanup temporary manifests
       ansible.builtin.file:
         path: /tmp/k8s-manifests/

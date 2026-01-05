@@ -8,10 +8,14 @@
       register: nvidia_helm_repo_add
       changed_when: "'has been added' in nvidia_helm_repo_add.stdout"
       failed_when: nvidia_helm_repo_add.rc != 0 and 'already exists' not in nvidia_helm_repo_add.stderr
+      environment:
+        KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
     - name: Update Helm repositories
       ansible.builtin.command: helm repo update
       register: nvidia_helm_repo_update
       changed_when: "'Update Complete' in nvidia_helm_repo_update.stdout"
+      environment:
+        KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
     - name: Create temporary values file for device plugin
       ansible.builtin.tempfile:
         state: file
@@ -31,6 +35,8 @@
 
       register: nvidia_device_plugin_helm_install
       changed_when: "'STATUS: deployed' in nvidia_device_plugin_helm_install.stdout or 'STATUS: upgraded' in nvidia_device_plugin_helm_install.stdout"
+      environment:
+        KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
     - name: Remove temporary values file
       ansible.builtin.file:
         path: "{{ nvidia_device_plugin_values_tmp.path }}"
@@ -40,11 +46,15 @@
       ansible.builtin.command: kubectl -n kube-system rollout status ds/nvidia-device-plugin --timeout=300s
       register: nvidia_device_plugin_rollout
       changed_when: false
+      environment:
+        KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
     - name: Check GPU resources available
       ansible.builtin.shell: kubectl get nodes -o json | jq -r '.items[].status.capacity["nvidia.com/gpu"]'
       register: gpu_resources_check
       changed_when: false
       failed_when: false
+      environment:
+        KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
 
     - name: Debug GPU resources
       ansible.builtin.debug:

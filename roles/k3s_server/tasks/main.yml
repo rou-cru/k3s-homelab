@@ -91,15 +91,23 @@
     src: /etc/rancher/k3s/k3s.yaml
   register: k3s_kubeconfig_raw
 
-- name: Parse and modify kubeconfig for target user
+- name: Build canonical kubeconfig (Tailscale API endpoint)
   ansible.builtin.set_fact:
-    k3s_kubeconfig_target: |
+    k3s_kubeconfig_canonical: |
       {{ k3s_kubeconfig_raw.content | b64decode |
-         regex_replace('https://127.0.0.1:6443', 'https://' + tailscale_ip + ':6443') }}
+         regex_replace('https://[0-9.]+:6443', 'https://' + tailscale_ip + ':6443') }}
+
+- name: Write canonical kubeconfig on server
+  ansible.builtin.copy:
+    content: "{{ k3s_kubeconfig_canonical }}"
+    dest: /etc/rancher/k3s/k3s-tailscale.yaml
+    owner: root
+    group: root
+    mode: "{{ k3s_server_kubeconfig_mode }}"
 
 - name: Write kubeconfig for target user
   ansible.builtin.copy:
-    content: "{{ k3s_kubeconfig_target }}"
+    content: "{{ k3s_kubeconfig_canonical }}"
     dest: "/home/{{ ansible_user }}/.kube/config"
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
@@ -114,6 +122,8 @@
   changed_when: false
   when: not ansible_check_mode
   become: false
+  environment:
+    KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
 
 - name: Copy kubeconfig to local machine
   when:
@@ -130,7 +140,7 @@
         mode: "0700"
     - name: Fetch kubeconfig from K3s server
       ansible.builtin.slurp:
-        src: /etc/rancher/k3s/k3s.yaml
+        src: /etc/rancher/k3s/k3s-tailscale.yaml
       register: k3s_server_kubeconfig_b64
       delegate_to: "{{ inventory_hostname }}"
       become: true
@@ -138,7 +148,6 @@
       ansible.builtin.set_fact:
         k3s_server_kubeconfig_local: |
           {{ k3s_server_kubeconfig_b64.content | b64decode |
-             regex_replace('https://127.0.0.1:6443', 'https://' + tailscale_ip + ':6443') |
              regex_replace('name: default', 'name: k3s-' + inventory_hostname) |
              regex_replace('cluster: default', 'cluster: k3s-' + inventory_hostname) |
              regex_replace('user: default', 'user: k3s-' + inventory_hostname) |
