@@ -63,7 +63,7 @@
   ansible.builtin.set_fact:
     common_network_driver_changed: false
   when: common_network_driver_changed is not defined
-# Reinicio consolidado para aplicar cambios de kernel y drivers de red
+
 - name: Consolidated Reboot - Phase 1 (Kernel + Network Drivers)
   ansible.builtin.reboot:
     msg: "Rebooting to load HWE Kernel and Network Drivers (Consolidated Phase 1)"

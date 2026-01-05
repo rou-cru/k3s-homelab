@@ -15,10 +15,8 @@
             "checkov@latest",
             "ansible@latest",
             "ansible-lint@latest",
-            "ansible-doctor@latest"
-        
-    ,
-    "rsync@latest"
+            "ansible-doctor@latest",
+            "rsync@latest"
   ],
   "shell": {
     "init_hook": [

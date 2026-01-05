@@ -1,5 +1,4 @@
 ---
-# Optimización de hardware: IRQ balance, radios, audio y NVMe
 - name: Install General Hardware Tuning Tools
   ansible.builtin.apt:
     name:
@@ -25,7 +24,7 @@
     - bluetooth
   when: common_radio_block_enabled | bool
   changed_when: false
-  failed_when: false # Graceful: hardware puede no tener wifi/BT
+  failed_when: false
 - name: Optimize System Limits for High Performance Audio (Realtime)
   community.general.pam_limits:
     domain: "*"

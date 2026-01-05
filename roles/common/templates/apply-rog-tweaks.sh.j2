@@ -1,13 +1,13 @@
 #!/bin/bash
 set -euo pipefail
 
-# Managed by Ansible - ASUS RoG Strix Server Hardware Configuration
 
-# --- Configuration Variables (from Ansible) ---
+
+
 BATTERY_THRESHOLD={{ common_battery_charge_threshold }}
 THERMAL_MODE={{ common_thermal_policy }}
 
-# --- Input Validation ---
+
 if ! [[ "$BATTERY_THRESHOLD" =~ ^[0-9]+$ ]] || \
    [ "$BATTERY_THRESHOLD" -lt 0 ] || \
    [ "$BATTERY_THRESHOLD" -gt 100 ]; then
@@ -21,7 +21,7 @@ if ! [[ "$THERMAL_MODE" =~ ^[0-2]$ ]]; then
     exit 1
 fi
 
-# --- 1. Battery Care Mode ---
+
 BAT_PATH="/sys/class/power_supply/BAT0"
 
 if [ -f "$BAT_PATH/charge_control_end_threshold" ]; then

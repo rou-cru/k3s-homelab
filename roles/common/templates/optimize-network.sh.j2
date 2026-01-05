@@ -1,8 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-# Managed by Ansible - Network Optimization Script
-# Optimizes network interface for stability and performance
+
 
 INTERFACE="{{ common_primary_interface | default('') }}"
 
@@ -13,7 +12,7 @@ fi
 
 logger -t network-optimization -p info "Optimizing interface: $INTERFACE"
 
-# 1. Disable Energy Efficient Ethernet (EEE)
+
 if ethtool --show-eee "$INTERFACE" 2>/dev/null | grep -q "EEE is enabled"; then
     ethtool --set-eee "$INTERFACE" eee off
     logger -t network-optimization -p info "EEE disabled"
@@ -26,14 +25,14 @@ else
     logger -t network-optimization -p info "EEE successfully disabled"
 fi
 
-# 2. Disable Wake-on-LAN (Power Saving)
+
 if ethtool -s "$INTERFACE" wol d 2>/dev/null; then
     logger -t network-optimization -p info "Wake-on-LAN disabled"
 else
     logger -t network-optimization -p info "Wake-on-LAN disable not supported or already disabled"
 fi
 
-# 3. Maximize Ring Buffers (Crucial for 1Gbps/2.5Gbps stability)
+
 MAX_RX=$(ethtool -g "$INTERFACE" | grep -m1 "RX:" | awk '{print $2}')
 MAX_TX=$(ethtool -g "$INTERFACE" | grep -m1 "TX:" | awk '{print $2}')
 
