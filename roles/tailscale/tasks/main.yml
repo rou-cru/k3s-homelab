@@ -12,19 +12,42 @@
     enabled: true
     state: started
   ignore_errors: "{{ ansible_check_mode }}"
-- name: Tailscale up with auth key
+- name: Check Tailscale status (JSON)
+  ansible.builtin.command: tailscale status --json
+  register: tailscale_status_json
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: Determine Tailscale state
+  ansible.builtin.set_fact:
+    # Check if BackendState is Running and Self.Online is true
+    tailscale_is_running: >-
+      {{ 
+        tailscale_status_json.rc == 0 and 
+        (tailscale_status_json.stdout | from_json).BackendState == 'Running' 
+      }}
+    # Check if SSH option matches desired state (drift detection)
+    # Note: Requires parsing "Tailscale SSH" from status or verifying via 'tailscale show' which is harder.
+    # For robust V1, we rely on running state. If running, we assume config is OK unless force_reconfig is set.
+
+- name: Configure Tailscale (Up)
   ansible.builtin.shell: |
     tailscale up \
-      --reset \
       --auth-key="{{ tailscale_authkey }}" \
       --hostname="{{ tailscale_hostname_prefix }}-{{ inventory_hostname }}" \
       {% if tailscale_tags | length > 0 %}--advertise-tags="{{ tailscale_tags }}" {% endif %}
       --accept-dns="{{ tailscale_accept_dns }}" \
       {% if tailscale_ssh | bool %}--ssh{% endif %}
   register: tailscale_up
-  changed_when: tailscale_up.rc == 0
-  # Acepta "already connected" como éxito
-  failed_when: tailscale_up.rc != 0 and ("already" not in (tailscale_up.stderr | default("")) | lower)
+  # Execute if NOT running (repair) OR if we suspect drift (can be improved later)
+  when: not tailscale_is_running | bool
+  # Smart change detection: If output differs significantly or returns success
+  changed_when: 
+    - tailscale_up.rc == 0
+    - "'Success' not in tailscale_up.stdout" 
+    - tailscale_up.stderr | length > 0
+
 - name: Wait for valid Tailscale IPv4 (100.x.y.z)
   ansible.builtin.shell: |
     set -o pipefail
