@@ -1,7 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: nicehash-config
-  namespace: miners
-data:
-  MINING_WORKER_NAME: "k8s-server"
