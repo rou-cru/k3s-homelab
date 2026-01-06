@@ -89,16 +89,13 @@ tasks:
         msg: "ansible-playbook not found. Run: devbox shell"
     cmds:
       - |
-        if [ ! -f secrets.yaml ]; then
-          mkdir -p .task
-          cp secrets.example.yaml .task/mock-secrets.yaml
-          cp .task/mock-secrets.yaml secrets.yaml
-          touch .task/mock-secrets.created
-        fi
-      - ansible-playbook --syntax-check site.yaml
+        mkdir -p .task
+        cp secrets.example.yaml .task/mock-secrets.yaml
+        touch .task/mock-secrets.created
+      - ansible-playbook --syntax-check site.yaml -e secrets_file=.task/mock-secrets.yaml
       - defer: |
           if [ -f .task/mock-secrets.created ]; then
-            rm -f secrets.yaml .task/mock-secrets.yaml .task/mock-secrets.created
+            rm -f .task/mock-secrets.yaml .task/mock-secrets.created
           fi
   validate-jinja2:
     desc: "Lint Jinja2 templates with j2lint"

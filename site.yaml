@@ -3,7 +3,7 @@
   hosts: k3s_server
   become: true
   vars_files:
-    - secrets.yaml
+    - "{{ secrets_file | default('secrets.yaml') }}"
   pre_tasks:
     - name: Update APT cache once at start
       ansible.builtin.apt:
