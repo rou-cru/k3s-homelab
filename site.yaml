@@ -54,6 +54,18 @@
         - nvidia_gpu_headless_enabled | default(true) | bool
       ignore_errors: true
 
+    - name: Determine if NVIDIA GPU cluster setup should run
+      ansible.builtin.set_fact:
+        nvidia_gpu_cluster_enabled: >-
+          {{
+            (nvidia_gpu_setup | default('auto') | string | lower == 'true') or
+            (
+              (nvidia_gpu_active | default(false) | bool) and
+              (nvidia_gpu_setup | default('auto') | string | lower != 'false')
+            )
+          }}
+      tags: ["nvidia", "gpu", "nvidia-cluster"]
+
     - name: Run tailscale role
       ansible.builtin.import_role:
         name: tailscale
@@ -73,7 +85,7 @@
         name: nvidia_gpu
         tasks_from: cluster.yml
       tags: ["nvidia", "gpu", "nvidia-cluster"]
-      when: nvidia_gpu_setup | default('auto') != false
+      when: nvidia_gpu_cluster_enabled | default(false) | bool
       become: false
 
   post_tasks:
@@ -129,8 +141,7 @@
       ansible.builtin.set_fact:
         should_deploy_gpu_manifests: >-
           {{
-            (nvidia_gpu_active is defined and nvidia_gpu_active) or
-            (nvidia_gpu_active is not defined and nvidia_gpu_setup | default('auto') == true)
+            nvidia_gpu_cluster_enabled | default(false)
           }}
       tags: ["k8s-deploy", "workloads"]
 
