@@ -12,6 +12,10 @@
         update_cache: true
         cache_valid_time: 3600
       tags: always
+    - name: Normalize NVIDIA GPU setup mode
+      ansible.builtin.set_fact:
+        nvidia_gpu_setup_mode: "{{ nvidia_gpu_setup | default('auto') | string | lower }}"
+      tags: ["nvidia", "gpu"]
     - name: Validate Tailscale AuthKey presence
       ansible.builtin.assert:
         that:
@@ -41,7 +45,7 @@
         name: nvidia_gpu
         tasks_from: host.yml
       tags: ["nvidia", "gpu", "nvidia-host"]
-      when: nvidia_gpu_setup | default('auto') != false
+      when: nvidia_gpu_setup_mode != 'false'
 
     # NVIDIA GPU Headless Optimization - X11, persistence mode (host-only)
     - name: Run NVIDIA GPU headless optimization
@@ -58,10 +62,10 @@
       ansible.builtin.set_fact:
         nvidia_gpu_cluster_enabled: >-
           {{
-            (nvidia_gpu_setup | default('auto') | string | lower == 'true') or
+            (nvidia_gpu_setup_mode == 'true') or
             (
               (nvidia_gpu_active | default(false) | bool) and
-              (nvidia_gpu_setup | default('auto') | string | lower != 'false')
+              (nvidia_gpu_setup_mode != 'false')
             )
           }}
       tags: ["nvidia", "gpu", "nvidia-cluster"]

@@ -50,3 +50,5 @@
 {"session_id":"019b9096-557e-7092-bb43-e1bcdb507391","ts":1767668950,"text":"parece algo... complejo la condicion booleana para este despliegue en particular, seguro que no es innecesariamente compleja? analizalo como algebra booleana para simplificar si es posible."}
 {"session_id":"019b9096-557e-7092-bb43-e1bcdb507391","ts":1767669013,"text":"primero realiza este mismo analisis en cualquier otra condicion que requiera mas de 1 operacion booleana."}
 {"session_id":"019b9096-557e-7092-bb43-e1bcdb507391","ts":1767669100,"text":"ok, normalizalo."}
+{"session_id":"019b9096-557e-7092-bb43-e1bcdb507391","ts":1767669199,"text":"el lint se queja de los casos como 0755"}
+{"session_id":"019b9096-557e-7092-bb43-e1bcdb507391","ts":1767669250,"text":"deja un comentario a un lado # 0755 en esos casos."}

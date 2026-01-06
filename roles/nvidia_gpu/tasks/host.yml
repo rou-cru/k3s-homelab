@@ -9,6 +9,10 @@
         update_cache: true
         cache_valid_time: 3600
       # Ensure pciutils for GPU detection
+    - name: Normalize NVIDIA GPU setup mode
+      ansible.builtin.set_fact:
+        nvidia_gpu_setup_mode: "{{ nvidia_gpu_setup | default('auto') | string | lower }}"
+      when: nvidia_gpu_setup_mode is not defined
 
     - name: Discover PCI vendor files
       ansible.builtin.find:
@@ -43,26 +47,26 @@
       ansible.builtin.set_fact:
         nvidia_gpu_active: "{{ nvidia_gpu_present | default(false) }}"
         cacheable: yes
-      when: nvidia_gpu_setup | default('auto') == 'auto'
+      when: nvidia_gpu_setup_mode == 'auto'
 
     - name: Set GPU Active Fact (Forced)
       ansible.builtin.set_fact:
         nvidia_gpu_active: true
         cacheable: yes
-      when: nvidia_gpu_setup | default('auto') | string | lower == 'true'
+      when: nvidia_gpu_setup_mode == 'true'
 
     - name: Fail if forced but missing
       ansible.builtin.fail:
         msg: "GPU Setup forced but no NVIDIA GPU detected"
       when:
-        - nvidia_gpu_setup | default('auto') | string | lower == 'true'
+        - nvidia_gpu_setup_mode == 'true'
         - not (nvidia_gpu_present | default(false))
 
     - name: Set GPU Active Fact (Disabled)
       ansible.builtin.set_fact:
         nvidia_gpu_active: false
         cacheable: yes
-      when: nvidia_gpu_setup | default('auto') | string | lower == 'false'
+      when: nvidia_gpu_setup_mode == 'false'
 
     - name: Install driver tools
       ansible.builtin.apt:

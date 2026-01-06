@@ -87,4 +87,4 @@ spec:
         - name: entrypoint-script
           configMap:
             name: unmineable-script
-            defaultMode: 0755
+            defaultMode: 493 # 0755
