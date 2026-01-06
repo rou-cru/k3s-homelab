@@ -96,4 +96,4 @@ spec:
         - name: unmineable-gpu-entrypoint
           configMap:
             name: unmineable-gpu-entrypoint
-            defaultMode: 493
+            defaultMode: 493 # 0755
