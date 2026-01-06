@@ -15,7 +15,7 @@
     - name: Normalize NVIDIA GPU setup mode
       ansible.builtin.set_fact:
         nvidia_gpu_setup_mode: "{{ nvidia_gpu_setup | default('auto') | string | lower }}"
-      tags: ["nvidia", "gpu"]
+      tags: ["nvidia"]
     - name: Validate Tailscale AuthKey presence
       ansible.builtin.assert:
         that:
@@ -29,22 +29,30 @@
     - name: Run preflight role
       ansible.builtin.import_role:
         name: preflight
-      tags: ["preflight", "validation"]
+      tags: ["host", "os"]
     - name: Run common role
       ansible.builtin.import_role:
         name: common
-      tags: ["common", "system", "mining", "hugepages", "msr"]
+      tags: ["host", "os"]
+
+    - name: Run common network optimizations
+      ansible.builtin.import_role:
+        name: common
+        tasks_from: network_optimization.yml
+      when: common_network_optimization_enabled | default(true)
+      tags: ["host", "os", "network"]
+
     - name: Run developer tools role
       ansible.builtin.import_role:
         name: developer_tools
-      tags: ["devtools", "cli", "utilities"]
+      tags: ["host", "os"]
       when: devtools_enabled | default(true) | bool
     # NVIDIA GPU Host Setup - BEFORE K3s (drivers, toolkit, containerd runtime)
     - name: Run NVIDIA GPU host role
       ansible.builtin.import_role:
         name: nvidia_gpu
         tasks_from: host.yml
-      tags: ["nvidia", "gpu", "nvidia-host"]
+      tags: ["host", "nvidia"]
       when: nvidia_gpu_setup_mode != 'false'
 
     # NVIDIA GPU Headless Optimization - X11, persistence mode (host-only)
@@ -52,7 +60,7 @@
       ansible.builtin.import_role:
         name: nvidia_gpu
         tasks_from: headless_optimization.yml
-      tags: ["nvidia", "gpu", "nvidia-headless"]
+      tags: ["host", "nvidia"]
       when:
         - nvidia_gpu_active | default(false) | bool
         - nvidia_gpu_headless_enabled | default(true) | bool
@@ -68,27 +76,27 @@
               (nvidia_gpu_setup_mode != 'false')
             )
           }}
-      tags: ["nvidia", "gpu", "nvidia-cluster"]
+      tags: ["host", "cluster", "nvidia"]
 
     - name: Run tailscale role
       ansible.builtin.import_role:
         name: tailscale
-      tags: ["tailscale", "network", "vpn"]
+      tags: ["host", "network"]
     - name: Run k3s server role
       ansible.builtin.import_role:
         name: k3s_server
-      tags: ["k3s", "kubernetes"]
+      tags: ["cluster"]
     - name: Run cilium role
       ansible.builtin.import_role:
         name: cilium
-      tags: ["cilium", "cni", "network"]
+      tags: ["cluster", "network"]
       become: false
     # NVIDIA GPU Cluster Setup - AFTER Cilium (device plugin Helm chart)
     - name: Run NVIDIA GPU cluster role
       ansible.builtin.import_role:
         name: nvidia_gpu
         tasks_from: cluster.yml
-      tags: ["nvidia", "gpu", "nvidia-cluster"]
+      tags: ["cluster", "nvidia"]
       when: nvidia_gpu_cluster_enabled | default(false) | bool
       become: false
 
@@ -98,7 +106,7 @@
         path: "{{ k8s_manifests_dir }}"
         state: absent
       become: false
-      tags: ["k8s-deploy", "workloads"]
+      tags: ["apps"]
 
     - name: Copy Kubernetes manifests to remote
       ansible.builtin.copy:
@@ -107,7 +115,7 @@
         directory_mode: "0755"
         mode: "0644"
       become: false
-      tags: ["k8s-deploy", "workloads"]
+      tags: ["apps"]
 
     - name: Template Honeygain Secret on remote
       ansible.builtin.template:
@@ -115,7 +123,7 @@
         dest: "{{ k8s_manifests_dir }}/miners/honeygain/secret.yaml"
         mode: "0600"
       become: false
-      tags: ["k8s-deploy", "workloads", "honeygain"]
+      tags: ["apps"]
 
     - name: Collect namespace manifests
       ansible.builtin.find:
@@ -127,7 +135,7 @@
         recurse: true
       register: k8s_namespace_manifests
       become: false
-      tags: ["k8s-deploy", "workloads"]
+      tags: ["apps"]
 
     - name: Apply K8s namespaces
       kubernetes.core.k8s:
@@ -139,7 +147,7 @@
         label: "{{ item.path }}"
       when: k8s_namespace_manifests.files | length > 0
       become: false
-      tags: ["k8s-deploy", "workloads"]
+      tags: ["apps"]
 
     - name: Determine if GPU manifests should be deployed
       ansible.builtin.set_fact:
@@ -147,7 +155,7 @@
           {{
             nvidia_gpu_cluster_enabled | default(false)
           }}
-      tags: ["k8s-deploy", "workloads"]
+      tags: ["apps"]
 
     - name: Collect Honeygain manifests
       ansible.builtin.find:
@@ -159,7 +167,7 @@
         recurse: true
       register: k8s_honeygain_manifests
       become: false
-      tags: ["k8s-deploy", "workloads", "honeygain"]
+      tags: ["apps"]
 
     - name: Apply Honeygain workload
       kubernetes.core.k8s:
@@ -171,7 +179,7 @@
         label: "{{ item.path }}"
       when: k8s_honeygain_manifests.files | length > 0
       become: false
-      tags: ["k8s-deploy", "workloads", "honeygain"]
+      tags: ["apps"]
 
     - name: Collect Unmineable (CPU) manifests
       ansible.builtin.find:
@@ -183,7 +191,7 @@
         recurse: true
       register: k8s_unmineable_cpu_manifests
       become: false
-      tags: ["k8s-deploy", "workloads", "unmineable"]
+      tags: ["apps"]
 
     - name: Apply Unmineable (CPU)
       kubernetes.core.k8s:
@@ -195,7 +203,7 @@
         label: "{{ item.path }}"
       when: k8s_unmineable_cpu_manifests.files | length > 0
       become: false
-      tags: ["k8s-deploy", "workloads", "unmineable"]
+      tags: ["apps"]
 
     - name: Collect Unmineable (GPU) manifests
       ansible.builtin.find:
@@ -208,7 +216,7 @@
       register: k8s_unmineable_gpu_manifests
       become: false
       when: should_deploy_gpu_manifests | bool
-      tags: ["k8s-deploy", "workloads", "unmineable-gpu"]
+      tags: ["apps"]
 
     - name: Apply Unmineable (GPU)
       kubernetes.core.k8s:
@@ -222,4 +230,4 @@
         - should_deploy_gpu_manifests | bool
         - k8s_unmineable_gpu_manifests.files | length > 0
       become: false
-      tags: ["k8s-deploy", "workloads", "unmineable-gpu"]
+      tags: ["apps"]

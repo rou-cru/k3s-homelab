@@ -53,9 +53,7 @@
   ansible.builtin.include_tasks: hardware_tuning.yml
 - name: Apply System Kernel Tuning (BBR/Limits/Watchdog)
   ansible.builtin.include_tasks: system_tuning.yml
-- name: Apply Network Optimizations
-  ansible.builtin.include_tasks: network_optimization.yml
-  when: common_network_optimization_enabled | default(true)
+
 - name: Apply RoG Server Hardware Tweaks
   ansible.builtin.include_tasks: rog_hardware.yml
   when: common_rog_server | default(true) | bool

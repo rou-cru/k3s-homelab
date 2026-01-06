@@ -1,96 +1,47 @@
-# Análisis Completo de Tags de Ansible en K3s-homelab
+# Diseño Estandarizado de Tags Ansible (Canon V2)
 
-## Tags Implementados y Su Uso Aparente
+## 1. Filosofía del Sistema
+El sistema de tags ha sido refactorizado para eliminar redundancias y ambigüedades, adoptando un modelo de **Matriz Capa-Característica**. Esto permite ejecuciones parciales precisas basadas en el ciclo de vida (Capas) o en la funcionalidad transversal (Características).
 
-### Tags de Infraestructura:
-- `always` - Tasks que siempre se ejecutan
-- `preflight`, `validation` - Verificaciones previas
-- `common`, `system` - Configuración general del sistema
-- `devtools`, `cli`, `utilities` - Herramientas de desarrollo
-- `tailscale`, `network`, `vpn` - Configuración de red y VPN
-- `k3s`, `kubernetes` - Configuración del clúster K3s
-- `cilium`, `cni` - Configuración de red en Kubernetes
+## 2. Definición de Tags Canónicos (Total: 6)
 
-### Tags de GPU y Minado:
-- `nvidia`, `gpu`, `nvidia-host`, `nvidia-headless`, `nvidia-cluster` - Configuración de GPU NVIDIA
-- `mining`, `hugepages`, `msr` - Optimizaciones para minado
-- `debug` - Tareas de depuración (nuevo)
+### Capas Verticales (Ciclo de Vida)
+Definen la etapa de despliegue. Respetan un orden estricto de dependencias.
+*   **`host`**: Infraestructura base. Todo lo que ocurre antes de Kubernetes.
+    *   *Incluye:* Tuning de OS, Drivers NVIDIA, VPN (Tailscale), Herramientas CLI.
+*   **`cluster`**: Plataforma Kubernetes.
+    *   *Incluye:* K3s Server, CNI (Cilium), NVIDIA Device Plugin.
+*   **`apps`**: Cargas de trabajo y aplicaciones finales.
+    *   *Incluye:* Manifiestos, Miners, Secretos.
 
-### Tags de Despliegue de Workloads:
-- `k8s-deploy`, `workloads` - Despliegue de workloads en Kubernetes
-- `honeygain`, `unmineable`, `unmineable-gpu` - Workloads específicos de minado
-- `helm` - Gestión de paquetes Helm
+### Características Horizontales (Funcionalidad)
+Definen componentes tecnológicos específicos que pueden cruzar capas.
+*   **`os`**: Configuración pura del Sistema Operativo. (Subconjunto de `host` sin componentes externos complejos como VPN/GPU).
+*   **`network`**: Pila completa de conectividad.
+    *   *Incluye:* Sysctl Tuning (`host`), Tailscale (`host`), Cilium (`cluster`).
+*   **`nvidia`**: Stack completo de GPU.
+    *   *Incluye:* Drivers (`host`), Device Plugin (`cluster`).
 
-## Agrupación de Tareas por Tags
+## 3. Matriz de Ejecución
 
-### Grupo de Preparación del Sistema:
-- `preflight`, `validation` - Verificaciones previas
-- `common`, `system`, `mining`, `hugepages`, `msr` - Configuración del sistema y optimizaciones
-- `devtools`, `cli`, `utilities` - Instalación de herramientas
+| Componente | Tags Asignados | Lógica |
+| :--- | :--- | :--- |
+| **Base OS (Preflight/Common)** | `['host', 'os']` | Configuración base. |
+| **Network Tuning (Sysctl)** | `['host', 'os', 'network']` | Optimización extraída a `site.yaml`. |
+| **Tailscale VPN** | `['host', 'network']` | Red nivel Host. |
+| **NVIDIA Drivers** | `['host', 'nvidia']` | Drivers nivel Host. |
+| **K3s Server** | `['cluster']` | Núcleo K8s. |
+| **Cilium CNI** | `['cluster', 'network']` | Red nivel Cluster. |
+| **NVIDIA Plugin** | `['cluster', 'nvidia']` | Integración GPU Cluster. |
+| **Workloads** | `['apps']` | Aplicaciones. |
 
-### Grupo de Infraestructura:
-- `tailscale`, `network`, `vpn` - Infraestructura de red
-- `k3s`, `kubernetes` - Clúster Kubernetes
-- `cilium`, `cni` - Capa de red en Kubernetes
+## 4. Cambios Arquitectónicos Clave
+*   **Extracción de Network Optimization:** La tarea `network_optimization.yml` se eliminó de la inclusión automática de `common` y se invocó explícitamente en `site.yaml` para permitir que el tag `network` la ejecute sin arrastrar todo el rol `common`.
+*   **Eliminación de Sinónimos:** Se eliminaron tags redundantes como `gpu`, `kubernetes`, `system`, `preflight`, etc.
 
-### Grupo de Soporte GPU:
-- `nvidia`, `gpu`, `nvidia-host`, `nvidia-headless`, `nvidia-cluster` - Stack completo de GPU NVIDIA
-
-### Grupo de Despliegue de Workloads:
-- `k8s-deploy`, `workloads` - Despliegue base de workloads
-- `honeygain`, `unmineable`, `unmineable-gpu` - Workloads específicos
-
-## Relaciones entre Diferentes Tags
-
-### Relaciones Jerárquicas:
-- `nvidia` es un tag padre que incluye `nvidia-host`, `nvidia-headless`, y `nvidia-cluster`
-- `gpu` se usa junto con tags específicos de NVIDIA
-- `mining` se asocia con `hugepages` y `msr` como optimizaciones relacionadas
-
-### Relaciones de Dependencia:
-- `nvidia-host` debe ejecutarse antes de `nvidia-cluster`
-- `k3s` y `kubernetes` están relacionados con `cilium` y `cni`
-- `k8s-deploy` y `workloads` dependen de que la infraestructura esté configurada
-
-### Relaciones Transversales:
-- `network` aparece con `tailscale` y `cilium`, mostrando que la red es una preocupación transversal
-
-## Redundancias Identificadas
-
-- `nvidia` y `gpu` se usan juntos en múltiples lugares
-- `k3s` y `kubernetes` se usan juntos (K3s es una distribución de Kubernetes)
-- `cilium` y `cni` se usan juntos (Cilium es una implementación de CNI)
-- `k8s-deploy` y `workloads` se usan juntos frecuentemente
-- `nvidia-cluster` aparece duplicado en el archivo site.yaml
-
-## Tareas No Cubiertas por Tags
-
-La mayoría de las tareas en los archivos de tareas individuales de los roles (por ejemplo, en roles/common/tasks/, roles/k3s_server/tasks/, etc.) no tienen tags. Solo las tareas de importación de roles en site.yaml y algunas tareas específicas en archivos de roles tienen tags asignados. Sin embargo, se ha encontrado una nueva tarea de depuración en roles/nvidia_gpu/tasks/host.yml que sí tiene tags.
-
-## Complejidad del Sistema de Tags
-
-El sistema de tags tiene una estructura jerárquica con relaciones multidimensionales. Es moderadamente complejo con una buena organización, convenciones de nomenclatura consistentes y propósitos claros para cada tag, aunque existen algunas redundancias.
-
-## Matriz de Relaciones entre Tags
-
-| Tag | Relación | Tags Relacionados | Tipo de Relación |
-|-----|----------|-------------------|------------------|
-| `always` | Base | Todos | Requisito (siempre se ejecuta) |
-| `nvidia` | Agrupación | `gpu`, `nvidia-host`, `nvidia-headless`, `nvidia-cluster` | Jerárquica (contiene) |
-| `gpu` | Sinónimo | `nvidia` | Redundante |
-| `nvidia-host` | Secuencial | `nvidia-cluster` | Dependencia (antes que) |
-| `nvidia-cluster` | Secuencial | `nvidia-host` | Dependencia (después de) |
-| `k3s` | Sinónimo | `kubernetes` | Redundante |
-| `kubernetes` | Sinónimo | `k3s` | Redundante |
-| `cilium` | Dependencia | `k3s`, `kubernetes` | Requisito (necesita K8s) |
-| `cni` | Implementación | `cilium` | Especificación (tipo de CNI) |
-| `network` | Categoría | `cilium`, `tailscale` | Categorización (área funcional) |
-| `mining` | Agrupación | `hugepages`, `msr` | Agrupación funcional |
-| `hugepages` | Especialización | `mining` | Característica de |
-| `msr` | Especialización | `mining` | Característica de |
-| `k8s-deploy` | Agrupación | `workloads`, `honeygain`, `unmineable`, `unmineable-gpu` | Contiene |
-| `workloads` | Sinónimo | `k8s-deploy` | Redundante |
-| `honeygain` | Especialización | `k8s-deploy`, `workloads` | Tipo específico |
-| `unmineable` | Especialización | `k8s-deploy`, `workloads` | Tipo específico |
-| `unmineable-gpu` | Especialización | `k8s-deploy`, `workloads`, `nvidia` | Tipo específico con dependencia |
-| `debug` | Especialización | `nvidia`, `gpu` | Depuración específica |
+## 5. Guía de Uso Operativo
+*   **Setup Inicial Completo:** `ansible-playbook site.yaml`
+*   **Solo Infraestructura:** `ansible-playbook site.yaml --tags host`
+*   **Solo Red (VPN + CNI + Tuning):** `ansible-playbook site.yaml --tags network`
+*   **Solo Stack GPU:** `ansible-playbook site.yaml --tags nvidia` (Nota: Requiere gestión de reinicios si se actualizan drivers).
+*   **Solo Apps:** `ansible-playbook site.yaml --tags apps`

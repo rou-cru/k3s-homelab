@@ -1,6 +1,6 @@
 ---
 - name: NVIDIA GPU host setup
-  tags: ["nvidia", "gpu", "nvidia-host"]
+  tags: ["host", "nvidia"]
   block:
     - name: Ensure pciutils installed for lspci
       ansible.builtin.apt:
@@ -29,7 +29,7 @@
             | map('lower')
             | list
           }}
-      tags: ["nvidia", "gpu", "debug"]
+      tags: ["host", "nvidia", "debug"]
 
     - name: Detect NVIDIA GPU presence
       ansible.builtin.set_fact:

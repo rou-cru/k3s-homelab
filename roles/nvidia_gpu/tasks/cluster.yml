@@ -1,6 +1,6 @@
 ---
 - name: NVIDIA GPU cluster setup
-  tags: ["nvidia", "gpu", "nvidia-cluster"]
+  tags: ["cluster", "nvidia"]
   block:
     - name: Create temporary values file for device plugin
       ansible.builtin.tempfile:
