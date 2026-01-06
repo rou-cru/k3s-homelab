@@ -6,15 +6,87 @@
 
 
 
-Description: Instala y configura Cilium CNI para K3s
-
-| Field                | Value           |
-|--------------------- |-----------------|
-| Readme update        | 2026/01/06 |
+Description: Installs and configures Cilium CNI for K3s clusters.
 
 
 
 
+
+
+<details>
+<summary><b>🧩 Argument Specifications in meta/argument_specs</b></summary>
+
+#### Key: main
+
+**Description**: Deploys Cilium CNI using Helm, managing values templating and rollout verification.
+
+
+**Options**:
+
+
+  - **cilium_version**
+    - **Required**: False
+    - **Type**: str
+    - **Default**: 1.18.5
+  
+    - **Description**: Version of the Cilium Helm chart to install.
+  
+  
+  
+
+  - **cilium_chart_name**
+    - **Required**: False
+    - **Type**: str
+    - **Default**: cilium
+  
+    - **Description**: Name of the chart in the repository (e.g., cilium/cilium).
+  
+  
+  
+
+  - **cilium_namespace**
+    - **Required**: False
+    - **Type**: str
+    - **Default**: kube-system
+  
+    - **Description**: Kubernetes namespace where Cilium should be installed.
+  
+  
+  
+
+  - **cilium_rollout_timeout**
+    - **Required**: False
+    - **Type**: int
+    - **Default**: 300
+  
+    - **Description**: Timeout (seconds) for waiting for Cilium pods rollout.
+  
+  
+  
+
+  - **cilium_wait_retries**
+    - **Required**: False
+    - **Type**: int
+    - **Default**: 60
+  
+    - **Description**: Number of retries when checking for DaemonSet creation.
+  
+  
+  
+
+  - **cilium_wait_delay**
+    - **Required**: False
+    - **Type**: int
+    - **Default**: 5
+  
+    - **Description**: Delay (seconds) between DaemonSet existence checks.
+  
+  
+  
+
+
+
+</details>
 
 
 
@@ -25,15 +97,28 @@ Description: Instala y configura Cilium CNI para K3s
 
 #### File: defaults/main.yml
 
-| Var          | Type         | Value       |
-|--------------|--------------|-------------|
-| [cilium_version](defaults/main.yml#L4)   | str | `1.18.5` |    
-| [cilium_chart_repo](defaults/main.yml#L5)   | str | `https://helm.cilium.io/` |    
-| [cilium_chart_name](defaults/main.yml#L6)   | str | `cilium` |    
-| [cilium_namespace](defaults/main.yml#L10)   | str | `kube-system` |    
-| [cilium_rollout_timeout](defaults/main.yml#L14)   | int | `300` |    
-| [cilium_wait_retries](defaults/main.yml#L15)   | int | `60` |    
-| [cilium_wait_delay](defaults/main.yml#L16)   | int | `5` |    
+| Var          | Type         | Value       |Required    | Title       |
+|--------------|--------------|-------------|------------|-------------|
+| [cilium_version](defaults/main.yml#L6)   | str | `1.18.5` |    false  |  Cilium Version |
+| [cilium_chart_name](defaults/main.yml#L12)   | str | `cilium` |    false  |  Chart Name |
+| [cilium_namespace](defaults/main.yml#L18)   | str | `kube-system` |    false  |  Namespace |
+| [cilium_rollout_timeout](defaults/main.yml#L24)   | int | `300` |    false  |  Rollout Timeout |
+| [cilium_wait_retries](defaults/main.yml#L30)   | int | `60` |    false  |  Wait Retries |
+| [cilium_wait_delay](defaults/main.yml#L36)   | int | `5` |    false  |  Wait Delay |
+<details>
+<summary><b>🖇️ Full descriptions for vars in defaults/main.yml</b></summary>
+<br>
+<table>
+<th>Var</th><th>Description</th>
+<tr><td><b>cilium_version</b></td><td>Version of the Cilium Helm chart to install.</td></tr>
+<tr><td><b>cilium_chart_name</b></td><td>Name of the chart in the repository (e.g., cilium/cilium).</td></tr>
+<tr><td><b>cilium_namespace</b></td><td>Kubernetes namespace where Cilium should be installed.</td></tr>
+<tr><td><b>cilium_rollout_timeout</b></td><td>Timeout (seconds) for waiting for Cilium pods rollout.</td></tr>
+<tr><td><b>cilium_wait_retries</b></td><td>Number of retries when checking for DaemonSet creation.</td></tr>
+<tr><td><b>cilium_wait_delay</b></td><td>Delay (seconds) between DaemonSet existence checks.</td></tr>
+</table>
+<br>
+</details>
 
 
 
@@ -46,12 +131,12 @@ Description: Instala y configura Cilium CNI para K3s
 
 | Name | Module | Has Conditions |
 | ---- | ------ | -------------- |
-| Create temporary values file | ansible.builtin.tempfile | False |
-| Template Cilium values file | ansible.builtin.template | False |
-| Install Cilium via Helm | kubernetes.core.helm | False |
-| Wait for Cilium DaemonSet to be created | ansible.builtin.command | False |
-| Wait for cilium pods | ansible.builtin.command | False |
-| Remove temporary values file | ansible.builtin.file | False |
+| [Create temporary values file](tasks/main.yml#L2) | ansible.builtin.tempfile | False |
+| [Template Cilium values file](tasks/main.yml#L8) | ansible.builtin.template | False |
+| [Install Cilium via Helm](tasks/main.yml#L14) | kubernetes.core.helm | False |
+| [Wait for Cilium DaemonSet to be created](tasks/main.yml#L26) | ansible.builtin.command | False |
+| [Wait for cilium pods](tasks/main.yml#L36) | ansible.builtin.command | False |
+| [Remove temporary values file](tasks/main.yml#L46) | ansible.builtin.file | False |
 
 
 ## Task Flow Graphs

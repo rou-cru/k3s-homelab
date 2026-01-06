@@ -46,6 +46,18 @@ tasks:
     deps:
       - render-rog-tweaks
       - render-network-opt
+
+  docs:generate:
+    desc: "Generate README.md for all roles using Docsible (with graphs)"
+    cmds:
+      - echo "📖 Generating documentation for all roles..."
+      - |
+        for role in roles/*/; do
+          echo "Processing $role..."
+          .venv/bin/docsible --role "$role" --graph --comments --task-line --no-backup --no-docsible
+        done
+      - echo "✅ Documentation generated."
+
   validate:
     desc: "Validate all files (YAML, Ansible, Jinja2, Bash)"
     cmds:

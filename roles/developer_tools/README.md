@@ -6,15 +6,38 @@
 
 
 
-Description: Instala herramientas de desarrollo y CLI útiles para K3s
-
-| Field                | Value           |
-|--------------------- |-----------------|
-| Readme update        | 2026/01/06 |
+Description: Installs development tools and useful CLIs for K3s environments.
 
 
 
 
+
+
+<details>
+<summary><b>🧩 Argument Specifications in meta/argument_specs</b></summary>
+
+#### Key: main
+
+**Description**: Installs a suite of developer tools including terminal utilities (bat, tmux),
+Kubernetes CLIs (kubectl, helm, k9s), Python tools (uv, pipx), and AI CLIs.
+
+
+**Options**:
+
+
+  - **devtools_install_docker**
+    - **Required**: False
+    - **Type**: bool
+    - **Default**: False
+  
+    - **Description**: Installs Docker CLI (not recommended for K3s nodes which use containerd).
+  
+  
+  
+
+
+
+</details>
 
 
 
@@ -25,11 +48,18 @@ Description: Instala herramientas de desarrollo y CLI útiles para K3s
 
 #### File: defaults/main.yml
 
-| Var          | Type         | Value       |
-|--------------|--------------|-------------|
-| [devtools_enabled](defaults/main.yml#L7)   | bool | `True` |    
-| [devtools_nodejs_version](defaults/main.yml#L11)   | str | `22` |    
-| [devtools_install_docker](defaults/main.yml#L16)   | bool | `False` |    
+| Var          | Type         | Value       |Required    | Title       |
+|--------------|--------------|-------------|------------|-------------|
+| [devtools_install_docker](defaults/main.yml#L6)   | bool | `False` |    false  |  Install Docker |
+<details>
+<summary><b>🖇️ Full descriptions for vars in defaults/main.yml</b></summary>
+<br>
+<table>
+<th>Var</th><th>Description</th>
+<tr><td><b>devtools_install_docker</b></td><td>Installs Docker CLI (not recommended for K3s nodes which use containerd).</td></tr>
+</table>
+<br>
+</details>
 
 
 
@@ -42,23 +72,23 @@ Description: Instala herramientas de desarrollo y CLI útiles para K3s
 
 | Name | Module | Has Conditions | Comments |
 | ---- | ------ | -------------- | -------- |
-| Install base CLI tools and dependencies via APT | ansible.builtin.apt | False |  |
-| Install btop via snap | ansible.builtin.snap | False | Terminal monitoring tools (snap) |
-| Install kubectl via snap | ansible.builtin.snap | False | Kubernetes tools (snap) |
-| Install Helm via snap | ansible.builtin.snap | False |  |
-| Install yq via snap | ansible.builtin.snap | False |  |
-| Install Node.js via snap | ansible.builtin.snap | False | Development environments |
-| Install pnpm globally | community.general.npm | False |  |
-| Install Devbox | ansible.builtin.shell | False |  |
-| Install uv (Python package installer) | ansible.builtin.shell | False | Python package manager (uv) |
-| Install nvitop for NVIDIA GPU monitoring | ansible.builtin.command | True | Python CLI tools (pipx/uv) |
-| Install Kimi CLI via uv | ansible.builtin.command | False |  |
-| Install AI CLI tools via npm | community.general.npm | False | AI CLI tools (npm) |
-| Docker installation (optional) | block | True | Docker (optional, disabled by default) |
-| Add Docker APT key | ansible.builtin.shell | False |  |
-| Add Docker APT repository | ansible.builtin.apt_repository | False |  |
-| Install Docker CLI only | ansible.builtin.apt | False |  |
-| Show Docker warning | ansible.builtin.debug | False |  |
+| [Install base CLI tools and dependencies via APT](tasks/main.yml#L2) | ansible.builtin.apt | False |  |
+| [Install btop via snap](tasks/main.yml#L22) | ansible.builtin.snap | False | Terminal monitoring tools (snap) |
+| [Install kubectl via snap](tasks/main.yml#L27) | ansible.builtin.snap | False | Kubernetes tools (snap) |
+| [Install Helm via snap](tasks/main.yml#L31) | ansible.builtin.snap | False |  |
+| [Install yq via snap](tasks/main.yml#L35) | ansible.builtin.snap | False |  |
+| [Install Node.js via snap](tasks/main.yml#L40) | ansible.builtin.snap | False | Development environments |
+| [Install pnpm globally](tasks/main.yml#L44) | community.general.npm | False |  |
+| [Install Devbox](tasks/main.yml#L49) | ansible.builtin.shell | False |  |
+| [Install uv (Python package installer)](tasks/main.yml#L55) | ansible.builtin.shell | False | Python package manager (uv) |
+| [Install nvitop for NVIDIA GPU monitoring](tasks/main.yml#L63) | ansible.builtin.command | True | Python CLI tools (pipx/uv) |
+| [Install Kimi CLI via uv](tasks/main.yml#L68) | ansible.builtin.command | False |  |
+| [Install AI CLI tools via npm](tasks/main.yml#L76) | community.general.npm | False | AI CLI tools (npm) |
+| [Docker installation (optional)](tasks/main.yml#L88) | block | True | Docker (optional, disabled by default) |
+| [Add Docker APT key](tasks/main.yml#L91) | ansible.builtin.shell | False |  |
+| [Add Docker APT repository](tasks/main.yml#L98) | ansible.builtin.apt_repository | False |  |
+| [Install Docker CLI only](tasks/main.yml#L107) | ansible.builtin.apt | False |  |
+| [Show Docker warning](tasks/main.yml#L115) | ansible.builtin.debug | False |  |
 
 
 ## Task Flow Graphs

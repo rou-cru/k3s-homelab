@@ -6,15 +6,78 @@
 
 
 
-Description: Configura Tailscale VPN para conectividad segura al cluster K3s
-
-| Field                | Value           |
-|--------------------- |-----------------|
-| Readme update        | 2026/01/06 |
+Description: Installs and configures Tailscale VPN client.
 
 
 
 
+
+
+<details>
+<summary><b>🧩 Argument Specifications in meta/argument_specs</b></summary>
+
+#### Key: main
+
+**Description**: Installs Tailscale, connects to the tailnet using an auth key, and configures
+settings like DNS acceptance and SSH access.
+
+
+**Options**:
+
+
+  - **tailscale_authkey**
+    - **Required**: True
+    - **Type**: str
+    - **Default**: none
+  
+    - **Description**: Tailscale authentication key (tskey-auth-...).
+  
+  
+  
+
+  - **tailscale_hostname_prefix**
+    - **Required**: False
+    - **Type**: str
+    - **Default**: k3s
+  
+    - **Description**: Prefix for the generated Tailscale hostname (e.g., k3s-hostname).
+  
+  
+  
+
+  - **tailscale_tags**
+    - **Required**: False
+    - **Type**: str
+    - **Default**: 
+  
+    - **Description**: Comma-separated list of ACL tags to advertise (e.g., tag:k3s).
+  
+  
+  
+
+  - **tailscale_accept_dns**
+    - **Required**: False
+    - **Type**: str
+    - **Default**: true
+  
+    - **Description**: Whether to accept DNS configuration from the tailnet ("true"/"false").
+  
+  
+  
+
+  - **tailscale_ssh**
+    - **Required**: False
+    - **Type**: str
+    - **Default**: true
+  
+    - **Description**: Whether to enable Tailscale SSH ("true"/"false").
+  
+  
+  
+
+
+
+</details>
 
 
 
@@ -25,12 +88,24 @@ Description: Configura Tailscale VPN para conectividad segura al cluster K3s
 
 #### File: defaults/main.yml
 
-| Var          | Type         | Value       |
-|--------------|--------------|-------------|
-| [tailscale_hostname_prefix](defaults/main.yml#L8)   | str | `k3s` |    
-| [tailscale_tags](defaults/main.yml#L12)   | str |  |    
-| [tailscale_accept_dns](defaults/main.yml#L16)   | str | `true` |    
-| [tailscale_ssh](defaults/main.yml#L17)   | str | `true` |    
+| Var          | Type         | Value       |Required    | Title       |
+|--------------|--------------|-------------|------------|-------------|
+| [tailscale_hostname_prefix](defaults/main.yml#L6)   | str | `k3s` |    false  |  Hostname Prefix |
+| [tailscale_tags](defaults/main.yml#L12)   | str |  |    false  |  ACL Tags |
+| [tailscale_accept_dns](defaults/main.yml#L18)   | str | `true` |    false  |  Accept DNS |
+| [tailscale_ssh](defaults/main.yml#L24)   | str | `true` |    false  |  Enable SSH |
+<details>
+<summary><b>🖇️ Full descriptions for vars in defaults/main.yml</b></summary>
+<br>
+<table>
+<th>Var</th><th>Description</th>
+<tr><td><b>tailscale_hostname_prefix</b></td><td>Prefix for the generated Tailscale hostname (e.g., k3s-hostname).</td></tr>
+<tr><td><b>tailscale_tags</b></td><td>Comma-separated list of ACL tags to advertise (e.g., tag:k3s).</td></tr>
+<tr><td><b>tailscale_accept_dns</b></td><td>Whether to accept DNS configuration from the tailnet ("true"/"false").</td></tr>
+<tr><td><b>tailscale_ssh</b></td><td>Whether to enable Tailscale SSH ("true"/"false").</td></tr>
+</table>
+<br>
+</details>
 
 
 
@@ -43,15 +118,15 @@ Description: Configura Tailscale VPN para conectividad segura al cluster K3s
 
 | Name | Module | Has Conditions |
 | ---- | ------ | -------------- |
-| Install Tailscale | ansible.builtin.shell | False |
-| Enable and start tailscaled | ansible.builtin.systemd | False |
-| Check Tailscale status (JSON) | ansible.builtin.command | False |
-| Determine Tailscale state | ansible.builtin.set_fact | False |
-| Configure Tailscale (Up) | ansible.builtin.shell | True |
-| Wait for valid Tailscale IPv4 (100.x.y.z) | ansible.builtin.shell | False |
-| Set tailscale_ip fact | ansible.builtin.set_fact | False |
-| Validate Tailscale IP is reachable | ansible.builtin.wait_for | False |
-| Warn if Tailscale connectivity issues | ansible.builtin.debug | True |
+| [Install Tailscale](tasks/main.yml#L2) | ansible.builtin.shell | False |
+| [Enable and start tailscaled](tasks/main.yml#L9) | ansible.builtin.systemd | False |
+| [Check Tailscale status (JSON)](tasks/main.yml#L15) | ansible.builtin.command | False |
+| [Determine Tailscale state](tasks/main.yml#L22) | ansible.builtin.set_fact | False |
+| [Configure Tailscale (Up)](tasks/main.yml#L32) | ansible.builtin.shell | True |
+| [Wait for valid Tailscale IPv4 (100.x.y.z)](tasks/main.yml#L49) | ansible.builtin.shell | False |
+| [Set tailscale_ip fact](tasks/main.yml#L63) | ansible.builtin.set_fact | False |
+| [Validate Tailscale IP is reachable](tasks/main.yml#L69) | ansible.builtin.wait_for | False |
+| [Warn if Tailscale connectivity issues](tasks/main.yml#L77) | ansible.builtin.debug | True |
 
 
 ## Task Flow Graphs

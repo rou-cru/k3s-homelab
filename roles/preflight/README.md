@@ -6,15 +6,31 @@
 
 
 
-Description: Verificaciones previas para asegurar requisitos mínimos del sistema
-
-| Field                | Value           |
-|--------------------- |-----------------|
-| Readme update        | 2026/01/06 |
+Description: Pre-flight checks to ensure minimum system requirements are met.
 
 
 
 
+
+
+<details>
+<summary><b>🧩 Argument Specifications in meta/argument_specs</b></summary>
+
+#### Key: main
+
+**Description**: Performs pre-flight checks:
+- Network connectivity to get.k3s.io
+- Root partition disk space (> 20GB)
+- System memory (> 4GB)
+- Architecture (x86_64 only)
+
+
+**Options**:
+
+
+
+
+</details>
 
 
 
@@ -32,12 +48,12 @@ Description: Verificaciones previas para asegurar requisitos mínimos del sistem
 
 | Name | Module | Has Conditions |
 | ---- | ------ | -------------- |
-| Check network connectivity | ansible.builtin.uri | False |
-| Fail if no network connectivity | ansible.builtin.fail | True |
-| Get actual disk space on root partition | ansible.builtin.shell | False |
-| Assert Disk Space (Root Partition > 20GB) | ansible.builtin.assert | False |
-| Assert Memory (> 4GB) | ansible.builtin.assert | False |
-| Assert Architecture (x86_64) | ansible.builtin.assert | False |
+| [Check network connectivity](tasks/main.yml#L2) | ansible.builtin.uri | False |
+| [Fail if no network connectivity](tasks/main.yml#L11) | ansible.builtin.fail | True |
+| [Get actual disk space on root partition](tasks/main.yml#L15) | ansible.builtin.shell | False |
+| [Assert Disk Space (Root Partition > 20GB)](tasks/main.yml#L21) | ansible.builtin.assert | False |
+| [Assert Memory (> 4GB)](tasks/main.yml#L29) | ansible.builtin.assert | False |
+| [Assert Architecture (x86_64)](tasks/main.yml#L34) | ansible.builtin.assert | False |
 
 
 ## Task Flow Graphs
