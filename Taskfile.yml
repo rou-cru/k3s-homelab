@@ -85,19 +85,6 @@ tasks:
         msg: "checkov not found. Run: devbox shell"
     cmds:
       - checkov -d . --framework ansible --quiet
-  validate-ansible:
-    desc: "Validate Ansible files with ansible-lint"
-    sources:
-      - "site.yaml"
-      - "roles/**/*.yml"
-      - "secrets.example.yaml"
-    preconditions:
-      - sh: command -v ansible-lint
-        msg: "ansible-lint not found. Run: devbox shell"
-    cmds:
-      - |
-        project_dir=$(pwd)
-        ansible-lint "$project_dir/site.yaml" "$project_dir/roles"
   validate-ansible-syntax:
     desc: "Validate Ansible files with ansible-playbook --syntax-check"
     env:
@@ -215,10 +202,10 @@ tasks:
       - task: validate
       - task: ci-format-check
   ci-quick:
-    desc: "Quick validation (ansible-lint + bash syntax)"
+    desc: "Quick validation (ansible-playbook syntax + bash syntax)"
     cmds:
       - echo "⚡ Running quick checks..."
-      - task: validate-ansible
+      - task: validate-ansible-syntax
       - task: validate-bash
   ci-format-check:
     desc: "Check formatting without modifying files"

@@ -376,7 +376,7 @@ classDef rescue stroke:#665352,stroke-width:2px;
 
 
 ## Author Information
-rc
+Roura
 
 #### License
 
@@ -384,11 +384,11 @@ MIT
 
 #### Minimum Ansible Version
 
-2.9
+2.20.0
 
 #### Platforms
 
-- **Ubuntu**: ['focal', 'jammy', 'noble']
+- **Ubuntu**: ['noble']
 
 
 #### Dependencies

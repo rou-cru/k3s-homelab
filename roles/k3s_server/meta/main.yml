@@ -1,17 +1,15 @@
 ---
 galaxy_info:
   role_name: k3s_server
-  author: rc
+  author: Roura
   description: Installs and configures K3s Kubernetes server for homelab usage.
   company: Personal
   license: MIT
-  min_ansible_version: "2.9"
+  min_ansible_version: "2.20.0"
   
   platforms:
     - name: Ubuntu
       versions:
-        - focal
-        - jammy
         - noble
   
   galaxy_tags:

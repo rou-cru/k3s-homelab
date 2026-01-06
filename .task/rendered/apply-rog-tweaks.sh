@@ -1,0 +1,54 @@
+#!/bin/bash
+set -euo pipefail
+
+
+
+
+BATTERY_THRESHOLD=80
+THERMAL_MODE=1
+
+
+if ! [[ "$BATTERY_THRESHOLD" =~ ^[0-9]+$ ]] || \
+   [ "$BATTERY_THRESHOLD" -lt 0 ] || \
+   [ "$BATTERY_THRESHOLD" -gt 100 ]; then
+    logger -t rog-tweaks -p err "Invalid battery_charge_threshold: ${BATTERY_THRESHOLD}. Must be 0-100."
+    exit 1
+fi
+
+
+if ! [[ "$THERMAL_MODE" =~ ^[0-2]$ ]]; then
+    logger -t rog-tweaks -p err "Invalid thermal_policy: ${THERMAL_MODE}. Must be 0, 1, or 2."
+    exit 1
+fi
+
+
+BAT_PATH="/sys/class/power_supply/BAT0"
+
+if [ -f "$BAT_PATH/charge_control_end_threshold" ]; then
+    echo "$BATTERY_THRESHOLD" > "$BAT_PATH/charge_control_end_threshold"
+    CURRENT=$(cat "$BAT_PATH/charge_control_end_threshold" 2>/dev/null)
+    if [ "$CURRENT" = "$BATTERY_THRESHOLD" ]; then
+        logger -t rog-tweaks -p info "Battery threshold: ${BATTERY_THRESHOLD}%"
+    else
+        logger -t rog-tweaks -p warning "Battery threshold write failed: current=${CURRENT}, expected=${BATTERY_THRESHOLD}"
+    fi
+else
+    logger -t rog-tweaks -p info "Battery control unavailable"
+fi
+
+# --- 2. Thermal Policy ---
+THERMAL_POLICY_PATH="/sys/devices/platform/asus-nb-wmi/throttle_thermal_policy"
+
+if [ -f "$THERMAL_POLICY_PATH" ]; then
+    echo "$THERMAL_MODE" > "$THERMAL_POLICY_PATH"
+    CURRENT=$(cat "$THERMAL_POLICY_PATH" 2>/dev/null)
+    if [ "$CURRENT" = "$THERMAL_MODE" ]; then
+        logger -t rog-tweaks -p info "Thermal policy: mode ${THERMAL_MODE}"
+    else
+        logger -t rog-tweaks -p warning "Thermal policy write failed: current=${CURRENT}, expected=${THERMAL_MODE}"
+    fi
+else
+    logger -t rog-tweaks -p info "Thermal control unavailable"
+fi
+
+
