@@ -1,0 +1,25 @@
+---
+galaxy_info:
+  role_name: preflight
+  author: rc
+  description: Verificaciones previas para asegurar requisitos mínimos del sistema
+  company: Personal
+  license: MIT
+  min_ansible_version: "2.9"
+  
+  platforms:
+    - name: Ubuntu
+      versions:
+        - focal
+        - jammy
+        - noble
+  
+  galaxy_tags:
+    - k3s
+    - kubernetes
+    - preflight
+    - checks
+    - validation
+    - homelab
+
+dependencies: []

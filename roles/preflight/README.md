@@ -6,11 +6,11 @@
 
 
 
-
+Description: Verificaciones previas para asegurar requisitos mínimos del sistema
 
 | Field                | Value           |
 |--------------------- |-----------------|
-| Readme update        | 2026/01/05 |
+| Readme update        | 2026/01/06 |
 
 
 
@@ -71,6 +71,20 @@ classDef rescue stroke:#665352,stroke-width:2px;
 
 
 
+## Author Information
+rc
+
+#### License
+
+MIT
+
+#### Minimum Ansible Version
+
+2.9
+
+#### Platforms
+
+- **Ubuntu**: ['focal', 'jammy', 'noble']
 
 
 #### Dependencies

@@ -6,11 +6,11 @@
 
 
 
-
+Description: Configura Tailscale VPN para conectividad segura al cluster K3s
 
 | Field                | Value           |
 |--------------------- |-----------------|
-| Readme update        | 2026/01/05 |
+| Readme update        | 2026/01/06 |
 
 
 
@@ -27,10 +27,10 @@
 
 | Var          | Type         | Value       |
 |--------------|--------------|-------------|
-| [tailscale_hostname_prefix](defaults/main.yml#L4)   | str | `k3s` |    
-| [tailscale_tags](defaults/main.yml#L5)   | str |  |    
-| [tailscale_accept_dns](defaults/main.yml#L6)   | str | `true` |    
-| [tailscale_ssh](defaults/main.yml#L7)   | str | `true` |    
+| [tailscale_hostname_prefix](defaults/main.yml#L8)   | str | `k3s` |    
+| [tailscale_tags](defaults/main.yml#L12)   | str |  |    
+| [tailscale_accept_dns](defaults/main.yml#L16)   | str | `true` |    
+| [tailscale_ssh](defaults/main.yml#L17)   | str | `true` |    
 
 
 
@@ -88,6 +88,20 @@ classDef rescue stroke:#665352,stroke-width:2px;
 
 
 
+## Author Information
+rc
+
+#### License
+
+MIT
+
+#### Minimum Ansible Version
+
+2.9
+
+#### Platforms
+
+- **Ubuntu**: ['focal', 'jammy', 'noble']
 
 
 #### Dependencies
