@@ -29,9 +29,11 @@ argument_specs:
         required: false
         default: "true"
         description: Whether to accept DNS configuration from the tailnet ("true"/"false").
+        choices: ["true", "false"]
 
       tailscale_ssh:
         type: str
         required: false
         default: "true"
         description: Whether to enable Tailscale SSH ("true"/"false").
+        choices: ["true", "false"]

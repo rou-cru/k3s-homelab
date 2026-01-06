@@ -62,6 +62,13 @@ settings like DNS acceptance and SSH access.
   
     - **Description**: Whether to accept DNS configuration from the tailnet ("true"/"false").
   
+      - **Choices**:
+    
+          - true
+    
+          - false
+    
+  
   
   
 
@@ -71,6 +78,13 @@ settings like DNS acceptance and SSH access.
     - **Default**: true
   
     - **Description**: Whether to enable Tailscale SSH ("true"/"false").
+  
+      - **Choices**:
+    
+          - true
+    
+          - false
+    
   
   
   

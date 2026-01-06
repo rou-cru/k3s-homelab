@@ -144,7 +144,7 @@ and local context merging.
 | [k3s_server_version](defaults/main.yml#L6)   | str | `v1.34.3+k3s1` |    false  |  K3s Version |
 | [k3s_server_disable_traefik](defaults/main.yml#L12)   | bool | `True` |    false  |  Disable Traefik |
 | [k3s_server_disable_servicelb](defaults/main.yml#L18)   | bool | `True` |    false  |  Disable ServiceLB |
-| [k3s_server_kubeconfig_mode](defaults/main.yml#L24)   | str | `644` |    false  |  Kubeconfig Mode |
+| [k3s_server_kubeconfig_mode](defaults/main.yml#L24)   | str | `0644` |    false  |  Kubeconfig Mode |
 | [k3s_server_node_token_timeout](defaults/main.yml#L30)   | int | `180` |    false  |  Token Timeout |
 | [k3s_server_readyz_retries](defaults/main.yml#L36)   | int | `30` |    false  |  Readiness Retries |
 | [k3s_server_readyz_delay](defaults/main.yml#L42)   | int | `2` |    false  |  Readiness Delay |

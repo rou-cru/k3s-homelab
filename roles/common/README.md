@@ -145,6 +145,16 @@ RoG hardware tweaks, and network optimizations.
   
   
 
+  - **common_ring_buffer_target**
+    - **Required**: False
+    - **Type**: int
+    - **Default**: 4096
+  
+    - **Description**: Target size for network ring buffers.
+  
+  
+  
+
   - **common_mining_enabled**
     - **Required**: False
     - **Type**: bool
@@ -296,11 +306,11 @@ RoG hardware tweaks, and network optimizations.
 
 | Name | Module | Has Conditions | Comments |
 | ---- | ------ | -------------- | -------- |
-| [RoG/Realtek Specific Optimizations](tasks/network_optimization.yml#L3) | block | True | Optimización de red: drivers Realtek y configuración de red |
+| [RoG/Realtek Specific Optimizations](tasks/network_optimization.yml#L3) | block | True | Network optimization: Realtek drivers and network configuration |
 | [Install Realtek driver (r8168-dkms)](tasks/network_optimization.yml#L6) | ansible.builtin.apt | False |  |
 | [Blacklist unstable generic driver (r8169)](tasks/network_optimization.yml#L11) | ansible.builtin.copy | False |  |
 | [Disable ASPM in GRUB](tasks/network_optimization.yml#L18) | ansible.builtin.lineinfile | False |  |
-| [Ensure pcie_aspm=off is present exactly once](tasks/network_optimization.yml#L33) | ansible.builtin.replace | True | Previene duplicación de parámetro si el regex ya lo agregó |
+| [Ensure pcie_aspm=off is present exactly once](tasks/network_optimization.yml#L33) | ansible.builtin.replace | True | Prevents parameter duplication if the regex already added it |
 | [Update GRUB](tasks/network_optimization.yml#L39) | ansible.builtin.command | True |  |
 | [Register network driver changes for consolidated reboot](tasks/network_optimization.yml#L43) | ansible.builtin.set_fact | False |  |
 | [Detect primary ethernet interface](tasks/network_optimization.yml#L59) | ansible.builtin.set_fact | True |  |
@@ -312,14 +322,14 @@ RoG hardware tweaks, and network optimizations.
 
 | Name | Module | Has Conditions | Comments |
 | ---- | ------ | -------------- | -------- |
-| [Configure logind to ignore Lid Switch](tasks/power_management.yml#L3) | ansible.builtin.lineinfile | False | Gestión de energía: deshabilitar suspensión y gestión de tapa |
+| [Configure logind to ignore Lid Switch](tasks/power_management.yml#L3) | ansible.builtin.lineinfile | False | Power management: disable suspension and lid switch handling |
 | [Mask sleep and suspend targets to prevent accidental suspension](tasks/power_management.yml#L14) | ansible.builtin.systemd | False |  |
 
 #### File: tasks/rog_hardware.yml
 
 | Name | Module | Has Conditions | Comments |
 | ---- | ------ | -------------- | -------- |
-| [Deploy RoG Hardware Tweaks Script](tasks/rog_hardware.yml#L7) | ansible.builtin.template | False | ROG HARDWARE TWEAKS - Optimizaciones de bajo nivel (siempre habilitadas) |
+| [Deploy RoG Hardware Tweaks Script](tasks/rog_hardware.yml#L7) | ansible.builtin.template | False | ROG HARDWARE TWEAKS - Low-level optimizations (always enabled) |
 | [Deploy systemd service for RoG Tweaks](tasks/rog_hardware.yml#L12) | ansible.builtin.copy | False |  |
 | [Enable and start RoG Tweaks service](tasks/rog_hardware.yml#L17) | ansible.builtin.systemd | False |  |
 
@@ -327,7 +337,7 @@ RoG hardware tweaks, and network optimizations.
 
 | Name | Module | Has Conditions | Tags | Comments |
 | ---- | ------ | -------------- | -----| -------- |
-| [Install performance tools](tasks/system_tuning.yml#L3) | ansible.builtin.apt | False |  | Optimización del kernel: CPU, red y límites del sistema |
+| [Install performance tools](tasks/system_tuning.yml#L3) | ansible.builtin.apt | False |  | Kernel optimization: CPU, networking, and system limits |
 | [Set CPU Governor to Schedutil](tasks/system_tuning.yml#L8) | ansible.builtin.lineinfile | False |  |  |
 | [Enable TCP BBR Congestion Control](tasks/system_tuning.yml#L16) | ansible.posix.sysctl | False |  |  |
 | [Increase File Descriptors Limits](tasks/system_tuning.yml#L26) | community.general.pam_limits | False |  |  |
