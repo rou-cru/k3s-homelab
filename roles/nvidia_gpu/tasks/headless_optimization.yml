@@ -62,3 +62,12 @@
         path: /tmp/.X0-lock
         timeout: 30
       when: nvidia_gpu_headless_x11_enabled | default(true) | bool
+  rescue:
+    - name: Report NVIDIA GPU headless optimization failure
+      ansible.builtin.debug:
+        msg: >-
+          NVIDIA GPU headless optimization failed at
+          {{ ansible_failed_task.name }}: {{ ansible_failed_result | to_nice_json }}
+    - name: Fail NVIDIA GPU headless optimization
+      ansible.builtin.fail:
+        msg: "NVIDIA GPU headless optimization failed"

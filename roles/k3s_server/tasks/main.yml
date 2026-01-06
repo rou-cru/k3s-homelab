@@ -193,3 +193,12 @@
     - name: Show kubeconfig info
       ansible.builtin.debug:
         msg: "✅ Kubeconfig ready: {{ k3s_server_local_kubeconfig_path }}"
+  rescue:
+    - name: Report kubeconfig copy failure
+      ansible.builtin.debug:
+        msg: >-
+          Kubeconfig copy failed at
+          {{ ansible_failed_task.name }}: {{ ansible_failed_result | to_nice_json }}
+    - name: Fail kubeconfig copy
+      ansible.builtin.fail:
+        msg: "Kubeconfig copy to local machine failed"

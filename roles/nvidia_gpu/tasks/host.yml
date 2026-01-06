@@ -165,3 +165,12 @@
         dest: /var/lib/rancher/k3s/agent/etc/containerd/config.toml.tmpl
         mode: "0644"
       when: nvidia_gpu_active | default(false) | bool
+  rescue:
+    - name: Report NVIDIA GPU host setup failure
+      ansible.builtin.debug:
+        msg: >-
+          NVIDIA GPU host setup failed at
+          {{ ansible_failed_task.name }}: {{ ansible_failed_result | to_nice_json }}
+    - name: Fail NVIDIA GPU host setup
+      ansible.builtin.fail:
+        msg: "NVIDIA GPU host setup failed"

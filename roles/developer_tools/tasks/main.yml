@@ -115,3 +115,12 @@
     - name: Show Docker warning
       ansible.builtin.debug:
         msg: "⚠️  Docker CLI installed (containerd used by K3s)"
+  rescue:
+    - name: Report Docker installation failure
+      ansible.builtin.debug:
+        msg: >-
+          Docker installation failed at
+          {{ ansible_failed_task.name }}: {{ ansible_failed_result | to_nice_json }}
+    - name: Fail Docker installation
+      ansible.builtin.fail:
+        msg: "Docker installation failed"
