@@ -1,5 +1,5 @@
 ---
-# Optimización de red: drivers Realtek y configuración de red
+# Network optimization: Realtek drivers and network configuration
 - name: RoG/Realtek Specific Optimizations
   when: common_rog_server | bool
   block:
@@ -29,7 +29,7 @@
         common_grub_aspm.diff.before is defined and
         common_grub_aspm.diff.before is string and
         "pcie_aspm=off" not in common_grub_aspm.diff.before
-    # Previene duplicación de parámetro si el regex ya lo agregó
+    # Prevents parameter duplication if the regex already added it
     - name: Ensure pcie_aspm=off is present exactly once # noqa: no-handler
       ansible.builtin.replace:
         path: /etc/default/grub

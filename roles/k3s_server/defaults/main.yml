@@ -21,7 +21,7 @@ k3s_server_disable_servicelb: true
 # Description: File permission mode for the generated kubeconfig on the server.
 # Type: str
 # Required: false
-k3s_server_kubeconfig_mode: "644"
+k3s_server_kubeconfig_mode: "0644"
 
 # Title: Token Timeout
 # Description: Timeout (seconds) to wait for K3s generated config/token presence.

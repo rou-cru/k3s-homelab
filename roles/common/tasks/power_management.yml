@@ -1,5 +1,5 @@
 ---
-# Gestión de energía: deshabilitar suspensión y gestión de tapa
+# Power management: disable suspension and lid switch handling
 - name: Configure logind to ignore Lid Switch
   ansible.builtin.lineinfile:
     path: /etc/systemd/logind.conf
