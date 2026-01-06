@@ -1,8 +1,16 @@
 ---
+# Cilium version and repository configuration
+# Configuración de versión y repositorio de Cilium
 cilium_version: "1.18.5"
 cilium_chart_repo: "https://helm.cilium.io/"
 cilium_chart_name: "cilium"
+
+# Kubernetes namespace for Cilium
+# Namespace de Kubernetes para Cilium
 cilium_namespace: "kube-system"
+
+# Rollout and wait configuration
+# Configuración de despliegue y espera
 cilium_rollout_timeout: 300
 cilium_wait_retries: 60
 cilium_wait_delay: 5

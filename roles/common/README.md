@@ -6,7 +6,7 @@
 
 
 
-
+Description: Configuraciones comunes del sistema para K3s homelab
 
 | Field                | Value           |
 |--------------------- |-----------------|
@@ -27,28 +27,28 @@
 
 | Var          | Type         | Value       |
 |--------------|--------------|-------------|
-| [common_network_optimization_enabled](defaults/main.yml#L2)   | bool | `True` |    
-| [common_rog_server](defaults/main.yml#L3)   | bool | `True` |    
-| [common_radio_block_enabled](defaults/main.yml#L5)   | bool | `True` |    
-| [common_audio_optimization_enabled](defaults/main.yml#L6)   | bool | `True` |    
-| [common_file_descriptors_soft](defaults/main.yml#L7)   | int | `100000` |    
-| [common_file_descriptors_hard](defaults/main.yml#L8)   | int | `100000` |    
-| [common_fs_file_max](defaults/main.yml#L9)   | int | `2097152` |    
-| [common_inotify_max_instances](defaults/main.yml#L10)   | int | `8192` |    
-| [common_inotify_max_watches](defaults/main.yml#L11)   | int | `524288` |    
-| [common_watchdog_timeout_sec](defaults/main.yml#L12)   | int | `120` |    
-| [common_battery_charge_threshold](defaults/main.yml#L13)   | int | `80` |    
-| [common_thermal_policy](defaults/main.yml#L14)   | int | `1` |    
-| [common_ring_buffer_target](defaults/main.yml#L15)   | int | `4096` |    
-| [common_mining_enabled](defaults/main.yml#L17)   | bool | `True` |    
-| [common_hugepages_count](defaults/main.yml#L18)   | int | `1280` |    
-| [common_helm_repositories](defaults/main.yml#L21)   | list | `[]` |    
-| [common_helm_repositories.**0**](defaults/main.yml#L22)   | dict | `{}` |    
-| [common_helm_repositories.0.**name**](defaults/main.yml#L22)   | str | `cilium` |    
-| [common_helm_repositories.0.**repo_url**](defaults/main.yml#L23)   | str | `https://helm.cilium.io/` |    
-| [common_helm_repositories.**1**](defaults/main.yml#L24)   | dict | `{}` |    
-| [common_helm_repositories.1.**name**](defaults/main.yml#L24)   | str | `nvdp` |    
-| [common_helm_repositories.1.**repo_url**](defaults/main.yml#L25)   | str | `https://nvidia.github.io/k8s-device-plugin` |    
+| [common_network_optimization_enabled](defaults/main.yml#L4)   | bool | `True` |    
+| [common_rog_server](defaults/main.yml#L8)   | bool | `True` |    
+| [common_radio_block_enabled](defaults/main.yml#L12)   | bool | `True` |    
+| [common_audio_optimization_enabled](defaults/main.yml#L13)   | bool | `True` |    
+| [common_file_descriptors_soft](defaults/main.yml#L17)   | int | `100000` |    
+| [common_file_descriptors_hard](defaults/main.yml#L18)   | int | `100000` |    
+| [common_fs_file_max](defaults/main.yml#L19)   | int | `2097152` |    
+| [common_inotify_max_instances](defaults/main.yml#L20)   | int | `8192` |    
+| [common_inotify_max_watches](defaults/main.yml#L21)   | int | `524288` |    
+| [common_watchdog_timeout_sec](defaults/main.yml#L25)   | int | `120` |    
+| [common_battery_charge_threshold](defaults/main.yml#L26)   | int | `80` |    
+| [common_thermal_policy](defaults/main.yml#L27)   | int | `1` |    
+| [common_ring_buffer_target](defaults/main.yml#L28)   | int | `4096` |    
+| [common_mining_enabled](defaults/main.yml#L32)   | bool | `True` |    
+| [common_hugepages_count](defaults/main.yml#L33)   | int | `1280` |    
+| [common_helm_repositories](defaults/main.yml#L37)   | list | `[]` |    
+| [common_helm_repositories.**0**](defaults/main.yml#L38)   | dict | `{}` |    
+| [common_helm_repositories.0.**name**](defaults/main.yml#L38)   | str | `cilium` |    
+| [common_helm_repositories.0.**repo_url**](defaults/main.yml#L39)   | str | `https://helm.cilium.io/` |    
+| [common_helm_repositories.**1**](defaults/main.yml#L40)   | dict | `{}` |    
+| [common_helm_repositories.1.**name**](defaults/main.yml#L40)   | str | `nvdp` |    
+| [common_helm_repositories.1.**repo_url**](defaults/main.yml#L41)   | str | `https://nvidia.github.io/k8s-device-plugin` |    
 
 
 
@@ -358,6 +358,20 @@ classDef rescue stroke:#665352,stroke-width:2px;
 
 
 
+## Author Information
+rc
+
+#### License
+
+MIT
+
+#### Minimum Ansible Version
+
+2.9
+
+#### Platforms
+
+- **Ubuntu**: ['focal', 'jammy', 'noble']
 
 
 #### Dependencies

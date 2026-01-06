@@ -1,23 +1,39 @@
 ---
+# Network optimization settings
+# Optimización de red para mejorar el rendimiento de K3s
 common_network_optimization_enabled: true
+
+# Republic of Gamers (RoG) server optimizations
+# Optimizaciones específicas para hardware RoG
 common_rog_server: true
 
+# Hardware tuning settings
+# Ajustes de hardware para mejorar el rendimiento
 common_radio_block_enabled: true
 common_audio_optimization_enabled: true
+
+# System limits configuration
+# Límites del sistema para aplicaciones de alto rendimiento
 common_file_descriptors_soft: 100000
 common_file_descriptors_hard: 100000
 common_fs_file_max: 2097152
 common_inotify_max_instances: 8192
 common_inotify_max_watches: 524288
+
+# Power management settings
+# Configuración de gestión de energía
 common_watchdog_timeout_sec: 120
 common_battery_charge_threshold: 80
 common_thermal_policy: 1
 common_ring_buffer_target: 4096
 
+# Mining optimization
+# Optimizaciones para minería de criptomonedas
 common_mining_enabled: true
 common_hugepages_count: 1280
 
-
+# Helm repositories for Kubernetes applications
+# Repositorios Helm para aplicaciones Kubernetes
 common_helm_repositories:
   - name: cilium
     repo_url: "https://helm.cilium.io/"

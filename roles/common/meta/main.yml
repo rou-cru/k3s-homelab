@@ -1,0 +1,24 @@
+---
+galaxy_info:
+  role_name: common
+  author: rc
+  description: Configuraciones comunes del sistema para K3s homelab
+  company: Personal
+  license: MIT
+  min_ansible_version: "2.9"
+  
+  platforms:
+    - name: Ubuntu
+      versions:
+        - focal
+        - jammy
+        - noble
+  
+  galaxy_tags:
+    - k3s
+    - kubernetes
+    - system
+    - optimization
+    - homelab
+
+dependencies: []

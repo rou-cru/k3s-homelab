@@ -6,7 +6,7 @@
 
 
 
-
+Description: Instala y configura K3s Kubernetes server para homelab
 
 | Field                | Value           |
 |--------------------- |-----------------|
@@ -27,16 +27,16 @@
 
 | Var          | Type         | Value       |
 |--------------|--------------|-------------|
-| [k3s_server_version](defaults/main.yml#L2)   | str | `v1.34.3+k3s1` |    
-| [k3s_server_disable_traefik](defaults/main.yml#L3)   | bool | `True` |    
-| [k3s_server_disable_servicelb](defaults/main.yml#L4)   | bool | `True` |    
-| [k3s_server_kubeconfig_mode](defaults/main.yml#L5)   | str | `644` |    
-| [k3s_server_node_token_timeout](defaults/main.yml#L6)   | int | `180` |    
-| [k3s_server_readyz_retries](defaults/main.yml#L7)   | int | `30` |    
-| [k3s_server_readyz_delay](defaults/main.yml#L8)   | int | `2` |    
-| [k3s_server_recreate](defaults/main.yml#L10)   | bool | `True` |    
-| [k3s_server_copy_kubeconfig_local](defaults/main.yml#L12)   | bool | `True` |    
-| [k3s_server_local_kubeconfig_path](defaults/main.yml#L13)   | str | `{{ lookup('env', 'HOME') }}/.kube/config` |    
+| [k3s_server_version](defaults/main.yml#L4)   | str | `v1.34.3+k3s1` |    
+| [k3s_server_disable_traefik](defaults/main.yml#L8)   | bool | `True` |    
+| [k3s_server_disable_servicelb](defaults/main.yml#L9)   | bool | `True` |    
+| [k3s_server_kubeconfig_mode](defaults/main.yml#L13)   | str | `644` |    
+| [k3s_server_node_token_timeout](defaults/main.yml#L14)   | int | `180` |    
+| [k3s_server_readyz_retries](defaults/main.yml#L15)   | int | `30` |    
+| [k3s_server_readyz_delay](defaults/main.yml#L16)   | int | `2` |    
+| [k3s_server_recreate](defaults/main.yml#L20)   | bool | `True` |    
+| [k3s_server_copy_kubeconfig_local](defaults/main.yml#L24)   | bool | `True` |    
+| [k3s_server_local_kubeconfig_path](defaults/main.yml#L25)   | str | `{{ lookup('env', 'HOME') }}/.kube/config` |    
 
 
 
@@ -135,6 +135,20 @@ classDef rescue stroke:#665352,stroke-width:2px;
 
 
 
+## Author Information
+rc
+
+#### License
+
+MIT
+
+#### Minimum Ansible Version
+
+2.9
+
+#### Platforms
+
+- **Ubuntu**: ['focal', 'jammy', 'noble']
 
 
 #### Dependencies

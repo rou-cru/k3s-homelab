@@ -6,11 +6,11 @@
 
 
 
-
+Description: Instala y configura Cilium CNI para K3s
 
 | Field                | Value           |
 |--------------------- |-----------------|
-| Readme update        | 2026/01/05 |
+| Readme update        | 2026/01/06 |
 
 
 
@@ -27,13 +27,13 @@
 
 | Var          | Type         | Value       |
 |--------------|--------------|-------------|
-| [cilium_version](defaults/main.yml#L2)   | str | `1.18.5` |    
-| [cilium_chart_repo](defaults/main.yml#L3)   | str | `https://helm.cilium.io/` |    
-| [cilium_chart_name](defaults/main.yml#L4)   | str | `cilium` |    
-| [cilium_namespace](defaults/main.yml#L5)   | str | `kube-system` |    
-| [cilium_rollout_timeout](defaults/main.yml#L6)   | int | `300` |    
-| [cilium_wait_retries](defaults/main.yml#L7)   | int | `60` |    
-| [cilium_wait_delay](defaults/main.yml#L8)   | int | `5` |    
+| [cilium_version](defaults/main.yml#L4)   | str | `1.18.5` |    
+| [cilium_chart_repo](defaults/main.yml#L5)   | str | `https://helm.cilium.io/` |    
+| [cilium_chart_name](defaults/main.yml#L6)   | str | `cilium` |    
+| [cilium_namespace](defaults/main.yml#L10)   | str | `kube-system` |    
+| [cilium_rollout_timeout](defaults/main.yml#L14)   | int | `300` |    
+| [cilium_wait_retries](defaults/main.yml#L15)   | int | `60` |    
+| [cilium_wait_delay](defaults/main.yml#L16)   | int | `5` |    
 
 
 
@@ -85,6 +85,20 @@ classDef rescue stroke:#665352,stroke-width:2px;
 
 
 
+## Author Information
+rc
+
+#### License
+
+MIT
+
+#### Minimum Ansible Version
+
+2.9
+
+#### Platforms
+
+- **Ubuntu**: ['focal', 'jammy', 'noble']
 
 
 #### Dependencies

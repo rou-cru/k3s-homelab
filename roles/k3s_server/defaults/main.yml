@@ -1,13 +1,25 @@
 ---
+# K3s version to install
+# Versión de K3s a instalar
 k3s_server_version: "v1.34.3+k3s1"
+
+# K3s component configuration
+# Configuración de componentes de K3s
 k3s_server_disable_traefik: true
 k3s_server_disable_servicelb: true
+
+# Kubeconfig configuration
+# Configuración del kubeconfig
 k3s_server_kubeconfig_mode: "644"
 k3s_server_node_token_timeout: 180
 k3s_server_readyz_retries: 30
 k3s_server_readyz_delay: 2
 
+# Cluster recreation settings
+# Configuración de recreación del cluster
 k3s_server_recreate: true
 
+# Local kubeconfig copy settings
+# Configuración de copia local de kubeconfig
 k3s_server_copy_kubeconfig_local: true
 k3s_server_local_kubeconfig_path: "{{ lookup('env', 'HOME') }}/.kube/config"

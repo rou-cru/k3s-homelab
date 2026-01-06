@@ -1,15 +1,31 @@
 ---
+# NVIDIA GPU setup mode
+# Modo de configuración de GPU NVIDIA
+# Opciones: auto, true, false
 nvidia_gpu_setup: 'auto'
+
+# Driver package configuration
+# Configuración del paquete de controladores
 nvidia_gpu_driver_package: "auto"
 nvidia_gpu_driver_fallback: "nvidia-driver-535"
+
+# NVIDIA Container Toolkit repository
+# Repositorio de NVIDIA Container Toolkit
 nvidia_gpu_toolkit_repo_url: "https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list"
 nvidia_gpu_toolkit_gpg_url: "https://nvidia.github.io/libnvidia-container/gpgkey"
+
+# Device plugin configuration
+# Configuración del plugin de dispositivos
 nvidia_gpu_device_plugin_version: "0.14.3"
 nvidia_gpu_device_plugin_repo: "https://nvidia.github.io/k8s-device-plugin"
+
+# Timeout configurations
+# Configuración de timeouts
 nvidia_gpu_reboot_timeout: 600
 nvidia_gpu_initramfs_timeout: 300
 
-
+# Headless configuration
+# Configuración headless
 nvidia_gpu_headless_enabled: true
 nvidia_gpu_headless_x11_enabled: true
 nvidia_gpu_pci_bus_id: "1:0:0"
