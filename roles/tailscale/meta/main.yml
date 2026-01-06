@@ -2,7 +2,7 @@
 galaxy_info:
   role_name: tailscale
   author: rc
-  description: Configura Tailscale VPN para conectividad segura al cluster K3s
+  description: Installs and configures Tailscale VPN client.
   company: Personal
   license: MIT
   min_ansible_version: "2.9"
@@ -17,7 +17,6 @@ galaxy_info:
   galaxy_tags:
     - k3s
     - kubernetes
-    - tailscale
     - vpn
     - networking
     - security

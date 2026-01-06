@@ -1,25 +1,60 @@
 ---
-# K3s version to install
-# Versión de K3s a instalar
+# Title: K3s Version
+# Description: K3s version to install (e.g., v1.34.3+k3s1).
+# Type: str
+# Required: false
 k3s_server_version: "v1.34.3+k3s1"
 
-# K3s component configuration
-# Configuración de componentes de K3s
+# Title: Disable Traefik
+# Description: Disables the default Traefik ingress controller.
+# Type: bool
+# Required: false
 k3s_server_disable_traefik: true
+
+# Title: Disable ServiceLB
+# Description: Disables the default ServiceLB load balancer.
+# Type: bool
+# Required: false
 k3s_server_disable_servicelb: true
 
-# Kubeconfig configuration
-# Configuración del kubeconfig
+# Title: Kubeconfig Mode
+# Description: File permission mode for the generated kubeconfig on the server.
+# Type: str
+# Required: false
 k3s_server_kubeconfig_mode: "644"
+
+# Title: Token Timeout
+# Description: Timeout (seconds) to wait for K3s generated config/token presence.
+# Type: int
+# Required: false
 k3s_server_node_token_timeout: 180
+
+# Title: Readiness Retries
+# Description: Number of retries for the API server readiness check.
+# Type: int
+# Required: false
 k3s_server_readyz_retries: 30
+
+# Title: Readiness Delay
+# Description: Delay (seconds) between readiness check retries.
+# Type: int
+# Required: false
 k3s_server_readyz_delay: 2
 
-# Cluster recreation settings
-# Configuración de recreación del cluster
+# Title: Recreate Cluster
+# Description: If true, uninstalls and wipes previous K3s installation before deploying.
+# Type: bool
+# Required: false
 k3s_server_recreate: true
 
-# Local kubeconfig copy settings
-# Configuración de copia local de kubeconfig
+# Title: Copy Kubeconfig Local
+# Description: If true, copies the generated kubeconfig to the Ansible controller.
+# Type: bool
+# Required: false
 k3s_server_copy_kubeconfig_local: true
+
+# Title: Local Kubeconfig Path
+# Description: Local path where the kubeconfig should be saved.
+# Type: str
+# Required: false
 k3s_server_local_kubeconfig_path: "{{ lookup('env', 'HOME') }}/.kube/config"

@@ -2,7 +2,7 @@
 galaxy_info:
   role_name: cilium
   author: rc
-  description: Instala y configura Cilium CNI para K3s
+  description: Installs and configures Cilium CNI for K3s clusters.
   company: Personal
   license: MIT
   min_ansible_version: "2.9"

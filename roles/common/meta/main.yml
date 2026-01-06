@@ -2,7 +2,7 @@
 galaxy_info:
   role_name: common
   author: rc
-  description: Configuraciones comunes del sistema para K3s homelab
+  description: Common system configurations and optimizations for K3s homelab.
   company: Personal
   license: MIT
   min_ansible_version: "2.9"

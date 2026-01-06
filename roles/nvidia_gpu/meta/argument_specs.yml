@@ -1,0 +1,75 @@
+---
+argument_specs:
+  main:
+    short_description: Configures NVIDIA GPUs for K3s.
+    description: |
+      Manages NVIDIA drivers, container toolkit, and device plugin installation.
+      Supports host setup, cluster setup, and headless X11 configurations.
+    author: rc
+    options:
+      nvidia_gpu_setup:
+        type: str
+        required: false
+        default: "auto"
+        description: Control mode for GPU setup ('auto', 'true', 'false').
+        choices: ['auto', 'true', 'false']
+      
+      nvidia_gpu_driver_package:
+        type: str
+        required: false
+        default: "auto"
+        description: Specific driver package to install or "auto" for detection.
+      
+      nvidia_gpu_driver_fallback:
+        type: str
+        required: false
+        default: "nvidia-driver-535"
+        description: Fallback driver if auto-detection fails.
+
+      nvidia_gpu_toolkit_repo_url:
+        type: str
+        required: false
+        default: "https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list"
+        description: Repository URL for NVIDIA Container Toolkit.
+        
+      nvidia_gpu_toolkit_gpg_url:
+        type: str
+        required: false
+        default: "https://nvidia.github.io/libnvidia-container/gpgkey"
+        description: GPG key URL for the toolkit repository.
+
+      nvidia_gpu_device_plugin_version:
+        type: str
+        required: false
+        default: "0.14.3"
+        description: Version of the NVIDIA device plugin Helm chart.
+        
+      nvidia_gpu_device_plugin_repo:
+        type: str
+        required: false
+        default: "https://nvidia.github.io/k8s-device-plugin"
+        description: Helm repository for the device plugin.
+
+      nvidia_gpu_reboot_timeout:
+        type: int
+        required: false
+        default: 600
+        description: Timeout (seconds) for rebooting after driver installation.
+
+      nvidia_gpu_headless_x11_enabled:
+        type: bool
+        required: false
+        default: true
+        description: Enables X11 services for headless GPU management (fan control, etc.).
+
+      nvidia_gpu_pci_bus_id:
+        type: str
+        required: false
+        default: "1:0:0"
+        description: PCI Bus ID of the GPU for xorg.conf generation.
+
+      nvidia_gpu_coolbits:
+        type: str
+        required: false
+        default: "28"
+        description: Coolbits value for unlocking GPU control (fans, clocks).

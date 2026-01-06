@@ -1,16 +1,36 @@
 ---
-# Cilium version and repository configuration
-# Configuración de versión y repositorio de Cilium
+# Title: Cilium Version
+# Description: Version of the Cilium Helm chart to install.
+# Type: str
+# Required: false
 cilium_version: "1.18.5"
-cilium_chart_repo: "https://helm.cilium.io/"
+
+# Title: Chart Name
+# Description: Name of the chart in the repository (e.g., cilium/cilium).
+# Type: str
+# Required: false
 cilium_chart_name: "cilium"
 
-# Kubernetes namespace for Cilium
-# Namespace de Kubernetes para Cilium
+# Title: Namespace
+# Description: Kubernetes namespace where Cilium should be installed.
+# Type: str
+# Required: false
 cilium_namespace: "kube-system"
 
-# Rollout and wait configuration
-# Configuración de despliegue y espera
+# Title: Rollout Timeout
+# Description: Timeout (seconds) for waiting for Cilium pods rollout.
+# Type: int
+# Required: false
 cilium_rollout_timeout: 300
+
+# Title: Wait Retries
+# Description: Number of retries when checking for DaemonSet creation.
+# Type: int
+# Required: false
 cilium_wait_retries: 60
+
+# Title: Wait Delay
+# Description: Delay (seconds) between DaemonSet existence checks.
+# Type: int
+# Required: false
 cilium_wait_delay: 5
