@@ -1,7 +1,17 @@
 ---
-# Configuración de Tailscale VPN
+# Tailscale VPN Configuration
+# Configuración de VPN Tailscale
 # Requiere tailscale_authkey definido en secrets.yaml
+
+# Hostname configuration
+# Configuración del nombre de host
 tailscale_hostname_prefix: "k3s"
+
+# Tailscale tags for ACL
+# Etiquetas de Tailscale para ACL
 tailscale_tags: "" # Leave empty if ACL tags not configured
+
+# DNS and SSH configuration
+# Configuración de DNS y SSH
 tailscale_accept_dns: "true"
 tailscale_ssh: "true"

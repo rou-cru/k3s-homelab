@@ -6,11 +6,11 @@
 
 
 
-
+Description: Configura GPU NVIDIA para K3s con drivers y device plugin
 
 | Field                | Value           |
 |--------------------- |-----------------|
-| Readme update        | 2026/01/05 |
+| Readme update        | 2026/01/06 |
 
 
 
@@ -27,19 +27,19 @@
 
 | Var          | Type         | Value       |
 |--------------|--------------|-------------|
-| [nvidia_gpu_setup](defaults/main.yml#L2)   | str | `auto` |    
-| [nvidia_gpu_driver_package](defaults/main.yml#L3)   | str | `auto` |    
-| [nvidia_gpu_driver_fallback](defaults/main.yml#L4)   | str | `nvidia-driver-535` |    
-| [nvidia_gpu_toolkit_repo_url](defaults/main.yml#L5)   | str | `https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list` |    
-| [nvidia_gpu_toolkit_gpg_url](defaults/main.yml#L6)   | str | `https://nvidia.github.io/libnvidia-container/gpgkey` |    
-| [nvidia_gpu_device_plugin_version](defaults/main.yml#L7)   | str | `0.14.3` |    
-| [nvidia_gpu_device_plugin_repo](defaults/main.yml#L8)   | str | `https://nvidia.github.io/k8s-device-plugin` |    
-| [nvidia_gpu_reboot_timeout](defaults/main.yml#L9)   | int | `600` |    
-| [nvidia_gpu_initramfs_timeout](defaults/main.yml#L10)   | int | `300` |    
-| [nvidia_gpu_headless_enabled](defaults/main.yml#L13)   | bool | `True` |    
-| [nvidia_gpu_headless_x11_enabled](defaults/main.yml#L14)   | bool | `True` |    
-| [nvidia_gpu_pci_bus_id](defaults/main.yml#L15)   | str | `1:0:0` |    
-| [nvidia_gpu_coolbits](defaults/main.yml#L16)   | str | `28` |    
+| [nvidia_gpu_setup](defaults/main.yml#L5)   | str | `auto` |    
+| [nvidia_gpu_driver_package](defaults/main.yml#L9)   | str | `auto` |    
+| [nvidia_gpu_driver_fallback](defaults/main.yml#L10)   | str | `nvidia-driver-535` |    
+| [nvidia_gpu_toolkit_repo_url](defaults/main.yml#L14)   | str | `https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list` |    
+| [nvidia_gpu_toolkit_gpg_url](defaults/main.yml#L15)   | str | `https://nvidia.github.io/libnvidia-container/gpgkey` |    
+| [nvidia_gpu_device_plugin_version](defaults/main.yml#L19)   | str | `0.14.3` |    
+| [nvidia_gpu_device_plugin_repo](defaults/main.yml#L20)   | str | `https://nvidia.github.io/k8s-device-plugin` |    
+| [nvidia_gpu_reboot_timeout](defaults/main.yml#L24)   | int | `600` |    
+| [nvidia_gpu_initramfs_timeout](defaults/main.yml#L25)   | int | `300` |    
+| [nvidia_gpu_headless_enabled](defaults/main.yml#L29)   | bool | `True` |    
+| [nvidia_gpu_headless_x11_enabled](defaults/main.yml#L30)   | bool | `True` |    
+| [nvidia_gpu_pci_bus_id](defaults/main.yml#L31)   | str | `1:0:0` |    
+| [nvidia_gpu_coolbits](defaults/main.yml#L32)   | str | `28` |    
 
 
 
@@ -226,6 +226,20 @@ classDef rescue stroke:#665352,stroke-width:2px;
 
 
 
+## Author Information
+rc
+
+#### License
+
+MIT
+
+#### Minimum Ansible Version
+
+2.9
+
+#### Platforms
+
+- **Ubuntu**: ['focal', 'jammy', 'noble']
 
 
 #### Dependencies
