@@ -1,0 +1,14 @@
+[project]
+name = "k3s-homelab"
+description = "Proyecto de homelab con K3s y Ansible"
+version = "0.1.0"
+
+dependencies = [
+  "docsible>=0.7.17",
+]
+
+requires-python = ">=3.12"
+
+[tool.setuptools]
+packages = []
+py-modules = []
