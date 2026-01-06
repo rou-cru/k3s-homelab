@@ -134,7 +134,7 @@
     mode: "0600"
 
 - name: Wait for kube-apiserver (Standard Kubectl + Discovery)
-  ansible.builtin.command: kubectl cluster-info dump --output-format=yaml >/dev/null 2>&1
+  ansible.builtin.command: kubectl api-resources
   register: k3s_server_readyz
   retries: "{{ k3s_server_readyz_retries }}"
   delay: "{{ k3s_server_readyz_delay }}"
@@ -147,7 +147,7 @@
 
 - name: Remove Traefik HelmCharts when disabled
   ansible.builtin.command: >
-    kubectl -n kube-system delete helmchart traefik traefik-crd --ignore-not-found >/dev/null 2>&1
+    kubectl -n kube-system delete helmchart traefik traefik-crd --ignore-not-found
   register: k3s_traefik_cleanup
   changed_when: "'deleted' in k3s_traefik_cleanup.stdout"
   when:

@@ -12,6 +12,8 @@ tasks:
       - task --list
   render-rog-tweaks:
     internal: true
+    env:
+      PYTHONWARNINGS: ignore
     sources:
       - "{{.TEMPLATE_DIR}}/apply-rog-tweaks.sh.j2"
       - "{{.DEFAULTS_FILE}}"
@@ -20,11 +22,13 @@ tasks:
     cmds:
       - mkdir -p {{.OUTPUT_DIR}}
       - |
-        PYTHONWARNINGS=ignore j2 {{.TEMPLATE_DIR}}/apply-rog-tweaks.sh.j2 \
+        j2 {{.TEMPLATE_DIR}}/apply-rog-tweaks.sh.j2 \
           {{.DEFAULTS_FILE}} > {{.OUTPUT_DIR}}/apply-rog-tweaks.sh
       - chmod +x {{.OUTPUT_DIR}}/apply-rog-tweaks.sh
   render-network-opt:
     internal: true
+    env:
+      PYTHONWARNINGS: ignore
     sources:
       - "{{.TEMPLATE_DIR}}/optimize-network.sh.j2"
       - "{{.DEFAULTS_FILE}}"
@@ -34,7 +38,7 @@ tasks:
     cmds:
       - mkdir -p {{.OUTPUT_DIR}}
       - |
-        PYTHONWARNINGS=ignore j2 {{.TEMPLATE_DIR}}/optimize-network.sh.j2 \
+        j2 {{.TEMPLATE_DIR}}/optimize-network.sh.j2 \
           {{.TEST_VARS_FILE}} > {{.OUTPUT_DIR}}/optimize-network.sh
       - chmod +x {{.OUTPUT_DIR}}/optimize-network.sh
   render-all:
@@ -68,7 +72,7 @@ tasks:
       - sh: command -v checkov
         msg: "checkov not found. Run: devbox shell"
     cmds:
-      - checkov -d . --framework ansible
+      - checkov -d . --framework ansible --quiet
   validate-ansible:
     desc: "Validate Ansible files with ansible-lint"
     sources:
@@ -84,12 +88,15 @@ tasks:
         ansible-lint "$project_dir/site.yaml" "$project_dir/roles"
   validate-ansible-syntax:
     desc: "Validate Ansible files with ansible-playbook --syntax-check"
+    env:
+      ANSIBLE_LOCAL_TEMP: .task/ansible-tmp
     preconditions:
       - sh: command -v ansible-playbook
         msg: "ansible-playbook not found. Run: devbox shell"
     cmds:
       - |
         mkdir -p .task
+        mkdir -p .task/ansible-tmp
         cp secrets.example.yaml .task/mock-secrets.yaml
         touch .task/mock-secrets.created
       - ansible-playbook --syntax-check site.yaml -e secrets_file=.task/mock-secrets.yaml

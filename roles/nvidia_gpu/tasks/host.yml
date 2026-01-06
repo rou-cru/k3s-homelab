@@ -10,15 +10,38 @@
         cache_valid_time: 3600
       # Ensure pciutils for GPU detection
 
-    - name: Check GPU presence
-      shell: lspci -nm | grep -q 10de
-      register: gpu_check
-      failed_when: false
+    - name: Discover PCI vendor files
+      ansible.builtin.find:
+        paths: /sys/bus/pci/devices
+        patterns: vendor
+        file_type: file
+      register: pci_vendor_files
+      changed_when: false
+
+    - name: Read PCI vendor ids
+      ansible.builtin.slurp:
+        src: "{{ item.path }}"
+      loop: "{{ pci_vendor_files.files }}"
+      register: pci_vendor_ids
+      changed_when: false
+
+    - name: Detect NVIDIA GPU presence
+      ansible.builtin.set_fact:
+        nvidia_gpu_present: >-
+          {{
+            pci_vendor_ids.results
+            | map(attribute='content')
+            | map('b64decode')
+            | map('trim')
+            | select('equalto', '0x10de')
+            | list
+            | length > 0
+          }}
       changed_when: false
 
     - name: Set GPU Active Fact (Auto)
       ansible.builtin.set_fact:
-        nvidia_gpu_active: "{{ gpu_check.rc == 0 }}"
+        nvidia_gpu_active: "{{ nvidia_gpu_present | default(false) }}"
         cacheable: yes
       when: nvidia_gpu_setup | default('auto') == 'auto'
 
@@ -33,7 +56,7 @@
         msg: "GPU Setup forced but no NVIDIA GPU detected"
       when:
         - nvidia_gpu_setup | default('auto') | string | lower == 'true'
-        - gpu_check.rc != 0
+        - not (nvidia_gpu_present | default(false))
 
     - name: Set GPU Active Fact (Disabled)
       ansible.builtin.set_fact:

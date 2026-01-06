@@ -27,7 +27,7 @@
 
     - name: Wait for device plugin daemonset
       ansible.builtin.command: >-
-        kubectl -n kube-system rollout status ds/nvidia-device-plugin --timeout=300s >/dev/null 2>&1
+        kubectl -n kube-system rollout status ds/nvidia-device-plugin --timeout=300s
       register: nvidia_device_plugin_rollout
       changed_when: false
       environment:
