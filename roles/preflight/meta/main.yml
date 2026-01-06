@@ -2,7 +2,7 @@
 galaxy_info:
   role_name: preflight
   author: rc
-  description: Verificaciones previas para asegurar requisitos mínimos del sistema
+  description: Pre-flight checks to ensure minimum system requirements are met.
   company: Personal
   license: MIT
   min_ansible_version: "2.9"

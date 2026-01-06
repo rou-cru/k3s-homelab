@@ -2,7 +2,7 @@
 galaxy_info:
   role_name: developer_tools
   author: rc
-  description: Instala herramientas de desarrollo y CLI útiles para K3s
+  description: Installs development tools and useful CLIs for K3s environments.
   company: Personal
   license: MIT
   min_ansible_version: "2.9"

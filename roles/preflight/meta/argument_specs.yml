@@ -1,0 +1,12 @@
+---
+argument_specs:
+  main:
+    short_description: Validates system requirements before installation.
+    description: |
+      Performs pre-flight checks:
+      - Network connectivity to get.k3s.io
+      - Root partition disk space (> 20GB)
+      - System memory (> 4GB)
+      - Architecture (x86_64 only)
+    author: rc
+    options: {}
