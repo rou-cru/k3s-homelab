@@ -6,11 +6,11 @@
 
 
 
-
+Description: Instala herramientas de desarrollo y CLI útiles para K3s
 
 | Field                | Value           |
 |--------------------- |-----------------|
-| Readme update        | 2026/01/05 |
+| Readme update        | 2026/01/06 |
 
 
 
@@ -27,9 +27,9 @@
 
 | Var          | Type         | Value       |
 |--------------|--------------|-------------|
-| [devtools_enabled](defaults/main.yml#L3)   | bool | `True` |    
-| [devtools_nodejs_version](defaults/main.yml#L4)   | str | `22` |    
-| [devtools_install_docker](defaults/main.yml#L5)   | bool | `False` |    
+| [devtools_enabled](defaults/main.yml#L7)   | bool | `True` |    
+| [devtools_nodejs_version](defaults/main.yml#L11)   | str | `22` |    
+| [devtools_install_docker](defaults/main.yml#L16)   | bool | `False` |    
 
 
 
@@ -108,6 +108,20 @@ classDef rescue stroke:#665352,stroke-width:2px;
 
 
 
+## Author Information
+rc
+
+#### License
+
+MIT
+
+#### Minimum Ansible Version
+
+2.9
+
+#### Platforms
+
+- **Ubuntu**: ['focal', 'jammy', 'noble']
 
 
 #### Dependencies

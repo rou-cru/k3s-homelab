@@ -1,5 +1,16 @@
 ---
 # Developer tools installation
+# Instalación de herramientas de desarrollo
+
+# Enable/disable developer tools
+# Habilitar/deshabilitar herramientas de desarrollador
 devtools_enabled: true
+
+# Node.js version
+# Versión de Node.js
 devtools_nodejs_version: "22" # NodeJS LTS version
-devtools_install_docker: false # Docker no recomendado con K3s (usa containerd)
+
+# Docker installation
+# Instalación de Docker
+# Nota: Docker no es recomendado con K3s (usa containerd)
+devtools_install_docker: false
