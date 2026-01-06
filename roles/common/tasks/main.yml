@@ -1,21 +1,21 @@
 ---
-- name: Disable swap now
+- name: Disable swap
   ansible.builtin.command: swapoff -a
   changed_when: true
   when: ansible_facts['swaptotal_mb'] > 0
-- name: Disable swap permanently in fstab
+- name: Disable swap (fstab)
   ansible.builtin.replace:
     path: /etc/fstab
     regexp: "^(.*\\sswap\\s.*)$"
     replace: "# \\1"
-- name: Detect Ubuntu version for HWE kernel
+- name: Detect Ubuntu version
   ansible.builtin.set_fact:
     ubuntu_version: "{{ ansible_facts['distribution_version'] }}"
-- name: Set HWE kernel package name
+- name: Define kernel package
   ansible.builtin.set_fact:
     hwe_kernel_package: "linux-generic-hwe-{{ ubuntu_version }}"
   when: ubuntu_version is version('20.04', '>=') and ubuntu_version is version('24.04', '<=')
-- name: Install base packages
+- name: Install system base tools
   ansible.builtin.apt:
     name:
       - curl
@@ -26,43 +26,43 @@
       - acpid
       - rsync
     state: present
-- name: Install Common Dependencies (Python/Helm)
+- name: Install dependencies
   ansible.builtin.include_tasks: dependencies.yml
 
-- name: Install HWE kernel (Ubuntu 20.04-24.04)
+- name: Install HWE kernel
   ansible.builtin.apt:
     name: "{{ hwe_kernel_package }}"
     state: present
   when: hwe_kernel_package is defined
   register: common_hwe_kernel_install
   ignore_errors: true
-- name: Install generic kernel as fallback
+- name: Install generic kernel
   ansible.builtin.apt:
     name: linux-generic
     state: present
   when: common_hwe_kernel_install is failed or hwe_kernel_package is not defined
   register: common_generic_kernel_install
-- name: Register kernel changes for consolidated reboot
+- name: Register kernel change
   ansible.builtin.set_fact:
     common_kernel_changed: >-
       {{ (common_hwe_kernel_install.changed | default(false)) or
       (common_generic_kernel_install.changed | default(false)) }}
-- name: Configure Power Management (Lid Switch / No Sleep)
+- name: Configure power
   ansible.builtin.include_tasks: power_management.yml
-- name: Apply Hardware Tuning (CPU/Radios/Audio)
+- name: Apply hardware tuning
   ansible.builtin.include_tasks: hardware_tuning.yml
-- name: Apply System Kernel Tuning (BBR/Limits/Watchdog)
+- name: Apply system tuning
   ansible.builtin.include_tasks: system_tuning.yml
 
-- name: Apply RoG Server Hardware Tweaks
+- name: Apply ROG tweaks
   ansible.builtin.include_tasks: rog_hardware.yml
   when: common_rog_server | default(true) | bool
-- name: Initialize network_driver_changed if not set
+- name: Init driver state
   ansible.builtin.set_fact:
     common_network_driver_changed: false
   when: common_network_driver_changed is not defined
 
-- name: Consolidated Reboot - Phase 1 (Kernel + Network Drivers)
+- name: Reboot system (kernel/network)
   ansible.builtin.reboot:
     msg: "Rebooting to load HWE Kernel and Network Drivers (Consolidated Phase 1)"
     connect_timeout: 5
@@ -72,5 +72,5 @@
     test_command: whoami
   when: (common_kernel_changed | default(false)) or (common_network_driver_changed | default(false))
 
-- name: Configure Helm Repositories (User Level)
+- name: Configure Helm
   ansible.builtin.include_tasks: helm_setup.yml

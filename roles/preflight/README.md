@@ -48,12 +48,12 @@ Description: Pre-flight checks to ensure minimum system requirements are met.
 
 | Name | Module | Has Conditions |
 | ---- | ------ | -------------- |
-| [Check network connectivity](tasks/main.yml#L2) | ansible.builtin.uri | False |
-| [Fail if no network connectivity](tasks/main.yml#L11) | ansible.builtin.fail | True |
-| [Get actual disk space on root partition](tasks/main.yml#L15) | ansible.builtin.shell | False |
-| [Assert Disk Space (Root Partition > 20GB)](tasks/main.yml#L21) | ansible.builtin.assert | False |
-| [Assert Memory (> 4GB)](tasks/main.yml#L29) | ansible.builtin.assert | False |
-| [Assert Architecture (x86_64)](tasks/main.yml#L34) | ansible.builtin.assert | False |
+| [Check connectivity](tasks/main.yml#L2) | ansible.builtin.uri | False |
+| [Fail on disconnect](tasks/main.yml#L11) | ansible.builtin.fail | True |
+| [Check disk space](tasks/main.yml#L15) | ansible.builtin.shell | False |
+| [Assert disk space](tasks/main.yml#L21) | ansible.builtin.assert | False |
+| [Assert memory](tasks/main.yml#L29) | ansible.builtin.assert | False |
+| [Assert architecture](tasks/main.yml#L34) | ansible.builtin.assert | False |
 
 
 ## Task Flow Graphs
@@ -74,13 +74,13 @@ classDef importRole stroke:#699ba7,stroke-width:2px;
 classDef includeVars stroke:#8e44ad,stroke-width:2px;
 classDef rescue stroke:#665352,stroke-width:2px;
 
-  Start-->|Task| Check_network_connectivity0[check network connectivity]:::task
-  Check_network_connectivity0-->|Task| Fail_if_no_network_connectivity1[fail if no network connectivity<br>When: **preflight network check status is not defined or<br>preflight network check status    200**]:::task
-  Fail_if_no_network_connectivity1-->|Task| Get_actual_disk_space_on_root_partition2[get actual disk space on root partition]:::task
-  Get_actual_disk_space_on_root_partition2-->|Task| Assert_Disk_Space__Root_Partition___20GB_3[assert disk space  root partition   20gb ]:::task
-  Assert_Disk_Space__Root_Partition___20GB_3-->|Task| Assert_Memory____4GB_4[assert memory    4gb ]:::task
-  Assert_Memory____4GB_4-->|Task| Assert_Architecture__x86_64_5[assert architecture  x86 64 ]:::task
-  Assert_Architecture__x86_64_5-->End
+  Start-->|Task| Check_connectivity0[check connectivity]:::task
+  Check_connectivity0-->|Task| Fail_on_disconnect1[fail on disconnect<br>When: **preflight network check status is not defined or<br>preflight network check status    200**]:::task
+  Fail_on_disconnect1-->|Task| Check_disk_space2[check disk space]:::task
+  Check_disk_space2-->|Task| Assert_disk_space3[assert disk space]:::task
+  Assert_disk_space3-->|Task| Assert_memory4[assert memory]:::task
+  Assert_memory4-->|Task| Assert_architecture5[assert architecture]:::task
+  Assert_architecture5-->End
 ```
 
 

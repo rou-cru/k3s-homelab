@@ -2,19 +2,19 @@
 - name: NVIDIA GPU cluster setup
   tags: ["cluster", "nvidia"]
   block:
-    - name: Create temporary values file for device plugin
+    - name: Create temp values
       ansible.builtin.tempfile:
         state: file
         suffix: "-nvidia-device-plugin-values.yaml"
       register: nvidia_device_plugin_values_tmp
 
-    - name: Copy device plugin values to temp file
+    - name: Copy values
       ansible.builtin.copy:
         src: nvidia-device-plugin-values.yaml
         dest: "{{ nvidia_device_plugin_values_tmp.path }}"
         mode: "0600"
 
-    - name: Install NVIDIA device plugin via Helm
+    - name: Install device plugin
       kubernetes.core.helm:
         release_name: nvidia-device-plugin
         chart_ref: nvdp/nvidia-device-plugin
@@ -24,7 +24,7 @@
         chart_version: "{{ nvidia_gpu_device_plugin_version }}"
         kubeconfig: "/home/{{ ansible_user }}/.kube/config"
 
-    - name: Wait for device plugin daemonset
+    - name: Wait for daemonset
       ansible.builtin.command: >-
         kubectl -n kube-system rollout status ds/nvidia-device-plugin --timeout=300s
       register: nvidia_device_plugin_rollout
@@ -32,7 +32,7 @@
       environment:
         KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
 
-    - name: Check GPU resources available
+    - name: Check GPU resources
       ansible.builtin.shell: >-
         kubectl get nodes -o json | jq -r '.items[].status.capacity["nvidia.com/gpu"]'
       register: gpu_resources_check

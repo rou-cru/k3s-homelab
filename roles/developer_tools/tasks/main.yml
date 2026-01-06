@@ -1,5 +1,5 @@
 ---
-- name: Install base CLI tools and dependencies via APT
+- name: Install dev tools (apt)
   ansible.builtin.apt:
     name:
       # Terminal utilities
@@ -19,29 +19,29 @@
     state: present
     update_cache: true
 # Terminal monitoring tools (snap)
-- name: Install btop via snap
+- name: Install btop
   ansible.builtin.snap:
     name: btop
     classic: true
 # Kubernetes tools (snap)
-- name: Install kubectl via snap
+- name: Install kubectl
   ansible.builtin.snap:
     name: kubectl
     classic: true
-- name: Install Helm via snap
+- name: Install Helm
   ansible.builtin.snap:
     name: helm
     classic: true
-- name: Install yq via snap
+- name: Install yq
   ansible.builtin.snap:
     name: yq
     classic: true
 # Development environments
-- name: Install Node.js via snap
+- name: Install Node.js
   ansible.builtin.snap:
     name: node
     classic: true
-- name: Install pnpm globally
+- name: Install pnpm
   community.general.npm:
     name: pnpm
     global: true
@@ -52,7 +52,7 @@
   args:
     creates: /usr/local/bin/devbox
 # Python package manager (uv)
-- name: Install uv (Python package installer)
+- name: Install uv
   ansible.builtin.shell: |
     curl -LsSf https://astral.sh/uv/install.sh | sh >/dev/null 2>&1
   args:
@@ -60,12 +60,12 @@
   environment:
     CARGO_HOME: /root/.cargo
 # Python CLI tools (pipx/uv)
-- name: Install nvitop for NVIDIA GPU monitoring
+- name: Install nvitop
   ansible.builtin.command: pipx install nvitop
   args:
     creates: /root/.local/bin/nvitop
   when: nvidia_gpu_setup_mode | default('auto') != 'false'
-- name: Install Kimi CLI via uv
+- name: Install Kimi
   ansible.builtin.command: uv tool install kimi-cli
   args:
     creates: /root/.local/bin/kimi
@@ -73,7 +73,7 @@
     PATH: "/root/.cargo/bin:{{ ansible_facts['env']['PATH'] }}"
   ignore_errors: true
 # AI CLI tools (npm)
-- name: Install AI CLI tools via npm
+- name: Install AI tools
   community.general.npm:
     name: "{{ item }}"
     global: true
@@ -85,17 +85,17 @@
     - "@openai/codex"
   ignore_errors: true
 # Docker (optional, disabled by default)
-- name: Docker installation (optional)
+- name: Install Docker
   when: devtools_install_docker | default(false) | bool
   block:
-    - name: Add Docker APT key
+    - name: Add Docker key
       ansible.builtin.shell: |
         curl -fsSL https://download.docker.com/linux/ubuntu/gpg >/dev/null 2>&1 |
         gpg --dearmor -o
         /usr/share/keyrings/docker-archive-keyring.gpg
       args:
         creates: /usr/share/keyrings/docker-archive-keyring.gpg
-    - name: Add Docker APT repository
+    - name: Add Docker repo
       ansible.builtin.apt_repository:
         repo: >-
           deb [arch=amd64
@@ -104,7 +104,7 @@
           {{ ansible_distribution_release }} stable
         state: present
         filename: docker
-    - name: Install Docker CLI only
+    - name: Install Docker CLI
       ansible.builtin.apt:
         name:
           - docker-ce-cli

@@ -3,7 +3,7 @@
   tags: ["nvidia", "gpu", "nvidia-headless"]
   when: nvidia_gpu_active | default(false) | bool
   block:
-    - name: Install X11 packages for headless GPU management
+    - name: Install X11 deps
       ansible.builtin.apt:
         name:
           - xserver-xorg-core
@@ -12,7 +12,7 @@
         update_cache: true
         cache_valid_time: 3600
 
-    - name: Deploy xorg.conf with coolbits for GPU management
+    - name: Configure xorg
       ansible.builtin.template:
         src: xorg.conf.j2
         dest: /etc/X11/xorg.conf
@@ -21,7 +21,7 @@
         group: root
       register: nvidia_gpu_xorg_conf
 
-    - name: Deploy NVIDIA persistence mode systemd service
+    - name: Deploy persistence svc
       ansible.builtin.copy:
         src: nvidia-persistence.service
         dest: /etc/systemd/system/nvidia-persistence.service
@@ -30,7 +30,7 @@
         group: root
       register: nvidia_gpu_persistence_service
 
-    - name: Deploy NVIDIA X server systemd service
+    - name: Deploy Xorg svc
       ansible.builtin.copy:
         src: nvidia-xorg.service
         dest: /etc/systemd/system/nvidia-xorg.service
@@ -39,25 +39,25 @@
         group: root
       register: nvidia_gpu_xorg_service
 
-    - name: Reload systemd daemon
+    - name: Reload systemd (nvidia)
       ansible.builtin.systemd:
         daemon_reload: true
       when: nvidia_gpu_persistence_service.changed or nvidia_gpu_xorg_service.changed
 
-    - name: Enable and start NVIDIA persistence mode service
+    - name: Start persistence svc
       ansible.builtin.systemd:
         name: nvidia-persistence.service
         enabled: true
         state: started
 
-    - name: Enable and start NVIDIA X server service
+    - name: Start Xorg svc
       ansible.builtin.systemd:
         name: nvidia-xorg.service
         enabled: true
         state: started
       when: nvidia_gpu_headless_x11_enabled | default(true) | bool
 
-    - name: Wait for X server to be ready
+    - name: Wait for X server
       ansible.builtin.wait_for:
         path: /tmp/.X0-lock
         timeout: 30

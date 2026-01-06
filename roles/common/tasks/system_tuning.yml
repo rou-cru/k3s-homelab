@@ -5,7 +5,7 @@
     name:
       - cpufrequtils
     state: present
-- name: Set CPU Governor to Schedutil
+- name: Set CPU governor
   ansible.builtin.lineinfile:
     path: /etc/default/cpufrequtils
     regexp: "^GOVERNOR="
@@ -13,7 +13,7 @@
     create: true
     mode: "0644"
   notify: Restart cpufrequtils
-- name: Enable TCP BBR Congestion Control
+- name: Enable BBR
   ansible.posix.sysctl:
     name: "{{ item.key }}"
     value: "{{ item.value }}"
@@ -23,7 +23,7 @@
   loop:
     - {key: "net.core.default_qdisc", value: "fq"}
     - {key: "net.ipv4.tcp_congestion_control", value: "bbr"}
-- name: Increase File Descriptors Limits
+- name: Increase FD limits
   community.general.pam_limits:
     domain: "*"
     limit_type: "{{ item.type }}"
@@ -32,31 +32,31 @@
   loop:
     - {type: "soft", item: "nofile", value: "{{ common_file_descriptors_soft }}"}
     - {type: "hard", item: "nofile", value: "{{ common_file_descriptors_hard }}"}
-- name: Increase System-wide File Max
+- name: Increase file-max
   ansible.posix.sysctl:
     name: fs.file-max
     value: "{{ common_fs_file_max }}"
     state: present
     reload: true
-- name: Increase Inotify Watches
+- name: Increase inotify watches
   ansible.posix.sysctl:
     name: fs.inotify.max_user_instances
     value: "{{ common_inotify_max_instances }}"
     state: present
     reload: true
-- name: Increase Inotify User Watches
+- name: Increase user watches
   ansible.posix.sysctl:
     name: fs.inotify.max_user_watches
     value: "{{ common_inotify_max_watches }}"
     state: present
     reload: true
-- name: Enable Hardware Watchdog (Auto-reboot on freeze)
+- name: Enable watchdog
   ansible.builtin.lineinfile:
     path: /etc/systemd/system.conf
     regexp: "^#?RuntimeWatchdogSec="
     line: "RuntimeWatchdogSec={{ common_watchdog_timeout_sec }}"
     state: present
-- name: Configure Huge Pages for mining (RandomX)
+- name: Configure hugepages
   ansible.posix.sysctl:
     name: vm.nr_hugepages
     value: "{{ common_hugepages_count }}"
@@ -64,7 +64,7 @@
     reload: true
   when: common_mining_enabled | default(true)
   tags: ["os"]
-- name: Load MSR kernel module for CPU optimization
+- name: Load MSR module
   community.general.modprobe:
     name: msr
     state: present

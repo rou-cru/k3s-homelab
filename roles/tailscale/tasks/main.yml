@@ -1,25 +1,25 @@
 ---
-- name: Install Tailscale # noqa: command-instead-of-module
+- name: Install Tailscale
   ansible.builtin.shell: |
     set -o pipefail
     curl -fsSL https://tailscale.com/install.sh | sh >/dev/null 2>&1
   args:
     creates: /usr/sbin/tailscaled
     executable: /bin/bash
-- name: Enable and start tailscaled
+- name: Start tailscaled
   ansible.builtin.systemd:
     name: tailscaled
     enabled: true
     state: started
   ignore_errors: "{{ ansible_check_mode }}"
-- name: Check Tailscale status (JSON)
+- name: Check status
   ansible.builtin.command: tailscale status --json
   register: tailscale_status_json
   changed_when: false
   failed_when: false
   check_mode: false
 
-- name: Determine Tailscale state
+- name: Determine state
   ansible.builtin.set_fact:
     # Check if BackendState is Running and Self.Online is true
     tailscale_is_running: >-
@@ -29,7 +29,7 @@
       }}
 
 
-- name: Configure Tailscale (Up)
+- name: Configure Tailscale
   ansible.builtin.shell: |
     tailscale up \
       --auth-key="{{ tailscale_authkey }}" \
@@ -46,7 +46,7 @@
     - "'Success' not in tailscale_up.stdout"
     - tailscale_up.stderr | length > 0
 
-- name: Wait for valid Tailscale IPv4 (100.x.y.z)
+- name: Wait for IP
   ansible.builtin.shell: |
     set -o pipefail
     tailscale ip -4
@@ -60,13 +60,13 @@
     - (tailscale_ip_cmd.stdout | trim is regex('^100\.'))
   retries: 20
   delay: 3
-- name: Set tailscale_ip fact
+- name: Set IP fact
   ansible.builtin.set_fact:
     tailscale_ip: >-
       {{ (tailscale_ip_cmd.stdout_lines | default([])) |
       first |
       default(tailscale_ip_cmd.stdout | trim) }}
-- name: Validate Tailscale IP is reachable
+- name: Validate connectivity
   ansible.builtin.wait_for:
     host: "{{ tailscale_ip }}"
     port: 22
@@ -74,7 +74,7 @@
   ignore_errors: true
   register: tailscale_connectivity_check
 
-- name: Warn if Tailscale connectivity issues
+- name: Warn connectivity
   ansible.builtin.debug:
     msg: "⚠️  Tailscale connectivity failed: {{ tailscale_ip }}:22"
   when: tailscale_connectivity_check.failed | default(false)

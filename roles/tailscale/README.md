@@ -133,14 +133,14 @@ settings like DNS acceptance and SSH access.
 | Name | Module | Has Conditions |
 | ---- | ------ | -------------- |
 | [Install Tailscale](tasks/main.yml#L2) | ansible.builtin.shell | False |
-| [Enable and start tailscaled](tasks/main.yml#L9) | ansible.builtin.systemd | False |
-| [Check Tailscale status (JSON)](tasks/main.yml#L15) | ansible.builtin.command | False |
-| [Determine Tailscale state](tasks/main.yml#L22) | ansible.builtin.set_fact | False |
-| [Configure Tailscale (Up)](tasks/main.yml#L32) | ansible.builtin.shell | True |
-| [Wait for valid Tailscale IPv4 (100.x.y.z)](tasks/main.yml#L49) | ansible.builtin.shell | False |
-| [Set tailscale_ip fact](tasks/main.yml#L63) | ansible.builtin.set_fact | False |
-| [Validate Tailscale IP is reachable](tasks/main.yml#L69) | ansible.builtin.wait_for | False |
-| [Warn if Tailscale connectivity issues](tasks/main.yml#L77) | ansible.builtin.debug | True |
+| [Start tailscaled](tasks/main.yml#L9) | ansible.builtin.systemd | False |
+| [Check status](tasks/main.yml#L15) | ansible.builtin.command | False |
+| [Determine state](tasks/main.yml#L22) | ansible.builtin.set_fact | False |
+| [Configure Tailscale](tasks/main.yml#L32) | ansible.builtin.shell | True |
+| [Wait for IP](tasks/main.yml#L49) | ansible.builtin.shell | False |
+| [Set IP fact](tasks/main.yml#L63) | ansible.builtin.set_fact | False |
+| [Validate connectivity](tasks/main.yml#L69) | ansible.builtin.wait_for | False |
+| [Warn connectivity](tasks/main.yml#L77) | ansible.builtin.debug | True |
 
 
 ## Task Flow Graphs
@@ -162,15 +162,15 @@ classDef includeVars stroke:#8e44ad,stroke-width:2px;
 classDef rescue stroke:#665352,stroke-width:2px;
 
   Start-->|Task| Install_Tailscale0[install tailscale]:::task
-  Install_Tailscale0-->|Task| Enable_and_start_tailscaled1[enable and start tailscaled]:::task
-  Enable_and_start_tailscaled1-->|Task| Check_Tailscale_status__JSON_2[check tailscale status  json ]:::task
-  Check_Tailscale_status__JSON_2-->|Task| Determine_Tailscale_state3[determine tailscale state]:::task
-  Determine_Tailscale_state3-->|Task| Configure_Tailscale__Up_4[configure tailscale  up <br>When: **not tailscale is running   bool**]:::task
-  Configure_Tailscale__Up_4-->|Task| Wait_for_valid_Tailscale_IPv4__100_x_y_z_5[wait for valid tailscale ipv4  100 x y z ]:::task
-  Wait_for_valid_Tailscale_IPv4__100_x_y_z_5-->|Task| Set_tailscale_ip_fact6[set tailscale ip fact]:::task
-  Set_tailscale_ip_fact6-->|Task| Validate_Tailscale_IP_is_reachable7[validate tailscale ip is reachable]:::task
-  Validate_Tailscale_IP_is_reachable7-->|Task| Warn_if_Tailscale_connectivity_issues8[warn if tailscale connectivity issues<br>When: **tailscale connectivity check failed   default<br>false**]:::task
-  Warn_if_Tailscale_connectivity_issues8-->End
+  Install_Tailscale0-->|Task| Start_tailscaled1[start tailscaled]:::task
+  Start_tailscaled1-->|Task| Check_status2[check status]:::task
+  Check_status2-->|Task| Determine_state3[determine state]:::task
+  Determine_state3-->|Task| Configure_Tailscale4[configure tailscale<br>When: **not tailscale is running   bool**]:::task
+  Configure_Tailscale4-->|Task| Wait_for_IP5[wait for ip]:::task
+  Wait_for_IP5-->|Task| Set_IP_fact6[set ip fact]:::task
+  Set_IP_fact6-->|Task| Validate_connectivity7[validate connectivity]:::task
+  Validate_connectivity7-->|Task| Warn_connectivity8[warn connectivity<br>When: **tailscale connectivity check failed   default<br>false**]:::task
+  Warn_connectivity8-->End
 ```
 
 

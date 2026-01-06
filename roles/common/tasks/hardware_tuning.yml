@@ -1,23 +1,23 @@
 ---
-- name: Install General Hardware Tuning Tools
+- name: Install tuning tools
   ansible.builtin.apt:
     name:
       - irqbalance
       - rfkill
     state: present
-- name: Install Audio Tuning Tools
+- name: Install audio tools
   ansible.builtin.apt:
     name:
       - alsa-utils
     state: present
   when: common_audio_optimization_enabled | bool
-- name: Enable and start irqbalance
+- name: Start irqbalance
   ansible.builtin.systemd:
     name: irqbalance
     enabled: true
     state: started
   ignore_errors: "{{ ansible_check_mode }}"
-- name: Soft-block Wireless Radios (Save power/noise, keep HW available for SIGINT)
+- name: Block wireless radios
   ansible.builtin.command: rfkill block {{ item }}
   loop:
     - wifi
@@ -25,7 +25,7 @@
   when: common_radio_block_enabled | bool
   changed_when: false
   failed_when: false
-- name: Optimize System Limits for High Performance Audio (Realtime)
+- name: Optimize audio limits
   community.general.pam_limits:
     domain: "*"
     limit_type: "{{ item.type }}"
@@ -35,7 +35,7 @@
     - {type: "-", item: "memlock", value: "unlimited"}
     - {type: "-", item: "rtprio", value: "95"}
   when: common_audio_optimization_enabled | bool
-- name: Ensure fstrim.timer is enabled (NVMe Health)
+- name: Enable fstrim
   ansible.builtin.systemd:
     name: fstrim.timer
     enabled: true

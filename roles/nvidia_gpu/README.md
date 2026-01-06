@@ -202,11 +202,11 @@ Supports host setup, cluster setup, and headless X11 configurations.
 | Name | Module | Has Conditions | Tags |
 | ---- | ------ | -------------- | -----|
 | [NVIDIA GPU cluster setup](tasks/cluster.yml#L2) | block | False | cluster,nvidia |
-| [Create temporary values file for device plugin](tasks/cluster.yml#L5) | ansible.builtin.tempfile | False |  |
-| [Copy device plugin values to temp file](tasks/cluster.yml#L11) | ansible.builtin.copy | False |  |
-| [Install NVIDIA device plugin via Helm](tasks/cluster.yml#L17) | kubernetes.core.helm | False |  |
-| [Wait for device plugin daemonset](tasks/cluster.yml#L27) | ansible.builtin.command | False |  |
-| [Check GPU resources available](tasks/cluster.yml#L35) | ansible.builtin.shell | False |  |
+| [Create temp values](tasks/cluster.yml#L5) | ansible.builtin.tempfile | False |  |
+| [Copy values](tasks/cluster.yml#L11) | ansible.builtin.copy | False |  |
+| [Install device plugin](tasks/cluster.yml#L17) | kubernetes.core.helm | False |  |
+| [Wait for daemonset](tasks/cluster.yml#L27) | ansible.builtin.command | False |  |
+| [Check GPU resources](tasks/cluster.yml#L35) | ansible.builtin.shell | False |  |
 | [Debug GPU resources](tasks/cluster.yml#L44) | ansible.builtin.debug | False |  |
 
 #### File: tasks/headless_optimization.yml
@@ -214,46 +214,46 @@ Supports host setup, cluster setup, and headless X11 configurations.
 | Name | Module | Has Conditions | Tags |
 | ---- | ------ | -------------- | -----|
 | [NVIDIA GPU headless optimization setup](tasks/headless_optimization.yml#L2) | block | True | nvidia,gpu,nvidia-headless |
-| [Install X11 packages for headless GPU management](tasks/headless_optimization.yml#L6) | ansible.builtin.apt | False |  |
-| [Deploy xorg.conf with coolbits for GPU management](tasks/headless_optimization.yml#L15) | ansible.builtin.template | False |  |
-| [Deploy NVIDIA persistence mode systemd service](tasks/headless_optimization.yml#L24) | ansible.builtin.copy | False |  |
-| [Deploy NVIDIA X server systemd service](tasks/headless_optimization.yml#L33) | ansible.builtin.copy | False |  |
-| [Reload systemd daemon](tasks/headless_optimization.yml#L42) | ansible.builtin.systemd | True |  |
-| [Enable and start NVIDIA persistence mode service](tasks/headless_optimization.yml#L47) | ansible.builtin.systemd | False |  |
-| [Enable and start NVIDIA X server service](tasks/headless_optimization.yml#L53) | ansible.builtin.systemd | True |  |
-| [Wait for X server to be ready](tasks/headless_optimization.yml#L60) | ansible.builtin.wait_for | True |  |
+| [Install X11 deps](tasks/headless_optimization.yml#L6) | ansible.builtin.apt | False |  |
+| [Configure xorg](tasks/headless_optimization.yml#L15) | ansible.builtin.template | False |  |
+| [Deploy persistence svc](tasks/headless_optimization.yml#L24) | ansible.builtin.copy | False |  |
+| [Deploy Xorg svc](tasks/headless_optimization.yml#L33) | ansible.builtin.copy | False |  |
+| [Reload systemd (nvidia)](tasks/headless_optimization.yml#L42) | ansible.builtin.systemd | True |  |
+| [Start persistence svc](tasks/headless_optimization.yml#L47) | ansible.builtin.systemd | False |  |
+| [Start Xorg svc](tasks/headless_optimization.yml#L53) | ansible.builtin.systemd | True |  |
+| [Wait for X server](tasks/headless_optimization.yml#L60) | ansible.builtin.wait_for | True |  |
 
 #### File: tasks/host.yml
 
 | Name | Module | Has Conditions | Tags | Comments |
 | ---- | ------ | -------------- | -----| -------- |
 | [NVIDIA GPU host setup](tasks/host.yml#L2) | block | False | host,nvidia |  |
-| [Ensure pciutils installed for lspci](tasks/host.yml#L5) | ansible.builtin.apt | False |  |  |
-| [Normalize NVIDIA GPU setup mode](tasks/host.yml#L12) | ansible.builtin.set_fact | True |  | Ensure pciutils for GPU detection |
-| [Get PCI Vendor IDs](tasks/host.yml#L17) | ansible.builtin.shell | False |  |  |
+| [Install pciutils](tasks/host.yml#L5) | ansible.builtin.apt | False |  |  |
+| [Normalize setup mode](tasks/host.yml#L12) | ansible.builtin.set_fact | True |  | Ensure pciutils for GPU detection |
+| [Get PCI vendors](tasks/host.yml#L17) | ansible.builtin.shell | False |  |  |
 | [Debug PCI Vendors](tasks/host.yml#L22) | ansible.builtin.debug | False |  |  |
-| [Detect NVIDIA GPU presence](tasks/host.yml#L34) | ansible.builtin.set_fact | False |  |  |
-| [Set GPU Active Fact (Auto)](tasks/host.yml#L48) | ansible.builtin.set_fact | True |  |  |
-| [Set GPU Active Fact (Forced)](tasks/host.yml#L54) | ansible.builtin.set_fact | True |  |  |
-| [Fail if forced but missing](tasks/host.yml#L60) | ansible.builtin.fail | True |  |  |
-| [Set GPU Active Fact (Disabled)](tasks/host.yml#L67) | ansible.builtin.set_fact | True |  |  |
-| [Install driver tools](tasks/host.yml#L73) | ansible.builtin.apt | False |  |  |
-| [Detect NVIDIA driver](tasks/host.yml#L80) | ansible.builtin.shell | True |  |  |
-| [Set detected driver](tasks/host.yml#L90) | ansible.builtin.set_fact | True |  |  |
+| [Detect GPU](tasks/host.yml#L34) | ansible.builtin.set_fact | False |  |  |
+| [Set GPU active (auto)](tasks/host.yml#L48) | ansible.builtin.set_fact | True |  |  |
+| [Set GPU active (forced)](tasks/host.yml#L54) | ansible.builtin.set_fact | True |  |  |
+| [Fail if GPU missing](tasks/host.yml#L60) | ansible.builtin.fail | True |  |  |
+| [Set GPU active (disabled)](tasks/host.yml#L67) | ansible.builtin.set_fact | True |  |  |
+| [Install driver deps](tasks/host.yml#L73) | ansible.builtin.apt | False |  |  |
+| [Detect driver](tasks/host.yml#L80) | ansible.builtin.shell | True |  |  |
+| [Set driver version](tasks/host.yml#L90) | ansible.builtin.set_fact | True |  |  |
 | [Set driver fallback](tasks/host.yml#L97) | ansible.builtin.set_fact | True |  |  |
 | [Set manual driver](tasks/host.yml#L107) | ansible.builtin.set_fact | True |  |  |
-| [Blacklist nouveau driver](tasks/host.yml#L113) | ansible.builtin.copy | True |  |  |
-| [Update initramfs if blacklist changed](tasks/host.yml#L122) | ansible.builtin.command | True |  |  |
-| [Calculate nvidia-utils package name](tasks/host.yml#L127) | ansible.builtin.set_fact | True |  | Deriva el paquete nvidia-utils del driver detectado (ej: nvidia-driver-535 -> nvidia-utils-535) |
-| [Check if NVIDIA packages are in broken state](tasks/host.yml#L131) | ansible.builtin.shell | True |  |  |
-| [Force remove broken NVIDIA packages](tasks/host.yml#L136) | ansible.builtin.shell | True |  |  |
-| [Install NVIDIA Driver](tasks/host.yml#L148) | ansible.builtin.apt | True |  |  |
-| [Reboot if driver installed](tasks/host.yml#L157) | ansible.builtin.reboot | True |  |  |
-| [Add Toolkit GPG Key](tasks/host.yml#L166) | ansible.builtin.apt_key | True |  |  |
-| [Add Toolkit Repository](tasks/host.yml#L171) | ansible.builtin.get_url | True |  |  |
-| [Install Toolkit](tasks/host.yml#L178) | ansible.builtin.apt | True |  |  |
-| [Ensure containerd config dir exists](tasks/host.yml#L185) | ansible.builtin.file | True |  |  |
-| [Deploy containerd config template](tasks/host.yml#L191) | ansible.builtin.template | True |  |  |
+| [Blacklist nouveau](tasks/host.yml#L113) | ansible.builtin.copy | True |  |  |
+| [Update initramfs](tasks/host.yml#L122) | ansible.builtin.command | True |  |  |
+| [Set utils package](tasks/host.yml#L127) | ansible.builtin.set_fact | True |  | Deriva el paquete nvidia-utils del driver detectado (ej: nvidia-driver-535 -> nvidia-utils-535) |
+| [Check broken packages](tasks/host.yml#L131) | ansible.builtin.shell | True |  |  |
+| [Fix broken packages](tasks/host.yml#L136) | ansible.builtin.shell | True |  |  |
+| [Install NVIDIA driver](tasks/host.yml#L148) | ansible.builtin.apt | True |  |  |
+| [Reboot system (nvidia)](tasks/host.yml#L157) | ansible.builtin.reboot | True |  |  |
+| [Add toolkit key](tasks/host.yml#L166) | ansible.builtin.apt_key | True |  |  |
+| [Add toolkit repo](tasks/host.yml#L171) | ansible.builtin.get_url | True |  |  |
+| [Install toolkit](tasks/host.yml#L178) | ansible.builtin.apt | True |  |  |
+| [Create containerd dir](tasks/host.yml#L185) | ansible.builtin.file | True |  |  |
+| [Configure containerd](tasks/host.yml#L191) | ansible.builtin.template | True |  |  |
 
 
 ## Task Flow Graphs
@@ -275,12 +275,12 @@ classDef includeVars stroke:#8e44ad,stroke-width:2px;
 classDef rescue stroke:#665352,stroke-width:2px;
 
   Start-->|Block Start| NVIDIA_GPU_cluster_setup0_block_start_0[[nvidia gpu cluster setup]]:::block
-  NVIDIA_GPU_cluster_setup0_block_start_0-->|Task| Create_temporary_values_file_for_device_plugin0[create temporary values file for device plugin]:::task
-  Create_temporary_values_file_for_device_plugin0-->|Task| Copy_device_plugin_values_to_temp_file1[copy device plugin values to temp file]:::task
-  Copy_device_plugin_values_to_temp_file1-->|Task| Install_NVIDIA_device_plugin_via_Helm2[install nvidia device plugin via helm]:::task
-  Install_NVIDIA_device_plugin_via_Helm2-->|Task| Wait_for_device_plugin_daemonset3[wait for device plugin daemonset]:::task
-  Wait_for_device_plugin_daemonset3-->|Task| Check_GPU_resources_available4[check gpu resources available]:::task
-  Check_GPU_resources_available4-->|Task| Debug_GPU_resources5[debug gpu resources]:::task
+  NVIDIA_GPU_cluster_setup0_block_start_0-->|Task| Create_temp_values0[create temp values]:::task
+  Create_temp_values0-->|Task| Copy_values1[copy values]:::task
+  Copy_values1-->|Task| Install_device_plugin2[install device plugin]:::task
+  Install_device_plugin2-->|Task| Wait_for_daemonset3[wait for daemonset]:::task
+  Wait_for_daemonset3-->|Task| Check_GPU_resources4[check gpu resources]:::task
+  Check_GPU_resources4-->|Task| Debug_GPU_resources5[debug gpu resources]:::task
   Debug_GPU_resources5-.->|End of Block| NVIDIA_GPU_cluster_setup0_block_start_0
   Debug_GPU_resources5-->|Rescue Start| NVIDIA_GPU_cluster_setup0_rescue_start_0[nvidia gpu cluster setup]:::rescue
   NVIDIA_GPU_cluster_setup0_rescue_start_0-->|Task| Report_NVIDIA_GPU_cluster_setup_failure0[report nvidia gpu cluster setup failure]:::task
@@ -305,16 +305,16 @@ classDef includeVars stroke:#8e44ad,stroke-width:2px;
 classDef rescue stroke:#665352,stroke-width:2px;
 
   Start-->|Block Start| NVIDIA_GPU_headless_optimization_setup0_block_start_0[[nvidia gpu headless optimization setup<br>When: **nvidia gpu active   default false    bool**]]:::block
-  NVIDIA_GPU_headless_optimization_setup0_block_start_0-->|Task| Install_X11_packages_for_headless_GPU_management0[install x11 packages for headless gpu management]:::task
-  Install_X11_packages_for_headless_GPU_management0-->|Task| Deploy_xorg_conf_with_coolbits_for_GPU_management1[deploy xorg conf with coolbits for gpu management]:::task
-  Deploy_xorg_conf_with_coolbits_for_GPU_management1-->|Task| Deploy_NVIDIA_persistence_mode_systemd_service2[deploy nvidia persistence mode systemd service]:::task
-  Deploy_NVIDIA_persistence_mode_systemd_service2-->|Task| Deploy_NVIDIA_X_server_systemd_service3[deploy nvidia x server systemd service]:::task
-  Deploy_NVIDIA_X_server_systemd_service3-->|Task| Reload_systemd_daemon4[reload systemd daemon<br>When: **nvidia gpu persistence service changed or nvidia<br>gpu xorg service changed**]:::task
-  Reload_systemd_daemon4-->|Task| Enable_and_start_NVIDIA_persistence_mode_service5[enable and start nvidia persistence mode service]:::task
-  Enable_and_start_NVIDIA_persistence_mode_service5-->|Task| Enable_and_start_NVIDIA_X_server_service6[enable and start nvidia x server service<br>When: **nvidia gpu headless x11 enabled   default true   <br>bool**]:::task
-  Enable_and_start_NVIDIA_X_server_service6-->|Task| Wait_for_X_server_to_be_ready7[wait for x server to be ready<br>When: **nvidia gpu headless x11 enabled   default true   <br>bool**]:::task
-  Wait_for_X_server_to_be_ready7-.->|End of Block| NVIDIA_GPU_headless_optimization_setup0_block_start_0
-  Wait_for_X_server_to_be_ready7-->|Rescue Start| NVIDIA_GPU_headless_optimization_setup0_rescue_start_0[nvidia gpu headless optimization setup<br>When: **nvidia gpu active   default false    bool**]:::rescue
+  NVIDIA_GPU_headless_optimization_setup0_block_start_0-->|Task| Install_X11_deps0[install x11 deps]:::task
+  Install_X11_deps0-->|Task| Configure_xorg1[configure xorg]:::task
+  Configure_xorg1-->|Task| Deploy_persistence_svc2[deploy persistence svc]:::task
+  Deploy_persistence_svc2-->|Task| Deploy_Xorg_svc3[deploy xorg svc]:::task
+  Deploy_Xorg_svc3-->|Task| Reload_systemd__nvidia_4[reload systemd  nvidia <br>When: **nvidia gpu persistence service changed or nvidia<br>gpu xorg service changed**]:::task
+  Reload_systemd__nvidia_4-->|Task| Start_persistence_svc5[start persistence svc]:::task
+  Start_persistence_svc5-->|Task| Start_Xorg_svc6[start xorg svc<br>When: **nvidia gpu headless x11 enabled   default true   <br>bool**]:::task
+  Start_Xorg_svc6-->|Task| Wait_for_X_server7[wait for x server<br>When: **nvidia gpu headless x11 enabled   default true   <br>bool**]:::task
+  Wait_for_X_server7-.->|End of Block| NVIDIA_GPU_headless_optimization_setup0_block_start_0
+  Wait_for_X_server7-->|Rescue Start| NVIDIA_GPU_headless_optimization_setup0_rescue_start_0[nvidia gpu headless optimization setup<br>When: **nvidia gpu active   default false    bool**]:::rescue
   NVIDIA_GPU_headless_optimization_setup0_rescue_start_0-->|Task| Report_NVIDIA_GPU_headless_optimization_failure0[report nvidia gpu headless optimization failure]:::task
   Report_NVIDIA_GPU_headless_optimization_failure0-->|Task| Fail_NVIDIA_GPU_headless_optimization1[fail nvidia gpu headless optimization]:::task
   Fail_NVIDIA_GPU_headless_optimization1-.->|End of Rescue Block| NVIDIA_GPU_headless_optimization_setup0_block_start_0
@@ -337,34 +337,34 @@ classDef includeVars stroke:#8e44ad,stroke-width:2px;
 classDef rescue stroke:#665352,stroke-width:2px;
 
   Start-->|Block Start| NVIDIA_GPU_host_setup0_block_start_0[[nvidia gpu host setup]]:::block
-  NVIDIA_GPU_host_setup0_block_start_0-->|Task| Ensure_pciutils_installed_for_lspci0[ensure pciutils installed for lspci]:::task
-  Ensure_pciutils_installed_for_lspci0-->|Task| Normalize_NVIDIA_GPU_setup_mode1[normalize nvidia gpu setup mode<br>When: **nvidia gpu setup mode is not defined**]:::task
-  Normalize_NVIDIA_GPU_setup_mode1-->|Task| Get_PCI_Vendor_IDs2[get pci vendor ids]:::task
-  Get_PCI_Vendor_IDs2-->|Task| Debug_PCI_Vendors3[debug pci vendors]:::task
-  Debug_PCI_Vendors3-->|Task| Detect_NVIDIA_GPU_presence4[detect nvidia gpu presence]:::task
-  Detect_NVIDIA_GPU_presence4-->|Task| Set_GPU_Active_Fact__Auto_5[set gpu active fact  auto <br>When: **nvidia gpu setup mode     auto**]:::task
-  Set_GPU_Active_Fact__Auto_5-->|Task| Set_GPU_Active_Fact__Forced_6[set gpu active fact  forced <br>When: **nvidia gpu setup mode     true**]:::task
-  Set_GPU_Active_Fact__Forced_6-->|Task| Fail_if_forced_but_missing7[fail if forced but missing<br>When: **nvidia gpu setup mode     true  and not  nvidia<br>gpu present   default false**]:::task
-  Fail_if_forced_but_missing7-->|Task| Set_GPU_Active_Fact__Disabled_8[set gpu active fact  disabled <br>When: **nvidia gpu setup mode     false**]:::task
-  Set_GPU_Active_Fact__Disabled_8-->|Task| Install_driver_tools9[install driver tools]:::task
-  Install_driver_tools9-->|Task| Detect_NVIDIA_driver10[detect nvidia driver<br>When: **nvidia gpu active   default false    bool and<br>nvidia gpu driver package     auto**]:::task
-  Detect_NVIDIA_driver10-->|Task| Set_detected_driver11[set detected driver<br>When: **nvidia gpu active   default false    bool and<br>nvidia gpu driver package     auto  and nvidia gpu<br>detected driver stdout   length   0**]:::task
-  Set_detected_driver11-->|Task| Set_driver_fallback12[set driver fallback<br>When: **nvidia gpu driver package     auto  and  nvidia<br>gpu detected driver skipped is defined and nvidia<br>gpu detected driver skipped  or  nvidia gpu<br>detected driver stdout   length    0  and nvidia<br>gpu active   default false    bool**]:::task
+  NVIDIA_GPU_host_setup0_block_start_0-->|Task| Install_pciutils0[install pciutils]:::task
+  Install_pciutils0-->|Task| Normalize_setup_mode1[normalize setup mode<br>When: **nvidia gpu setup mode is not defined**]:::task
+  Normalize_setup_mode1-->|Task| Get_PCI_vendors2[get pci vendors]:::task
+  Get_PCI_vendors2-->|Task| Debug_PCI_Vendors3[debug pci vendors]:::task
+  Debug_PCI_Vendors3-->|Task| Detect_GPU4[detect gpu]:::task
+  Detect_GPU4-->|Task| Set_GPU_active__auto_5[set gpu active  auto <br>When: **nvidia gpu setup mode     auto**]:::task
+  Set_GPU_active__auto_5-->|Task| Set_GPU_active__forced_6[set gpu active  forced <br>When: **nvidia gpu setup mode     true**]:::task
+  Set_GPU_active__forced_6-->|Task| Fail_if_GPU_missing7[fail if gpu missing<br>When: **nvidia gpu setup mode     true  and not  nvidia<br>gpu present   default false**]:::task
+  Fail_if_GPU_missing7-->|Task| Set_GPU_active__disabled_8[set gpu active  disabled <br>When: **nvidia gpu setup mode     false**]:::task
+  Set_GPU_active__disabled_8-->|Task| Install_driver_deps9[install driver deps]:::task
+  Install_driver_deps9-->|Task| Detect_driver10[detect driver<br>When: **nvidia gpu active   default false    bool and<br>nvidia gpu driver package     auto**]:::task
+  Detect_driver10-->|Task| Set_driver_version11[set driver version<br>When: **nvidia gpu active   default false    bool and<br>nvidia gpu driver package     auto  and nvidia gpu<br>detected driver stdout   length   0**]:::task
+  Set_driver_version11-->|Task| Set_driver_fallback12[set driver fallback<br>When: **nvidia gpu driver package     auto  and  nvidia<br>gpu detected driver skipped is defined and nvidia<br>gpu detected driver skipped  or  nvidia gpu<br>detected driver stdout   length    0  and nvidia<br>gpu active   default false    bool**]:::task
   Set_driver_fallback12-->|Task| Set_manual_driver13[set manual driver<br>When: **nvidia gpu active   default false    bool and<br>nvidia gpu driver package     auto**]:::task
-  Set_manual_driver13-->|Task| Blacklist_nouveau_driver14[blacklist nouveau driver<br>When: **nvidia gpu active   default false    bool**]:::task
-  Blacklist_nouveau_driver14-->|Task| Update_initramfs_if_blacklist_changed15[update initramfs if blacklist changed<br>When: **nvidia gpu blacklist nouveau changed**]:::task
-  Update_initramfs_if_blacklist_changed15-->|Task| Calculate_nvidia_utils_package_name16[calculate nvidia utils package name<br>When: **nvidia gpu active   default false    bool**]:::task
-  Calculate_nvidia_utils_package_name16-->|Task| Check_if_NVIDIA_packages_are_in_broken_state17[check if nvidia packages are in broken state<br>When: **nvidia gpu active   default false    bool**]:::task
-  Check_if_NVIDIA_packages_are_in_broken_state17-->|Task| Force_remove_broken_NVIDIA_packages18[force remove broken nvidia packages<br>When: **nvidia gpu active   default false    bool and<br>nvidia gpu broken check stdout   int   0**]:::task
-  Force_remove_broken_NVIDIA_packages18-->|Task| Install_NVIDIA_Driver19[install nvidia driver<br>When: **nvidia gpu active   default false    bool**]:::task
-  Install_NVIDIA_Driver19-->|Task| Reboot_if_driver_installed20[reboot if driver installed<br>When: **nvidia gpu driver install changed or nvidia gpu<br>blacklist nouveau changed**]:::task
-  Reboot_if_driver_installed20-->|Task| Add_Toolkit_GPG_Key21[add toolkit gpg key<br>When: **nvidia gpu active   default false    bool**]:::task
-  Add_Toolkit_GPG_Key21-->|Task| Add_Toolkit_Repository22[add toolkit repository<br>When: **nvidia gpu active   default false    bool**]:::task
-  Add_Toolkit_Repository22-->|Task| Install_Toolkit23[install toolkit<br>When: **nvidia gpu active   default false    bool**]:::task
-  Install_Toolkit23-->|Task| Ensure_containerd_config_dir_exists24[ensure containerd config dir exists<br>When: **nvidia gpu active   default false    bool**]:::task
-  Ensure_containerd_config_dir_exists24-->|Task| Deploy_containerd_config_template25[deploy containerd config template<br>When: **nvidia gpu active   default false    bool**]:::task
-  Deploy_containerd_config_template25-.->|End of Block| NVIDIA_GPU_host_setup0_block_start_0
-  Deploy_containerd_config_template25-->|Rescue Start| NVIDIA_GPU_host_setup0_rescue_start_0[nvidia gpu host setup]:::rescue
+  Set_manual_driver13-->|Task| Blacklist_nouveau14[blacklist nouveau<br>When: **nvidia gpu active   default false    bool**]:::task
+  Blacklist_nouveau14-->|Task| Update_initramfs15[update initramfs<br>When: **nvidia gpu blacklist nouveau changed**]:::task
+  Update_initramfs15-->|Task| Set_utils_package16[set utils package<br>When: **nvidia gpu active   default false    bool**]:::task
+  Set_utils_package16-->|Task| Check_broken_packages17[check broken packages<br>When: **nvidia gpu active   default false    bool**]:::task
+  Check_broken_packages17-->|Task| Fix_broken_packages18[fix broken packages<br>When: **nvidia gpu active   default false    bool and<br>nvidia gpu broken check stdout   int   0**]:::task
+  Fix_broken_packages18-->|Task| Install_NVIDIA_driver19[install nvidia driver<br>When: **nvidia gpu active   default false    bool**]:::task
+  Install_NVIDIA_driver19-->|Task| Reboot_system__nvidia_20[reboot system  nvidia <br>When: **nvidia gpu driver install changed or nvidia gpu<br>blacklist nouveau changed**]:::task
+  Reboot_system__nvidia_20-->|Task| Add_toolkit_key21[add toolkit key<br>When: **nvidia gpu active   default false    bool**]:::task
+  Add_toolkit_key21-->|Task| Add_toolkit_repo22[add toolkit repo<br>When: **nvidia gpu active   default false    bool**]:::task
+  Add_toolkit_repo22-->|Task| Install_toolkit23[install toolkit<br>When: **nvidia gpu active   default false    bool**]:::task
+  Install_toolkit23-->|Task| Create_containerd_dir24[create containerd dir<br>When: **nvidia gpu active   default false    bool**]:::task
+  Create_containerd_dir24-->|Task| Configure_containerd25[configure containerd<br>When: **nvidia gpu active   default false    bool**]:::task
+  Configure_containerd25-.->|End of Block| NVIDIA_GPU_host_setup0_block_start_0
+  Configure_containerd25-->|Rescue Start| NVIDIA_GPU_host_setup0_rescue_start_0[nvidia gpu host setup]:::rescue
   NVIDIA_GPU_host_setup0_rescue_start_0-->|Task| Report_NVIDIA_GPU_host_setup_failure0[report nvidia gpu host setup failure]:::task
   Report_NVIDIA_GPU_host_setup_failure0-->|Task| Fail_NVIDIA_GPU_host_setup1[fail nvidia gpu host setup]:::task
   Fail_NVIDIA_GPU_host_setup1-.->|End of Rescue Block| NVIDIA_GPU_host_setup0_block_start_0

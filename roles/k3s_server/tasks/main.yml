@@ -1,5 +1,5 @@
 ---
-- name: Validate Tailscale IP is defined
+- name: Validate IP
   ansible.builtin.assert:
     that:
       - tailscale_ip is defined
@@ -7,12 +7,12 @@
       - tailscale_ip is match('^100\.')
     fail_msg: "ERROR: Invalid tailscale_ip ({{ tailscale_ip | default('undefined') }}). Must be 100.x.x.x"
 
-- name: Check if K3s uninstall script exists
+- name: Check uninstall script
   ansible.builtin.stat:
     path: /usr/local/bin/k3s-uninstall.sh
   register: k3s_uninstall_script
 
-- name: Recreate K3s cluster for a clean state
+- name: Recreate cluster
   ansible.builtin.command: /usr/local/bin/k3s-uninstall.sh
   when:
     - k3s_server_recreate | bool
@@ -20,7 +20,7 @@
   register: k3s_uninstall
   changed_when: k3s_uninstall.rc == 0
 
-- name: Remove residual K3s state directories
+- name: Cleanup directories
   ansible.builtin.file:
     path: "{{ item }}"
     state: absent
@@ -34,20 +34,20 @@
     - k3s_server_recreate | bool
     - k3s_uninstall_script.stat.exists
 
-- name: Ensure K3s config directory exists
+- name: Create config dir
   ansible.builtin.file:
     path: /etc/rancher/k3s
     state: directory
     mode: "0755"
 
-- name: Deploy K3s declarative configuration
+- name: Deploy config
   ansible.builtin.template:
     src: config.yaml.j2
     dest: /etc/rancher/k3s/config.yaml
     mode: "0600"
   notify: Restart k3s
 
-- name: Install k3s server
+- name: Install K3s
   ansible.builtin.shell: |
     set -o pipefail
     curl -sfL https://get.k3s.io | \
@@ -57,13 +57,13 @@
     executable: /bin/bash
     creates: /usr/local/bin/k3s
 
-- name: Ensure K3s systemd override directory exists
+- name: Create override dir
   ansible.builtin.file:
     path: /etc/systemd/system/k3s.service.d
     state: directory
     mode: "0755"
 
-- name: Create K3s systemd override to force declarative config
+- name: Create override
   ansible.builtin.copy:
     dest: /etc/systemd/system/k3s.service.d/override.conf
     content: |
@@ -73,43 +73,43 @@
     mode: "0644"
   notify: Restart k3s
 
-- name: Remove K3s installer environment file to prevent config duplication
+- name: Remove env file
   ansible.builtin.file:
     path: /etc/systemd/system/k3s.service.env
     state: absent
   notify: Restart k3s
 
-- name: Reload systemd daemon immediately
+- name: Reload systemd (k3s)
   ansible.builtin.systemd:
     daemon_reload: true
 
-- name: Ensure K3s service is enabled and running
+- name: Start K3s
   ansible.builtin.systemd:
     name: k3s
     enabled: true
     state: started
 
-- name: Apply pending K3s restarts before readiness checks
+- name: Flush handlers
   ansible.builtin.meta: flush_handlers
 
-- name: Wait for kubeconfig to be generated
+- name: Wait for kubeconfig
   ansible.builtin.wait_for:
     path: /etc/rancher/k3s/k3s.yaml
     timeout: "{{ k3s_server_node_token_timeout }}"
   when: not ansible_check_mode
 
-- name: Read K3s kubeconfig
+- name: Read kubeconfig
   ansible.builtin.slurp:
     src: /etc/rancher/k3s/k3s.yaml
   register: k3s_kubeconfig_raw
 
-- name: Build canonical kubeconfig (Tailscale API endpoint)
+- name: Build canonical config
   ansible.builtin.set_fact:
     k3s_kubeconfig_canonical: |
       {{ k3s_kubeconfig_raw.content | b64decode |
          regex_replace('https://[0-9.]+:6443', 'https://' + tailscale_ip + ':6443') }}
 
-- name: Write canonical kubeconfig on server
+- name: Write server config
   ansible.builtin.copy:
     content: "{{ k3s_kubeconfig_canonical }}"
     dest: /etc/rancher/k3s/k3s-tailscale.yaml
@@ -117,7 +117,7 @@
     group: root
     mode: "{{ k3s_server_kubeconfig_mode }}"
 
-- name: Ensure .kube directory exists for user {{ ansible_user }}
+- name: Create user kube dir
   ansible.builtin.file:
     path: "/home/{{ ansible_user }}/.kube"
     state: directory
@@ -125,7 +125,7 @@
     group: "{{ ansible_user }}"
     mode: "0700"
 
-- name: Write kubeconfig for target user
+- name: Write user config
   ansible.builtin.copy:
     content: "{{ k3s_kubeconfig_canonical }}"
     dest: "/home/{{ ansible_user }}/.kube/config"
@@ -133,7 +133,7 @@
     group: "{{ ansible_user }}"
     mode: "0600"
 
-- name: Wait for kube-apiserver (Standard Kubectl + Discovery)
+- name: Wait for apiserver
   ansible.builtin.command: kubectl api-resources
   register: k3s_server_readyz
   retries: "{{ k3s_server_readyz_retries }}"
@@ -145,7 +145,7 @@
   environment:
     KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
 
-- name: Remove Traefik HelmCharts when disabled
+- name: Remove Traefik
   ansible.builtin.command: >
     kubectl -n kube-system delete helmchart traefik traefik-crd --ignore-not-found
   register: k3s_traefik_cleanup
@@ -157,7 +157,7 @@
   environment:
     KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
 
-- name: Copy kubeconfig to local machine
+- name: Copy local config
   when:
     - k3s_server_copy_kubeconfig_local | default(true) | bool
     - not ansible_check_mode
@@ -165,18 +165,18 @@
   become: false
   run_once: true
   block:
-    - name: Ensure local .kube directory exists
+    - name: Create local dir
       ansible.builtin.file:
         path: "{{ k3s_server_local_kubeconfig_path | dirname }}"
         state: directory
         mode: "0700"
-    - name: Fetch kubeconfig from K3s server
+    - name: Fetch config
       ansible.builtin.slurp:
         src: /etc/rancher/k3s/k3s-tailscale.yaml
       register: k3s_server_kubeconfig_b64
       delegate_to: "{{ inventory_hostname }}"
       become: true
-    - name: Parse and modify kubeconfig
+    - name: Parse config
       ansible.builtin.set_fact:
         k3s_server_kubeconfig_local: |
           {{ k3s_server_kubeconfig_b64.content | b64decode |
@@ -185,12 +185,12 @@
              regex_replace('user: default', 'user: k3s-' + inventory_hostname) |
              regex_replace('current-context: default', 'current-context: k3s-' + inventory_hostname)
           }}
-    - name: Write kubeconfig to local path
+    - name: Write local config
       ansible.builtin.copy:
         content: "{{ k3s_server_kubeconfig_local }}"
         dest: "{{ k3s_server_local_kubeconfig_path }}"
         mode: "0600"
-    - name: Show kubeconfig info
+    - name: Show config info
       ansible.builtin.debug:
         msg: "✅ Kubeconfig ready: {{ k3s_server_local_kubeconfig_path }}"
   rescue:
