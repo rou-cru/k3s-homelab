@@ -15,8 +15,8 @@ WORKDIR /app
 RUN wget -q -O miner.tar.gz "https://github.com/Lolliedieb/lolMiner-releases/releases/download/${LOLMINER_VERSION}/lolMiner_v${LOLMINER_VERSION}_Lin64.tar.gz" \
     && echo "${LOLMINER_SHA256}  miner.tar.gz" | sha256sum -c - \
     && tar -xzf miner.tar.gz \
-    && mv lolMiner_v${LOLMINER_VERSION}_Lin64/lolMiner /usr/local/bin/lolMiner \
-    && rm -rf lolMiner_v${LOLMINER_VERSION}_Lin64 miner.tar.gz
+    && mv "${LOLMINER_VERSION}/lolMiner" /usr/local/bin/lolMiner \
+    && rm -rf "${LOLMINER_VERSION}" miner.tar.gz
 
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
