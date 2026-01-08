@@ -13,7 +13,7 @@
   vars_files:
     - "{{ secrets_file | default('secrets.yaml') }}"
   pre_tasks:
-    - name: Update APT cache once at start
+    - name: Update APT cache
       ansible.builtin.apt:
         update_cache: true
         cache_valid_time: 3600

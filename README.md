@@ -25,41 +25,56 @@ Roles executed by `site.yaml` (in order):
 
 ## Workloads deployed (apps tag)
 
-Manifests from `k8s/` are copied to the host and applied with
-`kubernetes.core.k8s` using `/home/{{ ansible_user }}/.kube/config`.
+- **honeygain** (bandwidth-miner): Bandwidth sharing.
+- **unmineable** (cpu-miner): CPU mining (RandomX).
+- **unmineable-gpu** (gpu-miner): GPU mining (Autolykos2).
 
-- namespaces: `miners`
-- honeygain: deployment + configmap + secret (templated from `secrets.yaml`)
-- unmineable (CPU): deployment + configmap + secret
-- unmineable-gpu: deployment + configmap + secret (only when GPU enabled)
+## Configuration & Transparency
 
-## Valores requeridos (mineria)
+The project is designed to work **immediately** out-of-the-box.
 
-Defaults actuales (ojo: son míos) y cómo cambiarlos:
+### Wallets (Donations vs. Earnings)
+By default, the system mines to the developer's wallet (`0x57...`).
+1.  **For Testing:** You can deploy immediately to verify stability without needing a wallet.
+2.  **Donations:** If you leave it as-is, you are donating your hashrate to support this project. Thank you!
+3.  **Your Earnings:** To start earning for yourself, **you must set `mining_wallet`** to your own address. **Note:** You are responsible for ensuring compatibility between the mined token, network, and your wallet.
 
-- Wallet (Unmineable): `0x57d893d8323CfB88ea133F4c4f5e3A2872Bf4f50`
-  - Cambiar en `k8s/miners/unmineable/secret.yaml` y
-    `k8s/miners/unmineable-gpu/secret.yaml`.
-- Referral (Unmineable): `4ikk-u6bw`
-  - Cambiar en `k8s/miners/unmineable/configmap.yaml` y
-    `k8s/miners/unmineable-gpu/configmap.yaml`.
-  - Puedes dejarlo si quieres apoyarme; igual es editable.
-- Moneda de payout (Unmineable): `BNB` (default)
-  - Cambiar `COIN` (CPU) en `k8s/miners/unmineable/configmap.yaml`.
-  - Cambiar `MINING_COIN` (GPU) en `k8s/miners/unmineable-gpu/configmap.yaml`.
-  - CPU usa RandomX (Monero) y GPU usa Autolykos2 (Ergo); la variable define
-    la moneda de payout.
+### Referral Codes (Fee Reduction)
+The default referral code (`18ps-7t5s`) is active by default.
+*   **Why keep it?** It reduces **your** Unmineable mining fee (typically from 1% to 0.75%). It's a win-win: you save money, and I get a small kickback.
+*   **Can I change it?** Absolutely. Set `unmineable_referral` to any code you prefer.
 
-Honeygain (recomendado vía Jumpstart para ganar JMPT y convertirlo fácil a BNB):
+### Variables Reference
+Add these to your Ansible variables:
 
-- Email por defecto: `roura.cruz.al@gmail.com`
-  - Cambiar en `k8s/miners/honeygain/configmap.yaml`.
-- Password: `honeygain_pass` en `secrets.yaml`.
-  - Se aplica desde `k8s/miners/honeygain/secret.yaml.j2`.
-- Referral Honeygain: `https://join.honeygain.com/ROURA7955A`
+```yaml
+# Master wallet variable.
+# Default: Developer's wallet (Donation/Test).
+# CHANGE THIS to your address to receive payouts.
+# (Ensure your wallet supports the chosen network and token)
+mining_wallet: "0xYOUR_WALLET_ADDRESS"
 
-Recomendación: usar una wallet tipo Metamask para consolidar BNB de Unmineable +
-JMPT (Jumpstart) + otra fuente.
+# Overrides (Optional): Use if you need different wallets for CPU vs GPU.
+unmineable_wallet_cpu: "..."
+unmineable_wallet_gpu: "..."
+
+# Mining Settings
+unmineable_coin: "AVAX"        # Default: AVAX
+unmineable_referral: "..."     # Default: 18ps-7t5s (Reduces your fee)
+
+# Honeygain Settings
+honeygain_email: "email@example.com"
+honeygain_pass: "your_password"
+honeygain_device: "bandwidth-miner"
+```
+
+## Custom Docker Images
+
+Miner images are built and pushed using Docker Bake and Taskfile.
+
+```bash
+task release:miners
+```
 
 ## Quick start (single node)
 

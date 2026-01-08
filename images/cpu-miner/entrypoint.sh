@@ -6,7 +6,6 @@ POOL="${POOL:-rx.unmineable.com:3333}"
 ALGO="${ALGO:-rx/0}"
 COIN="${COIN:-AVAX}"
 WORKER_NAME="${WORKER_NAME:-cpu-miner}"
-# Threads default: auto (XMRig detects), but we allow override
 THREADS="${MINING_THREADS}" 
 
 if [ -z "$WALLET_ADDRESS" ]; then

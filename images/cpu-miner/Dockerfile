@@ -1,6 +1,6 @@
 FROM alpine:3.19 AS builder
 
-ARG XMRIG_VERSION=6.21.0
+ARG XMRIG_VERSION=6.25.0
 ARG BUILD_TYPE=generic
 
 RUN apk add --no-cache \
@@ -19,8 +19,8 @@ RUN apk add --no-cache \
     hwloc-dev
 
 WORKDIR /build
-RUN git clone https://github.com/xmrig/xmrig.git . \
-    && git checkout v${XMRIG_VERSION}
+# Clone specific tag
+RUN git clone --depth 1 --branch v${XMRIG_VERSION} https://github.com/xmrig/xmrig.git .
 
 # Modificar el nivel de donación a 0% en el código fuente
 RUN sed -i 's/kDefaultDonateLevel = 1/kDefaultDonateLevel = 0/' src/donate.h \
