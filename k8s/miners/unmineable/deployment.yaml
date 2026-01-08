@@ -20,8 +20,8 @@ spec:
       dnsPolicy: ClusterFirstWithHostNet
       containers:
         - name: unmineable
-          image: thechristech/unmineable:latest
-          imagePullPolicy: IfNotPresent
+          image: roucru/k3s-cpu-miner:latest
+          imagePullPolicy: Always
           securityContext:
             privileged: true
             runAsUser: 0
@@ -30,35 +30,27 @@ spec:
               mountPath: /dev/cpu
             - name: hugepages
               mountPath: /dev/hugepages
-            - name: entrypoint-script
-              mountPath: /usr/src/mining/entrypoint.sh
-              subPath: entrypoint.sh
           env:
             - name: POOL
               valueFrom:
                 configMapKeyRef:
                   name: unmineable-config
                   key: POOL
-            - name: COIN
-              valueFrom:
-                configMapKeyRef:
-                  name: unmineable-config
-                  key: COIN
             - name: ALGO
               valueFrom:
                 configMapKeyRef:
                   name: unmineable-config
                   key: ALGO
+            - name: COIN
+              valueFrom:
+                configMapKeyRef:
+                  name: unmineable-config
+                  key: COIN
             - name: REFERRAL_CODE
               valueFrom:
                 configMapKeyRef:
                   name: unmineable-config
                   key: REFERRAL_CODE
-            - name: WALLET_ADDRESS
-              valueFrom:
-                secretKeyRef:
-                  name: unmineable-secret
-                  key: WALLET_ADDRESS
             - name: WORKER_NAME
               valueFrom:
                 configMapKeyRef:
@@ -74,13 +66,18 @@ spec:
                 configMapKeyRef:
                   name: unmineable-config
                   key: CPU_AFFINITY_MASK
+            - name: WALLET_ADDRESS
+              valueFrom:
+                secretKeyRef:
+                  name: unmineable-secret
+                  key: WALLET_ADDRESS
           resources:
             requests:
-              cpu: "8000m"
+              cpu: "12000m"
               memory: "3Gi"
               hugepages-2Mi: "2560Mi"
             limits:
-              cpu: "8000m"
+              cpu: "12000m"
               memory: "3Gi"
               hugepages-2Mi: "2560Mi"
       volumes:
@@ -91,7 +88,3 @@ spec:
         - name: hugepages
           emptyDir:
             medium: HugePages-2Mi
-        - name: entrypoint-script
-          configMap:
-            name: unmineable-script
-            defaultMode: 493 # 0755

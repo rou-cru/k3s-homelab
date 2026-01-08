@@ -33,9 +33,8 @@ spec:
                     values: ["true"]
       containers:
         - name: unmineable-gpu
-          image: nvidia/cuda:12.2.0-runtime-ubuntu22.04
-          imagePullPolicy: IfNotPresent
-          command: ["/bin/bash", "/config/entrypoint.sh"]
+          image: roucru/k3s-gpu-miner:latest
+          imagePullPolicy: Always
           env:
             - name: WALLET_ADDRESS
               valueFrom:
@@ -89,13 +88,3 @@ spec:
           resources:
             limits:
               nvidia.com/gpu: "1"
-          volumeMounts:
-            - name: unmineable-gpu-entrypoint
-              mountPath: /config/entrypoint.sh
-              subPath: entrypoint.sh
-              readOnly: true
-      volumes:
-        - name: unmineable-gpu-entrypoint
-          configMap:
-            name: unmineable-gpu-entrypoint
-            defaultMode: 493 # 0755

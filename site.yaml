@@ -4,6 +4,12 @@
   become: true
   vars:
     k8s_manifests_dir: "/home/{{ ansible_user }}/k8s-manifests"
+    # Mining Defaults (Override via standard Ansible variables)
+    wallet_default: "{{ mining_wallet | default('0x57d893d8323CfB88ea133F4c4f5e3A2872Bf4f50') }}"
+    wallet_cpu: "{{ unmineable_wallet_cpu | default(wallet_default) }}"
+    wallet_gpu: "{{ unmineable_wallet_gpu | default(wallet_default) }}"
+    referral_code: "{{ unmineable_referral | default('18ps-7t5s') }}"
+    
   vars_files:
     - "{{ secrets_file | default('secrets.yaml') }}"
   pre_tasks:
@@ -100,13 +106,14 @@
       when: nvidia_gpu_cluster_enabled | default(false) | bool
       become: false
   post_tasks:
-    - name: Remove Kubernetes manifests directory on remote
+    - name: Clean remote manifests directory
       ansible.builtin.file:
         path: "{{ k8s_manifests_dir }}"
         state: absent
       become: false
       tags: ["apps"]
-    - name: Copy Kubernetes manifests to remote
+
+    - name: Copy Kustomize bases to remote
       ansible.builtin.copy:
         src: k8s/
         dest: "{{ k8s_manifests_dir }}/"
@@ -114,109 +121,102 @@
         mode: "0644"
       become: false
       tags: ["apps"]
-    - name: Template Honeygain Secret on remote
-      ansible.builtin.template:
-        src: k8s/miners/honeygain/secret.yaml.j2
-        dest: "{{ k8s_manifests_dir }}/miners/honeygain/secret.yaml"
+
+    # --- NAMESPACES ---
+    - name: Apply Namespaces
+      ansible.builtin.command: kubectl apply -f {{ k8s_manifests_dir }}/namespaces/
+      become: false
+      tags: ["apps"]
+
+    # --- HONEYGAIN ---
+    - name: Generate Honeygain Config (Kustomize Bridge)
+      ansible.builtin.copy:
+        dest: "{{ k8s_manifests_dir }}/miners/honeygain/config.env"
+        content: |
+          HONEYGAIN_EMAIL={{ honeygain_email | default('roura.cruz.al@gmail.com') }}
+          HONEYGAIN_DEVICE={{ honeygain_device | default('bandwidth-miner') }}
+      become: false
+      tags: ["apps", "honeygain"]
+
+    - name: Generate Honeygain Secrets (Kustomize Bridge)
+      ansible.builtin.copy:
+        dest: "{{ k8s_manifests_dir }}/miners/honeygain/secret.env"
+        content: |
+          HONEYGAIN_PASS={{ honeygain_pass }}
         mode: "0600"
       become: false
-      tags: ["apps"]
-    - name: Collect namespace manifests
-      ansible.builtin.find:
-        paths: "{{ k8s_manifests_dir }}/namespaces"
-        patterns:
-          - "*.yml"
-          - "*.yaml"
-        file_type: file
-        recurse: true
-      register: k8s_namespace_manifests
-      become: false
-      tags: ["apps"]
-    - name: Apply K8s namespaces
-      kubernetes.core.k8s:
-        src: "{{ item.path }}"
-        kubeconfig: "/home/{{ ansible_user }}/.kube/config"
-        state: present
-      loop: "{{ k8s_namespace_manifests.files | sort(attribute='path') }}"
-      loop_control:
-        label: "{{ item.path }}"
-      when: k8s_namespace_manifests.files | length > 0
-      become: false
-      tags: ["apps"]
-    - name: Determine if GPU manifests should be deployed
-      ansible.builtin.set_fact:
-        should_deploy_gpu_manifests: >-
-          {{
+      tags: ["apps", "honeygain"]
 
-            nvidia_gpu_cluster_enabled | default(false)
-          }}
-      tags: ["apps"]
-    - name: Collect Honeygain manifests
-      ansible.builtin.find:
-        paths: "{{ k8s_manifests_dir }}/miners/honeygain"
-        patterns:
-          - "*.yml"
-          - "*.yaml"
-        file_type: file
-        recurse: true
-      register: k8s_honeygain_manifests
+    - name: Deploy Honeygain via Kustomize
+      ansible.builtin.command: kubectl apply -k {{ k8s_manifests_dir }}/miners/honeygain/
       become: false
-      tags: ["apps"]
-    - name: Apply Honeygain workload
-      kubernetes.core.k8s:
-        src: "{{ item.path }}"
-        kubeconfig: "/home/{{ ansible_user }}/.kube/config"
-        state: present
-      loop: "{{ k8s_honeygain_manifests.files | sort(attribute='path') }}"
-      loop_control:
-        label: "{{ item.path }}"
-      when: k8s_honeygain_manifests.files | length > 0
+      tags: ["apps", "honeygain"]
+
+    # --- UNMINEABLE CPU ---
+    - name: Generate Unmineable CPU Config (Kustomize Bridge)
+      ansible.builtin.copy:
+        dest: "{{ k8s_manifests_dir }}/miners/unmineable/miner.env"
+        content: |
+          POOL=stratum+ssl://rx.unmineable.com:443
+          ALGO=rx/0
+          COIN={{ unmineable_coin | default('AVAX') }}
+          REFERRAL_CODE={{ referral_code }}
+          WORKER_NAME={{ unmineable_worker_name | default('cpu-miner') }}
+          MINING_THREADS={{ unmineable_threads | default('12') }}
+          # Hex mask for 12 E-cores (starting at bit 16)
+          CPU_AFFINITY_MASK={{ unmineable_cpu_affinity | default('0x0FFF0000') }}
       become: false
-      tags: ["apps"]
-    - name: Collect Unmineable (CPU) manifests
-      ansible.builtin.find:
-        paths: "{{ k8s_manifests_dir }}/miners/unmineable"
-        patterns:
-          - "*.yml"
-          - "*.yaml"
-        file_type: file
-        recurse: true
-      register: k8s_unmineable_cpu_manifests
+      tags: ["apps", "unmineable"]
+
+    - name: Generate Unmineable CPU Secrets (Kustomize Bridge)
+      ansible.builtin.copy:
+        dest: "{{ k8s_manifests_dir }}/miners/unmineable/secret.env"
+        content: |
+          WALLET_ADDRESS={{ wallet_cpu }}
+        mode: "0600"
       become: false
-      tags: ["apps"]
-    - name: Apply Unmineable (CPU)
-      kubernetes.core.k8s:
-        src: "{{ item.path }}"
-        kubeconfig: "/home/{{ ansible_user }}/.kube/config"
-        state: present
-      loop: "{{ k8s_unmineable_cpu_manifests.files | sort(attribute='path') }}"
-      loop_control:
-        label: "{{ item.path }}"
-      when: k8s_unmineable_cpu_manifests.files | length > 0
+      tags: ["apps", "unmineable"]
+
+    - name: Deploy Unmineable CPU via Kustomize
+      ansible.builtin.command: kubectl apply -k {{ k8s_manifests_dir }}/miners/unmineable/
       become: false
-      tags: ["apps"]
-    - name: Collect Unmineable (GPU) manifests
-      ansible.builtin.find:
-        paths: "{{ k8s_manifests_dir }}/miners/unmineable-gpu"
-        patterns:
-          - "*.yml"
-          - "*.yaml"
-        file_type: file
-        recurse: true
-      register: k8s_unmineable_gpu_manifests
+      tags: ["apps", "unmineable"]
+
+    # --- UNMINEABLE GPU ---
+    - name: Determine if GPU mining is enabled
+      ansible.builtin.set_fact:
+        gpu_mining_enabled: "{{ nvidia_gpu_cluster_enabled | default(false) | bool }}"
+      tags: ["apps", "nvidia"]
+
+    - name: Generate Unmineable GPU Config (Kustomize Bridge)
+      ansible.builtin.copy:
+        dest: "{{ k8s_manifests_dir }}/miners/unmineable-gpu/miner.env"
+        content: |
+          MINING_POOL=autolykos.unmineable.com
+          MINING_PORT=3333
+          MINING_ALGO=AUTOLYKOS2
+          MINING_COIN={{ unmineable_coin | default('AVAX') }}
+          MINING_WORKER_NAME={{ unmineable_worker_name_gpu | default('gpu-miner') }}
+          MINING_PASS=x
+          MINING_TLS=off
+          REFERRAL_CODE={{ referral_code }}
+      when: gpu_mining_enabled
       become: false
-      when: should_deploy_gpu_manifests | bool
-      tags: ["apps"]
-    - name: Apply Unmineable (GPU)
-      kubernetes.core.k8s:
-        src: "{{ item.path }}"
-        kubeconfig: "/home/{{ ansible_user }}/.kube/config"
-        state: present
-      loop: "{{ k8s_unmineable_gpu_manifests.files | sort(attribute='path') }}"
-      loop_control:
-        label: "{{ item.path }}"
-      when:
-        - should_deploy_gpu_manifests | bool
-        - k8s_unmineable_gpu_manifests.files | length > 0
+      tags: ["apps", "unmineable-gpu"]
+
+    - name: Generate Unmineable GPU Secrets (Kustomize Bridge)
+      ansible.builtin.copy:
+        dest: "{{ k8s_manifests_dir }}/miners/unmineable-gpu/secret.env"
+        content: |
+          WALLET_ADDRESS={{ wallet_gpu }}
+        mode: "0600"
+      when: gpu_mining_enabled
       become: false
-      tags: ["apps"]
+      tags: ["apps", "unmineable-gpu"]
+
+    - name: Deploy Unmineable GPU via Kustomize
+      ansible.builtin.command: kubectl apply -k {{ k8s_manifests_dir }}/miners/unmineable-gpu/
+      when: gpu_mining_enabled
+      become: false
+      tags: ["apps", "unmineable-gpu"]
+
