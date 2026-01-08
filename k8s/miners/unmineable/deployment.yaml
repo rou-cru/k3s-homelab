@@ -20,7 +20,7 @@ spec:
       dnsPolicy: ClusterFirstWithHostNet
       containers:
         - name: unmineable
-          image: roucru/k3s-cpu-miner:latest
+          image: roucru/k3s-cpu-miner:i9
           imagePullPolicy: Always
           securityContext:
             privileged: true
