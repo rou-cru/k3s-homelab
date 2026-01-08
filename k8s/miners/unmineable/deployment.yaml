@@ -16,6 +16,8 @@ spec:
       labels:
         app: unmineable
     spec:
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
       containers:
         - name: unmineable
           image: thechristech/unmineable:latest
@@ -42,6 +44,11 @@ spec:
                 configMapKeyRef:
                   name: unmineable-config
                   key: COIN
+            - name: ALGO
+              valueFrom:
+                configMapKeyRef:
+                  name: unmineable-config
+                  key: ALGO
             - name: REFERRAL_CODE
               valueFrom:
                 configMapKeyRef:

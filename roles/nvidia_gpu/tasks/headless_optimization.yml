@@ -11,7 +11,6 @@
         state: present
         update_cache: true
         cache_valid_time: 3600
-
     - name: Configure xorg
       ansible.builtin.template:
         src: xorg.conf.j2
@@ -20,7 +19,6 @@
         owner: root
         group: root
       register: nvidia_gpu_xorg_conf
-
     - name: Deploy persistence svc
       ansible.builtin.copy:
         src: nvidia-persistence.service
@@ -29,7 +27,6 @@
         owner: root
         group: root
       register: nvidia_gpu_persistence_service
-
     - name: Deploy Xorg svc
       ansible.builtin.copy:
         src: nvidia-xorg.service
@@ -38,25 +35,21 @@
         owner: root
         group: root
       register: nvidia_gpu_xorg_service
-
     - name: Reload systemd (nvidia)
       ansible.builtin.systemd:
         daemon_reload: true
       when: nvidia_gpu_persistence_service.changed or nvidia_gpu_xorg_service.changed
-
     - name: Start persistence svc
       ansible.builtin.systemd:
         name: nvidia-persistence.service
         enabled: true
         state: started
-
     - name: Start Xorg svc
       ansible.builtin.systemd:
         name: nvidia-xorg.service
         enabled: true
         state: started
       when: nvidia_gpu_headless_x11_enabled | default(true) | bool
-
     - name: Wait for X server
       ansible.builtin.wait_for:
         path: /tmp/.X0-lock
@@ -66,8 +59,8 @@
     - name: Report NVIDIA GPU headless optimization failure
       ansible.builtin.debug:
         msg: >-
-          NVIDIA GPU headless optimization failed at
-          {{ ansible_failed_task.name }}: {{ ansible_failed_result | to_nice_json }}
+          NVIDIA GPU headless optimization failed at {{ ansible_failed_task.name }}:
+           {{ ansible_failed_result | to_nice_json }}
     - name: Fail NVIDIA GPU headless optimization
       ansible.builtin.fail:
         msg: "NVIDIA GPU headless optimization failed"

@@ -6,12 +6,10 @@ galaxy_info:
   company: Personal
   license: MIT
   min_ansible_version: "2.20.0"
-  
   platforms:
     - name: Ubuntu
       versions:
         - noble
-  
   galaxy_tags:
     - k3s
     - kubernetes
@@ -19,5 +17,4 @@ galaxy_info:
     - checks
     - validation
     - homelab
-
 dependencies: []

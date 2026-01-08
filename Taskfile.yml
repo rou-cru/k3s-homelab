@@ -46,7 +46,6 @@ tasks:
     deps:
       - render-rog-tweaks
       - render-network-opt
-
   docs:generate:
     desc: "Generate README.md for all roles using Docsible (with graphs)"
     cmds:
@@ -57,7 +56,6 @@ tasks:
           .venv/bin/docsible --role "$role" --graph --comments --task-line --no-backup --no-docsible
         done
       - echo "✅ Documentation generated."
-
   validate:
     desc: "Validate all files (YAML, Ansible, Jinja2, Bash)"
     cmds:
@@ -226,7 +224,6 @@ tasks:
       - openssl rand -base64 32 > .ansible_vault_pass
       - chmod 600 .ansible_vault_pass
       - echo "🔑 Generated .ansible_vault_pass"
-
   secrets:set:
     desc: "Encrypt and set a secret (usage: task secrets:set -- KEY VALUE)"
     deps:
@@ -246,7 +243,6 @@ tasks:
         ansible-vault encrypt_string --vault-password-file .ansible_vault_pass \
           "{{.VAL}}" --name "{{.KEY}}" >> secrets.yaml
       - echo "✅ Added {{.KEY}} to secrets.yaml"
-
   secrets:setup:
     desc: "Interactive setup for all required secrets"
     deps:

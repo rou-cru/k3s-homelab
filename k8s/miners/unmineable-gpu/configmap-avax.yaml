@@ -9,7 +9,7 @@ data:
   MINING_POOL: "autolykos.unmineable.com"
   MINING_PORT: "3333"
   MINING_ALGO: "AUTOLYKOS2"
-  MINING_COIN: "AVAX"
+  MINING_COIN: "BNB"
   MINING_PASS: "x"
   MINING_TLS: "off"
   REFERRAL_CODE: "18ps-7t5s"

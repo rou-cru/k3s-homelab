@@ -6,12 +6,10 @@
       - tailscale_ip | length > 0
       - tailscale_ip is match('^100\.')
     fail_msg: "ERROR: Invalid tailscale_ip ({{ tailscale_ip | default('undefined') }}). Must be 100.x.x.x"
-
 - name: Check uninstall script
   ansible.builtin.stat:
     path: /usr/local/bin/k3s-uninstall.sh
   register: k3s_uninstall_script
-
 - name: Recreate cluster
   ansible.builtin.command: /usr/local/bin/k3s-uninstall.sh
   when:
@@ -19,7 +17,6 @@
     - k3s_uninstall_script.stat.exists
   register: k3s_uninstall
   changed_when: k3s_uninstall.rc == 0
-
 - name: Cleanup directories
   ansible.builtin.file:
     path: "{{ item }}"
@@ -33,20 +30,17 @@
   when:
     - k3s_server_recreate | bool
     - k3s_uninstall_script.stat.exists
-
 - name: Create config dir
   ansible.builtin.file:
     path: /etc/rancher/k3s
     state: directory
     mode: "0755"
-
 - name: Deploy config
   ansible.builtin.template:
     src: config.yaml.j2
     dest: /etc/rancher/k3s/config.yaml
     mode: "0600"
   notify: Restart k3s
-
 - name: Install K3s
   ansible.builtin.shell: |
     set -o pipefail
@@ -56,13 +50,11 @@
   args:
     executable: /bin/bash
     creates: /usr/local/bin/k3s
-
 - name: Create override dir
   ansible.builtin.file:
     path: /etc/systemd/system/k3s.service.d
     state: directory
     mode: "0755"
-
 - name: Create override
   ansible.builtin.copy:
     dest: /etc/systemd/system/k3s.service.d/override.conf
@@ -72,43 +64,35 @@
       ExecStart=/usr/local/bin/k3s server
     mode: "0644"
   notify: Restart k3s
-
 - name: Remove env file
   ansible.builtin.file:
     path: /etc/systemd/system/k3s.service.env
     state: absent
   notify: Restart k3s
-
 - name: Reload systemd (k3s)
   ansible.builtin.systemd:
     daemon_reload: true
-
 - name: Start K3s
   ansible.builtin.systemd:
     name: k3s
     enabled: true
     state: started
-
 - name: Flush handlers
   ansible.builtin.meta: flush_handlers
-
 - name: Wait for kubeconfig
   ansible.builtin.wait_for:
     path: /etc/rancher/k3s/k3s.yaml
     timeout: "{{ k3s_server_node_token_timeout }}"
   when: not ansible_check_mode
-
 - name: Read kubeconfig
   ansible.builtin.slurp:
     src: /etc/rancher/k3s/k3s.yaml
   register: k3s_kubeconfig_raw
-
 - name: Build canonical config
   ansible.builtin.set_fact:
     k3s_kubeconfig_canonical: |
       {{ k3s_kubeconfig_raw.content | b64decode |
          regex_replace('https://[0-9.]+:6443', 'https://' + tailscale_ip + ':6443') }}
-
 - name: Write server config
   ansible.builtin.copy:
     content: "{{ k3s_kubeconfig_canonical }}"
@@ -116,7 +100,6 @@
     owner: root
     group: root
     mode: "{{ k3s_server_kubeconfig_mode }}"
-
 - name: Create user kube dir
   ansible.builtin.file:
     path: "/home/{{ ansible_user }}/.kube"
@@ -124,7 +107,6 @@
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
     mode: "0700"
-
 - name: Write user config
   ansible.builtin.copy:
     content: "{{ k3s_kubeconfig_canonical }}"
@@ -132,7 +114,6 @@
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
     mode: "0600"
-
 - name: Wait for apiserver
   ansible.builtin.command: kubectl api-resources
   register: k3s_server_readyz
@@ -144,10 +125,10 @@
   become: false
   environment:
     KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
-
 - name: Remove Traefik
   ansible.builtin.command: >
     kubectl -n kube-system delete helmchart traefik traefik-crd --ignore-not-found
+
   register: k3s_traefik_cleanup
   changed_when: "'deleted' in k3s_traefik_cleanup.stdout"
   when:
@@ -156,7 +137,6 @@
   become: false
   environment:
     KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
-
 - name: Copy local config
   when:
     - k3s_server_copy_kubeconfig_local | default(true) | bool
@@ -197,8 +177,7 @@
     - name: Report kubeconfig copy failure
       ansible.builtin.debug:
         msg: >-
-          Kubeconfig copy failed at
-          {{ ansible_failed_task.name }}: {{ ansible_failed_result | to_nice_json }}
+          Kubeconfig copy failed at {{ ansible_failed_task.name }}: {{ ansible_failed_result | to_nice_json }}
     - name: Fail kubeconfig copy
       ansible.builtin.fail:
         msg: "Kubeconfig copy to local machine failed"

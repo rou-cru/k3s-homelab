@@ -22,3 +22,10 @@
     - suspend.target
     - hibernate.target
     - hybrid-sleep.target
+- name: Configure Power Efficiency Tuning (tmpfiles.d)
+  ansible.builtin.template:
+    src: energy-tuning.conf.j2
+    dest: /etc/tmpfiles.d/energy-tuning.conf
+    mode: '0644'
+  when: common_power_efficiency_tuning_enabled | bool
+  notify: Apply power tuning

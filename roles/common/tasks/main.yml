@@ -28,7 +28,6 @@
     state: present
 - name: Install dependencies
   ansible.builtin.include_tasks: dependencies.yml
-
 - name: Install HWE kernel
   ansible.builtin.apt:
     name: "{{ hwe_kernel_package }}"
@@ -45,15 +44,14 @@
 - name: Register kernel change
   ansible.builtin.set_fact:
     common_kernel_changed: >-
-      {{ (common_hwe_kernel_install.changed | default(false)) or
-      (common_generic_kernel_install.changed | default(false)) }}
+      {{ (common_hwe_kernel_install.changed | default(false))
+      or (common_generic_kernel_install.changed | default(false)) }}
 - name: Configure power
   ansible.builtin.include_tasks: power_management.yml
 - name: Apply hardware tuning
   ansible.builtin.include_tasks: hardware_tuning.yml
 - name: Apply system tuning
   ansible.builtin.include_tasks: system_tuning.yml
-
 - name: Apply ROG tweaks
   ansible.builtin.include_tasks: rog_hardware.yml
   when: common_rog_server | default(true) | bool
@@ -61,7 +59,6 @@
   ansible.builtin.set_fact:
     common_network_driver_changed: false
   when: common_network_driver_changed is not defined
-
 - name: Reboot system (kernel/network)
   ansible.builtin.reboot:
     msg: "Rebooting to load HWE Kernel and Network Drivers (Consolidated Phase 1)"
@@ -71,6 +68,5 @@
     post_reboot_delay: 30
     test_command: whoami
   when: (common_kernel_changed | default(false)) or (common_network_driver_changed | default(false))
-
 - name: Configure Helm
   ansible.builtin.include_tasks: helm_setup.yml

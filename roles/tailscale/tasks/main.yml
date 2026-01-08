@@ -18,17 +18,15 @@
   changed_when: false
   failed_when: false
   check_mode: false
-
 - name: Determine state
   ansible.builtin.set_fact:
     # Check if BackendState is Running and Self.Online is true
     tailscale_is_running: >-
       {{
+
         tailscale_status_json.rc == 0 and
         (tailscale_status_json.stdout | from_json).BackendState == 'Running'
       }}
-
-
 - name: Configure Tailscale
   ansible.builtin.shell: |
     tailscale up \
@@ -45,7 +43,6 @@
     - tailscale_up.rc == 0
     - "'Success' not in tailscale_up.stdout"
     - tailscale_up.stderr | length > 0
-
 - name: Wait for IP
   ansible.builtin.shell: |
     set -o pipefail
@@ -63,9 +60,7 @@
 - name: Set IP fact
   ansible.builtin.set_fact:
     tailscale_ip: >-
-      {{ (tailscale_ip_cmd.stdout_lines | default([])) |
-      first |
-      default(tailscale_ip_cmd.stdout | trim) }}
+      {{ (tailscale_ip_cmd.stdout_lines | default([])) | first | default(tailscale_ip_cmd.stdout | trim) }}
 - name: Validate connectivity
   ansible.builtin.wait_for:
     host: "{{ tailscale_ip }}"
@@ -73,7 +68,6 @@
     timeout: 10
   ignore_errors: true
   register: tailscale_connectivity_check
-
 - name: Warn connectivity
   ansible.builtin.debug:
     msg: "⚠️  Tailscale connectivity failed: {{ tailscale_ip }}:22"

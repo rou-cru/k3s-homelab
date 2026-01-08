@@ -7,13 +7,11 @@
         state: file
         suffix: "-nvidia-device-plugin-values.yaml"
       register: nvidia_device_plugin_values_tmp
-
     - name: Copy values
       ansible.builtin.copy:
         src: nvidia-device-plugin-values.yaml
         dest: "{{ nvidia_device_plugin_values_tmp.path }}"
         mode: "0600"
-
     - name: Install device plugin
       kubernetes.core.helm:
         release_name: nvidia-device-plugin
@@ -23,7 +21,6 @@
           - "{{ nvidia_device_plugin_values_tmp.path }}"
         chart_version: "{{ nvidia_gpu_device_plugin_version }}"
         kubeconfig: "/home/{{ ansible_user }}/.kube/config"
-
     - name: Wait for daemonset
       ansible.builtin.command: >-
         kubectl -n kube-system rollout status ds/nvidia-device-plugin --timeout=300s
@@ -31,7 +28,6 @@
       changed_when: false
       environment:
         KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
-
     - name: Check GPU resources
       ansible.builtin.shell: >-
         kubectl get nodes -o json | jq -r '.items[].status.capacity["nvidia.com/gpu"]'
@@ -40,7 +36,6 @@
       failed_when: false
       environment:
         KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
-
     - name: Debug GPU resources
       ansible.builtin.debug:
         msg: "✅ GPU resources detected: {{ gpu_resources_check.stdout_lines | join(', ') }}"
@@ -48,8 +43,7 @@
     - name: Report NVIDIA GPU cluster setup failure
       ansible.builtin.debug:
         msg: >-
-          NVIDIA GPU cluster setup failed at
-          {{ ansible_failed_task.name }}: {{ ansible_failed_result | to_nice_json }}
+          NVIDIA GPU cluster setup failed at {{ ansible_failed_task.name }}: {{ ansible_failed_result | to_nice_json }}
     - name: Fail NVIDIA GPU cluster setup
       ansible.builtin.fail:
         msg: "NVIDIA GPU cluster setup failed"

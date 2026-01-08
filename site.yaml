@@ -34,14 +34,16 @@
       ansible.builtin.import_role:
         name: common
       tags: ["host", "os"]
-
+    - name: Run glances monitoring
+      ansible.builtin.import_role:
+        name: glances
+      tags: ["host", "monitoring"]
     - name: Run common network optimizations
       ansible.builtin.import_role:
         name: common
         tasks_from: network_optimization.yml
       when: common_network_optimization_enabled | default(true)
       tags: ["host", "os", "network"]
-
     - name: Run developer tools role
       ansible.builtin.import_role:
         name: developer_tools
@@ -54,7 +56,6 @@
         tasks_from: host.yml
       tags: ["host", "nvidia"]
       when: nvidia_gpu_setup_mode != 'false'
-
     # NVIDIA GPU Headless Optimization - X11, persistence mode (host-only)
     - name: Run NVIDIA GPU headless optimization
       ansible.builtin.import_role:
@@ -65,11 +66,11 @@
         - nvidia_gpu_active | default(false) | bool
         - nvidia_gpu_headless_enabled | default(true) | bool
       ignore_errors: true
-
     - name: Determine if NVIDIA GPU cluster setup should run
       ansible.builtin.set_fact:
         nvidia_gpu_cluster_enabled: >-
           {{
+
             (nvidia_gpu_setup_mode == 'true') or
             (
               (nvidia_gpu_active | default(false) | bool) and
@@ -77,7 +78,6 @@
             )
           }}
       tags: ["host", "cluster", "nvidia"]
-
     - name: Run tailscale role
       ansible.builtin.import_role:
         name: tailscale
@@ -99,7 +99,6 @@
       tags: ["cluster", "nvidia"]
       when: nvidia_gpu_cluster_enabled | default(false) | bool
       become: false
-
   post_tasks:
     - name: Remove Kubernetes manifests directory on remote
       ansible.builtin.file:
@@ -107,7 +106,6 @@
         state: absent
       become: false
       tags: ["apps"]
-
     - name: Copy Kubernetes manifests to remote
       ansible.builtin.copy:
         src: k8s/
@@ -116,7 +114,6 @@
         mode: "0644"
       become: false
       tags: ["apps"]
-
     - name: Template Honeygain Secret on remote
       ansible.builtin.template:
         src: k8s/miners/honeygain/secret.yaml.j2
@@ -124,7 +121,6 @@
         mode: "0600"
       become: false
       tags: ["apps"]
-
     - name: Collect namespace manifests
       ansible.builtin.find:
         paths: "{{ k8s_manifests_dir }}/namespaces"
@@ -136,7 +132,6 @@
       register: k8s_namespace_manifests
       become: false
       tags: ["apps"]
-
     - name: Apply K8s namespaces
       kubernetes.core.k8s:
         src: "{{ item.path }}"
@@ -148,15 +143,14 @@
       when: k8s_namespace_manifests.files | length > 0
       become: false
       tags: ["apps"]
-
     - name: Determine if GPU manifests should be deployed
       ansible.builtin.set_fact:
         should_deploy_gpu_manifests: >-
           {{
+
             nvidia_gpu_cluster_enabled | default(false)
           }}
       tags: ["apps"]
-
     - name: Collect Honeygain manifests
       ansible.builtin.find:
         paths: "{{ k8s_manifests_dir }}/miners/honeygain"
@@ -168,7 +162,6 @@
       register: k8s_honeygain_manifests
       become: false
       tags: ["apps"]
-
     - name: Apply Honeygain workload
       kubernetes.core.k8s:
         src: "{{ item.path }}"
@@ -180,7 +173,6 @@
       when: k8s_honeygain_manifests.files | length > 0
       become: false
       tags: ["apps"]
-
     - name: Collect Unmineable (CPU) manifests
       ansible.builtin.find:
         paths: "{{ k8s_manifests_dir }}/miners/unmineable"
@@ -192,7 +184,6 @@
       register: k8s_unmineable_cpu_manifests
       become: false
       tags: ["apps"]
-
     - name: Apply Unmineable (CPU)
       kubernetes.core.k8s:
         src: "{{ item.path }}"
@@ -204,7 +195,6 @@
       when: k8s_unmineable_cpu_manifests.files | length > 0
       become: false
       tags: ["apps"]
-
     - name: Collect Unmineable (GPU) manifests
       ansible.builtin.find:
         paths: "{{ k8s_manifests_dir }}/miners/unmineable-gpu"
@@ -217,7 +207,6 @@
       become: false
       when: should_deploy_gpu_manifests | bool
       tags: ["apps"]
-
     - name: Apply Unmineable (GPU)
       kubernetes.core.k8s:
         src: "{{ item.path }}"

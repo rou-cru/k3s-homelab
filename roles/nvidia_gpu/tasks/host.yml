@@ -8,21 +8,20 @@
         state: present
         update_cache: true
         cache_valid_time: 3600
-      # Ensure pciutils for GPU detection
+        # Ensure pciutils for GPU detection
     - name: Normalize setup mode
       ansible.builtin.set_fact:
         nvidia_gpu_setup_mode: "{{ nvidia_gpu_setup | default('auto') | string | lower }}"
       when: nvidia_gpu_setup_mode is not defined
-
     - name: Get PCI vendors
       ansible.builtin.shell: cat /sys/bus/pci/devices/*/vendor
       register: pci_vendor_ids_output
       changed_when: false
-
     - name: Debug PCI Vendors
       ansible.builtin.debug:
         msg: >-
           Found PCI Vendors: {{
+
             pci_vendor_ids_output.stdout_lines
             | default([])
             | map('trim')
@@ -30,11 +29,11 @@
             | list
           }}
       tags: ["host", "nvidia", "debug"]
-
     - name: Detect GPU
       ansible.builtin.set_fact:
         nvidia_gpu_present: >-
           {{
+
             '0x10de' in (
               pci_vendor_ids_output.stdout_lines
               | default([])
@@ -44,32 +43,27 @@
             )
           }}
       changed_when: false
-
     - name: Set GPU active (auto)
       ansible.builtin.set_fact:
         nvidia_gpu_active: "{{ nvidia_gpu_present | default(false) }}"
         cacheable: yes
       when: nvidia_gpu_setup_mode == 'auto'
-
     - name: Set GPU active (forced)
       ansible.builtin.set_fact:
         nvidia_gpu_active: true
         cacheable: yes
       when: nvidia_gpu_setup_mode == 'true'
-
     - name: Fail if GPU missing
       ansible.builtin.fail:
         msg: "GPU Setup forced but no NVIDIA GPU detected"
       when:
         - nvidia_gpu_setup_mode == 'true'
         - not (nvidia_gpu_present | default(false))
-
     - name: Set GPU active (disabled)
       ansible.builtin.set_fact:
         nvidia_gpu_active: false
         cacheable: yes
       when: nvidia_gpu_setup_mode == 'false'
-
     - name: Install driver deps
       ansible.builtin.apt:
         name:
@@ -100,9 +94,8 @@
       when:
         - nvidia_gpu_driver_package == "auto"
         - >-
-          (nvidia_gpu_detected_driver.skipped is defined and
-          nvidia_gpu_detected_driver.skipped) or
-          (nvidia_gpu_detected_driver.stdout | length == 0)
+          (nvidia_gpu_detected_driver.skipped is defined and nvidia_gpu_detected_driver.skipped)
+          or (nvidia_gpu_detected_driver.stdout | length == 0)
         - nvidia_gpu_active | default(false) | bool
     - name: Set manual driver
       ansible.builtin.set_fact:
@@ -198,8 +191,7 @@
     - name: Report NVIDIA GPU host setup failure
       ansible.builtin.debug:
         msg: >-
-          NVIDIA GPU host setup failed at
-          {{ ansible_failed_task.name }}: {{ ansible_failed_result | to_nice_json }}
+          NVIDIA GPU host setup failed at {{ ansible_failed_task.name }}: {{ ansible_failed_result | to_nice_json }}
     - name: Fail NVIDIA GPU host setup
       ansible.builtin.fail:
         msg: "NVIDIA GPU host setup failed"

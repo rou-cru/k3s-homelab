@@ -13,55 +13,46 @@ argument_specs:
         required: false
         default: "v1.34.3+k3s1"
         description: K3s version to install (e.g., v1.34.3+k3s1).
-      
       k3s_server_disable_traefik:
         type: bool
         required: false
         default: true
         description: Disables the default Traefik ingress controller.
-      
       k3s_server_disable_servicelb:
         type: bool
         required: false
         default: true
         description: Disables the default ServiceLB load balancer.
-      
       k3s_server_kubeconfig_mode:
         type: str
         required: false
         default: "0644"
         description: File permission mode for the generated kubeconfig on the server.
-      
       k3s_server_node_token_timeout:
         type: int
         required: false
         default: 180
         description: Timeout (seconds) to wait for K3s generated config/token presence.
-      
       k3s_server_readyz_retries:
         type: int
         required: false
         default: 30
         description: Number of retries for the API server readiness check.
-      
       k3s_server_readyz_delay:
         type: int
         required: false
         default: 2
         description: Delay (seconds) between readiness check retries.
-      
       k3s_server_recreate:
         type: bool
         required: false
         default: true
         description: If true, uninstalls and wipes previous K3s installation before deploying.
-      
       k3s_server_copy_kubeconfig_local:
         type: bool
         required: false
         default: true
         description: If true, copies the generated kubeconfig to the Ansible controller.
-      
       k3s_server_local_kubeconfig_path:
         type: str
         required: false

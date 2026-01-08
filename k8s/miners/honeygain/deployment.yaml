@@ -16,6 +16,8 @@ spec:
       labels:
         app: honeygain
     spec:
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
       containers:
         - name: honeygain
           image: honeygain/honeygain:latest

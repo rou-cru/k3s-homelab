@@ -5,7 +5,6 @@
     state: directory
     mode: '0755'
   become: false
-
 - name: Add Helm Repositories
   kubernetes.core.helm_repository:
     name: "{{ item.name }}"

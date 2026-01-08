@@ -24,11 +24,11 @@
       register: common_grub_aspm
       failed_when: false
       changed_when: >-
-        common_grub_aspm.changed and
-        common_grub_aspm.diff is defined and
-        common_grub_aspm.diff.before is defined and
-        common_grub_aspm.diff.before is string and
-        "pcie_aspm=off" not in common_grub_aspm.diff.before
+        common_grub_aspm.changed
+        and common_grub_aspm.diff is defined
+        and common_grub_aspm.diff.before is defined
+        and common_grub_aspm.diff.before is string
+        and "pcie_aspm=off" not in common_grub_aspm.diff.before
     # Prevents parameter duplication if the regex already added it
     - name: Deduplicate ASPM arg # noqa: no-handler
       ansible.builtin.replace:
@@ -45,14 +45,14 @@
         common_network_driver_changed: >-
           {{ common_r8168_install.changed or
 
+
              common_r8169_blacklist.changed or
              common_grub_aspm.changed }}
   rescue:
     - name: Report RoG/Realtek optimization failure
       ansible.builtin.debug:
         msg: >-
-          RoG/Realtek optimization failed at
-          {{ ansible_failed_task.name }}: {{ ansible_failed_result | to_nice_json }}
+          RoG/Realtek optimization failed at {{ ansible_failed_task.name }}: {{ ansible_failed_result | to_nice_json }}
     - name: Fail RoG/Realtek optimization
       ansible.builtin.fail:
         msg: "RoG/Realtek optimization failed"

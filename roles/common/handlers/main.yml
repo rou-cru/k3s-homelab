@@ -9,3 +9,5 @@
     name: cpufrequtils
     state: restarted
   ignore_errors: "{{ ansible_check_mode }}"
+- name: Apply power tuning
+  ansible.builtin.command: systemd-tmpfiles --create /etc/tmpfiles.d/energy-tuning.conf

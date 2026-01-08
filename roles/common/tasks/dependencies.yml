@@ -7,7 +7,6 @@
       - python3-yaml
       - python3-jsonpatch
     state: present
-
 - name: Install Helm (if not present)
   ansible.builtin.shell: |
     curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash >/dev/null 2>&1

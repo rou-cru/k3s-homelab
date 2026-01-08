@@ -1,0 +1,8 @@
+---
+glances_state: present
+glances_port: 61208
+glances_bind_address: "0.0.0.0"
+glances_venv_path: "/opt/glances"
+# Install 'all' extras for full sensor support, web server, gpu, etc.
+glances_packages:
+  - "glances[all]"

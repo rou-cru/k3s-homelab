@@ -5,9 +5,10 @@ metadata:
   name: unmineable-config
   namespace: miners
 data:
-  POOL: "rx.unmineable.com:3333"
-  COIN: "BNB"
+  POOL: "stratum+ssl://rx.unmineable.com:443"
+  ALGO: "rx/0"
+  COIN: "AVAX"
   REFERRAL_CODE: "18ps-7t5s"
   WORKER_NAME: "home-miner"
-  MINING_THREADS: "8"
-  CPU_AFFINITY_MASK: "0x5555"
+  MINING_THREADS: "12"
+  CPU_AFFINITY_MASK: "0x0FFF0000"

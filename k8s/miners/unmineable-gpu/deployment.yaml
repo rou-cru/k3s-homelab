@@ -16,6 +16,8 @@ spec:
       labels:
         app: unmineable-gpu
     spec:
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
       runtimeClassName: nvidia
       affinity:
         nodeAffinity:
