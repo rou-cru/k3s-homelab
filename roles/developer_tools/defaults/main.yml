@@ -1,0 +1,6 @@
+---
+# Title: Install Docker
+# Description: Installs Docker CLI (not recommended for K3s nodes which use containerd).
+# Type: bool
+# Required: false
+devtools_install_docker: false

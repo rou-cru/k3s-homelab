@@ -1,0 +1,103 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: miners
+  name: unmineable-gpu-deployment
+  labels:
+    app: unmineable-gpu
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: unmineable-gpu
+  template:
+    metadata:
+      labels:
+        app: unmineable-gpu
+    spec:
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      runtimeClassName: nvidia
+      tolerations:
+        - key: "miner.gpu"
+          operator: "Equal"
+          value: "true"
+          effect: "NoSchedule"
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: miner.gpu
+                    operator: In
+                    values: ["true"]
+                  - key: nvidia.com/gpu.present
+                    operator: In
+                    values: ["true"]
+              - matchExpressions:
+                  - key: miner.gpu
+                    operator: In
+                    values: ["true"]
+                  - key: feature.node.kubernetes.io/pci-10de.present
+                    operator: In
+                    values: ["true"]
+      containers:
+        - name: unmineable-gpu
+          image: roucru/k3s-gpu-miner:latest
+          imagePullPolicy: Always
+          env:
+            - name: WALLET_ADDRESS
+              valueFrom:
+                secretKeyRef:
+                  name: unmineable-gpu-secret
+                  key: WALLET_ADDRESS
+            - name: MINING_WORKER_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: unmineable-gpu-config
+                  key: MINING_WORKER_NAME
+            - name: MINING_POOL
+              valueFrom:
+                configMapKeyRef:
+                  name: unmineable-gpu-config
+                  key: MINING_POOL
+            - name: MINING_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: unmineable-gpu-config
+                  key: MINING_PORT
+            - name: MINING_ALGO
+              valueFrom:
+                configMapKeyRef:
+                  name: unmineable-gpu-config
+                  key: MINING_ALGO
+            - name: MINING_COIN
+              valueFrom:
+                configMapKeyRef:
+                  name: unmineable-gpu-config
+                  key: MINING_COIN
+            - name: REFERRAL_CODE
+              valueFrom:
+                secretKeyRef:
+                  name: unmineable-gpu-secret
+                  key: REFERRAL_CODE
+            - name: MINING_PASS
+              valueFrom:
+                configMapKeyRef:
+                  name: unmineable-gpu-config
+                  key: MINING_PASS
+            - name: MINING_TLS
+              valueFrom:
+                configMapKeyRef:
+                  name: unmineable-gpu-config
+                  key: MINING_TLS
+            - name: NVIDIA_VISIBLE_DEVICES
+              value: "all"
+            - name: NVIDIA_DRIVER_CAPABILITIES
+              value: "all"
+          resources:
+            limits:
+              nvidia.com/gpu: "1"

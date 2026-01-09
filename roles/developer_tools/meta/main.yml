@@ -1,0 +1,21 @@
+---
+galaxy_info:
+  role_name: developer_tools
+  author: Roura
+  description: Installs development tools and useful CLIs for K3s environments.
+  company: Personal
+  license: MIT
+  min_ansible_version: "2.20.0"
+  platforms:
+    - name: Ubuntu
+      versions:
+        - noble
+  galaxy_tags:
+    - k3s
+    - kubernetes
+    - development
+    - tools
+    - cli
+    - productivity
+    - homelab
+dependencies: []

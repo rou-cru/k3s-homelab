@@ -1,0 +1,10 @@
+# {{ ansible_managed }}
+# Intel Power & Efficiency Tuning
+# See: https://www.kernel.org/doc/html/latest/admin-guide/pm/intel_pstate.html
+#      https://www.kernel.org/doc/html/latest/power/powercap/powercap.html
+
+# Type Path Mode UID GID Age Argument
+w /sys/class/powercap/intel-rapl:0/constraint_0_power_limit_uw - - - - {{ common_intel_rapl_pl1_limit_microwatts }}
+w /sys/class/powercap/intel-rapl:0/constraint_1_power_limit_uw - - - - {{ common_intel_rapl_pl2_limit_microwatts }}
+w /sys/devices/system/cpu/intel_pstate/max_perf_pct - - - - {{ common_intel_pstate_max_perf_pct }}
+w /sys/devices/system/cpu/intel_pstate/no_turbo - - - - {{ common_intel_pstate_no_turbo }}

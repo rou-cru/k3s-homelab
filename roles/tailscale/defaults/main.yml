@@ -1,0 +1,27 @@
+---
+# Title: Hostname Prefix
+# Description: Prefix for the generated Tailscale hostname (e.g., k3s-hostname).
+# Type: str
+# Required: false
+tailscale_hostname_prefix: "k3s"
+# Title: ACL Tags
+# Description: Comma-separated list of ACL tags to advertise (e.g., tag:k3s).
+# Type: str
+# Required: false
+tailscale_tags: ""
+# Title: Accept DNS
+# Description: Whether to accept DNS configuration from the tailnet ("true"/"false").
+# Type: str
+# Required: false
+tailscale_accept_dns: "true"
+# Title: Enable SSH
+# Description: Whether to enable Tailscale SSH ("true"/"false").
+# Type: str
+# Required: false
+tailscale_ssh: "true"
+
+# Title: Tailscale install script checksum
+# Description: SHA256 for https://tailscale.com/install.sh (pin to avoid supply-chain drift).
+# Type: str
+# Required: false
+tailscale_install_script_checksum: "7fab06250c94a527d5f74002d9fb45ac9fc702c72f7901a959571112c75048f1"

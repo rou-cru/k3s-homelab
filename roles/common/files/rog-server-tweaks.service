@@ -1,0 +1,12 @@
+[Unit]
+Description=Apply ASUS RoG Server Hardware Tweaks (Battery/Turbo)
+After=asusd.service
+Wants=asusd.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/apply-rog-tweaks.sh
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

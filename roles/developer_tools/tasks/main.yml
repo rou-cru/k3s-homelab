@@ -1,0 +1,125 @@
+---
+- name: Install dev tools (apt)
+  ansible.builtin.apt:
+    name:
+      # Terminal utilities
+      - btop
+      - bat
+      - tree
+      - tmux
+      - jq
+      - curl
+      # Python ecosystem
+      - python3-venv
+      # System tools
+      - gnupg
+      - ca-certificates
+    state: present
+    update_cache: true
+# Kubernetes tools are installed in roles/common to avoid snap usage.
+# Development environments
+- name: Install NVM
+  ansible.builtin.shell: |
+    set -euo pipefail
+    curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+  args:
+    creates: /root/.nvm/nvm.sh
+    executable: /bin/bash
+- name: Install latest Node.js LTS via NVM
+  ansible.builtin.shell: |
+    set -euo pipefail
+    export NVM_DIR="/root/.nvm"
+    . "${NVM_DIR}/nvm.sh"
+    nvm install --lts
+    nvm alias default 'lts/*'
+  args:
+    executable: /bin/bash
+- name: Enable Corepack and activate pnpm
+  ansible.builtin.shell: |
+    set -euo pipefail
+    export NVM_DIR="/root/.nvm"
+    . "${NVM_DIR}/nvm.sh"
+    corepack enable
+    corepack prepare pnpm@latest --activate
+  args:
+    executable: /bin/bash
+- name: Install Devbox
+  ansible.builtin.shell: |
+    curl -fsSL https://get.jetpack.io/devbox | bash >/dev/null 2>&1
+  args:
+    creates: /usr/local/bin/devbox
+# Python package manager (uv)
+- name: Install uv
+  ansible.builtin.shell: |
+    curl -LsSf https://astral.sh/uv/install.sh | sh >/dev/null 2>&1
+  args:
+    creates: /root/.cargo/bin/uv
+  environment:
+    CARGO_HOME: /root/.cargo
+# Python CLI tools (pipx/uv)
+- name: Install nvitop
+  ansible.builtin.command: uv tool install nvitop
+  args:
+    creates: /root/.local/bin/nvitop
+  environment:
+    PATH: "/root/.cargo/bin:{{ ansible_facts['env']['PATH'] }}"
+  when: nvidia_gpu_setup_mode | default('auto') != 'false'
+- name: Install Kimi
+  ansible.builtin.command: uv tool install kimi-cli
+  args:
+    creates: /root/.local/bin/kimi
+  environment:
+    PATH: "/root/.cargo/bin:{{ ansible_facts['env']['PATH'] }}"
+  ignore_errors: true
+# AI CLI tools (npm)
+- name: Install AI tools
+  ansible.builtin.shell: |
+    set -euo pipefail
+    export NVM_DIR="/root/.nvm"
+    . "${NVM_DIR}/nvm.sh"
+    npm install -g {{ item }}
+  args:
+    executable: /bin/bash
+  loop:
+    - "@anthropic-ai/claude-code"
+    - "@google/gemini-cli"
+    - "@qwen-code/qwen-code"
+    - "@openai/codex"
+  ignore_errors: true
+# Docker (optional, disabled by default)
+- name: Install Docker
+  when: devtools_install_docker | default(false) | bool
+  block:
+    - name: Add Docker key
+      ansible.builtin.shell: |
+        set -o pipefail
+        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | \
+          gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+      args:
+        creates: /usr/share/keyrings/docker-archive-keyring.gpg
+    - name: Add Docker repo
+      ansible.builtin.apt_repository:
+        repo: >-
+          deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg]
+          https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
+        state: present
+        filename: docker
+    - name: Install Docker CLI
+      ansible.builtin.apt:
+        name:
+          - docker-ce-cli
+          - docker-buildx-plugin
+          - docker-compose-plugin
+        state: present
+        update_cache: true
+    - name: Show Docker warning
+      ansible.builtin.debug:
+        msg: "⚠️  Docker CLI installed (containerd used by K3s)"
+  rescue:
+    - name: Report Docker installation failure
+      ansible.builtin.debug:
+        msg: >-
+          Docker installation failed at {{ ansible_failed_task.name }}: {{ ansible_failed_result | to_nice_json }}
+    - name: Fail Docker installation
+      ansible.builtin.fail:
+        msg: "Docker installation failed"

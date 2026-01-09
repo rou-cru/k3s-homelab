@@ -21,6 +21,9 @@ network_report.txt
 
 # IDE and editor directories
 .codex/log/
+.codex/auth.json
+.codex/history.jsonl
+.codex/version.json
 .vscode/
 .idea/
 
@@ -37,3 +40,8 @@ k8s-manifests/
 # Secrets
 k8s/miners/unmineable/secret.env
 k8s/miners/unmineable-gpu/secret.env
+k8s/miners/unmineable/miner.env
+k8s/miners/unmineable-gpu/miner.env
+k8s/miners/honeygain/config.env
+k8s/miners/honeygain/secret.env
+secrets.yaml

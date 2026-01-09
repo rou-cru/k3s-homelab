@@ -1,0 +1,20 @@
+---
+galaxy_info:
+  role_name: preflight
+  author: Roura
+  description: Pre-flight checks to ensure minimum system requirements are met.
+  company: Personal
+  license: MIT
+  min_ansible_version: "2.20.0"
+  platforms:
+    - name: Ubuntu
+      versions:
+        - noble
+  galaxy_tags:
+    - k3s
+    - kubernetes
+    - preflight
+    - checks
+    - validation
+    - homelab
+dependencies: []
