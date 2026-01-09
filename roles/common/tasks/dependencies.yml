@@ -1,4 +1,19 @@
 ---
+- name: Download GitHub CLI keyring
+  ansible.builtin.get_url:
+    url: https://cli.github.com/packages/githubcli-archive-keyring.gpg
+    dest: /usr/share/keyrings/githubcli-archive-keyring.gpg
+    mode: '0644'
+    force: true
+
+- name: Add GitHub CLI repository
+  ansible.builtin.apt_repository:
+    repo: >-
+      deb [arch={{ ansible_architecture }} signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]
+      https://cli.github.com/packages stable main
+    filename: github-cli
+    state: present
+
 - name: Install Python dependencies for K8s Ansible modules
   ansible.builtin.apt:
     name:
@@ -6,9 +21,21 @@
       - python3-pip
       - python3-yaml
       - python3-jsonpatch
+      # System tools requested by OS mapping
+      - gh
+      - imagemagick
+      - s-tui
+      - fbi
+      - nvtop
+      - tree
+      - tmux
+      - ripgrep
+      - make
+      - cmake
+      - ninja-build
+      - git
+      - timeshift
+      - xvfb
+      - sqlite3
     state: present
-- name: Install Helm (if not present)
-  ansible.builtin.shell: |
-    curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash >/dev/null 2>&1
-  args:
-    creates: /usr/local/bin/helm
+    update_cache: true

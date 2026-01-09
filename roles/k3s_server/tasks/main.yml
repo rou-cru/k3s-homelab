@@ -35,6 +35,22 @@
     path: /etc/rancher/k3s
     state: directory
     mode: "0755"
+
+- name: Ensure K3s log directory exists
+  ansible.builtin.file:
+    path: /var/log/k3s
+    state: directory
+    mode: '0755'
+    owner: root
+    group: root
+
+- name: Deploy K3s audit policy
+  ansible.builtin.template:
+    src: audit-policy.yaml.j2
+    dest: /etc/rancher/k3s/audit-policy.yaml
+    mode: '0600'
+  notify: Restart k3s
+
 - name: Deploy config
   ansible.builtin.template:
     src: config.yaml.j2

@@ -21,8 +21,13 @@
     state: present
     reload: true
   loop:
-    - {key: "net.core.default_qdisc", value: "fq"}
+    - {key: "net.core.default_qdisc", value: "fq_codel"}
     - {key: "net.ipv4.tcp_congestion_control", value: "bbr"}
+    # Cilium / Tailscale requirements
+    - {key: "net.ipv4.conf.default.rp_filter", value: "0"}
+    - {key: "net.ipv4.conf.all.rp_filter", value: "0"}
+    # Elastic / Logging requirement
+    - {key: "vm.max_map_count", value: "1048576"}
 - name: Increase FD limits
   community.general.pam_limits:
     domain: "*"
@@ -68,6 +73,16 @@
   community.general.modprobe:
     name: msr
     state: present
-    persistent: present
+    persistent: true
   when: common_mining_enabled | default(true)
   tags: ["os"]
+- name: Configure Nvidia modules load
+  ansible.builtin.copy:
+    dest: /etc/modules-load.d/nvidia.conf
+    content: |
+      nvidia
+      nvidia-uvm
+      nvidia-modeset
+    mode: "0644"
+  when: common_mining_enabled | default(true)
+  tags: ["os", "gpu"]

@@ -9,7 +9,7 @@
     wallet_cpu: "{{ unmineable_wallet_cpu | default(wallet_default) }}"
     wallet_gpu: "{{ unmineable_wallet_gpu | default(wallet_default) }}"
     referral_code: "{{ unmineable_referral | default('18ps-7t5s') }}"
-    
+
   vars_files:
     - "{{ secrets_file | default('secrets.yaml') }}"
   pre_tasks:
@@ -219,4 +219,3 @@
       when: gpu_mining_enabled
       become: false
       tags: ["apps", "unmineable-gpu"]
-
