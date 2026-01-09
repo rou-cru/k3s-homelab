@@ -2,8 +2,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: unmineable-gpu
   namespace: miners
+  name: unmineable-gpu-deployment
+  labels:
 spec:
   replicas: 1
   strategy:

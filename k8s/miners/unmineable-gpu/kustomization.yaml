@@ -7,9 +7,6 @@ resources:
   - deployment.yaml
 
 configMapGenerator:
-  - name: unmineable-gpu-entrypoint
-    files:
-      - entrypoint.sh
   - name: unmineable-gpu-config
     envs:
       - miner.env

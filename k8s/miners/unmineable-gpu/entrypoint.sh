@@ -37,16 +37,14 @@ rm /tmp/miner.tar.gz
 
 echo "Starting LolMiner (${MINING_ALGO}) for Unmineable..."
 echo "Pool: ${MINING_POOL}:${MINING_PORT}"
-echo "User: ${UNMINEABLE_USER}"
+# Redact wallet address from logs for security
+echo "User: ${MINING_COIN}:...${MINING_WORKER_NAME}#${REFERRAL_CODE}"
 echo "Worker: ${MINING_WORKER_NAME}"
 
-    exec "${MINER_BIN}" \
-      --algo "${MINING_ALGO}" \
-      --pool "${MINING_POOL}:${MINING_PORT}" \
-      --user "${UNMINEABLE_USER}" \  --pass "${MINING_PASS}" \
+exec "${MINER_BIN}" \
+  --algo "${MINING_ALGO}" \
+  --pool "${MINING_POOL}:${MINING_PORT}" \
+  --user "${UNMINEABLE_USER}" \
+  --pass "${MINING_PASS}" \
   --apiport 4067 \
   --nocolor
-kind: ConfigMap
-metadata:
-  name: unmineable-gpu-entrypoint
-  namespace: miners

@@ -35,3 +35,7 @@ k8s-manifests/
 .codex/history.jsonl
 .codex/version.json
 .codex/auth.json
+# Secrets
+k8s/miners/unmineable/secret.env
+k8s/miners/unmineable-gpu/secret.env
+.codex/auth.json

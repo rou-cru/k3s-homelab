@@ -73,7 +73,7 @@
   community.general.modprobe:
     name: msr
     state: present
-    persistent: true
+    persistent: present
   when: common_mining_enabled | default(true)
   tags: ["os"]
 - name: Configure Nvidia modules load

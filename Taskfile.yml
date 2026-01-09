@@ -273,7 +273,7 @@ tasks:
   build:miners:cpu:
     desc: "Build custom CPU miner image"
     cmds:
-      - docker buildx bake -f docker-bake.hcl cpu-miner
+      - docker buildx bake -f docker-bake.hcl cpu-miner-i9 cpu-miner-generic
 
   build:miners:gpu:
     desc: "Build custom GPU miner image"

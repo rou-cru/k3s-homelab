@@ -40,9 +40,17 @@
   ansible.builtin.file:
     path: /var/log/k3s
     state: directory
-    mode: '0755'
+    mode: '0700'
     owner: root
     group: root
+
+- name: Ensure K3s audit log file exists with restrictive permissions
+  ansible.builtin.file:
+    path: /var/log/k3s/audit.log
+    state: touch
+    owner: root
+    group: root
+    mode: '0600'
 
 - name: Deploy K3s audit policy
   ansible.builtin.template:
