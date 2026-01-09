@@ -1,0 +1,44 @@
+---
+- name: Create temporary values file
+  ansible.builtin.tempfile:
+    state: file
+    suffix: "-cilium-values.yaml"
+  register: cilium_values_tmp
+- name: Template Cilium values file
+  ansible.builtin.template:
+    src: cilium-values.yaml.j2
+    dest: "{{ cilium_values_tmp.path }}"
+    mode: "0600"
+- name: Install Cilium via Helm
+  kubernetes.core.helm:
+    release_name: cilium
+    chart_ref: cilium/{{ cilium_chart_name }}
+    release_namespace: "{{ cilium_namespace }}"
+    create_namespace: true
+    values_files:
+      - "{{ cilium_values_tmp.path }}"
+    chart_version: "{{ cilium_version }}"
+    kubeconfig: "/home/{{ ansible_user }}/.kube/config"
+    update_repo_cache: true # Good practice to update cache once per install just in case
+- name: Wait for Cilium DaemonSet to be created
+  ansible.builtin.command: kubectl -n {{ cilium_namespace }} get ds cilium
+  register: cilium_ds_check
+  until: cilium_ds_check.rc == 0
+  retries: "{{ cilium_wait_retries | default(60) }}"
+  delay: "{{ cilium_wait_delay | default(5) }}"
+  changed_when: false
+  environment:
+    KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
+- name: Wait for cilium pods
+  ansible.builtin.command: >-
+    kubectl -n {{ cilium_namespace }} rollout status ds/cilium --timeout="{{ cilium_rollout_timeout }}s"
+  register: cilium_rollout
+  changed_when: false
+  failed_when: cilium_rollout.rc != 0
+  environment:
+    KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
+- name: Remove temporary values file
+  ansible.builtin.file:
+    path: "{{ cilium_values_tmp.path }}"
+    state: absent
+  changed_when: false

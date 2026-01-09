@@ -1,0 +1,19 @@
+---
+galaxy_info:
+  role_name: common
+  author: Roura
+  description: Common system configurations and optimizations for K3s homelab.
+  company: Personal
+  license: MIT
+  min_ansible_version: "2.20.0"
+  platforms:
+    - name: Ubuntu
+      versions:
+        - noble
+  galaxy_tags:
+    - k3s
+    - kubernetes
+    - system
+    - optimization
+    - homelab
+dependencies: []

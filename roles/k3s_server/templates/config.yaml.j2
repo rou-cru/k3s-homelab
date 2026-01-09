@@ -1,0 +1,36 @@
+# /etc/rancher/k3s/config.yaml - Managed by Ansible
+# Declarative configuration for K3s
+
+# Network - Bind to Tailscale IP
+node-ip: "{{ tailscale_ip }}"
+advertise-address: "{{ tailscale_ip }}"
+
+# TLS - Add Tailscale IP to SANs
+tls-san:
+  - "{{ tailscale_ip }}"
+
+# CNI - We use Cilium, so disable Flannel
+flannel-backend: "none"
+disable-network-policy: true
+disable-kube-proxy: true
+
+# Components
+disable:
+{% if k3s_server_disable_traefik | bool %}
+  - traefik
+{% endif %}
+{% if k3s_server_disable_servicelb | bool %}
+  - servicelb
+{% endif %}
+
+# Security / Access
+write-kubeconfig-mode: "{{ k3s_server_kubeconfig_mode }}"
+
+# Security - Hardening
+secrets-encryption: true
+kube-apiserver-arg:
+  - "audit-policy-file=/etc/rancher/k3s/audit-policy.yaml"
+  - "audit-log-path=/var/log/k3s/audit.log"
+  - "audit-log-maxage=30"
+  - "audit-log-maxbackup=10"
+  - "audit-log-maxsize=100"

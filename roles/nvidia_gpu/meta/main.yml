@@ -1,0 +1,21 @@
+---
+galaxy_info:
+  role_name: nvidia_gpu
+  author: Roura
+  description: Configures NVIDIA GPUs for K3s, including drivers, container toolkit, and device plugin.
+  company: Personal
+  license: MIT
+  min_ansible_version: "2.20.0"
+  platforms:
+    - name: Ubuntu
+      versions:
+        - noble
+  galaxy_tags:
+    - k3s
+    - kubernetes
+    - nvidia
+    - gpu
+    - drivers
+    - device-plugin
+    - homelab
+dependencies: []

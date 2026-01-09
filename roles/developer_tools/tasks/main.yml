@@ -1,0 +1,123 @@
+---
+- name: Install dev tools (apt)
+  ansible.builtin.apt:
+    name:
+      # Terminal utilities
+      - bat
+      - tree
+      - tmux
+      - jq
+      - curl
+      # Python ecosystem
+      - python3-pip
+      - python3-venv
+      - pipx
+      # System tools
+      - gnupg
+      - ca-certificates
+      - snapd
+    state: present
+    update_cache: true
+# Terminal monitoring tools (snap)
+- name: Install btop
+  ansible.builtin.snap:
+    name: btop
+    classic: true
+# Kubernetes tools (snap)
+- name: Install kubectl
+  ansible.builtin.snap:
+    name: kubectl
+    classic: true
+- name: Install Helm
+  ansible.builtin.snap:
+    name: helm
+    classic: true
+- name: Install yq
+  ansible.builtin.snap:
+    name: yq
+    classic: true
+# Development environments
+- name: Install Node.js
+  ansible.builtin.snap:
+    name: node
+    classic: true
+- name: Install pnpm
+  community.general.npm:
+    name: pnpm
+    global: true
+    state: present
+- name: Install Devbox
+  ansible.builtin.shell: |
+    curl -fsSL https://get.jetpack.io/devbox | bash >/dev/null 2>&1
+  args:
+    creates: /usr/local/bin/devbox
+# Python package manager (uv)
+- name: Install uv
+  ansible.builtin.shell: |
+    curl -LsSf https://astral.sh/uv/install.sh | sh >/dev/null 2>&1
+  args:
+    creates: /root/.cargo/bin/uv
+  environment:
+    CARGO_HOME: /root/.cargo
+# Python CLI tools (pipx/uv)
+- name: Install nvitop
+  ansible.builtin.command: pipx install nvitop
+  args:
+    creates: /root/.local/bin/nvitop
+  when: nvidia_gpu_setup_mode | default('auto') != 'false'
+- name: Install Kimi
+  ansible.builtin.command: uv tool install kimi-cli
+  args:
+    creates: /root/.local/bin/kimi
+  environment:
+    PATH: "/root/.cargo/bin:{{ ansible_facts['env']['PATH'] }}"
+  ignore_errors: true
+# AI CLI tools (npm)
+- name: Install AI tools
+  community.general.npm:
+    name: "{{ item }}"
+    global: true
+    state: present
+  loop:
+    - "@anthropic-ai/claude-code"
+    - "@google/gemini-cli"
+    - "@qwen-code/qwen-code"
+    - "@openai/codex"
+  ignore_errors: true
+# Docker (optional, disabled by default)
+- name: Install Docker
+  when: devtools_install_docker | default(false) | bool
+  block:
+    - name: Add Docker key
+      ansible.builtin.shell: |
+        curl -fsSL https://download.docker.com/linux/ubuntu/gpg >/dev/null 2>&1 |
+        gpg --dearmor -o
+        /usr/share/keyrings/docker-archive-keyring.gpg
+      args:
+        creates: /usr/share/keyrings/docker-archive-keyring.gpg
+    - name: Add Docker repo
+      ansible.builtin.apt_repository:
+        repo: >-
+          deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg]
+          https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
+        state: present
+        filename: docker
+    - name: Install Docker CLI
+      ansible.builtin.apt:
+        name:
+          - docker-ce-cli
+          - docker-buildx-plugin
+          - docker-compose-plugin
+        state: present
+        update_cache: true
+    - name: Show Docker warning
+      ansible.builtin.debug:
+        msg: "⚠️  Docker CLI installed (containerd used by K3s)"
+  rescue:
+    - name: Report Docker installation failure
+      ansible.builtin.debug:
+        msg: >-
+          Docker installation failed at {{ ansible_failed_task.name }}: {{ ansible_failed_result | to_nice_json }}
+    - name: Fail Docker installation
+      ansible.builtin.fail:
+        msg: "Docker installation failed"

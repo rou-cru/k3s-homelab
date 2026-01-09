@@ -1,0 +1,90 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: unmineable
+  namespace: miners
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: unmineable
+  template:
+    metadata:
+      labels:
+        app: unmineable
+    spec:
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      containers:
+        - name: unmineable
+          image: roucru/k3s-cpu-miner:i9
+          imagePullPolicy: Always
+          securityContext:
+            privileged: true
+            runAsUser: 0
+          volumeMounts:
+            - name: dev-cpu
+              mountPath: /dev/cpu
+            - name: hugepages
+              mountPath: /dev/hugepages
+          env:
+            - name: POOL
+              valueFrom:
+                configMapKeyRef:
+                  name: unmineable-config
+                  key: POOL
+            - name: ALGO
+              valueFrom:
+                configMapKeyRef:
+                  name: unmineable-config
+                  key: ALGO
+            - name: COIN
+              valueFrom:
+                configMapKeyRef:
+                  name: unmineable-config
+                  key: COIN
+            - name: REFERRAL_CODE
+              valueFrom:
+                configMapKeyRef:
+                  name: unmineable-config
+                  key: REFERRAL_CODE
+            - name: WORKER_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: unmineable-config
+                  key: WORKER_NAME
+            - name: MINING_THREADS
+              valueFrom:
+                configMapKeyRef:
+                  name: unmineable-config
+                  key: MINING_THREADS
+            - name: CPU_AFFINITY_MASK
+              valueFrom:
+                configMapKeyRef:
+                  name: unmineable-config
+                  key: CPU_AFFINITY_MASK
+            - name: WALLET_ADDRESS
+              valueFrom:
+                secretKeyRef:
+                  name: unmineable-secret
+                  key: WALLET_ADDRESS
+          resources:
+            requests:
+              cpu: "12000m"
+              memory: "3Gi"
+              hugepages-2Mi: "2560Mi"
+            limits:
+              cpu: "12000m"
+              memory: "3Gi"
+              hugepages-2Mi: "2560Mi"
+      volumes:
+        - name: dev-cpu
+          hostPath:
+            path: /dev/cpu
+            type: Directory
+        - name: hugepages
+          emptyDir:
+            medium: HugePages-2Mi
