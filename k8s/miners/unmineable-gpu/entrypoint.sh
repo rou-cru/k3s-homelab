@@ -38,7 +38,7 @@ rm /tmp/miner.tar.gz
 echo "Starting LolMiner (${MINING_ALGO}) for Unmineable..."
 echo "Pool: ${MINING_POOL}:${MINING_PORT}"
 # Redact wallet address from logs for security
-echo "User: ${MINING_COIN}:...${MINING_WORKER_NAME}#${REFERRAL_CODE}"
+echo "User: ${MINING_COIN}:...${WALLET_ADDRESS: -4}.${MINING_WORKER_NAME}#${REFERRAL_CODE}"
 echo "Worker: ${MINING_WORKER_NAME}"
 
 exec "${MINER_BIN}" \

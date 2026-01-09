@@ -5,6 +5,7 @@ metadata:
   namespace: miners
   name: unmineable-gpu-deployment
   labels:
+    app: unmineable-gpu
 spec:
   replicas: 1
   strategy:

@@ -51,6 +51,7 @@
     owner: root
     group: root
     mode: '0600'
+    modification_time: preserve
 
 - name: Deploy K3s audit policy
   ansible.builtin.template:

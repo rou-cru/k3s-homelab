@@ -57,6 +57,7 @@ if [[ "${MINING_AUTO_CONFIG:-false}" == "true" ]]; then
   exec xmrig -c "$XMRIG_CONFIG_FILE" $THREADS_ARGS $AFFINITY_ARGS "$@"
 else
   Status "Starting miner with cli parameters..."
+  Status "User: $LOG_USER"
   # Use array for cleaner argument handling if shifting to bash arrays, 
   # but here keeping simple string expansion for now to match style, 
   # noting that exec handles arguments better.
