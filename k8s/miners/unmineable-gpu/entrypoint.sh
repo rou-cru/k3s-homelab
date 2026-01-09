@@ -46,3 +46,7 @@ echo "Worker: ${MINING_WORKER_NAME}"
       --user "${UNMINEABLE_USER}" \  --pass "${MINING_PASS}" \
   --apiport 4067 \
   --nocolor
+kind: ConfigMap
+metadata:
+  name: unmineable-gpu-entrypoint
+  namespace: miners

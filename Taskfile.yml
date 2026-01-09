@@ -269,3 +269,29 @@ tasks:
         [ -n "$honey_pass" ] && task secrets:set -- honeygain_pass "$honey_pass"
 
         echo "🎉 Setup complete! secrets.yaml is ready."
+
+  build:miners:cpu:
+    desc: "Build custom CPU miner image"
+    cmds:
+      - docker buildx bake -f docker-bake.hcl cpu-miner
+
+  build:miners:gpu:
+    desc: "Build custom GPU miner image"
+    cmds:
+      - docker buildx bake -f docker-bake.hcl gpu-miner
+
+  build:miners:
+    desc: "Build all custom miner Docker images"
+    cmds:
+      - docker buildx bake -f docker-bake.hcl
+
+  push:miners:
+    desc: "Push all miner images to registry"
+    cmds:
+      - docker buildx bake -f docker-bake.hcl --push
+
+  release:miners:
+    desc: "Build and push all miner images (Release)"
+    cmds:
+      - task: build:miners
+      - task: push:miners

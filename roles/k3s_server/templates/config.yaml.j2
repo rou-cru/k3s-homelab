@@ -25,3 +25,11 @@ disable:
 
 # Security / Access
 write-kubeconfig-mode: "{{ k3s_server_kubeconfig_mode }}"
+
+# Security - Hardening
+secrets-encryption: true
+audit-policy-file: /etc/rancher/k3s/audit-policy.yaml
+audit-log-path: /var/log/k3s/audit.log
+audit-log-maxage: 30
+audit-log-maxbackup: 10
+audit-log-maxsize: 100
