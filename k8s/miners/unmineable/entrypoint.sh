@@ -23,7 +23,7 @@ XMRIG_CONFIG_FILE="/usr/src/mining/config/xmrig.json"
 
 # ==============================================================================
 # FUNCTIONS
-# ==============================================================================
+# Status prints an informational message prefixed with a cyan `[INFO]` tag followed by the provided text.
 
 Status() {
   echo -e "${CYAN}[INFO]${NC}: $1"
