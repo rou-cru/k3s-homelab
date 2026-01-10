@@ -15,3 +15,6 @@ secretGenerator:
   - name: unmineable-gpu-secret
     envs:
       - secret.env
+
+generatorOptions:
+  disableNameSuffixHash: true

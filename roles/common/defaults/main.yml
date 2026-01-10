@@ -95,7 +95,7 @@ common_helm_repositories:
 # Description: SHA256 for https://astral.sh/uv/install.sh (pin to avoid supply-chain drift).
 # Type: str
 # Required: false
-common_uv_install_script_checksum: "efea434685104178edc3bc693e760ef9dc0d4976cf0a2a457e0177cdaa4cd234"
+common_uv_install_script_checksum: "f6e468855afb4e653fa96ed68a7cad0b2534794ece25ec202f6543c589eb04dc"
 # Title: Helm install script checksum
 # Description: SHA256 for https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3.
 # Type: str

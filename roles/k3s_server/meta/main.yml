@@ -5,7 +5,7 @@ galaxy_info:
   description: Installs and configures K3s Kubernetes server for homelab usage.
   company: Personal
   license: MIT
-  min_ansible_version: "2.20.0"
+  min_ansible_version: "2.16"
   platforms:
     - name: Ubuntu
       versions:
