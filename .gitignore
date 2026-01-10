@@ -37,6 +37,7 @@ k8s-manifests/
 .codex/sessions
 .codex/history.jsonl
 .codex/version.json
+.codex/auth.json
 # Secrets
 *.env
 secrets.yaml
