@@ -42,47 +42,11 @@ spec:
               mountPath: /dev/cpu
             - name: hugepages
               mountPath: /dev/hugepages
-          env:
-            - name: POOL
-              valueFrom:
-                configMapKeyRef:
-                  name: unmineable-config
-                  key: POOL
-            - name: ALGO
-              valueFrom:
-                configMapKeyRef:
-                  name: unmineable-config
-                  key: ALGO
-            - name: COIN
-              valueFrom:
-                configMapKeyRef:
-                  name: unmineable-config
-                  key: COIN
-            - name: REFERRAL_CODE
-              valueFrom:
-                secretKeyRef:
-                  name: unmineable-secret
-                  key: REFERRAL_CODE
-            - name: WORKER_NAME
-              valueFrom:
-                configMapKeyRef:
-                  name: unmineable-config
-                  key: WORKER_NAME
-            - name: MINING_THREADS
-              valueFrom:
-                configMapKeyRef:
-                  name: unmineable-config
-                  key: MINING_THREADS
-            - name: CPU_AFFINITY_MASK
-              valueFrom:
-                configMapKeyRef:
-                  name: unmineable-config
-                  key: CPU_AFFINITY_MASK
-            - name: WALLET_ADDRESS
-              valueFrom:
-                secretKeyRef:
-                  name: unmineable-secret
-                  key: WALLET_ADDRESS
+          envFrom:
+            - configMapRef:
+                name: unmineable-config
+            - secretRef:
+                name: unmineable-secret
           resources:
             requests:
               cpu: "12000m"

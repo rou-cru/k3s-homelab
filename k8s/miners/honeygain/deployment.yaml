@@ -35,24 +35,17 @@ spec:
         - name: honeygain
           image: honeygain/honeygain:latest
           imagePullPolicy: IfNotPresent
-          command: ["/bin/sh", "-c"]
+          envFrom:
+            - configMapRef:
+                name: honeygain-config
+            - secretRef:
+                name: honeygain-secret
+          command: ["honeygain"]
           args:
-            - |
-              honeygain -tou-accept \
-                -email "$(cat /etc/honeygain/config/HONEYGAIN_EMAIL)" \
-                -pass "$(cat /etc/honeygain/secret/HONEYGAIN_PASS)" \
-                -device "$(cat /etc/honeygain/config/HONEYGAIN_DEVICE)"
-          volumeMounts:
-            - name: config-volume
-              mountPath: /etc/honeygain/config
-              readOnly: true
-            - name: secret-volume
-              mountPath: /etc/honeygain/secret
-              readOnly: true
-      volumes:
-        - name: config-volume
-          configMap:
-            name: honeygain-config
-        - name: secret-volume
-          secret:
-            secretName: honeygain-secret
+            - "-tou-accept"
+            - "-email"
+            - "$(HONEYGAIN_EMAIL)"
+            - "-pass"
+            - "$(HONEYGAIN_PASS)"
+            - "-device"
+            - "$(HONEYGAIN_DEVICE)"

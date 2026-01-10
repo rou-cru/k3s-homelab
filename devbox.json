@@ -18,7 +18,8 @@
     "checkov@latest",
     "ansible@latest",
     "python@3.12",
-    "uv@latest"
+    "uv@latest",
+    "trufflehog@latest"
   ],
   "shell": {
     "init_hook": [

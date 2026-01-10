@@ -45,17 +45,9 @@
     executable: /bin/bash
 - name: Install Devbox
   ansible.builtin.shell: |
-    curl -fsSL https://get.jetpack.io/devbox | bash >/dev/null 2>&1
+    curl -fsSL https://get.jetpack.io/devbox | bash
   args:
     creates: /usr/local/bin/devbox
-# Python package manager (uv)
-- name: Install uv
-  ansible.builtin.shell: |
-    curl -LsSf https://astral.sh/uv/install.sh | sh >/dev/null 2>&1
-  args:
-    creates: /root/.cargo/bin/uv
-  environment:
-    CARGO_HOME: /root/.cargo
 # Python CLI tools (pipx/uv)
 - name: Install nvitop
   ansible.builtin.command: uv tool install nvitop

@@ -59,17 +59,17 @@
     - name: Replace or append GRUB_CMDLINE_LINUX_DEFAULT
       ansible.builtin.set_fact:
         common_grub_lines_new: >-
+          {%- set ns = namespace(replaced=false) -%}
           {%- set out = [] -%}
-          {%- set replaced = false -%}
           {%- for line in common_grub_lines -%}
             {%- if line.startswith('GRUB_CMDLINE_LINUX_DEFAULT=') -%}
               {%- set _ = out.append(common_grub_cmdline_new) -%}
-              {%- set replaced = true -%}
+              {%- set ns.replaced = true -%}
             {%- else -%}
               {%- set _ = out.append(line) -%}
             {%- endif -%}
           {%- endfor -%}
-          {%- if not replaced -%}
+          {%- if not ns.replaced -%}
             {%- set _ = out.append(common_grub_cmdline_new) -%}
           {%- endif -%}
           {{ out }}
