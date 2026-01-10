@@ -38,10 +38,7 @@ k8s-manifests/
 .codex/history.jsonl
 .codex/version.json
 # Secrets
-k8s/miners/unmineable/secret.env
-k8s/miners/unmineable-gpu/secret.env
-k8s/miners/unmineable/miner.env
-k8s/miners/unmineable-gpu/miner.env
-k8s/miners/honeygain/config.env
-k8s/miners/honeygain/secret.env
+*.env
 secrets.yaml
+secrets.yml
+secrets.json
