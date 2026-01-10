@@ -1,0 +1,60 @@
+---
+- name: Disable swap
+  ansible.builtin.command: swapoff -a
+  changed_when: true
+  when: ansible_facts['swaptotal_mb'] > 0
+- name: Disable swap (fstab)
+  ansible.builtin.replace:
+    path: /etc/fstab
+    regexp: "^(.*\\sswap\\s.*)$"
+    replace: "# \\1"
+- name: Detect Ubuntu version
+  ansible.builtin.set_fact:
+    ubuntu_version: "{{ ansible_facts['distribution_version'] }}"
+- name: Define kernel package
+  ansible.builtin.set_fact:
+    hwe_kernel_package: "linux-generic-hwe-{{ ubuntu_version }}"
+  when: ubuntu_version is version('20.04', '>=') and ubuntu_version is version('24.04', '<=')
+- name: Install system base tools
+  ansible.builtin.apt:
+    name:
+      - curl
+      - ca-certificates
+      - iptables
+      - ethtool
+      - network-manager
+      - acpid
+      - rsync
+    state: present
+- name: Install dependencies
+  ansible.builtin.include_tasks: dependencies.yml
+- name: Install HWE kernel
+  ansible.builtin.apt:
+    name: "{{ hwe_kernel_package }}"
+    state: present
+  when: hwe_kernel_package is defined
+  register: common_hwe_kernel_install
+  ignore_errors: true
+- name: Install generic kernel
+  ansible.builtin.apt:
+    name: linux-generic
+    state: present
+  when: common_hwe_kernel_install is failed or hwe_kernel_package is not defined
+  register: common_generic_kernel_install
+- name: Register kernel change
+  ansible.builtin.set_fact:
+    common_kernel_changed: >-
+      {{ (common_hwe_kernel_install.changed | default(false))
+      or (common_generic_kernel_install.changed | default(false)) }}
+- name: Configure power
+  ansible.builtin.include_tasks: power_management.yml
+- name: Apply hardware tuning
+  ansible.builtin.include_tasks: hardware_tuning.yml
+- name: System Tuning
+  ansible.builtin.include_tasks: system_tuning.yml
+
+- name: Install Cloud-Native Binaries
+  ansible.builtin.include_tasks: binaries.yml
+
+- name: Setup Helm Repos
+  ansible.builtin.include_tasks: helm_setup.yml

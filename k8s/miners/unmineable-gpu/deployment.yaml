@@ -1,0 +1,63 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: miners
+  name: unmineable-gpu-deployment
+  labels:
+    app: unmineable-gpu
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: unmineable-gpu
+  template:
+    metadata:
+      labels:
+        app: unmineable-gpu
+    spec:
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      runtimeClassName: nvidia
+      tolerations:
+        - key: "miner.gpu"
+          operator: "Equal"
+          value: "true"
+          effect: "NoSchedule"
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: miner.gpu
+                    operator: In
+                    values: ["true"]
+                  - key: nvidia.com/gpu.present
+                    operator: In
+                    values: ["true"]
+              - matchExpressions:
+                  - key: miner.gpu
+                    operator: In
+                    values: ["true"]
+                  - key: feature.node.kubernetes.io/pci-10de.present
+                    operator: In
+                    values: ["true"]
+      containers:
+        - name: unmineable-gpu
+          image: roucru/k3s-gpu-miner:latest
+          imagePullPolicy: Always
+          envFrom:
+            - configMapRef:
+                name: unmineable-gpu-config
+            - secretRef:
+                name: unmineable-gpu-secret
+          env:
+            - name: NVIDIA_VISIBLE_DEVICES
+              value: "all"
+            - name: NVIDIA_DRIVER_CAPABILITIES
+              value: "all"
+          resources:
+            limits:
+              nvidia.com/gpu: "1"

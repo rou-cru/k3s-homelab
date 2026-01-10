@@ -1,0 +1,56 @@
+---
+# Title: GPU Setup Mode
+# Description: Control mode for GPU setup ('auto', 'true', 'false').
+# Type: str
+# Required: false
+nvidia_gpu_setup: 'auto'
+# Title: Driver Package
+# Description: Specific driver package to install or "auto" for detection.
+# Type: str
+# Required: false
+nvidia_gpu_driver_package: "auto"
+# Title: Fallback Driver
+# Description: Fallback driver if auto-detection fails.
+# Type: str
+# Required: false
+nvidia_gpu_driver_fallback: "nvidia-driver-535"
+# Title: Toolkit Repo URL
+# Description: Repository URL for NVIDIA Container Toolkit.
+# Type: str
+# Required: false
+nvidia_gpu_toolkit_repo_url: "https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list"
+# Title: Toolkit GPG Key
+# Description: GPG key URL for the toolkit repository.
+# Type: str
+# Required: false
+nvidia_gpu_toolkit_gpg_url: "https://nvidia.github.io/libnvidia-container/gpgkey"
+# Title: Device Plugin Version
+# Description: Version of the NVIDIA device plugin Helm chart.
+# Type: str
+# Required: false
+nvidia_gpu_device_plugin_version: "0.14.3"
+# Title: Device Plugin Repo
+# Description: Helm repository for the device plugin.
+# Type: str
+# Required: false
+nvidia_gpu_device_plugin_repo: "https://nvidia.github.io/k8s-device-plugin"
+# Title: Reboot Timeout
+# Description: Timeout (seconds) for rebooting after driver installation.
+# Type: int
+# Required: false
+nvidia_gpu_reboot_timeout: 600
+# Title: Headless X11
+# Description: Enables X11 services for headless GPU management (fan control, etc.).
+# Type: bool
+# Required: false
+nvidia_gpu_headless_x11_enabled: true
+# Title: PCI Bus ID
+# Description: PCI Bus ID of the GPU for xorg.conf generation.
+# Type: str
+# Required: false
+nvidia_gpu_pci_bus_id: "1:0:0"
+# Title: Coolbits
+# Description: Coolbits value for unlocking GPU control (fans, clocks).
+# Type: str
+# Required: false
+nvidia_gpu_coolbits: "28"

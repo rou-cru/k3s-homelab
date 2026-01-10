@@ -1,0 +1,15 @@
+---
+- name: Restart logind
+  ansible.builtin.service:
+    name: systemd-logind
+    state: restarted
+  ignore_errors: "{{ ansible_check_mode }}"
+- name: Restart cpufrequtils
+  ansible.builtin.service:
+    name: cpufrequtils
+    state: restarted
+  ignore_errors: "{{ ansible_check_mode }}"
+- name: Apply power tuning
+  ansible.builtin.command: systemd-tmpfiles --create /etc/tmpfiles.d/energy-tuning.conf
+  changed_when: false
+  ignore_errors: "{{ ansible_check_mode }}"

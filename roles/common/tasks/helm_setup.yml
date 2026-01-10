@@ -1,0 +1,13 @@
+---
+- name: Ensure Helm config directory exists
+  ansible.builtin.file:
+    path: "/home/{{ ansible_user }}/.config/helm"
+    state: directory
+    mode: '0755'
+  become: false
+- name: Add Helm Repositories
+  kubernetes.core.helm_repository:
+    name: "{{ item.name }}"
+    repo_url: "{{ item.repo_url }}"
+  loop: "{{ common_helm_repositories }}"
+  become: false

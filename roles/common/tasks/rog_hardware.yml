@@ -1,0 +1,23 @@
+---
+# ASUS RoG specific hardware configuration
+
+# ASUSCTL - ASUS specific hardware control (optional, disabled by default)
+
+# ROG HARDWARE TWEAKS - Low-level optimizations (always enabled)
+- name: Deploy RoG Hardware Tweaks Script
+  ansible.builtin.template:
+    src: apply-rog-tweaks.sh.j2
+    dest: /usr/local/bin/apply-rog-tweaks.sh
+    mode: "0755"
+- name: Deploy systemd service for RoG Tweaks
+  ansible.builtin.copy:
+    src: rog-server-tweaks.service
+    dest: /etc/systemd/system/rog-server-tweaks.service
+    mode: "0644"
+- name: Enable and start RoG Tweaks service
+  ansible.builtin.systemd:
+    name: rog-server-tweaks
+    enabled: true
+    state: started
+    daemon_reload: true
+  ignore_errors: "{{ ansible_check_mode }}"

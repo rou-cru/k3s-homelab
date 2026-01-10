@@ -1,0 +1,43 @@
+---
+- name: Install tuning tools
+  ansible.builtin.apt:
+    name:
+      - irqbalance
+      - rfkill
+    state: present
+- name: Install audio tools
+  ansible.builtin.apt:
+    name:
+      - alsa-utils
+    state: present
+  when: common_audio_optimization_enabled | bool
+- name: Start irqbalance
+  ansible.builtin.systemd:
+    name: irqbalance
+    enabled: true
+    state: started
+  ignore_errors: "{{ ansible_check_mode }}"
+- name: Block wireless radios
+  ansible.builtin.command: rfkill block {{ item }}
+  loop:
+    - wifi
+    - bluetooth
+  when: common_radio_block_enabled | bool
+  changed_when: false
+  failed_when: false
+- name: Optimize audio limits
+  community.general.pam_limits:
+    domain: "*"
+    limit_type: "{{ item.type }}"
+    limit_item: "{{ item.item }}"
+    value: "{{ item.value }}"
+  loop:
+    - {type: "-", item: "memlock", value: "unlimited"}
+    - {type: "-", item: "rtprio", value: "95"}
+  when: common_audio_optimization_enabled | bool
+- name: Enable fstrim
+  ansible.builtin.systemd:
+    name: fstrim.timer
+    enabled: true
+    state: started
+  ignore_errors: "{{ ansible_check_mode }}"

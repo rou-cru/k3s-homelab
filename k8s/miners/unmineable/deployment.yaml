@@ -1,0 +1,66 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: unmineable
+  namespace: miners
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: unmineable
+  template:
+    metadata:
+      labels:
+        app: unmineable
+    spec:
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      tolerations:
+        - key: "miner.cpu"
+          operator: "Equal"
+          value: "true"
+          effect: "NoSchedule"
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: miner.cpu
+                    operator: In
+                    values: ["true"]
+      containers:
+        - name: unmineable
+          image: roucru/k3s-cpu-miner:i9
+          imagePullPolicy: Always
+          securityContext:
+            runAsUser: 0
+          volumeMounts:
+            - name: dev-cpu
+              mountPath: /dev/cpu
+            - name: hugepages
+              mountPath: /dev/hugepages
+          envFrom:
+            - configMapRef:
+                name: unmineable-config
+            - secretRef:
+                name: unmineable-secret
+          resources:
+            requests:
+              cpu: "12000m"
+              memory: "3Gi"
+              hugepages-2Mi: "2560Mi"
+            limits:
+              cpu: "12000m"
+              memory: "3Gi"
+              hugepages-2Mi: "2560Mi"
+      volumes:
+        - name: dev-cpu
+          hostPath:
+            path: /dev/cpu
+            type: Directory
+        - name: hugepages
+          emptyDir:
+            medium: HugePages-2Mi

@@ -1,0 +1,103 @@
+---
+# Title: Network Optimization
+# Description: Enables sysctl adjustments for network performance.
+# Type: bool
+# Required: false
+common_network_optimization_enabled: true
+# Title: RoG Server Support
+# Description: Enables ASUS RoG specific hardware tweaks (drivers, LEDs, power profiles).
+# Type: bool
+# Required: false
+common_rog_server: true
+# Title: Radio Block
+# Description: Soft-blocks WiFi and Bluetooth radios to save power.
+# Type: bool
+# Required: false
+common_radio_block_enabled: true
+# Title: Audio Optimization
+# Description: Installs alsa-utils and configures realtime limits for audio.
+# Type: bool
+# Required: false
+common_audio_optimization_enabled: true
+# Title: File Descriptors (Soft)
+# Description: Soft limit for open file descriptors (ulimit -n).
+# Type: int
+# Required: false
+common_file_descriptors_soft: 100000
+# Title: File Descriptors (Hard)
+# Description: Hard limit for open file descriptors.
+# Type: int
+# Required: false
+common_file_descriptors_hard: 100000
+# Title: System File Max
+# Description: System-wide maximum number of open file descriptors.
+# Type: int
+# Required: false
+common_fs_file_max: 2097152
+# Title: Inotify Instances
+# Description: Max inotify instances per user.
+# Type: int
+# Required: false
+common_inotify_max_instances: 8192
+# Title: Inotify Watches
+# Description: Max inotify watches per user.
+# Type: int
+# Required: false
+common_inotify_max_watches: 524288
+# Title: Power Efficiency Tuning
+# Description: Low-level CPU power management (Intel RAPL & P-State) for efficiency/mining.
+common_power_efficiency_tuning_enabled: false
+common_intel_rapl_pl1_limit_microwatts: 100000000
+common_intel_rapl_pl2_limit_microwatts: 140000000
+common_intel_pstate_max_perf_pct: 80
+common_intel_pstate_no_turbo: 1
+# Title: Watchdog Timeout
+# Description: Hardware watchdog timeout in seconds (RuntimeWatchdogSec).
+# Type: int
+# Required: false
+common_watchdog_timeout_sec: 120
+# Title: Battery Charge Threshold
+# Description: Battery charge limit percentage for RoG laptops.
+# Type: int
+# Required: false
+common_battery_charge_threshold: 80
+# Title: Thermal Policy
+# Description: RoG thermal policy ID (0=balanced, 1=turbo, 2=silent - check specific model).
+# Type: int
+# Required: false
+common_thermal_policy: 1
+# Title: Ring Buffer Target
+# Description: Target size for network ring buffers.
+# Type: int
+# Required: false
+common_ring_buffer_target: 4096
+# Title: Mining Optimization
+# Description: Enables optimizations for crypto mining (hugepages, MSR).
+# Type: bool
+# Required: false
+common_mining_enabled: true
+# Title: Hugepages Count
+# Description: Number of hugepages to allocate if mining is enabled.
+# Type: int
+# Required: false
+common_hugepages_count: 1280
+# Title: Helm Repositories
+# Description: List of Helm repositories to add.
+# Type: list
+# Required: false
+common_helm_repositories:
+  - name: cilium
+    repo_url: "https://helm.cilium.io/"
+  - name: nvdp
+    repo_url: "https://nvidia.github.io/k8s-device-plugin"
+
+# Title: UV install script checksum
+# Description: SHA256 for https://astral.sh/uv/install.sh (pin to avoid supply-chain drift).
+# Type: str
+# Required: false
+common_uv_install_script_checksum: "f6e468855afb4e653fa96ed68a7cad0b2534794ece25ec202f6543c589eb04dc"
+# Title: Helm install script checksum
+# Description: SHA256 for https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3.
+# Type: str
+# Required: false
+common_helm_install_script_checksum: "38b65f882d9cae3891755bdb03becc6a01ae6f9cb24826c191f219ddfee70a5d"
