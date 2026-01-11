@@ -10,8 +10,9 @@ set -eu
 algo_flag=""
 case "${ALGO:-}" in
   rx/0|randomx) algo_flag="--randomx" ;;
+  xelishashv3|xelishash|xelis) algo_flag="--xel" ;;
   *) algo_flag="" ;;
- esac
+esac
 
 pool_url="${POOL}"
 # Strip scheme for host/port extraction

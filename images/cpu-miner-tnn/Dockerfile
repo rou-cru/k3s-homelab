@@ -1,44 +1,69 @@
 FROM ubuntu:24.04 AS builder
 
 ARG TNN_REF=dev
-ARG CMAKE_VERSION=3.30.5
+ARG LLVM_VER=20
 
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install base dependencies
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
       ca-certificates \
       curl \
+      gnupg \
+      lsb-release \
+      software-properties-common \
       git \
+      wget \
       build-essential \
-      clang \
-      lld \
-      libc++-dev \
       libssl-dev \
       libudns-dev \
+      libc++-dev \
       libsodium-dev \
-      libboost1.83-all-dev \
-      tar \
+      libnuma-dev \
     && rm -rf /var/lib/apt/lists/*
 
-RUN curl -L -o /tmp/cmake.tar.gz \
-      "https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-linux-x86_64.tar.gz" \
-    && mkdir -p /opt/cmake \
-    && tar -xzf /tmp/cmake.tar.gz -C /opt/cmake --strip-components=1 \
-    && rm -f /tmp/cmake.tar.gz
+# Install CMake from Kitware (gets latest version)
+RUN curl -fsSL https://apt.kitware.com/kitware-archive.sh | bash \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends cmake \
+    && rm -rf /var/lib/apt/lists/*
 
-ENV PATH=/opt/cmake/bin:$PATH
+# Install LLVM/Clang 20
+RUN curl -fsSL https://apt.llvm.org/llvm.sh -o /tmp/llvm.sh \
+    && chmod +x /tmp/llvm.sh \
+    && /tmp/llvm.sh ${LLVM_VER} \
+    && rm -f /tmp/llvm.sh
 
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+      clang-${LLVM_VER} \
+      lld-${LLVM_VER} \
+      llvm-${LLVM_VER} \
+      llvm-${LLVM_VER}-tools \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set Clang 20 as default
+RUN update-alternatives --install /usr/bin/clang clang /usr/bin/clang-${LLVM_VER} 100 \
+    && update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-${LLVM_VER} 100 \
+    && update-alternatives --install /usr/bin/ld.lld ld.lld /usr/bin/ld.lld-${LLVM_VER} 100
+
+# Clone tnn-miner
 RUN git clone --depth 1 --branch ${TNN_REF} https://github.com/Tritonn204/tnn-miner.git /src
 
 WORKDIR /src
 
+# Build with optimizations for native CPU
+# CPM will download Boost automatically if not found
 RUN mkdir -p build \
     && cd build \
     && cmake .. \
       -DCMAKE_BUILD_TYPE=Release \
+      -DCMAKE_C_FLAGS="-march=native -mtune=native" \
+      -DCMAKE_CXX_FLAGS="-march=native -mtune=native" \
       -DUSE_GCC=OFF \
       -DWITH_HIP=OFF \
-      -DBUILD_STATIC=ON \
-    && cmake --build . -j "$(nproc)"
+    && make -j "$(nproc)"
 
 FROM ubuntu:24.04
 
@@ -47,13 +72,13 @@ RUN apt-get update \
       ca-certificates \
       libstdc++6 \
       libgcc-s1 \
-      libssl3 \
+      libssl3t64 \
       libsodium23 \
       libudns0 \
       util-linux \
     && rm -rf /var/lib/apt/lists/*
 
-COPY --from=builder /src/build/tnn-miner-cpu /usr/local/bin/tnn-miner-cpu
+COPY --from=builder /src/build/bin/tnn-miner-cpu /usr/local/bin/tnn-miner-cpu
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh /usr/local/bin/tnn-miner-cpu
 
