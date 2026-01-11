@@ -23,12 +23,15 @@ pool_port="${pool_no_scheme##*:}"
 
 user="${COIN}:${WALLET_ADDRESS}.${WORKER_NAME}#${REFERRAL_CODE}"
 
+dev_fee="${DEV_FEE:-1.0}"
+
 set -- /usr/local/bin/tnn-miner-cpu \
   --daemon-address "${pool_url}" \
   --port "${pool_port}" \
   --wallet "${user}" \
   --password "${MINING_PASS:-x}" \
   --worker-name "${WORKER_NAME}" \
+  --dev-fee "${dev_fee}" \
   --ignore-wallet \
   ${algo_flag}
 
@@ -45,6 +48,7 @@ if [ -n "${algo_flag}" ]; then
 fi
 
 if [ -n "${CPU_AFFINITY_MASK:-}" ]; then
+  set -- "$@" --no-lock
   exec taskset "${CPU_AFFINITY_MASK}" "$@"
 fi
 
