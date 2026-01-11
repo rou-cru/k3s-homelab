@@ -273,12 +273,22 @@ tasks:
   build:miners:cpu:
     desc: "Build custom CPU miner image"
     cmds:
-      - docker buildx bake -f docker-bake.hcl cpu-miner-i9 cpu-miner-generic
+      - docker buildx bake -f docker-bake.hcl cpu-miner-i9 cpu-miner-generic cpu-miner-tnn
+
+  build:miners:cpu:tnn:
+    desc: "Build TNN CPU miner image"
+    cmds:
+      - docker buildx bake -f docker-bake.hcl cpu-miner-tnn
 
   build:miners:gpu:
     desc: "Build custom GPU miner image"
     cmds:
       - docker buildx bake -f docker-bake.hcl gpu-miner
+
+  build:miners:gpu:rigel:
+    desc: "Build custom GPU miner image (Rigel)"
+    cmds:
+      - docker buildx bake -f docker-bake.hcl gpu-miner-rigel
 
   build:miners:
     desc: "Build all custom miner Docker images"
@@ -289,6 +299,11 @@ tasks:
     desc: "Push all miner images to registry"
     cmds:
       - docker buildx bake -f docker-bake.hcl --push
+
+  push:miners:gpu:rigel:
+    desc: "Push GPU Rigel miner image to registry"
+    cmds:
+      - docker buildx bake -f docker-bake.hcl gpu-miner-rigel --push
 
   release:miners:
     desc: "Build and push all miner images (Release)"

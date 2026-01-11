@@ -1,0 +1,119 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: miners
+  name: unmineable-gpu-rigel-deployment
+  labels:
+    app: unmineable-gpu-rigel
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: unmineable-gpu-rigel
+  template:
+    metadata:
+      labels:
+        app: unmineable-gpu-rigel
+    spec:
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      runtimeClassName: nvidia
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: nvidia.com/gpu.present
+                    operator: In
+                    values: ["true"]
+              - matchExpressions:
+                  - key: feature.node.kubernetes.io/pci-10de.present
+                    operator: In
+                    values: ["true"]
+      containers:
+        - name: unmineable-gpu-rigel
+          securityContext:
+            privileged: true
+          image: roucru/k3s-gpu-miner:rigel
+          imagePullPolicy: Always
+          env:
+            - name: WALLET_ADDRESS
+              valueFrom:
+                secretKeyRef:
+                  name: unmineable-gpu-secret
+                  key: WALLET_ADDRESS
+            - name: MINING_WORKER_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: unmineable-gpu-rigel-config
+                  key: MINING_WORKER_NAME
+            - name: MINING_POOL
+              valueFrom:
+                configMapKeyRef:
+                  name: unmineable-gpu-rigel-config
+                  key: MINING_POOL
+            - name: MINING_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: unmineable-gpu-rigel-config
+                  key: MINING_PORT
+            - name: MINING_ALGO
+              valueFrom:
+                configMapKeyRef:
+                  name: unmineable-gpu-rigel-config
+                  key: MINING_ALGO
+            - name: MINING_COIN
+              valueFrom:
+                configMapKeyRef:
+                  name: unmineable-gpu-rigel-config
+                  key: MINING_COIN
+            - name: REFERRAL_CODE
+              valueFrom:
+                configMapKeyRef:
+                  name: unmineable-gpu-rigel-config
+                  key: REFERRAL_CODE
+            - name: MINING_PASS
+              valueFrom:
+                configMapKeyRef:
+                  name: unmineable-gpu-rigel-config
+                  key: MINING_PASS
+            - name: GPU_CORE_OFFSET
+              valueFrom:
+                configMapKeyRef:
+                  name: unmineable-gpu-rigel-config
+                  key: GPU_CORE_OFFSET
+            - name: GPU_MEM_OFFSET
+              valueFrom:
+                configMapKeyRef:
+                  name: unmineable-gpu-rigel-config
+                  key: GPU_MEM_OFFSET
+            - name: GPU_TEMP_CORE_MIN
+              valueFrom:
+                configMapKeyRef:
+                  name: unmineable-gpu-rigel-config
+                  key: GPU_TEMP_CORE_MIN
+            - name: GPU_TEMP_CORE_MAX
+              valueFrom:
+                configMapKeyRef:
+                  name: unmineable-gpu-rigel-config
+                  key: GPU_TEMP_CORE_MAX
+            - name: GPU_TEMP_MEM_MIN
+              valueFrom:
+                configMapKeyRef:
+                  name: unmineable-gpu-rigel-config
+                  key: GPU_TEMP_MEM_MIN
+            - name: GPU_TEMP_MEM_MAX
+              valueFrom:
+                configMapKeyRef:
+                  name: unmineable-gpu-rigel-config
+                  key: GPU_TEMP_MEM_MAX
+            - name: NVIDIA_VISIBLE_DEVICES
+              value: "all"
+            - name: NVIDIA_DRIVER_CAPABILITIES
+              value: "all"
+          resources:
+            limits:
+              nvidia.com/gpu: "1"

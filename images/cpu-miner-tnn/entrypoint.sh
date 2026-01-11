@@ -1,0 +1,51 @@
+#!/bin/sh
+set -eu
+
+: "${POOL:?POOL is required}"
+: "${COIN:?COIN is required}"
+: "${WALLET_ADDRESS:?WALLET_ADDRESS is required}"
+: "${WORKER_NAME:?WORKER_NAME is required}"
+: "${REFERRAL_CODE:?REFERRAL_CODE is required}"
+
+algo_flag=""
+case "${ALGO:-}" in
+  rx/0|randomx) algo_flag="--randomx" ;;
+  *) algo_flag="" ;;
+ esac
+
+pool_url="${POOL}"
+# Strip scheme for host/port extraction
+pool_no_scheme="${pool_url#*://}"
+# Split host and port
+pool_host="${pool_no_scheme%%:*}"
+pool_port="${pool_no_scheme##*:}"
+
+user="${COIN}:${WALLET_ADDRESS}.${WORKER_NAME}#${REFERRAL_CODE}"
+
+set -- /usr/local/bin/tnn-miner-cpu \
+  --daemon-address "${pool_url}" \
+  --port "${pool_port}" \
+  --wallet "${user}" \
+  --password "${MINING_PASS:-x}" \
+  --worker-name "${WORKER_NAME}" \
+  --ignore-wallet \
+  ${algo_flag}
+
+if [ -n "${MINING_THREADS:-}" ]; then
+  set -- "$@" --threads "${MINING_THREADS}"
+fi
+
+if ! echo "${pool_url}" | grep -qi "stratum"; then
+  set -- "$@" --stratum
+fi
+
+if [ -n "${algo_flag}" ]; then
+  set -- "$@" --rx-hugepages
+fi
+
+if [ -n "${CPU_AFFINITY_MASK:-}" ]; then
+  set -- "$@" --no-lock
+  exec taskset "${CPU_AFFINITY_MASK}" "$@"
+fi
+
+exec "$@"

@@ -1,0 +1,105 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: unmineable-tnn
+  namespace: miners
+  labels:
+    app: unmineable-tnn
+spec:
+  replicas: 0
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: unmineable-tnn
+  template:
+    metadata:
+      labels:
+        app: unmineable-tnn
+    spec:
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      tolerations:
+        - key: "miner.cpu"
+          operator: "Equal"
+          value: "true"
+          effect: "NoSchedule"
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: miner.cpu
+                    operator: In
+                    values: ["true"]
+      containers:
+        - name: unmineable-tnn
+          image: roucru/k3s-cpu-miner:tnn
+          imagePullPolicy: Always
+          securityContext:
+            privileged: true
+            runAsUser: 0
+          env:
+            - name: POOL
+              valueFrom:
+                configMapKeyRef:
+                  name: unmineable-tnn-config
+                  key: POOL
+            - name: ALGO
+              valueFrom:
+                configMapKeyRef:
+                  name: unmineable-tnn-config
+                  key: ALGO
+            - name: COIN
+              valueFrom:
+                configMapKeyRef:
+                  name: unmineable-tnn-config
+                  key: COIN
+            - name: REFERRAL_CODE
+              valueFrom:
+                configMapKeyRef:
+                  name: unmineable-tnn-config
+                  key: REFERRAL_CODE
+            - name: WORKER_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: unmineable-tnn-config
+                  key: WORKER_NAME
+            - name: MINING_THREADS
+              valueFrom:
+                configMapKeyRef:
+                  name: unmineable-tnn-config
+                  key: MINING_THREADS
+            - name: CPU_AFFINITY_MASK
+              valueFrom:
+                configMapKeyRef:
+                  name: unmineable-tnn-config
+                  key: CPU_AFFINITY_MASK
+            - name: WALLET_ADDRESS
+              valueFrom:
+                secretKeyRef:
+                  name: unmineable-secret
+                  key: WALLET_ADDRESS
+          resources:
+            requests:
+              cpu: "12"
+              memory: 3Gi
+              hugepages-2Mi: 2560Mi
+            limits:
+              cpu: "12"
+              memory: 3Gi
+              hugepages-2Mi: 2560Mi
+          volumeMounts:
+            - name: dev-cpu
+              mountPath: /dev/cpu
+            - name: hugepages
+              mountPath: /dev/hugepages
+      volumes:
+        - name: dev-cpu
+          hostPath:
+            path: /dev/cpu
+            type: Directory
+        - name: hugepages
+          emptyDir:
+            medium: HugePages-2Mi
