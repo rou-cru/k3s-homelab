@@ -7,7 +7,7 @@ metadata:
   labels:
     app: unmineable-tnn
 spec:
-  replicas: 0
+  replicas: 1
   strategy:
     type: Recreate
   selector:
@@ -20,19 +20,6 @@ spec:
     spec:
       hostNetwork: true
       dnsPolicy: ClusterFirstWithHostNet
-      tolerations:
-        - key: "miner.cpu"
-          operator: "Equal"
-          value: "true"
-          effect: "NoSchedule"
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-              - matchExpressions:
-                  - key: miner.cpu
-                    operator: In
-                    values: ["true"]
       containers:
         - name: unmineable-tnn
           image: roucru/k3s-cpu-miner:tnn

@@ -45,7 +45,6 @@ if [ -n "${algo_flag}" ]; then
 fi
 
 if [ -n "${CPU_AFFINITY_MASK:-}" ]; then
-  set -- "$@" --no-lock
   exec taskset "${CPU_AFFINITY_MASK}" "$@"
 fi
 

@@ -5,9 +5,9 @@ metadata:
   name: unmineable-tnn-config
   namespace: miners
 data:
-  POOL: stratum+ssl://rx.unmineable.com:443
-  ALGO: rx/0
-  COIN: AVAX
+  POOL: stratum+ssl://xelishash.unmineable.com:443
+  ALGO: xelihashv3
+  COIN: XEL
   REFERRAL_CODE: 18ps-7t5s
   WORKER_NAME: home-miner
   MINING_THREADS: "12"
