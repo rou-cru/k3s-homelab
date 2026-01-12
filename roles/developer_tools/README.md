@@ -16,7 +16,7 @@ Description: Installs development tools and useful CLIs for K3s environments.
 <details>
 <summary><b>🧩 Argument Specifications in meta/argument_specs</b></summary>
 
-#### Key: main
+### Key: main
 
 **Description**: Installs a suite of developer tools including terminal utilities (bat, tmux),
 Kubernetes CLIs (kubectl, helm, k9s), Python tools (uv, pipx), and AI CLIs.
@@ -52,6 +52,7 @@ Kubernetes CLIs (kubectl, helm, k9s), Python tools (uv, pipx), and AI CLIs.
 |--------------|--------------|-------------|------------|-------------|
 | [devtools_install_docker](defaults/main.yml#L6)   | bool | `False` |    false  |  Install Docker |
 | [devtools_install_vagrant](defaults/main.yml#L12)   | bool | `True` |    false  |  Install Vagrant and libvirt |
+
 <details>
 <summary><b>🖇️ Full descriptions for vars in defaults/main.yml</b></summary>
 <br>
@@ -75,8 +76,7 @@ Kubernetes CLIs (kubectl, helm, k9s), Python tools (uv, pipx), and AI CLIs.
 | Name | Module | Has Conditions | Comments |
 | ---- | ------ | -------------- | -------- |
 | [Install dev tools (apt)](tasks/main.yml#L2) | ansible.builtin.apt | False |  |
-| [Install NVM](tasks/main.yml#L21) | ansible.builtin.shell | False | Kubernetes tools are installed in roles/common to avoid snap usage.
-Development environments |
+| [Install NVM](tasks/main.yml#L21) | ansible.builtin.shell | False | Kubernetes tools are installed in roles/common to avoid snap usage.<br>Development environments |
 | [Install latest Node.js LTS via NVM](tasks/main.yml#L28) | ansible.builtin.shell | False |  |
 | [Enable Corepack and activate pnpm](tasks/main.yml#L37) | ansible.builtin.shell | False |  |
 | [Install Devbox](tasks/main.yml#L46) | ansible.builtin.shell | False |  |
@@ -155,20 +155,20 @@ classDef rescue stroke:#665352,stroke-width:2px;
 ## Author Information
 Roura
 
-#### License
+### License
 
 MIT
 
-#### Minimum Ansible Version
+### Minimum Ansible Version
 
 2.20.0
 
-#### Platforms
+### Platforms
 
 - **Ubuntu**: ['noble']
 
 
-#### Dependencies
+### Dependencies
 
 No dependencies specified.
 <!-- DOCSIBLE END -->

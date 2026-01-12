@@ -16,7 +16,7 @@ Description: Configures NVIDIA GPUs for K3s, including drivers, container toolki
 <details>
 <summary><b>🧩 Argument Specifications in meta/argument_specs</b></summary>
 
-#### Key: main
+### Key: main
 
 **Description**: Manages NVIDIA drivers, container toolkit, and device plugin installation.
 Supports host setup, cluster setup, and headless X11 configurations.
@@ -25,124 +25,124 @@ Supports host setup, cluster setup, and headless X11 configurations.
 **Options**:
 
 
-  - **nvidia_gpu_setup**
-    - **Required**: False
-    - **Type**: str
-    - **Default**: auto
+- **nvidia_gpu_setup**
+  - **Required**: False
+  - **Type**: str
+  - **Default**: auto
+
+  - **Description**: Control mode for GPU setup ('auto', 'true', 'false').
+
+    - **Choices**:
   
-    - **Description**: Control mode for GPU setup ('auto', 'true', 'false').
+      - auto
   
-      - **Choices**:
-    
-          - auto
-    
-          - true
-    
-          - false
-    
+      - true
   
-  
+      - false
   
 
-  - **nvidia_gpu_driver_package**
-    - **Required**: False
-    - **Type**: str
-    - **Default**: auto
-  
-    - **Description**: Specific driver package to install or "auto" for detection.
-  
-  
-  
 
-  - **nvidia_gpu_driver_fallback**
-    - **Required**: False
-    - **Type**: str
-    - **Default**: nvidia-driver-535
-  
-    - **Description**: Fallback driver if auto-detection fails.
-  
-  
-  
 
-  - **nvidia_gpu_toolkit_repo_url**
-    - **Required**: False
-    - **Type**: str
-    - **Default**: https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list
-  
-    - **Description**: Repository URL for NVIDIA Container Toolkit.
-  
-  
-  
 
-  - **nvidia_gpu_toolkit_gpg_url**
-    - **Required**: False
-    - **Type**: str
-    - **Default**: https://nvidia.github.io/libnvidia-container/gpgkey
-  
-    - **Description**: GPG key URL for the toolkit repository.
-  
-  
-  
+- **nvidia_gpu_driver_package**
+  - **Required**: False
+  - **Type**: str
+  - **Default**: auto
 
-  - **nvidia_gpu_device_plugin_version**
-    - **Required**: False
-    - **Type**: str
-    - **Default**: 0.18.1
-  
-    - **Description**: Version of the NVIDIA device plugin Helm chart.
-  
-  
-  
+  - **Description**: Specific driver package to install or "auto" for detection.
 
-  - **nvidia_gpu_device_plugin_repo**
-    - **Required**: False
-    - **Type**: str
-    - **Default**: https://nvidia.github.io/k8s-device-plugin
-  
-    - **Description**: Helm repository for the device plugin.
-  
-  
-  
 
-  - **nvidia_gpu_reboot_timeout**
-    - **Required**: False
-    - **Type**: int
-    - **Default**: 600
-  
-    - **Description**: Timeout (seconds) for rebooting after driver installation.
-  
-  
-  
 
-  - **nvidia_gpu_headless_x11_enabled**
-    - **Required**: False
-    - **Type**: bool
-    - **Default**: True
-  
-    - **Description**: Enables X11 services for headless GPU management (fan control, etc.).
-  
-  
-  
 
-  - **nvidia_gpu_pci_bus_id**
-    - **Required**: False
-    - **Type**: str
-    - **Default**: 1:0:0
-  
-    - **Description**: PCI Bus ID of the GPU for xorg.conf generation.
-  
-  
-  
+- **nvidia_gpu_driver_fallback**
+  - **Required**: False
+  - **Type**: str
+  - **Default**: nvidia-driver-535
 
-  - **nvidia_gpu_coolbits**
-    - **Required**: False
-    - **Type**: str
-    - **Default**: 28
-  
-    - **Description**: Coolbits value for unlocking GPU control (fans, clocks).
-  
-  
-  
+  - **Description**: Fallback driver if auto-detection fails.
+
+
+
+
+- **nvidia_gpu_toolkit_repo_url**
+  - **Required**: False
+  - **Type**: str
+  - **Default**: https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list
+
+  - **Description**: Repository URL for NVIDIA Container Toolkit.
+
+
+
+
+- **nvidia_gpu_toolkit_gpg_url**
+  - **Required**: False
+  - **Type**: str
+  - **Default**: https://nvidia.github.io/libnvidia-container/gpgkey
+
+  - **Description**: GPG key URL for the toolkit repository.
+
+
+
+
+- **nvidia_gpu_device_plugin_version**
+  - **Required**: False
+  - **Type**: str
+  - **Default**: 0.18.1
+
+  - **Description**: Version of the NVIDIA device plugin Helm chart.
+
+
+
+
+- **nvidia_gpu_device_plugin_repo**
+  - **Required**: False
+  - **Type**: str
+  - **Default**: https://nvidia.github.io/k8s-device-plugin
+
+  - **Description**: Helm repository for the device plugin.
+
+
+
+
+- **nvidia_gpu_reboot_timeout**
+  - **Required**: False
+  - **Type**: int
+  - **Default**: 600
+
+  - **Description**: Timeout (seconds) for rebooting after driver installation.
+
+
+
+
+- **nvidia_gpu_headless_x11_enabled**
+  - **Required**: False
+  - **Type**: bool
+  - **Default**: True
+
+  - **Description**: Enables X11 services for headless GPU management (fan control, etc.).
+
+
+
+
+- **nvidia_gpu_pci_bus_id**
+  - **Required**: False
+  - **Type**: str
+  - **Default**: 1:0:0
+
+  - **Description**: PCI Bus ID of the GPU for xorg.conf generation.
+
+
+
+
+- **nvidia_gpu_coolbits**
+  - **Required**: False
+  - **Type**: str
+  - **Default**: 28
+
+  - **Description**: Coolbits value for unlocking GPU control (fans, clocks).
+
+
+
 
 
 
@@ -170,6 +170,7 @@ Supports host setup, cluster setup, and headless X11 configurations.
 | [nvidia_gpu_headless_x11_enabled](defaults/main.yml#L46)   | bool | `True` |    false  |  Headless X11 |
 | [nvidia_gpu_pci_bus_id](defaults/main.yml#L51)   | str | `1:0:0` |    false  |  PCI Bus ID |
 | [nvidia_gpu_coolbits](defaults/main.yml#L56)   | str | `28` |    false  |  Coolbits |
+
 <details>
 <summary><b>🖇️ Full descriptions for vars in defaults/main.yml</b></summary>
 <br>
@@ -384,20 +385,20 @@ classDef rescue stroke:#665352,stroke-width:2px;
 ## Author Information
 Roura
 
-#### License
+### License
 
 MIT
 
-#### Minimum Ansible Version
+### Minimum Ansible Version
 
 2.20.0
 
-#### Platforms
+### Platforms
 
 - **Ubuntu**: ['noble']
 
 
-#### Dependencies
+### Dependencies
 
 No dependencies specified.
 <!-- DOCSIBLE END -->

@@ -1,14 +1,11 @@
----
 dependency:
   name: galaxy
   options:
     requirements-file: ../../requirements.yml
-
 driver:
   name: vagrant
   provider:
     name: libvirt
-
 platforms:
   - name: preflight-ubuntu
     box: generic/ubuntu2404
@@ -20,7 +17,6 @@ platforms:
     networks:
       - type: private_network
         auto_config: true
-
 provisioner:
   name: ansible
   config_options:
@@ -33,14 +29,12 @@ provisioner:
     group_vars:
       all:
         ansible_python_interpreter: /usr/bin/python3
-
 verifier:
   name: testinfra
   directory: tests
   options:
     v: 1
     sudo: false
-
 scenario:
   name: preflight
   test_sequence:

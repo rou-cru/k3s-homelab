@@ -1,28 +1,22 @@
 #!/bin/bash
 set -euo pipefail
 
-
-
 INTERFACE="{{ common_primary_interface | default('') }}"
 
 if [ -z "$INTERFACE" ]; then
-  logger -t network-optimization -p info "No interface detected"
-  exit 0
+    logger -t network-optimization -p info "No interface detected"
+    exit 0
 fi
-
 
 if ethtool --show-eee "$INTERFACE" 2>/dev/null | grep -q "EEE is enabled"; then
     ethtool --set-eee "$INTERFACE" eee off
     logger -t network-optimization -p info "EEE disabled"
 fi
 
-
 ethtool -s "$INTERFACE" wol d 2>/dev/null || true
-
 
 MAX_RX=$(ethtool -g "$INTERFACE" | grep -m1 "RX:" | awk '{print $2}')
 MAX_TX=$(ethtool -g "$INTERFACE" | grep -m1 "TX:" | awk '{print $2}')
-
 
 if [ -n "$MAX_RX" ] && [ "$MAX_RX" -gt 256 ]; then
     if ethtool -G "$INTERFACE" rx "$MAX_RX" tx "$MAX_TX" 2>/dev/null; then

@@ -1,4 +1,3 @@
----
 - name: NVIDIA GPU host setup
   tags: ["host", "nvidia"]
   block:
@@ -22,6 +21,7 @@
         msg: >-
           Found PCI Vendors: {{
 
+
             pci_vendor_ids_output.stdout_lines
             | default([])
             | map('trim')
@@ -33,6 +33,7 @@
       ansible.builtin.set_fact:
         nvidia_gpu_present: >-
           {{
+
 
             '0x10de' in (
               pci_vendor_ids_output.stdout_lines
@@ -95,8 +96,12 @@
       when:
         - nvidia_gpu_driver_package == "auto"
         - >-
-          (nvidia_gpu_detected_driver.skipped is defined and nvidia_gpu_detected_driver.skipped)
-          or (nvidia_gpu_detected_driver.stdout | length == 0)
+          (
+
+
+            nvidia_gpu_detected_driver.skipped is defined
+            and nvidia_gpu_detected_driver.skipped
+          ) or (nvidia_gpu_detected_driver.stdout | length == 0)
         - nvidia_gpu_active | default(false) | bool
     - name: Set manual driver
       ansible.builtin.set_fact:
@@ -193,6 +198,8 @@
         dest: /etc/apt/sources.list.d/nvidia-container-toolkit.list
         content: >-
           {{
+
+
             (nvidia_gpu_toolkit_repo_raw.content | b64decode).splitlines()
             | map('regex_replace', '^deb\\s+', 'deb [signed-by=/etc/apt/keyrings/nvidia-container-toolkit.gpg] ')
             | join('\n')

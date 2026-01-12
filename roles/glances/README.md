@@ -19,7 +19,7 @@
 
 ### Defaults
 
-**These are static variables with lower priority**
+These are static variables with lower priority.
 
 #### File: defaults/main.yml
 
@@ -88,7 +88,7 @@ classDef rescue stroke:#665352,stroke-width:2px;
 
 
 
-#### Dependencies
+### Dependencies
 
 No dependencies specified.
 <!-- DOCSIBLE END -->

@@ -1,4 +1,3 @@
----
 - name: Disable swap
   ansible.builtin.command: swapoff -a
   changed_when: true
@@ -44,17 +43,19 @@
 - name: Register kernel change
   ansible.builtin.set_fact:
     common_kernel_changed: >-
-      {{ (common_hwe_kernel_install.changed | default(false))
-      or (common_generic_kernel_install.changed | default(false)) }}
+      {{
+
+
+        (common_hwe_kernel_install.changed | default(false))
+        or (common_generic_kernel_install.changed | default(false))
+      }}
 - name: Configure power
   ansible.builtin.include_tasks: power_management.yml
 - name: Apply hardware tuning
   ansible.builtin.include_tasks: hardware_tuning.yml
 - name: System Tuning
   ansible.builtin.include_tasks: system_tuning.yml
-
 - name: Install Cloud-Native Binaries
   ansible.builtin.include_tasks: binaries.yml
-
 - name: Setup Helm Repos
   ansible.builtin.include_tasks: helm_setup.yml

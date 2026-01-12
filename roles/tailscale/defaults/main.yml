@@ -1,4 +1,3 @@
----
 # Title: Hostname Prefix
 # Description: Prefix for the generated Tailscale hostname (e.g., k3s-hostname).
 # Type: str
@@ -19,7 +18,6 @@ tailscale_accept_dns: "true"
 # Type: str
 # Required: false
 tailscale_ssh: "true"
-
 # Title: Tailscale install script checksum
 # Description: SHA256 for https://tailscale.com/install.sh (pin to avoid supply-chain drift).
 # Type: str

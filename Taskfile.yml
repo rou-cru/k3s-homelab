@@ -1,4 +1,3 @@
----
 version: '3'
 vars:
   TEMPLATE_DIR: roles/common/templates
@@ -179,7 +178,7 @@ tasks:
       - sh: command -v shfmt
         msg: "shfmt not found. Run: devbox shell"
     cmds:
-      - shfmt -w {{.SCRIPT}}
+      - shfmt -w -i 4 {{.SCRIPT}}
       - echo "Formatted {{.SCRIPT}}"
   format-bash-network-opt:
     desc: "Format optimize-network.sh"
@@ -191,7 +190,7 @@ tasks:
       - sh: command -v shfmt
         msg: "shfmt not found. Run: devbox shell"
     cmds:
-      - shfmt -w {{.SCRIPT}}
+      - shfmt -w -i 4 {{.SCRIPT}}
       - echo "Formatted {{.SCRIPT}}"
   ci-full:
     desc: "Run full CI pipeline (validate + format check)"
@@ -210,7 +209,7 @@ tasks:
     cmds:
       - yamlfmt -dry .
       - task: render-all
-      - shfmt -d {{.OUTPUT_DIR}}/*.sh
+      - shfmt -d -i 4 {{.OUTPUT_DIR}}/*.sh
   clean:
     desc: "Clean rendered files and cache"
     cmds:
@@ -269,48 +268,39 @@ tasks:
         [ -n "$honey_pass" ] && task secrets:set -- honeygain_pass "$honey_pass"
 
         echo "🎉 Setup complete! secrets.yaml is ready."
-
   build:miners:cpu:
     desc: "Build custom CPU miner image"
     cmds:
       - docker buildx bake -f docker-bake.hcl cpu-miner-i9 cpu-miner-generic cpu-miner-tnn
-
   build:miners:cpu:tnn:
     desc: "Build TNN CPU miner image"
     cmds:
       - docker buildx bake -f docker-bake.hcl cpu-miner-tnn
-
   build:miners:gpu:
     desc: "Build custom GPU miner image"
     cmds:
       - docker buildx bake -f docker-bake.hcl gpu-miner
-
   build:miners:gpu:rigel:
     desc: "Build custom GPU miner image (Rigel)"
     cmds:
       - docker buildx bake -f docker-bake.hcl gpu-miner-rigel
-
   build:miners:
     desc: "Build all custom miner Docker images"
     cmds:
       - docker buildx bake -f docker-bake.hcl
-
   push:miners:
     desc: "Push all miner images to registry"
     cmds:
       - docker buildx bake -f docker-bake.hcl --push
-
   push:miners:gpu:rigel:
     desc: "Push GPU Rigel miner image to registry"
     cmds:
       - docker buildx bake -f docker-bake.hcl gpu-miner-rigel --push
-
   release:miners:
     desc: "Build and push all miner images (Release)"
     cmds:
       - task: build:miners
       - task: push:miners
-
   test:preflight:
     desc: "Run Molecule tests for preflight role (Vagrant)"
     preconditions:
@@ -322,27 +312,39 @@ tasks:
         msg: "libvirtd not running. Run playbook first: ansible-playbook site.yaml -K"
     cmds:
       - cd molecule/preflight && molecule test
-
   test:converge:preflight:
     desc: "Run Molecule converge only (faster iteration)"
+    preconditions:
+      - sh: command -v molecule
+        msg: "molecule not found. Run: devbox shell && uv sync"
+      - sh: command -v vagrant
+        msg: "vagrant not found. Run playbook first: ansible-playbook site.yaml -K"
+      - sh: systemctl is-active --quiet libvirtd
+        msg: "libvirtd not running. Run playbook first: ansible-playbook site.yaml -K"
     cmds:
       - cd molecule/preflight && molecule converge
-
   test:verify:preflight:
     desc: "Run Molecule verify only (after converge)"
+    preconditions:
+      - sh: command -v molecule
+        msg: "molecule not found. Run: devbox shell && uv sync"
+      - sh: command -v vagrant
+        msg: "vagrant not found. Run playbook first: ansible-playbook site.yaml -K"
+      - sh: systemctl is-active --quiet libvirtd
+        msg: "libvirtd not running. Run playbook first: ansible-playbook site.yaml -K"
     cmds:
       - cd molecule/preflight && molecule verify
-
   test:destroy:
-    desc: "Destroy all Molecule test instances"
+    desc: "Destroy all Molecule scenarios"
+    preconditions:
+      - sh: command -v molecule
+        msg: "molecule not found. Run: devbox shell && uv sync"
     cmds:
       - molecule destroy --all
-
   test:all:
     desc: "Run all Molecule tests (all roles)"
     cmds:
       - task: test:preflight
-
   test:init:
     desc: "Initialize Molecule scenario for a role"
     cmds:

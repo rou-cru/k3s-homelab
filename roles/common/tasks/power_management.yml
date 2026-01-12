@@ -1,4 +1,3 @@
----
 # Power management: disable suspension and lid switch handling
 - name: Configure logind to ignore Lid Switch
   ansible.builtin.lineinfile:

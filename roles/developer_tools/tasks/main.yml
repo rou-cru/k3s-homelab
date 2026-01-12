@@ -1,4 +1,3 @@
----
 - name: Install dev tools (apt)
   ansible.builtin.apt:
     name:
@@ -92,8 +91,14 @@
     - name: Add Docker repo
       ansible.builtin.apt_repository:
         repo: >-
-          deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg]
-          https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
+          {{
+
+
+            'deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] ' ~
+            'https://download.docker.com/linux/ubuntu ' ~
+            ansible_distribution_release ~
+            ' stable'
+          }}
         state: present
         filename: docker
     - name: Install Docker CLI
@@ -127,6 +132,8 @@
       ansible.builtin.set_fact:
         hashicorp_repo_arch: >-
           {{
+
+
             'amd64'
             if ansible_architecture == 'x86_64'
             else 'arm64'
@@ -155,8 +162,15 @@
     - name: Add HashiCorp APT repo
       ansible.builtin.apt_repository:
         repo: >-
-          deb [arch={{ hashicorp_repo_arch }} signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg]
-          https://apt.releases.hashicorp.com {{ hashicorp_repo_release }} main
+          {{
+
+
+            'deb [arch=' ~ hashicorp_repo_arch ~
+            ' signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] ' ~
+            'https://apt.releases.hashicorp.com ' ~
+            hashicorp_repo_release ~
+            ' main'
+          }}
         state: present
         filename: hashicorp
       check_mode: false

@@ -22,7 +22,11 @@ def test_disk_space_sufficient(host):
 def test_memory_sufficient(host):
     """Verify system has >=4GB RAM."""
     meminfo = host.file("/proc/meminfo").content_string
-    memtotal_line = [line for line in meminfo.split("\n") if "MemTotal" in line][0]
+    memtotal_line = next(
+        (line for line in meminfo.split("\n") if "MemTotal" in line),
+        None,
+    )
+    assert memtotal_line is not None, "MemTotal not found in /proc/meminfo"
     memtotal_kb = int(memtotal_line.split()[1])
     memtotal_mb = memtotal_kb / 1024
 

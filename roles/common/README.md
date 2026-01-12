@@ -16,7 +16,7 @@ Description: Common system configurations and optimizations for K3s homelab.
 <details>
 <summary><b>🧩 Argument Specifications in meta/argument_specs</b></summary>
 
-#### Key: main
+### Key: main
 
 **Description**: Configures base system settings including kernel tuning, power management,
 RoG hardware tweaks, and network optimizations.
@@ -25,167 +25,167 @@ RoG hardware tweaks, and network optimizations.
 **Options**:
 
 
-  - **common_network_optimization_enabled**
-    - **Required**: False
-    - **Type**: bool
-    - **Default**: True
-  
-    - **Description**: Enables sysctl adjustments for network performance.
-  
-  
+- **common_network_optimization_enabled**
+  - **Required**: False
+  - **Type**: bool
+  - **Default**: True
+
+  - **Description**: Enables sysctl adjustments for network performance.
+
+
+
+
+- **common_rog_server**
+  - **Required**: False
+  - **Type**: bool
+  - **Default**: True
+
+  - **Description**: Enables ASUS RoG specific hardware tweaks (drivers, LEDs, power profiles).
+
+
+
+
+- **common_radio_block_enabled**
+  - **Required**: False
+  - **Type**: bool
+  - **Default**: True
+
+  - **Description**: Soft-blocks WiFi and Bluetooth radios to save power.
+
+
+
+
+- **common_audio_optimization_enabled**
+  - **Required**: False
+  - **Type**: bool
+  - **Default**: True
+
+  - **Description**: Installs alsa-utils and configures realtime limits for audio.
+
+
+
+
+- **common_file_descriptors_soft**
+  - **Required**: False
+  - **Type**: int
+  - **Default**: 100000
+
+  - **Description**: Soft limit for open file descriptors (ulimit -n).
+
+
+
+
+- **common_file_descriptors_hard**
+  - **Required**: False
+  - **Type**: int
+  - **Default**: 100000
+
+  - **Description**: Hard limit for open file descriptors.
+
+
+
+
+- **common_fs_file_max**
+  - **Required**: False
+  - **Type**: int
+  - **Default**: 2097152
+
+  - **Description**: System-wide maximum number of open file descriptors.
+
+
+
+
+- **common_inotify_max_instances**
+  - **Required**: False
+  - **Type**: int
+  - **Default**: 8192
+
+  - **Description**: Max inotify instances per user.
+
+
+
+
+- **common_inotify_max_watches**
+  - **Required**: False
+  - **Type**: int
+  - **Default**: 524288
+
+  - **Description**: Max inotify watches per user.
+
+
+
+
+- **common_watchdog_timeout_sec**
+  - **Required**: False
+  - **Type**: int
+  - **Default**: 120
+
+  - **Description**: Hardware watchdog timeout in seconds (RuntimeWatchdogSec).
+
+
+
+
+- **common_battery_charge_threshold**
+  - **Required**: False
+  - **Type**: int
+  - **Default**: 80
+
+  - **Description**: Battery charge limit percentage for RoG laptops.
+
+
+
+
+- **common_thermal_policy**
+  - **Required**: False
+  - **Type**: int
+  - **Default**: 1
+
+  - **Description**: RoG thermal policy ID (0=balanced, 1=turbo, 2=silent - check specific model).
+
+
+
+
+- **common_ring_buffer_target**
+  - **Required**: False
+  - **Type**: int
+  - **Default**: 4096
+
+  - **Description**: Target size for network ring buffers.
+
+
+
+
+- **common_mining_enabled**
+  - **Required**: False
+  - **Type**: bool
+  - **Default**: True
+
+  - **Description**: Enables optimizations for crypto mining (hugepages, MSR).
+
+
+
+
+- **common_hugepages_count**
+  - **Required**: False
+  - **Type**: int
+  - **Default**: 1280
+
+  - **Description**: Number of hugepages to allocate if mining is enabled (1280 ~ 2.5Gi).
+
+
+
+
+- **common_helm_repositories**
+  - **Required**: False
+  - **Type**: list
+  - **Default**: []
+
+  - **Description**: List of Helm repositories to add.
+
+
+
   
 
-  - **common_rog_server**
-    - **Required**: False
-    - **Type**: bool
-    - **Default**: True
-  
-    - **Description**: Enables ASUS RoG specific hardware tweaks (drivers, LEDs, power profiles).
-  
-  
-  
-
-  - **common_radio_block_enabled**
-    - **Required**: False
-    - **Type**: bool
-    - **Default**: True
-  
-    - **Description**: Soft-blocks WiFi and Bluetooth radios to save power.
-  
-  
-  
-
-  - **common_audio_optimization_enabled**
-    - **Required**: False
-    - **Type**: bool
-    - **Default**: True
-  
-    - **Description**: Installs alsa-utils and configures realtime limits for audio.
-  
-  
-  
-
-  - **common_file_descriptors_soft**
-    - **Required**: False
-    - **Type**: int
-    - **Default**: 100000
-  
-    - **Description**: Soft limit for open file descriptors (ulimit -n).
-  
-  
-  
-
-  - **common_file_descriptors_hard**
-    - **Required**: False
-    - **Type**: int
-    - **Default**: 100000
-  
-    - **Description**: Hard limit for open file descriptors.
-  
-  
-  
-
-  - **common_fs_file_max**
-    - **Required**: False
-    - **Type**: int
-    - **Default**: 2097152
-  
-    - **Description**: System-wide maximum number of open file descriptors.
-  
-  
-  
-
-  - **common_inotify_max_instances**
-    - **Required**: False
-    - **Type**: int
-    - **Default**: 8192
-  
-    - **Description**: Max inotify instances per user.
-  
-  
-  
-
-  - **common_inotify_max_watches**
-    - **Required**: False
-    - **Type**: int
-    - **Default**: 524288
-  
-    - **Description**: Max inotify watches per user.
-  
-  
-  
-
-  - **common_watchdog_timeout_sec**
-    - **Required**: False
-    - **Type**: int
-    - **Default**: 120
-  
-    - **Description**: Hardware watchdog timeout in seconds (RuntimeWatchdogSec).
-  
-  
-  
-
-  - **common_battery_charge_threshold**
-    - **Required**: False
-    - **Type**: int
-    - **Default**: 80
-  
-    - **Description**: Battery charge limit percentage for RoG laptops.
-  
-  
-  
-
-  - **common_thermal_policy**
-    - **Required**: False
-    - **Type**: int
-    - **Default**: 1
-  
-    - **Description**: RoG thermal policy ID (0=balanced, 1=turbo, 2=silent - check specific model).
-  
-  
-  
-
-  - **common_ring_buffer_target**
-    - **Required**: False
-    - **Type**: int
-    - **Default**: 4096
-  
-    - **Description**: Target size for network ring buffers.
-  
-  
-  
-
-  - **common_mining_enabled**
-    - **Required**: False
-    - **Type**: bool
-    - **Default**: True
-  
-    - **Description**: Enables optimizations for crypto mining (hugepages, MSR).
-  
-  
-  
-
-  - **common_hugepages_count**
-    - **Required**: False
-    - **Type**: int
-    - **Default**: 1280
-  
-    - **Description**: Number of hugepages to allocate if mining is enabled (1280 ~ 2.5Gi).
-  
-  
-  
-
-  - **common_helm_repositories**
-    - **Required**: False
-    - **Type**: list
-    - **Default**: []
-  
-    - **Description**: List of Helm repositories to add.
-  
-  
-  
-    
-  
 
 
 
@@ -231,6 +231,7 @@ RoG hardware tweaks, and network optimizations.
 | [common_helm_repositories.1.**repo_url**](defaults/main.yml#L92)   | str | `https://nvidia.github.io/k8s-device-plugin` |    None  |  None |
 | [common_uv_install_script_checksum](defaults/main.yml#L98)   | str | `f6e468855afb4e653fa96ed68a7cad0b2534794ece25ec202f6543c589eb04dc` |    false  |  UV install script checksum |
 | [common_helm_install_script_checksum](defaults/main.yml#L103)   | str | `38b65f882d9cae3891755bdb03becc6a01ae6f9cb24826c191f219ddfee70a5d` |    false  |  Helm install script checksum |
+
 <details>
 <summary><b>🖇️ Full descriptions for vars in defaults/main.yml</b></summary>
 <br>
@@ -653,20 +654,20 @@ classDef rescue stroke:#665352,stroke-width:2px;
 ## Author Information
 Roura
 
-#### License
+### License
 
 MIT
 
-#### Minimum Ansible Version
+### Minimum Ansible Version
 
 2.20.0
 
-#### Platforms
+### Platforms
 
 - **Ubuntu**: ['noble']
 
 
-#### Dependencies
+### Dependencies
 
 No dependencies specified.
 <!-- DOCSIBLE END -->

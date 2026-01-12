@@ -16,7 +16,7 @@ Description: Installs and configures K3s Kubernetes server for homelab usage.
 <details>
 <summary><b>🧩 Argument Specifications in meta/argument_specs</b></summary>
 
-#### Key: main
+### Key: main
 
 **Description**: Deploys a single-node K3s server with Tailscale integration.
 Manages component disabling (Traefik/ServiceLB), kubeconfig generation,
@@ -151,6 +151,7 @@ and local context merging.
 | [k3s_server_recreate](defaults/main.yml#L41)   | bool | `True` |    false  |  Recreate Cluster |
 | [k3s_server_copy_kubeconfig_local](defaults/main.yml#L46)   | bool | `True` |    false  |  Copy Kubeconfig Local |
 | [k3s_server_local_kubeconfig_path](defaults/main.yml#L51)   | str | `{{ lookup('env', 'HOME') }}/.kube/config` |    false  |  Local Kubeconfig Path |
+
 <details>
 <summary><b>🖇️ Full descriptions for vars in defaults/main.yml</b></summary>
 <br>
@@ -276,20 +277,20 @@ classDef rescue stroke:#665352,stroke-width:2px;
 ## Author Information
 Roura
 
-#### License
+### License
 
 MIT
 
-#### Minimum Ansible Version
+### Minimum Ansible Version
 
 2.16
 
-#### Platforms
+### Platforms
 
 - **Ubuntu**: ['noble']
 
 
-#### Dependencies
+### Dependencies
 
 No dependencies specified.
 <!-- DOCSIBLE END -->
