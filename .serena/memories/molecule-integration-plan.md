@@ -81,16 +81,10 @@ molecule/**/__pycache__/
 
 ## Setup en master1
 ```bash
-# Verificar prerequisitos
-systemctl status libvirtd
-vagrant --version
-vagrant plugin list | grep libvirt
+# Vagrant + libvirt se instalan automáticamente por el rol developer_tools
+# devtools_install_vagrant: true (default en defaults/main.yml)
 
-# Si falta instalar
-sudo apt-get install -y vagrant vagrant-libvirt
-vagrant plugin install vagrant-libvirt
-
-# Instalar deps Python
+# Solo instalar deps Python
 cd /home/rc/k3s-homelab
 devbox shell
 uv sync

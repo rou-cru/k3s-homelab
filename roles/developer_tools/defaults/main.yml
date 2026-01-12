@@ -4,3 +4,9 @@
 # Type: bool
 # Required: false
 devtools_install_docker: false
+
+# Title: Install Vagrant and libvirt
+# Description: Installs Vagrant with libvirt provider for Molecule testing and VM management.
+# Type: bool
+# Required: false
+devtools_install_vagrant: true

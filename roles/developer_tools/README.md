@@ -51,12 +51,14 @@ Kubernetes CLIs (kubectl, helm, k9s), Python tools (uv, pipx), and AI CLIs.
 | Var          | Type         | Value       |Required    | Title       |
 |--------------|--------------|-------------|------------|-------------|
 | [devtools_install_docker](defaults/main.yml#L6)   | bool | `False` |    false  |  Install Docker |
+| [devtools_install_vagrant](defaults/main.yml#L12)   | bool | `True` |    false  |  Install Vagrant and libvirt |
 <details>
 <summary><b>🖇️ Full descriptions for vars in defaults/main.yml</b></summary>
 <br>
 <table>
 <th>Var</th><th>Description</th>
 <tr><td><b>devtools_install_docker</b></td><td>Installs Docker CLI (not recommended for K3s nodes which use containerd).</td></tr>
+<tr><td><b>devtools_install_vagrant</b></td><td>Installs Vagrant with libvirt provider for Molecule testing and VM management.</td></tr>
 </table>
 <br>
 </details>
@@ -86,6 +88,13 @@ Development environments |
 | [Add Docker repo](tasks/main.yml#L92) | ansible.builtin.apt_repository | False |  |
 | [Install Docker CLI](tasks/main.yml#L99) | ansible.builtin.apt | False |  |
 | [Show Docker warning](tasks/main.yml#L107) | ansible.builtin.debug | False |  |
+| [Install Vagrant and libvirt](tasks/main.yml#L119) | block | True | Vagrant + libvirt (for Molecule testing) |
+| [Install libvirt and dependencies](tasks/main.yml#L122) | ansible.builtin.apt | False |  |
+| [Ensure libvirtd service is enabled and started](tasks/main.yml#L135) | ansible.builtin.systemd | False |  |
+| [Add ansible_user to libvirt group](tasks/main.yml#L140) | ansible.builtin.user | False |  |
+| [Add root to libvirt group](tasks/main.yml#L145) | ansible.builtin.user | False |  |
+| [Install vagrant-libvirt plugin](tasks/main.yml#L150) | ansible.builtin.command | False |  |
+| [Show Vagrant installation success](tasks/main.yml#L157) | ansible.builtin.debug | False |  |
 
 
 ## Task Flow Graphs
@@ -124,7 +133,19 @@ classDef rescue stroke:#665352,stroke-width:2px;
   Install_Docker8_rescue_start_0-->|Task| Report_Docker_installation_failure0[report docker installation failure]:::task
   Report_Docker_installation_failure0-->|Task| Fail_Docker_installation1[fail docker installation]:::task
   Fail_Docker_installation1-.->|End of Rescue Block| Install_Docker8_block_start_0
-  Fail_Docker_installation1-->End
+  Fail_Docker_installation1-->|Block Start| Install_Vagrant_and_libvirt9_block_start_0[[install vagrant and libvirt<br>When: **devtools install vagrant   default true    bool**]]:::block
+  Install_Vagrant_and_libvirt9_block_start_0-->|Task| Install_libvirt_and_dependencies0[install libvirt and dependencies]:::task
+  Install_libvirt_and_dependencies0-->|Task| Ensure_libvirtd_service_is_enabled_and_started1[ensure libvirtd service is enabled and started]:::task
+  Ensure_libvirtd_service_is_enabled_and_started1-->|Task| Add_ansible_user_to_libvirt_group2[add ansible user to libvirt group]:::task
+  Add_ansible_user_to_libvirt_group2-->|Task| Add_root_to_libvirt_group3[add root to libvirt group]:::task
+  Add_root_to_libvirt_group3-->|Task| Install_vagrant_libvirt_plugin4[install vagrant libvirt plugin]:::task
+  Install_vagrant_libvirt_plugin4-->|Task| Show_Vagrant_installation_success5[show vagrant installation success]:::task
+  Show_Vagrant_installation_success5-.->|End of Block| Install_Vagrant_and_libvirt9_block_start_0
+  Show_Vagrant_installation_success5-->|Rescue Start| Install_Vagrant_and_libvirt9_rescue_start_0[install vagrant and libvirt<br>When: **devtools install vagrant   default true    bool**]:::rescue
+  Install_Vagrant_and_libvirt9_rescue_start_0-->|Task| Report_Vagrant_installation_failure0[report vagrant installation failure]:::task
+  Report_Vagrant_installation_failure0-->|Task| Fail_Vagrant_installation1[fail vagrant installation]:::task
+  Fail_Vagrant_installation1-.->|End of Rescue Block| Install_Vagrant_and_libvirt9_block_start_0
+  Fail_Vagrant_installation1-->End
 ```
 
 

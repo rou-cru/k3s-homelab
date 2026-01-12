@@ -318,9 +318,9 @@ tasks:
       - sh: command -v molecule
         msg: "molecule not found. Run: devbox shell && uv sync"
       - sh: command -v vagrant
-        msg: "vagrant not found. Install: sudo apt-get install vagrant"
+        msg: "vagrant not found. Run playbook first: ansible-playbook site.yaml -K"
       - sh: systemctl is-active --quiet libvirtd
-        msg: "libvirtd not running. Start: sudo systemctl start libvirtd"
+        msg: "libvirtd not running. Run playbook first: ansible-playbook site.yaml -K"
     cmds:
       - cd molecule/preflight && molecule test
 
