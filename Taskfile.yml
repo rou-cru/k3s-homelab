@@ -310,3 +310,41 @@ tasks:
     cmds:
       - task: build:miners
       - task: push:miners
+
+  test:preflight:
+    desc: "Run Molecule tests for preflight role (Vagrant)"
+    dir: /home/rc/k3s-homelab
+    preconditions:
+      - sh: command -v molecule
+        msg: "molecule not found. Run: devbox shell && uv sync"
+      - sh: command -v vagrant
+        msg: "vagrant not found. Install: sudo apt-get install vagrant"
+      - sh: systemctl is-active --quiet libvirtd
+        msg: "libvirtd not running. Start: sudo systemctl start libvirtd"
+    cmds:
+      - cd molecule/preflight && molecule test
+
+  test:converge:preflight:
+    desc: "Run Molecule converge only (faster iteration)"
+    cmds:
+      - cd molecule/preflight && molecule converge
+
+  test:verify:preflight:
+    desc: "Run Molecule verify only (after converge)"
+    cmds:
+      - cd molecule/preflight && molecule verify
+
+  test:destroy:
+    desc: "Destroy all Molecule test instances"
+    cmds:
+      - molecule destroy --all
+
+  test:all:
+    desc: "Run all Molecule tests (all roles)"
+    cmds:
+      - task: test:preflight
+
+  test:init:
+    desc: "Initialize Molecule scenario for a role"
+    cmds:
+      - mkdir -p molecule/{{.ROLE}}/tests

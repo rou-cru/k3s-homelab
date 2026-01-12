@@ -1,0 +1,57 @@
+---
+dependency:
+  name: galaxy
+  options:
+    requirements-file: requirements.yml
+
+driver:
+  name: vagrant
+  provider:
+    name: libvirt
+
+platforms:
+  - name: preflight-ubuntu
+    box: generic/ubuntu2404
+    memory: 4096
+    cpus: 2
+    provider_options:
+      driver: kvm
+      video_type: vga
+    networks:
+      - type: private_network
+        auto_config: true
+
+provisioner:
+  name: ansible
+  config_options:
+    defaults:
+      callbacks_enabled: profile_tasks
+      stdout_callback: yaml
+    ssh_connection:
+      pipelining: true
+  inventory:
+    group_vars:
+      all:
+        ansible_python_interpreter: /usr/bin/python3
+
+verifier:
+  name: testinfra
+  directory: tests
+  options:
+    v: 1
+    sudo: false
+
+scenario:
+  name: preflight
+  test_sequence:
+    - dependency
+    - cleanup
+    - destroy
+    - syntax
+    - create
+    - prepare
+    - converge
+    - idempotence
+    - verify
+    - cleanup
+    - destroy
