@@ -5,10 +5,8 @@
   vars:
     k8s_manifests_dir: "/home/{{ ansible_user }}/k8s-manifests"
     # Mining Defaults (Override via standard Ansible variables)
-    wallet_default: "{{ mining_wallet | default('') }}"
-    wallet_cpu: "{{ unmineable_wallet_cpu | default(wallet_default) }}"
-    wallet_gpu: "{{ unmineable_wallet_gpu | default(wallet_default) }}"
-    referral_code: "{{ unmineable_referral | default('') }}"
+    # XEL wallet used by both CPU and GPU miners
+    wallet_cpu: "{{ mining_wallet | default('') }}"
 
   vars_files:
     - "{{ secrets_file | default('secrets.yaml') }}"
@@ -35,11 +33,8 @@
       ansible.builtin.assert:
         that:
           - wallet_cpu | length > 0
-          - wallet_gpu | length > 0
-          - referral_code | length > 0
         fail_msg: >-
-          ERROR: Configure 'mining_wallet' (or unmineable_wallet_cpu/unmineable_wallet_gpu)
-          and 'unmineable_referral' in 'secrets.yaml' or inventory variables.
+          ERROR: Configure 'mining_wallet' in 'secrets.yaml' or inventory variables.
         success_msg: "Mining wallet configuration validated successfully."
       tags: always
   tasks:
@@ -195,76 +190,41 @@
       become: false
       tags: ["apps", "honeygain"]
 
-    # --- UNMINEABLE CPU ---
-    - name: Generate Unmineable CPU Config (Kustomize Bridge)
+    # --- MINING SECRETS (Centralized Wallets) ---
+    - name: Generate Mining Wallets Secret (Kustomize Bridge)
       ansible.builtin.copy:
-        dest: "{{ k8s_manifests_dir }}/miners/unmineable/miner.env"
+        dest: "{{ k8s_manifests_dir }}/miners/mining-secrets/wallets.env"
         content: |
-          POOL=stratum+ssl://rx.unmineable.com:443
-          ALGO=rx/0
-          COIN={{ unmineable_coin | default('AVAX') }}
-          WORKER_NAME={{ unmineable_worker_name | default('cpu-miner') }}
-          MINING_THREADS={{ unmineable_threads | default('12') }}
-          # Hex mask for 12 E-cores (starting at bit 16)
-          CPU_AFFINITY_MASK={{ unmineable_cpu_affinity | default('0x0FFF0000') }}
+          XEL_WALLET={{ wallet_cpu }}
         mode: "0600"
       become: false
-      tags: ["apps", "unmineable"]
+      tags: ["apps", "miners"]
 
-    - name: Generate Unmineable CPU Secrets (Kustomize Bridge)
-      ansible.builtin.copy:
-        dest: "{{ k8s_manifests_dir }}/miners/unmineable/secret.env"
-        content: |
-          WALLET_ADDRESS={{ wallet_cpu }}
-          REFERRAL_CODE={{ referral_code }}
-        mode: "0600"
+    - name: Deploy Mining Secrets via Kustomize
+      ansible.builtin.command: kubectl apply -k {{ k8s_manifests_dir }}/miners/mining-secrets/
+      register: mining_secrets_apply
+      changed_when: "'configured' in mining_secrets_apply.stdout or 'created' in mining_secrets_apply.stdout"
       become: false
-      tags: ["apps", "unmineable"]
+      tags: ["apps", "miners"]
 
-    - name: Deploy Unmineable CPU via Kustomize
-      ansible.builtin.command: kubectl apply -k {{ k8s_manifests_dir }}/miners/unmineable/
-      register: unmineable_cpu_apply
-      changed_when: "'configured' in unmineable_cpu_apply.stdout or 'created' in unmineable_cpu_apply.stdout"
+    # --- UNMINEABLE CPU TNN ---
+    - name: Deploy Unmineable CPU TNN via Kustomize
+      ansible.builtin.command: kubectl apply -k {{ k8s_manifests_dir }}/miners/unmineable-cpu-tnn/
+      register: unmineable_cpu_tnn_apply
+      changed_when: "'configured' in unmineable_cpu_tnn_apply.stdout or 'created' in unmineable_cpu_tnn_apply.stdout"
       become: false
-      tags: ["apps", "unmineable"]
+      tags: ["apps", "miners", "unmineable-cpu-tnn"]
 
-    # --- UNMINEABLE GPU ---
+    # --- UNMINEABLE GPU RIGEL ---
     - name: Determine if GPU mining is enabled
       ansible.builtin.set_fact:
         gpu_mining_enabled: "{{ nvidia_gpu_cluster_enabled | default(false) | bool }}"
       tags: ["apps", "nvidia"]
 
-    - name: Generate Unmineable GPU Config (Kustomize Bridge)
-      ansible.builtin.copy:
-        dest: "{{ k8s_manifests_dir }}/miners/unmineable-gpu/miner.env"
-        content: |
-          MINING_POOL=autolykos.unmineable.com
-          MINING_PORT=3333
-          MINING_ALGO=AUTOLYKOS2
-          MINING_COIN={{ unmineable_coin | default('AVAX') }}
-          MINING_WORKER_NAME={{ unmineable_worker_name_gpu | default('gpu-miner') }}
-          MINING_PASS=x
-          MINING_TLS=off
-        mode: "0600"
+    - name: Deploy Unmineable GPU Rigel via Kustomize
+      ansible.builtin.command: kubectl apply -k {{ k8s_manifests_dir }}/miners/unmineable-gpu-rigel/
+      register: unmineable_gpu_rigel_apply
+      changed_when: "'configured' in unmineable_gpu_rigel_apply.stdout or 'created' in unmineable_gpu_rigel_apply.stdout"
       when: gpu_mining_enabled
       become: false
-      tags: ["apps", "unmineable-gpu"]
-
-    - name: Generate Unmineable GPU Secrets (Kustomize Bridge)
-      ansible.builtin.copy:
-        dest: "{{ k8s_manifests_dir }}/miners/unmineable-gpu/secret.env"
-        content: |
-          WALLET_ADDRESS={{ wallet_gpu }}
-          REFERRAL_CODE={{ referral_code }}
-        mode: "0600"
-      when: gpu_mining_enabled
-      become: false
-      tags: ["apps", "unmineable-gpu"]
-
-    - name: Deploy Unmineable GPU via Kustomize
-      ansible.builtin.command: kubectl apply -k {{ k8s_manifests_dir }}/miners/unmineable-gpu/
-      register: unmineable_gpu_apply
-      changed_when: "'configured' in unmineable_gpu_apply.stdout or 'created' in unmineable_gpu_apply.stdout"
-      when: gpu_mining_enabled
-      become: false
-      tags: ["apps", "unmineable-gpu"]
+      tags: ["apps", "miners", "unmineable-gpu-rigel"]

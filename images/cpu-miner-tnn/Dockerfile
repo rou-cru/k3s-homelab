@@ -53,6 +53,11 @@ RUN git clone --depth 1 --branch ${TNN_REF} https://github.com/Tritonn204/tnn-mi
 
 WORKDIR /src
 
+# Disable Dev Fee by preventing the dev worker thread from starting
+RUN sed -i 's|boost::thread DEVWORK(getWork_v2, &devMiningProfile);|// boost::thread DEVWORK(getWork_v2, &devMiningProfile);|' src/core/miner.cpp \
+    && sed -i 's|DEVWORK.interrupt();|// DEVWORK.interrupt();|' src/core/miner.cpp \
+    && sed -i 's|devMiningProfile.setDev(vm.count("testnet"));|// devMiningProfile.setDev(vm.count("testnet"));|' src/core/miner.cpp
+
 # Build with optimizations for native CPU
 # CPM will download Boost automatically if not found
 RUN mkdir -p build \

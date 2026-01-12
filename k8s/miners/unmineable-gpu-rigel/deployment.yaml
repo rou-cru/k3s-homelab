@@ -43,8 +43,8 @@ spec:
             - name: WALLET_ADDRESS
               valueFrom:
                 secretKeyRef:
-                  name: unmineable-gpu-secret
-                  key: WALLET_ADDRESS
+                  name: mining-wallets
+                  key: XEL_WALLET
             - name: MINING_WORKER_NAME
               valueFrom:
                 configMapKeyRef:
