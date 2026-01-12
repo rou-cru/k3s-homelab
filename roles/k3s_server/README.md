@@ -142,15 +142,15 @@ and local context merging.
 | Var          | Type         | Value       |Required    | Title       |
 |--------------|--------------|-------------|------------|-------------|
 | [k3s_server_version](defaults/main.yml#L6)   | str | `v1.34.3+k3s1` |    false  |  K3s Version |
-| [k3s_server_disable_traefik](defaults/main.yml#L12)   | bool | `True` |    false  |  Disable Traefik |
-| [k3s_server_disable_servicelb](defaults/main.yml#L18)   | bool | `True` |    false  |  Disable ServiceLB |
-| [k3s_server_kubeconfig_mode](defaults/main.yml#L24)   | str | `0644` |    false  |  Kubeconfig Mode |
-| [k3s_server_node_token_timeout](defaults/main.yml#L30)   | int | `180` |    false  |  Token Timeout |
-| [k3s_server_readyz_retries](defaults/main.yml#L36)   | int | `30` |    false  |  Readiness Retries |
-| [k3s_server_readyz_delay](defaults/main.yml#L42)   | int | `2` |    false  |  Readiness Delay |
-| [k3s_server_recreate](defaults/main.yml#L48)   | bool | `True` |    false  |  Recreate Cluster |
-| [k3s_server_copy_kubeconfig_local](defaults/main.yml#L54)   | bool | `True` |    false  |  Copy Kubeconfig Local |
-| [k3s_server_local_kubeconfig_path](defaults/main.yml#L60)   | str | `{{ lookup('env', 'HOME') }}/.kube/config` |    false  |  Local Kubeconfig Path |
+| [k3s_server_disable_traefik](defaults/main.yml#L11)   | bool | `True` |    false  |  Disable Traefik |
+| [k3s_server_disable_servicelb](defaults/main.yml#L16)   | bool | `True` |    false  |  Disable ServiceLB |
+| [k3s_server_kubeconfig_mode](defaults/main.yml#L21)   | str | `0600` |    false  |  Kubeconfig Mode |
+| [k3s_server_node_token_timeout](defaults/main.yml#L26)   | int | `180` |    false  |  Token Timeout |
+| [k3s_server_readyz_retries](defaults/main.yml#L31)   | int | `30` |    false  |  Readiness Retries |
+| [k3s_server_readyz_delay](defaults/main.yml#L36)   | int | `2` |    false  |  Readiness Delay |
+| [k3s_server_recreate](defaults/main.yml#L41)   | bool | `True` |    false  |  Recreate Cluster |
+| [k3s_server_copy_kubeconfig_local](defaults/main.yml#L46)   | bool | `True` |    false  |  Copy Kubeconfig Local |
+| [k3s_server_local_kubeconfig_path](defaults/main.yml#L51)   | str | `{{ lookup('env', 'HOME') }}/.kube/config` |    false  |  Local Kubeconfig Path |
 <details>
 <summary><b>🖇️ Full descriptions for vars in defaults/main.yml</b></summary>
 <br>
@@ -182,32 +182,35 @@ and local context merging.
 | Name | Module | Has Conditions |
 | ---- | ------ | -------------- |
 | [Validate IP](tasks/main.yml#L2) | ansible.builtin.assert | False |
-| [Check uninstall script](tasks/main.yml#L10) | ansible.builtin.stat | False |
-| [Recreate cluster](tasks/main.yml#L15) | ansible.builtin.command | True |
-| [Cleanup directories](tasks/main.yml#L23) | ansible.builtin.file | True |
-| [Create config dir](tasks/main.yml#L37) | ansible.builtin.file | False |
-| [Deploy config](tasks/main.yml#L43) | ansible.builtin.template | False |
-| [Install K3s](tasks/main.yml#L50) | ansible.builtin.shell | False |
-| [Create override dir](tasks/main.yml#L60) | ansible.builtin.file | False |
-| [Create override](tasks/main.yml#L66) | ansible.builtin.copy | False |
-| [Remove env file](tasks/main.yml#L76) | ansible.builtin.file | False |
-| [Reload systemd (k3s)](tasks/main.yml#L82) | ansible.builtin.systemd | False |
-| [Start K3s](tasks/main.yml#L86) | ansible.builtin.systemd | False |
-| [Flush handlers](tasks/main.yml#L92) | ansible.builtin.meta | False |
-| [Wait for kubeconfig](tasks/main.yml#L95) | ansible.builtin.wait_for | True |
-| [Read kubeconfig](tasks/main.yml#L101) | ansible.builtin.slurp | False |
-| [Build canonical config](tasks/main.yml#L106) | ansible.builtin.set_fact | False |
-| [Write server config](tasks/main.yml#L112) | ansible.builtin.copy | False |
-| [Create user kube dir](tasks/main.yml#L120) | ansible.builtin.file | False |
-| [Write user config](tasks/main.yml#L128) | ansible.builtin.copy | False |
-| [Wait for apiserver](tasks/main.yml#L136) | ansible.builtin.command | True |
-| [Remove Traefik](tasks/main.yml#L148) | ansible.builtin.command | True |
-| [Copy local config](tasks/main.yml#L160) | block | True |
-| [Create local dir](tasks/main.yml#L168) | ansible.builtin.file | False |
-| [Fetch config](tasks/main.yml#L173) | ansible.builtin.slurp | False |
-| [Parse config](tasks/main.yml#L179) | ansible.builtin.set_fact | False |
-| [Write local config](tasks/main.yml#L188) | ansible.builtin.copy | False |
-| [Show config info](tasks/main.yml#L193) | ansible.builtin.debug | False |
+| [Check uninstall script](tasks/main.yml#L9) | ansible.builtin.stat | False |
+| [Recreate cluster](tasks/main.yml#L13) | ansible.builtin.command | True |
+| [Cleanup directories](tasks/main.yml#L20) | ansible.builtin.file | True |
+| [Create config dir](tasks/main.yml#L33) | ansible.builtin.file | False |
+| [Ensure K3s log directory exists](tasks/main.yml#L39) | ansible.builtin.file | False |
+| [Ensure K3s audit log file exists with restrictive permissions](tasks/main.yml#L47) | ansible.builtin.file | False |
+| [Deploy K3s audit policy](tasks/main.yml#L56) | ansible.builtin.template | False |
+| [Deploy config](tasks/main.yml#L63) | ansible.builtin.template | False |
+| [Install K3s](tasks/main.yml#L69) | ansible.builtin.shell | False |
+| [Create override dir](tasks/main.yml#L78) | ansible.builtin.file | False |
+| [Create override](tasks/main.yml#L83) | ansible.builtin.copy | False |
+| [Remove env file](tasks/main.yml#L92) | ansible.builtin.file | False |
+| [Reload systemd (k3s)](tasks/main.yml#L97) | ansible.builtin.systemd | False |
+| [Start K3s](tasks/main.yml#L100) | ansible.builtin.systemd | False |
+| [Flush handlers](tasks/main.yml#L105) | ansible.builtin.meta | False |
+| [Wait for kubeconfig](tasks/main.yml#L107) | ansible.builtin.wait_for | True |
+| [Read kubeconfig](tasks/main.yml#L112) | ansible.builtin.slurp | False |
+| [Build canonical config](tasks/main.yml#L116) | ansible.builtin.set_fact | False |
+| [Write server config](tasks/main.yml#L121) | ansible.builtin.copy | False |
+| [Create user kube dir](tasks/main.yml#L128) | ansible.builtin.file | False |
+| [Write user config](tasks/main.yml#L135) | ansible.builtin.copy | False |
+| [Wait for apiserver](tasks/main.yml#L142) | ansible.builtin.command | True |
+| [Remove Traefik](tasks/main.yml#L153) | ansible.builtin.command | True |
+| [Copy local config](tasks/main.yml#L165) | block | True |
+| [Create local dir](tasks/main.yml#L173) | ansible.builtin.file | False |
+| [Fetch config](tasks/main.yml#L178) | ansible.builtin.slurp | False |
+| [Parse config](tasks/main.yml#L184) | ansible.builtin.set_fact | False |
+| [Write local config](tasks/main.yml#L193) | ansible.builtin.copy | False |
+| [Show config info](tasks/main.yml#L198) | ansible.builtin.debug | False |
 
 
 ## Task Flow Graphs
@@ -233,33 +236,36 @@ classDef rescue stroke:#665352,stroke-width:2px;
   Check_uninstall_script1-->|Task| Recreate_cluster2[recreate cluster<br>When: **k3s server recreate   bool and k3s uninstall<br>script stat exists**]:::task
   Recreate_cluster2-->|Task| Cleanup_directories3[cleanup directories<br>When: **k3s server recreate   bool and k3s uninstall<br>script stat exists**]:::task
   Cleanup_directories3-->|Task| Create_config_dir4[create config dir]:::task
-  Create_config_dir4-->|Task| Deploy_config5[deploy config]:::task
-  Deploy_config5-->|Task| Install_K3s6[install k3s]:::task
-  Install_K3s6-->|Task| Create_override_dir7[create override dir]:::task
-  Create_override_dir7-->|Task| Create_override8[create override]:::task
-  Create_override8-->|Task| Remove_env_file9[remove env file]:::task
-  Remove_env_file9-->|Task| Reload_systemd__k3s_10[reload systemd  k3s ]:::task
-  Reload_systemd__k3s_10-->|Task| Start_K3s11[start k3s]:::task
-  Start_K3s11-->|Task| Flush_handlers12[flush handlers]:::task
-  Flush_handlers12-->|Task| Wait_for_kubeconfig13[wait for kubeconfig<br>When: **not ansible check mode**]:::task
-  Wait_for_kubeconfig13-->|Task| Read_kubeconfig14[read kubeconfig]:::task
-  Read_kubeconfig14-->|Task| Build_canonical_config15[build canonical config]:::task
-  Build_canonical_config15-->|Task| Write_server_config16[write server config]:::task
-  Write_server_config16-->|Task| Create_user_kube_dir17[create user kube dir]:::task
-  Create_user_kube_dir17-->|Task| Write_user_config18[write user config]:::task
-  Write_user_config18-->|Task| Wait_for_apiserver19[wait for apiserver<br>When: **not ansible check mode**]:::task
-  Wait_for_apiserver19-->|Task| Remove_Traefik20[remove traefik<br>When: **not ansible check mode and k3s server disable<br>traefik   bool**]:::task
-  Remove_Traefik20-->|Block Start| Copy_local_config21_block_start_0[[copy local config<br>When: **k3s server copy kubeconfig local   default true   <br>bool and not ansible check mode**]]:::block
-  Copy_local_config21_block_start_0-->|Task| Create_local_dir0[create local dir]:::task
+  Create_config_dir4-->|Task| Ensure_K3s_log_directory_exists5[ensure k3s log directory exists]:::task
+  Ensure_K3s_log_directory_exists5-->|Task| Ensure_K3s_audit_log_file_exists_with_restrictive_permissions6[ensure k3s audit log file exists with restrictive<br>permissions]:::task
+  Ensure_K3s_audit_log_file_exists_with_restrictive_permissions6-->|Task| Deploy_K3s_audit_policy7[deploy k3s audit policy]:::task
+  Deploy_K3s_audit_policy7-->|Task| Deploy_config8[deploy config]:::task
+  Deploy_config8-->|Task| Install_K3s9[install k3s]:::task
+  Install_K3s9-->|Task| Create_override_dir10[create override dir]:::task
+  Create_override_dir10-->|Task| Create_override11[create override]:::task
+  Create_override11-->|Task| Remove_env_file12[remove env file]:::task
+  Remove_env_file12-->|Task| Reload_systemd__k3s_13[reload systemd  k3s ]:::task
+  Reload_systemd__k3s_13-->|Task| Start_K3s14[start k3s]:::task
+  Start_K3s14-->|Task| Flush_handlers15[flush handlers]:::task
+  Flush_handlers15-->|Task| Wait_for_kubeconfig16[wait for kubeconfig<br>When: **not ansible check mode**]:::task
+  Wait_for_kubeconfig16-->|Task| Read_kubeconfig17[read kubeconfig]:::task
+  Read_kubeconfig17-->|Task| Build_canonical_config18[build canonical config]:::task
+  Build_canonical_config18-->|Task| Write_server_config19[write server config]:::task
+  Write_server_config19-->|Task| Create_user_kube_dir20[create user kube dir]:::task
+  Create_user_kube_dir20-->|Task| Write_user_config21[write user config]:::task
+  Write_user_config21-->|Task| Wait_for_apiserver22[wait for apiserver<br>When: **not ansible check mode**]:::task
+  Wait_for_apiserver22-->|Task| Remove_Traefik23[remove traefik<br>When: **not ansible check mode and k3s server disable<br>traefik   bool**]:::task
+  Remove_Traefik23-->|Block Start| Copy_local_config24_block_start_0[[copy local config<br>When: **k3s server copy kubeconfig local   default true   <br>bool and not ansible check mode**]]:::block
+  Copy_local_config24_block_start_0-->|Task| Create_local_dir0[create local dir]:::task
   Create_local_dir0-->|Task| Fetch_config1[fetch config]:::task
   Fetch_config1-->|Task| Parse_config2[parse config]:::task
   Parse_config2-->|Task| Write_local_config3[write local config]:::task
   Write_local_config3-->|Task| Show_config_info4[show config info]:::task
-  Show_config_info4-.->|End of Block| Copy_local_config21_block_start_0
-  Show_config_info4-->|Rescue Start| Copy_local_config21_rescue_start_0[copy local config<br>When: **k3s server copy kubeconfig local   default true   <br>bool and not ansible check mode**]:::rescue
-  Copy_local_config21_rescue_start_0-->|Task| Report_kubeconfig_copy_failure0[report kubeconfig copy failure]:::task
+  Show_config_info4-.->|End of Block| Copy_local_config24_block_start_0
+  Show_config_info4-->|Rescue Start| Copy_local_config24_rescue_start_0[copy local config<br>When: **k3s server copy kubeconfig local   default true   <br>bool and not ansible check mode**]:::rescue
+  Copy_local_config24_rescue_start_0-->|Task| Report_kubeconfig_copy_failure0[report kubeconfig copy failure]:::task
   Report_kubeconfig_copy_failure0-->|Task| Fail_kubeconfig_copy1[fail kubeconfig copy]:::task
-  Fail_kubeconfig_copy1-.->|End of Rescue Block| Copy_local_config21_block_start_0
+  Fail_kubeconfig_copy1-.->|End of Rescue Block| Copy_local_config24_block_start_0
   Fail_kubeconfig_copy1-->End
 ```
 
@@ -276,7 +282,7 @@ MIT
 
 #### Minimum Ansible Version
 
-2.20.0
+2.16
 
 #### Platforms
 

@@ -100,11 +100,12 @@ Description: Installs and configures Cilium CNI for K3s clusters.
 | Var          | Type         | Value       |Required    | Title       |
 |--------------|--------------|-------------|------------|-------------|
 | [cilium_version](defaults/main.yml#L6)   | str | `1.18.5` |    false  |  Cilium Version |
-| [cilium_chart_name](defaults/main.yml#L12)   | str | `cilium` |    false  |  Chart Name |
-| [cilium_namespace](defaults/main.yml#L18)   | str | `kube-system` |    false  |  Namespace |
-| [cilium_rollout_timeout](defaults/main.yml#L24)   | int | `300` |    false  |  Rollout Timeout |
-| [cilium_wait_retries](defaults/main.yml#L30)   | int | `60` |    false  |  Wait Retries |
-| [cilium_wait_delay](defaults/main.yml#L36)   | int | `5` |    false  |  Wait Delay |
+| [cilium_chart_name](defaults/main.yml#L11)   | str | `cilium` |    false  |  Chart Name |
+| [cilium_namespace](defaults/main.yml#L16)   | str | `kube-system` |    false  |  Namespace |
+| [cilium_rollout_timeout](defaults/main.yml#L21)   | int | `300` |    false  |  Rollout Timeout |
+| [cilium_wait_retries](defaults/main.yml#L26)   | int | `60` |    false  |  Wait Retries |
+| [cilium_wait_delay](defaults/main.yml#L31)   | int | `5` |    false  |  Wait Delay |
+| [cilium_devices](defaults/main.yml#L36)   | str | `eth+ en+ ens+` |    false  |  Cilium devices |
 <details>
 <summary><b>🖇️ Full descriptions for vars in defaults/main.yml</b></summary>
 <br>
@@ -116,6 +117,7 @@ Description: Installs and configures Cilium CNI for K3s clusters.
 <tr><td><b>cilium_rollout_timeout</b></td><td>Timeout (seconds) for waiting for Cilium pods rollout.</td></tr>
 <tr><td><b>cilium_wait_retries</b></td><td>Number of retries when checking for DaemonSet creation.</td></tr>
 <tr><td><b>cilium_wait_delay</b></td><td>Delay (seconds) between DaemonSet existence checks.</td></tr>
+<tr><td><b>cilium_devices</b></td><td>Space-separated device patterns to include (exclude tailscale0).</td></tr>
 </table>
 <br>
 </details>
@@ -132,11 +134,12 @@ Description: Installs and configures Cilium CNI for K3s clusters.
 | Name | Module | Has Conditions |
 | ---- | ------ | -------------- |
 | [Create temporary values file](tasks/main.yml#L2) | ansible.builtin.tempfile | False |
-| [Template Cilium values file](tasks/main.yml#L8) | ansible.builtin.template | False |
-| [Install Cilium via Helm](tasks/main.yml#L14) | kubernetes.core.helm | False |
-| [Wait for Cilium DaemonSet to be created](tasks/main.yml#L26) | ansible.builtin.command | False |
-| [Wait for cilium pods](tasks/main.yml#L36) | ansible.builtin.command | False |
-| [Remove temporary values file](tasks/main.yml#L46) | ansible.builtin.file | False |
+| [Ensure Cilium Helm repo](tasks/main.yml#L8) | ansible.builtin.command | False |
+| [Template Cilium values file](tasks/main.yml#L13) | ansible.builtin.template | False |
+| [Install Cilium via Helm](tasks/main.yml#L19) | kubernetes.core.helm | False |
+| [Wait for Cilium DaemonSet to be created](tasks/main.yml#L30) | ansible.builtin.command | False |
+| [Wait for cilium pods](tasks/main.yml#L39) | ansible.builtin.command | False |
+| [Remove temporary values file](tasks/main.yml#L47) | ansible.builtin.file | False |
 
 
 ## Task Flow Graphs
@@ -158,12 +161,13 @@ classDef includeVars stroke:#8e44ad,stroke-width:2px;
 classDef rescue stroke:#665352,stroke-width:2px;
 
   Start-->|Task| Create_temporary_values_file0[create temporary values file]:::task
-  Create_temporary_values_file0-->|Task| Template_Cilium_values_file1[template cilium values file]:::task
-  Template_Cilium_values_file1-->|Task| Install_Cilium_via_Helm2[install cilium via helm]:::task
-  Install_Cilium_via_Helm2-->|Task| Wait_for_Cilium_DaemonSet_to_be_created3[wait for cilium daemonset to be created]:::task
-  Wait_for_Cilium_DaemonSet_to_be_created3-->|Task| Wait_for_cilium_pods4[wait for cilium pods]:::task
-  Wait_for_cilium_pods4-->|Task| Remove_temporary_values_file5[remove temporary values file]:::task
-  Remove_temporary_values_file5-->End
+  Create_temporary_values_file0-->|Task| Ensure_Cilium_Helm_repo1[ensure cilium helm repo]:::task
+  Ensure_Cilium_Helm_repo1-->|Task| Template_Cilium_values_file2[template cilium values file]:::task
+  Template_Cilium_values_file2-->|Task| Install_Cilium_via_Helm3[install cilium via helm]:::task
+  Install_Cilium_via_Helm3-->|Task| Wait_for_Cilium_DaemonSet_to_be_created4[wait for cilium daemonset to be created]:::task
+  Wait_for_Cilium_DaemonSet_to_be_created4-->|Task| Wait_for_cilium_pods5[wait for cilium pods]:::task
+  Wait_for_cilium_pods5-->|Task| Remove_temporary_values_file6[remove temporary values file]:::task
+  Remove_temporary_values_file6-->End
 ```
 
 

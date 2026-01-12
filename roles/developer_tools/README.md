@@ -73,22 +73,19 @@ Kubernetes CLIs (kubectl, helm, k9s), Python tools (uv, pipx), and AI CLIs.
 | Name | Module | Has Conditions | Comments |
 | ---- | ------ | -------------- | -------- |
 | [Install dev tools (apt)](tasks/main.yml#L2) | ansible.builtin.apt | False |  |
-| [Install btop](tasks/main.yml#L22) | ansible.builtin.snap | False | Terminal monitoring tools (snap) |
-| [Install kubectl](tasks/main.yml#L27) | ansible.builtin.snap | False | Kubernetes tools (snap) |
-| [Install Helm](tasks/main.yml#L31) | ansible.builtin.snap | False |  |
-| [Install yq](tasks/main.yml#L35) | ansible.builtin.snap | False |  |
-| [Install Node.js](tasks/main.yml#L40) | ansible.builtin.snap | False | Development environments |
-| [Install pnpm](tasks/main.yml#L44) | community.general.npm | False |  |
-| [Install Devbox](tasks/main.yml#L49) | ansible.builtin.shell | False |  |
-| [Install uv](tasks/main.yml#L55) | ansible.builtin.shell | False | Python package manager (uv) |
-| [Install nvitop](tasks/main.yml#L63) | ansible.builtin.command | True | Python CLI tools (pipx/uv) |
-| [Install Kimi](tasks/main.yml#L68) | ansible.builtin.command | False |  |
-| [Install AI tools](tasks/main.yml#L76) | community.general.npm | False | AI CLI tools (npm) |
-| [Install Docker](tasks/main.yml#L88) | block | True | Docker (optional, disabled by default) |
-| [Add Docker key](tasks/main.yml#L91) | ansible.builtin.shell | False |  |
-| [Add Docker repo](tasks/main.yml#L98) | ansible.builtin.apt_repository | False |  |
-| [Install Docker CLI](tasks/main.yml#L107) | ansible.builtin.apt | False |  |
-| [Show Docker warning](tasks/main.yml#L115) | ansible.builtin.debug | False |  |
+| [Install NVM](tasks/main.yml#L21) | ansible.builtin.shell | False | Kubernetes tools are installed in roles/common to avoid snap usage.
+Development environments |
+| [Install latest Node.js LTS via NVM](tasks/main.yml#L28) | ansible.builtin.shell | False |  |
+| [Enable Corepack and activate pnpm](tasks/main.yml#L37) | ansible.builtin.shell | False |  |
+| [Install Devbox](tasks/main.yml#L46) | ansible.builtin.shell | False |  |
+| [Install nvitop](tasks/main.yml#L52) | ansible.builtin.command | True | Python CLI tools (pipx/uv) |
+| [Install Kimi](tasks/main.yml#L59) | ansible.builtin.command | False |  |
+| [Install AI tools](tasks/main.yml#L67) | ansible.builtin.shell | False | AI CLI tools (npm) |
+| [Install Docker](tasks/main.yml#L82) | block | True | Docker (optional, disabled by default) |
+| [Add Docker key](tasks/main.yml#L85) | ansible.builtin.shell | False |  |
+| [Add Docker repo](tasks/main.yml#L92) | ansible.builtin.apt_repository | False |  |
+| [Install Docker CLI](tasks/main.yml#L99) | ansible.builtin.apt | False |  |
+| [Show Docker warning](tasks/main.yml#L107) | ansible.builtin.debug | False |  |
 
 
 ## Task Flow Graphs
@@ -110,27 +107,23 @@ classDef includeVars stroke:#8e44ad,stroke-width:2px;
 classDef rescue stroke:#665352,stroke-width:2px;
 
   Start-->|Task| Install_dev_tools__apt_0[install dev tools  apt ]:::task
-  Install_dev_tools__apt_0-->|Task| Install_btop1[install btop]:::task
-  Install_btop1-->|Task| Install_kubectl2[install kubectl]:::task
-  Install_kubectl2-->|Task| Install_Helm3[install helm]:::task
-  Install_Helm3-->|Task| Install_yq4[install yq]:::task
-  Install_yq4-->|Task| Install_Node_js5[install node js]:::task
-  Install_Node_js5-->|Task| Install_pnpm6[install pnpm]:::task
-  Install_pnpm6-->|Task| Install_Devbox7[install devbox]:::task
-  Install_Devbox7-->|Task| Install_uv8[install uv]:::task
-  Install_uv8-->|Task| Install_nvitop9[install nvitop<br>When: **nvidia gpu setup mode   default  auto       false**]:::task
-  Install_nvitop9-->|Task| Install_Kimi10[install kimi]:::task
-  Install_Kimi10-->|Task| Install_AI_tools11[install ai tools]:::task
-  Install_AI_tools11-->|Block Start| Install_Docker12_block_start_0[[install docker<br>When: **devtools install docker   default false    bool**]]:::block
-  Install_Docker12_block_start_0-->|Task| Add_Docker_key0[add docker key]:::task
+  Install_dev_tools__apt_0-->|Task| Install_NVM1[install nvm]:::task
+  Install_NVM1-->|Task| Install_latest_Node_js_LTS_via_NVM2[install latest node js lts via nvm]:::task
+  Install_latest_Node_js_LTS_via_NVM2-->|Task| Enable_Corepack_and_activate_pnpm3[enable corepack and activate pnpm]:::task
+  Enable_Corepack_and_activate_pnpm3-->|Task| Install_Devbox4[install devbox]:::task
+  Install_Devbox4-->|Task| Install_nvitop5[install nvitop<br>When: **nvidia gpu setup mode   default  auto       false**]:::task
+  Install_nvitop5-->|Task| Install_Kimi6[install kimi]:::task
+  Install_Kimi6-->|Task| Install_AI_tools7[install ai tools]:::task
+  Install_AI_tools7-->|Block Start| Install_Docker8_block_start_0[[install docker<br>When: **devtools install docker   default false    bool**]]:::block
+  Install_Docker8_block_start_0-->|Task| Add_Docker_key0[add docker key]:::task
   Add_Docker_key0-->|Task| Add_Docker_repo1[add docker repo]:::task
   Add_Docker_repo1-->|Task| Install_Docker_CLI2[install docker cli]:::task
   Install_Docker_CLI2-->|Task| Show_Docker_warning3[show docker warning]:::task
-  Show_Docker_warning3-.->|End of Block| Install_Docker12_block_start_0
-  Show_Docker_warning3-->|Rescue Start| Install_Docker12_rescue_start_0[install docker<br>When: **devtools install docker   default false    bool**]:::rescue
-  Install_Docker12_rescue_start_0-->|Task| Report_Docker_installation_failure0[report docker installation failure]:::task
+  Show_Docker_warning3-.->|End of Block| Install_Docker8_block_start_0
+  Show_Docker_warning3-->|Rescue Start| Install_Docker8_rescue_start_0[install docker<br>When: **devtools install docker   default false    bool**]:::rescue
+  Install_Docker8_rescue_start_0-->|Task| Report_Docker_installation_failure0[report docker installation failure]:::task
   Report_Docker_installation_failure0-->|Task| Fail_Docker_installation1[fail docker installation]:::task
-  Fail_Docker_installation1-.->|End of Rescue Block| Install_Docker12_block_start_0
+  Fail_Docker_installation1-.->|End of Rescue Block| Install_Docker8_block_start_0
   Fail_Docker_installation1-->End
 ```
 

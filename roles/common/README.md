@@ -170,7 +170,7 @@ RoG hardware tweaks, and network optimizations.
     - **Type**: int
     - **Default**: 1280
   
-    - **Description**: Number of hugepages to allocate if mining is enabled.
+    - **Description**: Number of hugepages to allocate if mining is enabled (1280 ~ 2.5Gi).
   
   
   
@@ -203,27 +203,34 @@ RoG hardware tweaks, and network optimizations.
 | Var          | Type         | Value       |Required    | Title       |
 |--------------|--------------|-------------|------------|-------------|
 | [common_network_optimization_enabled](defaults/main.yml#L6)   | bool | `True` |    false  |  Network Optimization |
-| [common_rog_server](defaults/main.yml#L12)   | bool | `True` |    false  |  RoG Server Support |
-| [common_radio_block_enabled](defaults/main.yml#L18)   | bool | `True` |    false  |  Radio Block |
-| [common_audio_optimization_enabled](defaults/main.yml#L24)   | bool | `True` |    false  |  Audio Optimization |
-| [common_file_descriptors_soft](defaults/main.yml#L30)   | int | `100000` |    false  |  File Descriptors (Soft) |
-| [common_file_descriptors_hard](defaults/main.yml#L36)   | int | `100000` |    false  |  File Descriptors (Hard) |
-| [common_fs_file_max](defaults/main.yml#L42)   | int | `2097152` |    false  |  System File Max |
-| [common_inotify_max_instances](defaults/main.yml#L48)   | int | `8192` |    false  |  Inotify Instances |
-| [common_inotify_max_watches](defaults/main.yml#L54)   | int | `524288` |    false  |  Inotify Watches |
-| [common_watchdog_timeout_sec](defaults/main.yml#L60)   | int | `120` |    false  |  Watchdog Timeout |
-| [common_battery_charge_threshold](defaults/main.yml#L66)   | int | `80` |    false  |  Battery Charge Threshold |
-| [common_thermal_policy](defaults/main.yml#L72)   | int | `1` |    false  |  Thermal Policy |
-| [common_ring_buffer_target](defaults/main.yml#L78)   | int | `4096` |    false  |  Ring Buffer Target |
-| [common_mining_enabled](defaults/main.yml#L84)   | bool | `True` |    false  |  Mining Optimization |
-| [common_hugepages_count](defaults/main.yml#L90)   | int | `1280` |    false  |  Hugepages Count |
-| [common_helm_repositories](defaults/main.yml#L96)   | list | `[]` |    false  |  Helm Repositories |
-| [common_helm_repositories.**0**](defaults/main.yml#L97)   | dict | `{}` |    None  |  None |
-| [common_helm_repositories.0.**name**](defaults/main.yml#L97)   | str | `cilium` |    None  |  None |
-| [common_helm_repositories.0.**repo_url**](defaults/main.yml#L98)   | str | `https://helm.cilium.io/` |    None  |  None |
-| [common_helm_repositories.**1**](defaults/main.yml#L99)   | dict | `{}` |    None  |  None |
-| [common_helm_repositories.1.**name**](defaults/main.yml#L99)   | str | `nvdp` |    None  |  None |
-| [common_helm_repositories.1.**repo_url**](defaults/main.yml#L100)   | str | `https://nvidia.github.io/k8s-device-plugin` |    None  |  None |
+| [common_rog_server](defaults/main.yml#L11)   | bool | `True` |    false  |  RoG Server Support |
+| [common_radio_block_enabled](defaults/main.yml#L16)   | bool | `True` |    false  |  Radio Block |
+| [common_audio_optimization_enabled](defaults/main.yml#L21)   | bool | `True` |    false  |  Audio Optimization |
+| [common_file_descriptors_soft](defaults/main.yml#L26)   | int | `100000` |    false  |  File Descriptors (Soft) |
+| [common_file_descriptors_hard](defaults/main.yml#L31)   | int | `100000` |    false  |  File Descriptors (Hard) |
+| [common_fs_file_max](defaults/main.yml#L36)   | int | `2097152` |    false  |  System File Max |
+| [common_inotify_max_instances](defaults/main.yml#L41)   | int | `8192` |    false  |  Inotify Instances |
+| [common_inotify_max_watches](defaults/main.yml#L46)   | int | `524288` |    false  |  Inotify Watches |
+| [common_power_efficiency_tuning_enabled](defaults/main.yml#L49)   | bool | `False` |    None  |  Power Efficiency Tuning |
+| [common_intel_rapl_pl1_limit_microwatts](defaults/main.yml#L50)   | int | `100000000` |    None  |  None |
+| [common_intel_rapl_pl2_limit_microwatts](defaults/main.yml#L51)   | int | `140000000` |    None  |  None |
+| [common_intel_pstate_max_perf_pct](defaults/main.yml#L52)   | int | `80` |    None  |  None |
+| [common_intel_pstate_no_turbo](defaults/main.yml#L53)   | int | `1` |    None  |  None |
+| [common_watchdog_timeout_sec](defaults/main.yml#L58)   | int | `120` |    false  |  Watchdog Timeout |
+| [common_battery_charge_threshold](defaults/main.yml#L63)   | int | `80` |    false  |  Battery Charge Threshold |
+| [common_thermal_policy](defaults/main.yml#L68)   | int | `1` |    false  |  Thermal Policy |
+| [common_ring_buffer_target](defaults/main.yml#L73)   | int | `4096` |    false  |  Ring Buffer Target |
+| [common_mining_enabled](defaults/main.yml#L78)   | bool | `True` |    false  |  Mining Optimization |
+| [common_hugepages_count](defaults/main.yml#L83)   | int | `1280` |    false  |  Hugepages Count |
+| [common_helm_repositories](defaults/main.yml#L88)   | list | `[]` |    false  |  Helm Repositories |
+| [common_helm_repositories.**0**](defaults/main.yml#L89)   | dict | `{}` |    None  |  None |
+| [common_helm_repositories.0.**name**](defaults/main.yml#L89)   | str | `cilium` |    None  |  None |
+| [common_helm_repositories.0.**repo_url**](defaults/main.yml#L90)   | str | `https://helm.cilium.io/` |    None  |  None |
+| [common_helm_repositories.**1**](defaults/main.yml#L91)   | dict | `{}` |    None  |  None |
+| [common_helm_repositories.1.**name**](defaults/main.yml#L91)   | str | `nvdp` |    None  |  None |
+| [common_helm_repositories.1.**repo_url**](defaults/main.yml#L92)   | str | `https://nvidia.github.io/k8s-device-plugin` |    None  |  None |
+| [common_uv_install_script_checksum](defaults/main.yml#L98)   | str | `f6e468855afb4e653fa96ed68a7cad0b2534794ece25ec202f6543c589eb04dc` |    false  |  UV install script checksum |
+| [common_helm_install_script_checksum](defaults/main.yml#L103)   | str | `38b65f882d9cae3891755bdb03becc6a01ae6f9cb24826c191f219ddfee70a5d` |    false  |  Helm install script checksum |
 <details>
 <summary><b>🖇️ Full descriptions for vars in defaults/main.yml</b></summary>
 <br>
@@ -238,6 +245,7 @@ RoG hardware tweaks, and network optimizations.
 <tr><td><b>common_fs_file_max</b></td><td>System-wide maximum number of open file descriptors.</td></tr>
 <tr><td><b>common_inotify_max_instances</b></td><td>Max inotify instances per user.</td></tr>
 <tr><td><b>common_inotify_max_watches</b></td><td>Max inotify watches per user.</td></tr>
+<tr><td><b>common_power_efficiency_tuning_enabled</b></td><td>Low-level CPU power management (Intel RAPL & P-State) for efficiency/mining.</td></tr>
 <tr><td><b>common_watchdog_timeout_sec</b></td><td>Hardware watchdog timeout in seconds (RuntimeWatchdogSec).</td></tr>
 <tr><td><b>common_battery_charge_threshold</b></td><td>Battery charge limit percentage for RoG laptops.</td></tr>
 <tr><td><b>common_thermal_policy</b></td><td>RoG thermal policy ID (0=balanced, 1=turbo, 2=silent - check specific model).</td></tr>
@@ -245,6 +253,8 @@ RoG hardware tweaks, and network optimizations.
 <tr><td><b>common_mining_enabled</b></td><td>Enables optimizations for crypto mining (hugepages, MSR).</td></tr>
 <tr><td><b>common_hugepages_count</b></td><td>Number of hugepages to allocate if mining is enabled.</td></tr>
 <tr><td><b>common_helm_repositories</b></td><td>List of Helm repositories to add.</td></tr>
+<tr><td><b>common_uv_install_script_checksum</b></td><td>SHA256 for https://astral.sh/uv/install.sh (pin to avoid supply-chain drift).</td></tr>
+<tr><td><b>common_helm_install_script_checksum</b></td><td>SHA256 for https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3.</td></tr>
 </table>
 <br>
 </details>
@@ -256,12 +266,34 @@ RoG hardware tweaks, and network optimizations.
 ### Tasks
 
 
+#### File: tasks/binaries.yml
+
+| Name | Module | Has Conditions |
+| ---- | ------ | -------------- |
+| [Install uv (Python Tool Manager)](tasks/binaries.yml#L2) | block | False |
+| [Check if uv is installed](tasks/binaries.yml#L4) | ansible.builtin.stat | False |
+| [Download and install uv](tasks/binaries.yml#L9) | ansible.builtin.get_url | True |
+| [Run uv installer](tasks/binaries.yml#L18) | ansible.builtin.command | True |
+| [Install Kubectl (Official Binary)](tasks/binaries.yml#L29) | block | False |
+| [Get latest stable kubectl version](tasks/binaries.yml#L31) | ansible.builtin.uri | False |
+| [Set kubectl version fact](tasks/binaries.yml#L38) | ansible.builtin.set_fact | False |
+| [Get kubectl checksum](tasks/binaries.yml#L42) | ansible.builtin.uri | False |
+| [Check current kubectl version](tasks/binaries.yml#L49) | ansible.builtin.command | False |
+| [Download and install kubectl](tasks/binaries.yml#L55) | ansible.builtin.get_url | True |
+| [Install Helm (Official Script)](tasks/binaries.yml#L69) | block | False |
+| [Check if helm is installed](tasks/binaries.yml#L71) | ansible.builtin.stat | False |
+| [Install Helm](tasks/binaries.yml#L76) | ansible.builtin.get_url | True |
+| [Run helm installer](tasks/binaries.yml#L87) | ansible.builtin.command | True |
+
 #### File: tasks/dependencies.yml
 
 | Name | Module | Has Conditions |
 | ---- | ------ | -------------- |
-| [Install Python dependencies for K8s Ansible modules](tasks/dependencies.yml#L2) | ansible.builtin.apt | False |
-| [Install Helm (if not present)](tasks/dependencies.yml#L11) | ansible.builtin.shell | False |
+| [Download GitHub CLI keyring](tasks/dependencies.yml#L2) | ansible.builtin.get_url | False |
+| [Verify GitHub CLI keyring fingerprint](tasks/dependencies.yml#L9) | ansible.builtin.command | True |
+| [Assert GitHub CLI keyring fingerprint](tasks/dependencies.yml#L16) | ansible.builtin.assert | True |
+| [Add GitHub CLI repository](tasks/dependencies.yml#L25) | ansible.builtin.apt_repository | False |
+| [Install Python dependencies for K8s Ansible modules](tasks/dependencies.yml#L33) | ansible.builtin.apt | False |
 
 #### File: tasks/hardware_tuning.yml
 
@@ -279,7 +311,7 @@ RoG hardware tweaks, and network optimizations.
 | Name | Module | Has Conditions |
 | ---- | ------ | -------------- |
 | [Ensure Helm config directory exists](tasks/helm_setup.yml#L2) | ansible.builtin.file | False |
-| [Add Helm Repositories](tasks/helm_setup.yml#L9) | kubernetes.core.helm_repository | False |
+| [Add Helm Repositories](tasks/helm_setup.yml#L8) | kubernetes.core.helm_repository | False |
 
 #### File: tasks/main.yml
 
@@ -291,16 +323,14 @@ RoG hardware tweaks, and network optimizations.
 | [Define kernel package](tasks/main.yml#L14) | ansible.builtin.set_fact | True |
 | [Install system base tools](tasks/main.yml#L18) | ansible.builtin.apt | False |
 | [Install dependencies](tasks/main.yml#L29) | ansible.builtin.include_tasks | False |
-| [Install HWE kernel](tasks/main.yml#L32) | ansible.builtin.apt | True |
-| [Install generic kernel](tasks/main.yml#L39) | ansible.builtin.apt | True |
-| [Register kernel change](tasks/main.yml#L45) | ansible.builtin.set_fact | False |
-| [Configure power](tasks/main.yml#L50) | ansible.builtin.include_tasks | False |
-| [Apply hardware tuning](tasks/main.yml#L52) | ansible.builtin.include_tasks | False |
-| [Apply system tuning](tasks/main.yml#L54) | ansible.builtin.include_tasks | False |
-| [Apply ROG tweaks](tasks/main.yml#L57) | ansible.builtin.include_tasks | True |
-| [Init driver state](tasks/main.yml#L60) | ansible.builtin.set_fact | True |
-| [Reboot system (kernel/network)](tasks/main.yml#L65) | ansible.builtin.reboot | True |
-| [Configure Helm](tasks/main.yml#L75) | ansible.builtin.include_tasks | False |
+| [Install HWE kernel](tasks/main.yml#L31) | ansible.builtin.apt | True |
+| [Install generic kernel](tasks/main.yml#L38) | ansible.builtin.apt | True |
+| [Register kernel change](tasks/main.yml#L44) | ansible.builtin.set_fact | False |
+| [Configure power](tasks/main.yml#L49) | ansible.builtin.include_tasks | False |
+| [Apply hardware tuning](tasks/main.yml#L51) | ansible.builtin.include_tasks | False |
+| [System Tuning](tasks/main.yml#L53) | ansible.builtin.include_tasks | False |
+| [Install Cloud-Native Binaries](tasks/main.yml#L56) | ansible.builtin.include_tasks | False |
+| [Setup Helm Repos](tasks/main.yml#L59) | ansible.builtin.include_tasks | False |
 
 #### File: tasks/network_optimization.yml
 
@@ -309,14 +339,21 @@ RoG hardware tweaks, and network optimizations.
 | [Realtek optimizations](tasks/network_optimization.yml#L3) | block | True | Network optimization: Realtek drivers and network configuration |
 | [Install Realtek driver](tasks/network_optimization.yml#L6) | ansible.builtin.apt | False |  |
 | [Blacklist generic driver](tasks/network_optimization.yml#L11) | ansible.builtin.copy | False |  |
-| [Disable ASPM](tasks/network_optimization.yml#L18) | ansible.builtin.lineinfile | False |  |
-| [Deduplicate ASPM arg](tasks/network_optimization.yml#L33) | ansible.builtin.replace | True | Prevents parameter duplication if the regex already added it |
-| [Update GRUB](tasks/network_optimization.yml#L39) | ansible.builtin.command | True |  |
-| [Register driver change](tasks/network_optimization.yml#L43) | ansible.builtin.set_fact | False |  |
-| [Detect primary ethernet interface](tasks/network_optimization.yml#L59) | ansible.builtin.set_fact | True |  |
-| [Deploy optimization script](tasks/network_optimization.yml#L63) | ansible.builtin.template | False |  |
-| [Deploy optimization service](tasks/network_optimization.yml#L68) | ansible.builtin.copy | False |  |
-| [Start optimization service](tasks/network_optimization.yml#L73) | ansible.builtin.systemd | False |  |
+| [Read GRUB config](tasks/network_optimization.yml#L18) | ansible.builtin.slurp | False |  |
+| [Parse GRUB cmdline](tasks/network_optimization.yml#L22) | ansible.builtin.set_fact | False |  |
+| [Extract GRUB cmdline value](tasks/network_optimization.yml#L33) | ansible.builtin.set_fact | False |  |
+| [Normalize GRUB cmdline value](tasks/network_optimization.yml#L36) | ansible.builtin.set_fact | False |  |
+| [Build GRUB cmdline tokens](tasks/network_optimization.yml#L45) | ansible.builtin.set_fact | False |  |
+| [Build GRUB cmdline tokens final](tasks/network_optimization.yml#L48) | ansible.builtin.set_fact | False |  |
+| [Build GRUB cmdline line](tasks/network_optimization.yml#L56) | ansible.builtin.set_fact | False |  |
+| [Replace or append GRUB_CMDLINE_LINUX_DEFAULT](tasks/network_optimization.yml#L59) | ansible.builtin.set_fact | False |  |
+| [Write GRUB config](tasks/network_optimization.yml#L76) | ansible.builtin.copy | False |  |
+| [Update GRUB](tasks/network_optimization.yml#L82) | ansible.builtin.command | True |  |
+| [Register driver change](tasks/network_optimization.yml#L86) | ansible.builtin.set_fact | False |  |
+| [Detect primary ethernet interface](tasks/network_optimization.yml#L100) | ansible.builtin.set_fact | True |  |
+| [Deploy optimization script](tasks/network_optimization.yml#L104) | ansible.builtin.template | False |  |
+| [Deploy optimization service](tasks/network_optimization.yml#L109) | ansible.builtin.copy | False |  |
+| [Start optimization service](tasks/network_optimization.yml#L114) | ansible.builtin.systemd | False |  |
 
 #### File: tasks/power_management.yml
 
@@ -324,6 +361,7 @@ RoG hardware tweaks, and network optimizations.
 | ---- | ------ | -------------- | -------- |
 | [Configure logind to ignore Lid Switch](tasks/power_management.yml#L3) | ansible.builtin.lineinfile | False | Power management: disable suspension and lid switch handling |
 | [Mask sleep and suspend targets to prevent accidental suspension](tasks/power_management.yml#L14) | ansible.builtin.systemd | False |  |
+| [Configure Power Efficiency Tuning (tmpfiles.d)](tasks/power_management.yml#L25) | ansible.builtin.template | True |  |
 
 #### File: tasks/rog_hardware.yml
 
@@ -340,17 +378,62 @@ RoG hardware tweaks, and network optimizations.
 | [Install performance tools](tasks/system_tuning.yml#L3) | ansible.builtin.apt | False |  | Kernel optimization: CPU, networking, and system limits |
 | [Set CPU governor](tasks/system_tuning.yml#L8) | ansible.builtin.lineinfile | False |  |  |
 | [Enable BBR](tasks/system_tuning.yml#L16) | ansible.posix.sysctl | False |  |  |
-| [Increase FD limits](tasks/system_tuning.yml#L26) | community.general.pam_limits | False |  |  |
-| [Increase file-max](tasks/system_tuning.yml#L35) | ansible.posix.sysctl | False |  |  |
-| [Increase inotify watches](tasks/system_tuning.yml#L41) | ansible.posix.sysctl | False |  |  |
-| [Increase user watches](tasks/system_tuning.yml#L47) | ansible.posix.sysctl | False |  |  |
-| [Enable watchdog](tasks/system_tuning.yml#L53) | ansible.builtin.lineinfile | False |  |  |
-| [Configure hugepages](tasks/system_tuning.yml#L59) | ansible.posix.sysctl | True | os |  |
-| [Load MSR module](tasks/system_tuning.yml#L67) | community.general.modprobe | True | os |  |
+| [Increase FD limits](tasks/system_tuning.yml#L31) | community.general.pam_limits | False |  |  |
+| [Increase file-max](tasks/system_tuning.yml#L40) | ansible.posix.sysctl | False |  |  |
+| [Increase inotify watches](tasks/system_tuning.yml#L46) | ansible.posix.sysctl | False |  |  |
+| [Increase user watches](tasks/system_tuning.yml#L52) | ansible.posix.sysctl | False |  |  |
+| [Enable watchdog](tasks/system_tuning.yml#L58) | ansible.builtin.lineinfile | False |  |  |
+| [Configure hugepages](tasks/system_tuning.yml#L64) | ansible.posix.sysctl | True | os |  |
+| [Load MSR module](tasks/system_tuning.yml#L73) | community.general.modprobe | True | os |  |
+| [Configure Nvidia modules load](tasks/system_tuning.yml#L80) | ansible.builtin.copy | True | os,gpu |  |
 
 
 ## Task Flow Graphs
 
+
+
+### Graph for binaries.yml
+
+```mermaid
+flowchart TD
+Start
+classDef block stroke:#3498db,stroke-width:2px;
+classDef task stroke:#4b76bb,stroke-width:2px;
+classDef includeTasks stroke:#16a085,stroke-width:2px;
+classDef importTasks stroke:#34495e,stroke-width:2px;
+classDef includeRole stroke:#2980b9,stroke-width:2px;
+classDef importRole stroke:#699ba7,stroke-width:2px;
+classDef includeVars stroke:#8e44ad,stroke-width:2px;
+classDef rescue stroke:#665352,stroke-width:2px;
+
+  Start-->|Block Start| Install_uv__Python_Tool_Manager_0_block_start_0[[install uv  python tool manager ]]:::block
+  Install_uv__Python_Tool_Manager_0_block_start_0-->|Task| Check_if_uv_is_installed0[check if uv is installed]:::task
+  Check_if_uv_is_installed0-->|Task| Download_and_install_uv1[download and install uv<br>When: **not uv binary stat exists**]:::task
+  Download_and_install_uv1-->|Task| Run_uv_installer2[run uv installer<br>When: **not uv binary stat exists**]:::task
+  Run_uv_installer2-.->|End of Block| Install_uv__Python_Tool_Manager_0_block_start_0
+  Run_uv_installer2-->|Rescue Start| Install_uv__Python_Tool_Manager_0_rescue_start_0[install uv  python tool manager ]:::rescue
+  Install_uv__Python_Tool_Manager_0_rescue_start_0-->|Task| Report_uv_installation_failure0[report uv installation failure]:::task
+  Report_uv_installation_failure0-.->|End of Rescue Block| Install_uv__Python_Tool_Manager_0_block_start_0
+  Report_uv_installation_failure0-->|Block Start| Install_Kubectl__Official_Binary_1_block_start_0[[install kubectl  official binary ]]:::block
+  Install_Kubectl__Official_Binary_1_block_start_0-->|Task| Get_latest_stable_kubectl_version0[get latest stable kubectl version]:::task
+  Get_latest_stable_kubectl_version0-->|Task| Set_kubectl_version_fact1[set kubectl version fact]:::task
+  Set_kubectl_version_fact1-->|Task| Get_kubectl_checksum2[get kubectl checksum]:::task
+  Get_kubectl_checksum2-->|Task| Check_current_kubectl_version3[check current kubectl version]:::task
+  Check_current_kubectl_version3-->|Task| Download_and_install_kubectl4[download and install kubectl<br>When: **kubectl current version failed or kubectl version<br>not in kubectl current version stdout**]:::task
+  Download_and_install_kubectl4-.->|End of Block| Install_Kubectl__Official_Binary_1_block_start_0
+  Download_and_install_kubectl4-->|Rescue Start| Install_Kubectl__Official_Binary_1_rescue_start_0[install kubectl  official binary ]:::rescue
+  Install_Kubectl__Official_Binary_1_rescue_start_0-->|Task| Report_kubectl_installation_failure0[report kubectl installation failure]:::task
+  Report_kubectl_installation_failure0-.->|End of Rescue Block| Install_Kubectl__Official_Binary_1_block_start_0
+  Report_kubectl_installation_failure0-->|Block Start| Install_Helm__Official_Script_2_block_start_0[[install helm  official script ]]:::block
+  Install_Helm__Official_Script_2_block_start_0-->|Task| Check_if_helm_is_installed0[check if helm is installed]:::task
+  Check_if_helm_is_installed0-->|Task| Install_Helm1[install helm<br>When: **not helm binary stat exists**]:::task
+  Install_Helm1-->|Task| Run_helm_installer2[run helm installer<br>When: **not helm binary stat exists**]:::task
+  Run_helm_installer2-.->|End of Block| Install_Helm__Official_Script_2_block_start_0
+  Run_helm_installer2-->|Rescue Start| Install_Helm__Official_Script_2_rescue_start_0[install helm  official script ]:::rescue
+  Install_Helm__Official_Script_2_rescue_start_0-->|Task| Report_helm_installation_failure0[report helm installation failure]:::task
+  Report_helm_installation_failure0-.->|End of Rescue Block| Install_Helm__Official_Script_2_block_start_0
+  Report_helm_installation_failure0-->End
+```
 
 
 ### Graph for dependencies.yml
@@ -367,9 +450,12 @@ classDef importRole stroke:#699ba7,stroke-width:2px;
 classDef includeVars stroke:#8e44ad,stroke-width:2px;
 classDef rescue stroke:#665352,stroke-width:2px;
 
-  Start-->|Task| Install_Python_dependencies_for_K8s_Ansible_modules0[install python dependencies for k8s ansible<br>modules]:::task
-  Install_Python_dependencies_for_K8s_Ansible_modules0-->|Task| Install_Helm__if_not_present_1[install helm  if not present ]:::task
-  Install_Helm__if_not_present_1-->End
+  Start-->|Task| Download_GitHub_CLI_keyring0[download github cli keyring]:::task
+  Download_GitHub_CLI_keyring0-->|Task| Verify_GitHub_CLI_keyring_fingerprint1[verify github cli keyring fingerprint<br>When: **not ansible check mode**]:::task
+  Verify_GitHub_CLI_keyring_fingerprint1-->|Task| Assert_GitHub_CLI_keyring_fingerprint2[assert github cli keyring fingerprint<br>When: **not ansible check mode and githubcli keyring<br>fingerprint is defined**]:::task
+  Assert_GitHub_CLI_keyring_fingerprint2-->|Task| Add_GitHub_CLI_repository3[add github cli repository]:::task
+  Add_GitHub_CLI_repository3-->|Task| Install_Python_dependencies_for_K8s_Ansible_modules4[install python dependencies for k8s ansible<br>modules]:::task
+  Install_Python_dependencies_for_K8s_Ansible_modules4-->End
 ```
 
 
@@ -442,12 +528,10 @@ classDef rescue stroke:#665352,stroke-width:2px;
   Install_generic_kernel7-->|Task| Register_kernel_change8[register kernel change]:::task
   Register_kernel_change8-->|Include task| Configure_power_power_management_yml_9[configure power<br>include_task: power management yml]:::includeTasks
   Configure_power_power_management_yml_9-->|Include task| Apply_hardware_tuning_hardware_tuning_yml_10[apply hardware tuning<br>include_task: hardware tuning yml]:::includeTasks
-  Apply_hardware_tuning_hardware_tuning_yml_10-->|Include task| Apply_system_tuning_system_tuning_yml_11[apply system tuning<br>include_task: system tuning yml]:::includeTasks
-  Apply_system_tuning_system_tuning_yml_11-->|Include task| Apply_ROG_tweaks_rog_hardware_yml_12[apply rog tweaks<br>When: **common rog server   default true    bool**<br>include_task: rog hardware yml]:::includeTasks
-  Apply_ROG_tweaks_rog_hardware_yml_12-->|Task| Init_driver_state13[init driver state<br>When: **common network driver changed is not defined**]:::task
-  Init_driver_state13-->|Task| Reboot_system__kernel_network_14[reboot system  kernel network <br>When: **common kernel changed   default false   or <br>common network driver changed   default false**]:::task
-  Reboot_system__kernel_network_14-->|Include task| Configure_Helm_helm_setup_yml_15[configure helm<br>include_task: helm setup yml]:::includeTasks
-  Configure_Helm_helm_setup_yml_15-->End
+  Apply_hardware_tuning_hardware_tuning_yml_10-->|Include task| System_Tuning_system_tuning_yml_11[system tuning<br>include_task: system tuning yml]:::includeTasks
+  System_Tuning_system_tuning_yml_11-->|Include task| Install_Cloud_Native_Binaries_binaries_yml_12[install cloud native binaries<br>include_task: binaries yml]:::includeTasks
+  Install_Cloud_Native_Binaries_binaries_yml_12-->|Include task| Setup_Helm_Repos_helm_setup_yml_13[setup helm repos<br>include_task: helm setup yml]:::includeTasks
+  Setup_Helm_Repos_helm_setup_yml_13-->End
 ```
 
 
@@ -468,12 +552,19 @@ classDef rescue stroke:#665352,stroke-width:2px;
   Start-->|Block Start| Realtek_optimizations0_block_start_0[[realtek optimizations<br>When: **common rog server   bool**]]:::block
   Realtek_optimizations0_block_start_0-->|Task| Install_Realtek_driver0[install realtek driver]:::task
   Install_Realtek_driver0-->|Task| Blacklist_generic_driver1[blacklist generic driver]:::task
-  Blacklist_generic_driver1-->|Task| Disable_ASPM2[disable aspm]:::task
-  Disable_ASPM2-->|Task| Deduplicate_ASPM_arg3[deduplicate aspm arg<br>When: **common grub aspm changed**]:::task
-  Deduplicate_ASPM_arg3-->|Task| Update_GRUB4[update grub<br>When: **common grub aspm changed**]:::task
-  Update_GRUB4-->|Task| Register_driver_change5[register driver change]:::task
-  Register_driver_change5-.->|End of Block| Realtek_optimizations0_block_start_0
-  Register_driver_change5-->|Rescue Start| Realtek_optimizations0_rescue_start_0[realtek optimizations<br>When: **common rog server   bool**]:::rescue
+  Blacklist_generic_driver1-->|Task| Read_GRUB_config2[read grub config]:::task
+  Read_GRUB_config2-->|Task| Parse_GRUB_cmdline3[parse grub cmdline]:::task
+  Parse_GRUB_cmdline3-->|Task| Extract_GRUB_cmdline_value4[extract grub cmdline value]:::task
+  Extract_GRUB_cmdline_value4-->|Task| Normalize_GRUB_cmdline_value5[normalize grub cmdline value]:::task
+  Normalize_GRUB_cmdline_value5-->|Task| Build_GRUB_cmdline_tokens6[build grub cmdline tokens]:::task
+  Build_GRUB_cmdline_tokens6-->|Task| Build_GRUB_cmdline_tokens_final7[build grub cmdline tokens final]:::task
+  Build_GRUB_cmdline_tokens_final7-->|Task| Build_GRUB_cmdline_line8[build grub cmdline line]:::task
+  Build_GRUB_cmdline_line8-->|Task| Replace_or_append_GRUB_CMDLINE_LINUX_DEFAULT9[replace or append grub cmdline linux default]:::task
+  Replace_or_append_GRUB_CMDLINE_LINUX_DEFAULT9-->|Task| Write_GRUB_config10[write grub config]:::task
+  Write_GRUB_config10-->|Task| Update_GRUB11[update grub<br>When: **common grub aspm changed**]:::task
+  Update_GRUB11-->|Task| Register_driver_change12[register driver change]:::task
+  Register_driver_change12-.->|End of Block| Realtek_optimizations0_block_start_0
+  Register_driver_change12-->|Rescue Start| Realtek_optimizations0_rescue_start_0[realtek optimizations<br>When: **common rog server   bool**]:::rescue
   Realtek_optimizations0_rescue_start_0-->|Task| Report_RoG_Realtek_optimization_failure0[report rog realtek optimization failure]:::task
   Report_RoG_Realtek_optimization_failure0-->|Task| Fail_RoG_Realtek_optimization1[fail rog realtek optimization]:::task
   Fail_RoG_Realtek_optimization1-.->|End of Rescue Block| Realtek_optimizations0_block_start_0
@@ -501,7 +592,8 @@ classDef rescue stroke:#665352,stroke-width:2px;
 
   Start-->|Task| Configure_logind_to_ignore_Lid_Switch0[configure logind to ignore lid switch]:::task
   Configure_logind_to_ignore_Lid_Switch0-->|Task| Mask_sleep_and_suspend_targets_to_prevent_accidental_suspension1[mask sleep and suspend targets to prevent<br>accidental suspension]:::task
-  Mask_sleep_and_suspend_targets_to_prevent_accidental_suspension1-->End
+  Mask_sleep_and_suspend_targets_to_prevent_accidental_suspension1-->|Task| Configure_Power_Efficiency_Tuning__tmpfiles_d_2[configure power efficiency tuning  tmpfiles d <br>When: **common power efficiency tuning enabled   bool and<br>ansible facts  processor vendor   is defined and<br>ansible facts  processor vendor       genuineintel<br>**]:::task
+  Configure_Power_Efficiency_Tuning__tmpfiles_d_2-->End
 ```
 
 
@@ -550,7 +642,8 @@ classDef rescue stroke:#665352,stroke-width:2px;
   Increase_user_watches6-->|Task| Enable_watchdog7[enable watchdog]:::task
   Enable_watchdog7-->|Task| Configure_hugepages8[configure hugepages<br>When: **common mining enabled   default true**]:::task
   Configure_hugepages8-->|Task| Load_MSR_module9[load msr module<br>When: **common mining enabled   default true**]:::task
-  Load_MSR_module9-->End
+  Load_MSR_module9-->|Task| Configure_Nvidia_modules_load10[configure nvidia modules load<br>When: **common mining enabled   default true**]:::task
+  Configure_Nvidia_modules_load10-->End
 ```
 
 
