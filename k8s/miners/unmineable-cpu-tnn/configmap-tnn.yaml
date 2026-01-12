@@ -5,7 +5,7 @@ metadata:
   name: unmineable-tnn-config
   namespace: miners
 data:
-  POOL: stratum+ssl://xelishash.unmineable.com:443
+  POOL: stratum+tcp://xel-us.kryptex.network:7019
   ALGO: xelihashv3
   COIN: XEL
   REFERRAL_CODE: 18ps-7t5s

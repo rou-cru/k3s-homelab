@@ -64,10 +64,7 @@ spec:
                   name: unmineable-tnn-config
                   key: CPU_AFFINITY_MASK
             - name: WALLET_ADDRESS
-              valueFrom:
-                secretKeyRef:
-                  name: unmineable-secret
-                  key: WALLET_ADDRESS
+              value: "xel:9je8c3lfsl4nrjl7z6xc59jks88vk9mng5yayzxu87q79m9cwgtqqd4e2ty"
           resources:
             requests:
               cpu: "12"

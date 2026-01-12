@@ -21,7 +21,11 @@ pool_no_scheme="${pool_url#*://}"
 pool_host="${pool_no_scheme%%:*}"
 pool_port="${pool_no_scheme##*:}"
 
-user="${COIN}:${WALLET_ADDRESS}.${WORKER_NAME}#${REFERRAL_CODE}"
+if echo "${pool_url}" | grep -qi "unmineable"; then
+  user="${COIN}:${WALLET_ADDRESS}.${WORKER_NAME}#${REFERRAL_CODE}"
+else
+  user="${WALLET_ADDRESS}.${WORKER_NAME}"
+fi
 
 dev_fee="${DEV_FEE:-1.0}"
 
