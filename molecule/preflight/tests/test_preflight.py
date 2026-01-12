@@ -1,11 +1,10 @@
 """Tests for preflight role."""
 
-import pytest
-
-
 def test_network_connectivity(host):
     """Verify connectivity to K3s installation endpoint."""
-    cmd = host.run("curl -sSf --max-time 10 https://get.k3s.io")
+    cmd = host.run(
+        "python3 -c \"import urllib.request; urllib.request.urlopen('https://get.k3s.io', timeout=10).read()\""
+    )
     assert cmd.rc == 0, "Failed to reach https://get.k3s.io"
 
 
@@ -36,12 +35,6 @@ def test_architecture_x86_64(host):
     """Verify system architecture is x86_64."""
     arch = host.check_output("uname -m").strip()
     assert arch == "x86_64", f"Unsupported architecture: {arch}"
-
-
-def test_curl_installed(host):
-    """Verify curl is available (required by preflight checks)."""
-    cmd = host.run("which curl")
-    assert cmd.rc == 0, "curl not found in PATH"
 
 
 def test_df_command_available(host):

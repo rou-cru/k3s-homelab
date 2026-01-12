@@ -119,6 +119,51 @@
 - name: Install Vagrant and libvirt
   when: devtools_install_vagrant | default(true) | bool
   block:
+    - name: Set HashiCorp repo release
+      ansible.builtin.set_fact:
+        hashicorp_repo_release: >-
+          {{ 'jammy' if ansible_distribution_release == 'noble' else ansible_distribution_release }}
+    - name: Set HashiCorp repo architecture
+      ansible.builtin.set_fact:
+        hashicorp_repo_arch: >-
+          {{
+            'amd64'
+            if ansible_architecture == 'x86_64'
+            else 'arm64'
+            if ansible_architecture == 'aarch64'
+            else 'unsupported'
+          }}
+    - name: Validate HashiCorp repo architecture
+      ansible.builtin.assert:
+        that:
+          - hashicorp_repo_arch != 'unsupported'
+        fail_msg: "Unsupported architecture for HashiCorp repo: {{ ansible_architecture }}"
+    - name: Ensure APT keyrings dir (HashiCorp)
+      ansible.builtin.file:
+        path: /usr/share/keyrings
+        state: directory
+        mode: "0755"
+      check_mode: false
+    - name: Install HashiCorp keyring
+      ansible.builtin.shell: |
+        set -euo pipefail
+        curl -fsSL https://apt.releases.hashicorp.com/gpg | \
+          gpg --dearmor --batch --yes --no-tty -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+      args:
+        executable: /bin/bash
+      check_mode: false
+    - name: Add HashiCorp APT repo
+      ansible.builtin.apt_repository:
+        repo: >-
+          deb [arch={{ hashicorp_repo_arch }} signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg]
+          https://apt.releases.hashicorp.com {{ hashicorp_repo_release }} main
+        state: present
+        filename: hashicorp
+      check_mode: false
+    - name: Refresh APT cache after HashiCorp repo
+      ansible.builtin.apt:
+        update_cache: true
+      check_mode: false
     - name: Install libvirt and dependencies
       ansible.builtin.apt:
         name:
@@ -128,8 +173,14 @@
           - libvirt-dev
           - bridge-utils
           - virt-manager
+          - gcc
+          - make
+          - pkg-config
+          - ruby-dev
+          - libxml2-dev
+          - libxslt1-dev
+          - zlib1g-dev
           - vagrant
-          - vagrant-libvirt
         state: present
         update_cache: true
     - name: Ensure libvirtd service is enabled and started
@@ -151,9 +202,9 @@
       ansible.builtin.command: vagrant plugin install vagrant-libvirt
       register: vagrant_plugin_result
       changed_when: "'Installed the plugin' in vagrant_plugin_result.stdout"
-      failed_when: false
       become: true
       become_user: "{{ ansible_user }}"
+      when: not ansible_check_mode
     - name: Show Vagrant installation success
       ansible.builtin.debug:
         msg: "✅ Vagrant + libvirt installed successfully"

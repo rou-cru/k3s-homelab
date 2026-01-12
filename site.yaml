@@ -119,7 +119,9 @@
     - name: Label control plane for mining workloads
       ansible.builtin.shell: |
         set -euo pipefail
-        NODE_NAME="$(kubectl get nodes -l kubernetes.io/hostname={{ ansible_facts['hostname'] }} -o jsonpath='{.items[0].metadata.name}')"
+        NODE_NAME="$(kubectl get nodes \
+          -l kubernetes.io/hostname={{ ansible_facts['hostname'] }} \
+          -o jsonpath='{.items[0].metadata.name}')"
         kubectl label node "${NODE_NAME}" {{ miner_control_plane_labels | join(' ') }} --overwrite
       args:
         executable: /bin/bash
@@ -224,7 +226,9 @@
     - name: Deploy Unmineable GPU Rigel via Kustomize
       ansible.builtin.command: kubectl apply -k {{ k8s_manifests_dir }}/miners/unmineable-gpu-rigel/
       register: unmineable_gpu_rigel_apply
-      changed_when: "'configured' in unmineable_gpu_rigel_apply.stdout or 'created' in unmineable_gpu_rigel_apply.stdout"
+      changed_when: >-
+        'configured' in unmineable_gpu_rigel_apply.stdout or
+        'created' in unmineable_gpu_rigel_apply.stdout
       when: gpu_mining_enabled
       become: false
       tags: ["apps", "miners", "unmineable-gpu-rigel"]

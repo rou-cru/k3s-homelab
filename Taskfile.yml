@@ -313,7 +313,6 @@ tasks:
 
   test:preflight:
     desc: "Run Molecule tests for preflight role (Vagrant)"
-    dir: /home/rc/k3s-homelab
     preconditions:
       - sh: command -v molecule
         msg: "molecule not found. Run: devbox shell && uv sync"
