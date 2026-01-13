@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mining-pools
+  namespace: miners
+data:
+  KRYPTEX_XEL: stratum+tcp://xel-us.kryptex.network:7019
+  UNMINEABLE_AUTOLYKOS: autolykos.unmineable.com
+  UNMINEABLE_XELISHASH: stratum+tcp://xelishash.unmineable.com:3333

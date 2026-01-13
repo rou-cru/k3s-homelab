@@ -4,9 +4,8 @@ metadata:
   name: unmineable-tnn-config
   namespace: miners
 data:
-  POOL: stratum+tcp://xel-us.kryptex.network:7019
-  ALGO: xelihashv3
-  COIN: XEL
+  ALGO: xelishashv3
+  COIN: AVAX
   REFERRAL_CODE: 18ps-7t5s
   WORKER_NAME: home-miner
   MINING_THREADS: "12"

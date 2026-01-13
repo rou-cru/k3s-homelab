@@ -30,8 +30,8 @@ spec:
             - name: POOL
               valueFrom:
                 configMapKeyRef:
-                  name: unmineable-tnn-config
-                  key: POOL
+                  name: mining-pools
+                  key: UNMINEABLE_XELISHASH
             - name: ALGO
               valueFrom:
                 configMapKeyRef:
@@ -71,7 +71,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: mining-wallets
-                  key: XEL_WALLET
+                  key: AVAX_WALLET
           resources:
             requests:
               cpu: "12"

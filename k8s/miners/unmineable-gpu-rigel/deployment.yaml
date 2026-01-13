@@ -43,7 +43,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: mining-wallets
-                  key: XEL_WALLET
+                  key: AVAX_WALLET
             - name: MINING_WORKER_NAME
               valueFrom:
                 configMapKeyRef:
@@ -52,8 +52,8 @@ spec:
             - name: MINING_POOL
               valueFrom:
                 configMapKeyRef:
-                  name: unmineable-gpu-rigel-config
-                  key: MINING_POOL
+                  name: mining-pools
+                  key: UNMINEABLE_AUTOLYKOS
             - name: MINING_PORT
               valueFrom:
                 configMapKeyRef:

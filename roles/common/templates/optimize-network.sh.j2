@@ -18,7 +18,7 @@ ethtool -s "$INTERFACE" wol d 2>/dev/null || true
 MAX_RX=$(ethtool -g "$INTERFACE" | grep -m1 "RX:" | awk '{print $2}')
 MAX_TX=$(ethtool -g "$INTERFACE" | grep -m1 "TX:" | awk '{print $2}')
 
-if [ -n "$MAX_RX" ] && [ "$MAX_RX" -gt 256 ]; then
+if [ -n "$MAX_RX" ] && [ "$MAX_RX" -gt 256 ] && [ -n "$MAX_TX" ] && [ "$MAX_TX" -gt 256 ]; then
     if ethtool -G "$INTERFACE" rx "$MAX_RX" tx "$MAX_TX" 2>/dev/null; then
         logger -t network-optimization -p info "Ring buffers optimized: RX/TX=$MAX_RX/$MAX_TX"
     else

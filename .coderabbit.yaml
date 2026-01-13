@@ -1,4 +1,4 @@
-version: 1
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
 reviews:
   path_filters:
     - "!**/.serena/**"

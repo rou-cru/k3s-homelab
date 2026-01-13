@@ -335,17 +335,24 @@ tasks:
     cmds:
       - cd molecule/preflight && molecule verify
   test:destroy:
-    desc: "Destroy all Molecule scenarios"
+    desc: "Destroy all Molecule test instances"
     preconditions:
       - sh: command -v molecule
         msg: "molecule not found. Run: devbox shell && uv sync"
     cmds:
-      - molecule destroy --all
+      - cd molecule/preflight && molecule destroy
   test:all:
     desc: "Run all Molecule tests (all roles)"
     cmds:
       - task: test:preflight
   test:init:
-    desc: "Initialize Molecule scenario for a role"
+    desc: "Initialize Molecule scenario for a role (usage: task test:init -- ROLE_NAME)"
+    preconditions:
+      - sh: command -v molecule
+        msg: "molecule not found. Run: devbox shell && uv sync"
+      - sh: '[ {{len .CLI_ARGS}} -eq 1 ]'
+        msg: "Usage: task test:init -- ROLE_NAME"
+    vars:
+      ROLE: "{{index .CLI_ARGS 0}}"
     cmds:
-      - mkdir -p molecule/{{.ROLE}}/tests
+      - molecule init scenario {{.ROLE}} --driver-name vagrant
