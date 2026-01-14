@@ -6,6 +6,7 @@ set -e
 : "${MINING_ALGO:?MINING_ALGO is required}"
 : "${MINING_WORKER_NAME:?MINING_WORKER_NAME is required}"
 : "${POOL_TYPE:?POOL_TYPE is required}"
+: "${MINING_POOL_SCHEME:=stratum+tcp}"
 
 if [ -z "$WALLET_ADDRESS" ]; then
     echo "Error: WALLET_ADDRESS is required"

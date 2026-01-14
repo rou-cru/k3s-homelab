@@ -19,18 +19,18 @@
 
 ### Defaults
 
-These are static variables with lower priority.
+**These are static variables with lower priority**
 
 #### File: defaults/main.yml
 
 | Var          | Type         | Value       |
 |--------------|--------------|-------------|
-| [glances_state](defaults/main.yml#L2)   | str | `present` |    
-| [glances_port](defaults/main.yml#L3)   | int | `61208` |    
-| [glances_bind_address](defaults/main.yml#L4)   | str | `127.0.0.1` |    
-| [glances_venv_path](defaults/main.yml#L5)   | str | `/opt/glances` |    
-| [glances_packages](defaults/main.yml#L7)   | list | `[]` |    
-| [glances_packages.**0**](defaults/main.yml#L8)   | str | `glances[all]` |    
+| [glances_state](defaults/main.yml#L1)   | str | `present` |    
+| [glances_port](defaults/main.yml#L2)   | int | `61208` |    
+| [glances_bind_address](defaults/main.yml#L3)   | str | `127.0.0.1` |    
+| [glances_venv_path](defaults/main.yml#L4)   | str | `/opt/glances` |    
+| [glances_packages](defaults/main.yml#L6)   | list | `[]` |    
+| [glances_packages.**0**](defaults/main.yml#L7)   | str | `glances[all]` |    
 
 
 
@@ -43,14 +43,14 @@ These are static variables with lower priority.
 
 | Name | Module | Has Conditions |
 | ---- | ------ | -------------- |
-| [Check hddtemp availability](tasks/main.yml#L2) | ansible.builtin.command | False |
-| [Build Glances system package list](tasks/main.yml#L9) | ansible.builtin.set_fact | False |
-| [Install system dependencies for Glances and sensors](tasks/main.yml#L17) | ansible.builtin.apt | False |
-| [Create directory for Glances venv](tasks/main.yml#L24) | ansible.builtin.file | False |
-| [Create Glances virtual environment (uv)](tasks/main.yml#L30) | ansible.builtin.command | False |
-| [Install Glances in virtual environment (uv)](tasks/main.yml#L37) | ansible.builtin.command | False |
-| [Create Systemd service for Glances Web](tasks/main.yml#L45) | ansible.builtin.template | False |
-| [Ensure Glances service is enabled and running](tasks/main.yml#L52) | ansible.builtin.systemd | False |
+| [Check hddtemp availability](tasks/main.yml#L1) | ansible.builtin.command | False |
+| [Build Glances system package list](tasks/main.yml#L7) | ansible.builtin.set_fact | False |
+| [Install system dependencies for Glances and sensors](tasks/main.yml#L16) | ansible.builtin.apt | False |
+| [Create directory for Glances venv](tasks/main.yml#L22) | ansible.builtin.file | False |
+| [Create Glances virtual environment (uv)](tasks/main.yml#L27) | ansible.builtin.command | False |
+| [Install Glances in virtual environment (uv)](tasks/main.yml#L34) | ansible.builtin.command | False |
+| [Create Systemd service for Glances Web](tasks/main.yml#L40) | ansible.builtin.template | False |
+| [Ensure Glances service is enabled and running](tasks/main.yml#L46) | ansible.builtin.systemd | False |
 
 
 ## Task Flow Graphs
@@ -88,7 +88,7 @@ classDef rescue stroke:#665352,stroke-width:2px;
 
 
 
-### Dependencies
+#### Dependencies
 
 No dependencies specified.
 <!-- DOCSIBLE END -->

@@ -16,7 +16,7 @@ Description: Pre-flight checks to ensure minimum system requirements are met.
 <details>
 <summary><b>🧩 Argument Specifications in meta/argument_specs</b></summary>
 
-### Key: main
+#### Key: main
 
 **Description**: Performs pre-flight checks:
 - Network connectivity to get.k3s.io
@@ -48,12 +48,12 @@ Description: Pre-flight checks to ensure minimum system requirements are met.
 
 | Name | Module | Has Conditions |
 | ---- | ------ | -------------- |
-| [Check connectivity](tasks/main.yml#L2) | ansible.builtin.uri | False |
-| [Fail on disconnect](tasks/main.yml#L11) | ansible.builtin.fail | True |
-| [Check disk space](tasks/main.yml#L15) | ansible.builtin.shell | False |
-| [Assert disk space](tasks/main.yml#L21) | ansible.builtin.assert | False |
-| [Assert memory](tasks/main.yml#L28) | ansible.builtin.assert | False |
-| [Assert architecture](tasks/main.yml#L33) | ansible.builtin.assert | False |
+| [Check connectivity](tasks/main.yml#L1) | ansible.builtin.uri | False |
+| [Fail on disconnect](tasks/main.yml#L10) | ansible.builtin.fail | True |
+| [Check disk space](tasks/main.yml#L14) | ansible.builtin.shell | False |
+| [Assert disk space](tasks/main.yml#L20) | ansible.builtin.assert | False |
+| [Assert memory](tasks/main.yml#L32) | ansible.builtin.assert | False |
+| [Assert architecture](tasks/main.yml#L37) | ansible.builtin.assert | False |
 
 
 ## Task Flow Graphs
@@ -90,20 +90,20 @@ classDef rescue stroke:#665352,stroke-width:2px;
 ## Author Information
 Roura
 
-### License
+#### License
 
 MIT
 
-### Minimum Ansible Version
+#### Minimum Ansible Version
 
 2.20.0
 
-### Platforms
+#### Platforms
 
 - **Ubuntu**: ['noble']
 
 
-### Dependencies
+#### Dependencies
 
 No dependencies specified.
 <!-- DOCSIBLE END -->

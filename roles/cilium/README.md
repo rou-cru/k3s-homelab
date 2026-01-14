@@ -16,7 +16,7 @@ Description: Installs and configures Cilium CNI for K3s clusters.
 <details>
 <summary><b>🧩 Argument Specifications in meta/argument_specs</b></summary>
 
-### Key: main
+#### Key: main
 
 **Description**: Deploys Cilium CNI using Helm, managing values templating and rollout verification.
 
@@ -99,14 +99,13 @@ Description: Installs and configures Cilium CNI for K3s clusters.
 
 | Var          | Type         | Value       |Required    | Title       |
 |--------------|--------------|-------------|------------|-------------|
-| [cilium_version](defaults/main.yml#L6)   | str | `1.18.5` |    false  |  Cilium Version |
-| [cilium_chart_name](defaults/main.yml#L11)   | str | `cilium` |    false  |  Chart Name |
-| [cilium_namespace](defaults/main.yml#L16)   | str | `kube-system` |    false  |  Namespace |
-| [cilium_rollout_timeout](defaults/main.yml#L21)   | int | `300` |    false  |  Rollout Timeout |
-| [cilium_wait_retries](defaults/main.yml#L26)   | int | `60` |    false  |  Wait Retries |
-| [cilium_wait_delay](defaults/main.yml#L31)   | int | `5` |    false  |  Wait Delay |
-| [cilium_devices](defaults/main.yml#L36)   | str | `eth+ en+ ens+` |    false  |  Cilium devices |
-
+| [cilium_version](defaults/main.yml#L5)   | str | `1.18.5` |    false  |  Cilium Version |
+| [cilium_chart_name](defaults/main.yml#L10)   | str | `cilium` |    false  |  Chart Name |
+| [cilium_namespace](defaults/main.yml#L15)   | str | `kube-system` |    false  |  Namespace |
+| [cilium_rollout_timeout](defaults/main.yml#L20)   | int | `300` |    false  |  Rollout Timeout |
+| [cilium_wait_retries](defaults/main.yml#L25)   | int | `60` |    false  |  Wait Retries |
+| [cilium_wait_delay](defaults/main.yml#L30)   | int | `5` |    false  |  Wait Delay |
+| [cilium_devices](defaults/main.yml#L35)   | str | `eth+ en+ ens+` |    false  |  Cilium devices |
 <details>
 <summary><b>🖇️ Full descriptions for vars in defaults/main.yml</b></summary>
 <br>
@@ -134,13 +133,13 @@ Description: Installs and configures Cilium CNI for K3s clusters.
 
 | Name | Module | Has Conditions |
 | ---- | ------ | -------------- |
-| [Create temporary values file](tasks/main.yml#L2) | ansible.builtin.tempfile | False |
-| [Ensure Cilium Helm repo](tasks/main.yml#L8) | ansible.builtin.command | False |
-| [Template Cilium values file](tasks/main.yml#L13) | ansible.builtin.template | False |
-| [Install Cilium via Helm](tasks/main.yml#L19) | kubernetes.core.helm | False |
-| [Wait for Cilium DaemonSet to be created](tasks/main.yml#L30) | ansible.builtin.command | False |
-| [Wait for cilium pods](tasks/main.yml#L39) | ansible.builtin.command | False |
-| [Remove temporary values file](tasks/main.yml#L47) | ansible.builtin.file | False |
+| [Create temporary values file](tasks/main.yml#L1) | ansible.builtin.tempfile | False |
+| [Ensure Cilium Helm repo](tasks/main.yml#L7) | ansible.builtin.command | False |
+| [Template Cilium values file](tasks/main.yml#L12) | ansible.builtin.template | False |
+| [Install Cilium via Helm](tasks/main.yml#L18) | kubernetes.core.helm | False |
+| [Wait for Cilium DaemonSet to be created](tasks/main.yml#L29) | ansible.builtin.command | False |
+| [Wait for cilium pods](tasks/main.yml#L38) | ansible.builtin.command | False |
+| [Remove temporary values file](tasks/main.yml#L46) | ansible.builtin.file | False |
 
 
 ## Task Flow Graphs
@@ -178,20 +177,20 @@ classDef rescue stroke:#665352,stroke-width:2px;
 ## Author Information
 Roura
 
-### License
+#### License
 
 MIT
 
-### Minimum Ansible Version
+#### Minimum Ansible Version
 
 2.20.0
 
-### Platforms
+#### Platforms
 
 - **Ubuntu**: ['noble']
 
 
-### Dependencies
+#### Dependencies
 
 No dependencies specified.
 <!-- DOCSIBLE END -->

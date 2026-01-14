@@ -16,7 +16,7 @@ Description: Installs and configures Tailscale VPN client.
 <details>
 <summary><b>🧩 Argument Specifications in meta/argument_specs</b></summary>
 
-### Key: main
+#### Key: main
 
 **Description**: Installs Tailscale, connects to the tailnet using an auth key, and configures
 settings like DNS acceptance and SSH access.
@@ -104,12 +104,11 @@ settings like DNS acceptance and SSH access.
 
 | Var          | Type         | Value       |Required    | Title       |
 |--------------|--------------|-------------|------------|-------------|
-| [tailscale_hostname_prefix](defaults/main.yml#L6)   | str | `k3s` |    false  |  Hostname Prefix |
-| [tailscale_tags](defaults/main.yml#L11)   | str |  |    false  |  ACL Tags |
-| [tailscale_accept_dns](defaults/main.yml#L16)   | str | `true` |    false  |  Accept DNS |
-| [tailscale_ssh](defaults/main.yml#L21)   | str | `true` |    false  |  Enable SSH |
-| [tailscale_install_script_checksum](defaults/main.yml#L27)   | str | `7fab06250c94a527d5f74002d9fb45ac9fc702c72f7901a959571112c75048f1` |    false  |  Tailscale install script checksum |
-
+| [tailscale_hostname_prefix](defaults/main.yml#L5)   | str | `k3s` |    false  |  Hostname Prefix |
+| [tailscale_tags](defaults/main.yml#L10)   | str |  |    false  |  ACL Tags |
+| [tailscale_accept_dns](defaults/main.yml#L15)   | str | `true` |    false  |  Accept DNS |
+| [tailscale_ssh](defaults/main.yml#L20)   | str | `true` |    false  |  Enable SSH |
+| [tailscale_install_script_checksum](defaults/main.yml#L25)   | str | `7fab06250c94a527d5f74002d9fb45ac9fc702c72f7901a959571112c75048f1` |    false  |  Tailscale install script checksum |
 <details>
 <summary><b>🖇️ Full descriptions for vars in defaults/main.yml</b></summary>
 <br>
@@ -135,11 +134,11 @@ settings like DNS acceptance and SSH access.
 
 | Name | Module | Has Conditions |
 | ---- | ------ | -------------- |
-| [Install Tailscale](tasks/main.yml#L2) | ansible.builtin.get_url | False |
-| [Run Tailscale installer](tasks/main.yml#L9) | ansible.builtin.command | False |
-| [Start tailscaled](tasks/main.yml#L13) | ansible.builtin.systemd | False |
-| [Check status](tasks/main.yml#L19) | ansible.builtin.command | False |
-| [Determine state](tasks/main.yml#L25) | ansible.builtin.set_fact | False |
+| [Install Tailscale](tasks/main.yml#L1) | ansible.builtin.get_url | False |
+| [Run Tailscale installer](tasks/main.yml#L8) | ansible.builtin.command | False |
+| [Start tailscaled](tasks/main.yml#L12) | ansible.builtin.systemd | False |
+| [Check status](tasks/main.yml#L18) | ansible.builtin.command | False |
+| [Determine state](tasks/main.yml#L24) | ansible.builtin.set_fact | False |
 | [Configure Tailscale](tasks/main.yml#L34) | ansible.builtin.shell | True |
 | [Wait for IP](tasks/main.yml#L49) | ansible.builtin.shell | False |
 | [Set IP fact](tasks/main.yml#L64) | ansible.builtin.set_fact | False |
@@ -185,20 +184,20 @@ classDef rescue stroke:#665352,stroke-width:2px;
 ## Author Information
 Roura
 
-### License
+#### License
 
 MIT
 
-### Minimum Ansible Version
+#### Minimum Ansible Version
 
 2.20.0
 
-### Platforms
+#### Platforms
 
 - **Ubuntu**: ['noble']
 
 
-### Dependencies
+#### Dependencies
 
 No dependencies specified.
 <!-- DOCSIBLE END -->

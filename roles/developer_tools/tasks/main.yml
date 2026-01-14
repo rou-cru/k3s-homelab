@@ -135,8 +135,6 @@
       ansible.builtin.set_fact:
         hashicorp_repo_arch: >-
           {{
-
-
             'amd64'
             if ansible_architecture == 'x86_64'
             else 'arm64'
@@ -178,10 +176,6 @@
         state: present
         filename: hashicorp
       check_mode: false
-    - name: Refresh APT cache after HashiCorp repo
-      ansible.builtin.apt:
-        update_cache: true
-      check_mode: false
     - name: Install libvirt and dependencies
       ansible.builtin.apt:
         name:
@@ -216,13 +210,22 @@
         name: root
         groups: libvirt
         append: true
+    - name: Check installed Vagrant plugins
+      ansible.builtin.command: vagrant plugin list
+      register: vagrant_plugin_list
+      changed_when: false
+      check_mode: false
+      become: true
+      become_user: "{{ ansible_user }}"
     - name: Install vagrant-libvirt plugin
       ansible.builtin.command: vagrant plugin install vagrant-libvirt
       register: vagrant_plugin_result
       changed_when: "'Installed the plugin' in vagrant_plugin_result.stdout"
       become: true
       become_user: "{{ ansible_user }}"
-      when: not ansible_check_mode
+      when:
+        - not ansible_check_mode
+        - "'vagrant-libvirt' not in vagrant_plugin_list.stdout"
     - name: Show Vagrant installation success
       ansible.builtin.debug:
         msg: "✅ Vagrant + libvirt installed successfully"
