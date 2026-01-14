@@ -284,6 +284,7 @@ RoG hardware tweaks, and network optimizations.
 | [Check if helm is installed](tasks/binaries.yml#L63) | ansible.builtin.stat | False |
 | [Install Helm](tasks/binaries.yml#L67) | ansible.builtin.get_url | True |
 | [Run helm installer](tasks/binaries.yml#L78) | ansible.builtin.command | True |
+| [Install helm-diff plugin](tasks/binaries.yml#L84) | ansible.builtin.command | False |
 
 #### File: tasks/dependencies.yml
 
@@ -339,21 +340,13 @@ RoG hardware tweaks, and network optimizations.
 | [Realtek optimizations](tasks/network_optimization.yml#L2) | block | True | Network optimization: Realtek drivers and network configuration |
 | [Install Realtek driver](tasks/network_optimization.yml#L5) | ansible.builtin.apt | False |  |
 | [Blacklist generic driver](tasks/network_optimization.yml#L10) | ansible.builtin.copy | False |  |
-| [Read GRUB config](tasks/network_optimization.yml#L17) | ansible.builtin.slurp | False |  |
-| [Parse GRUB cmdline](tasks/network_optimization.yml#L21) | ansible.builtin.set_fact | False |  |
-| [Extract GRUB cmdline value](tasks/network_optimization.yml#L34) | ansible.builtin.set_fact | False |  |
-| [Normalize GRUB cmdline value](tasks/network_optimization.yml#L37) | ansible.builtin.set_fact | False |  |
-| [Build GRUB cmdline tokens](tasks/network_optimization.yml#L48) | ansible.builtin.set_fact | False |  |
-| [Build GRUB cmdline tokens final](tasks/network_optimization.yml#L51) | ansible.builtin.set_fact | False |  |
-| [Build GRUB cmdline line](tasks/network_optimization.yml#L61) | ansible.builtin.set_fact | False |  |
-| [Replace or append GRUB_CMDLINE_LINUX_DEFAULT](tasks/network_optimization.yml#L64) | ansible.builtin.set_fact | False |  |
-| [Write GRUB config](tasks/network_optimization.yml#L81) | ansible.builtin.copy | False |  |
-| [Update GRUB](tasks/network_optimization.yml#L87) | ansible.builtin.command | True |  |
-| [Register driver change](tasks/network_optimization.yml#L91) | ansible.builtin.set_fact | False |  |
-| [Detect primary ethernet interface](tasks/network_optimization.yml#L107) | ansible.builtin.set_fact | True |  |
-| [Deploy optimization script](tasks/network_optimization.yml#L111) | ansible.builtin.template | False |  |
-| [Deploy optimization service](tasks/network_optimization.yml#L116) | ansible.builtin.copy | False |  |
-| [Start optimization service](tasks/network_optimization.yml#L121) | ansible.builtin.systemd | False |  |
+| [Ensure pcie_aspm=off in GRUB](tasks/network_optimization.yml#L17) | ansible.builtin.replace | False |  |
+| [Update GRUB](tasks/network_optimization.yml#L23) | ansible.builtin.command | True |  |
+| [Register driver change](tasks/network_optimization.yml#L27) | ansible.builtin.set_fact | False |  |
+| [Detect primary ethernet interface](tasks/network_optimization.yml#L41) | ansible.builtin.set_fact | True |  |
+| [Deploy optimization script](tasks/network_optimization.yml#L45) | ansible.builtin.template | False |  |
+| [Deploy optimization service](tasks/network_optimization.yml#L50) | ansible.builtin.copy | False |  |
+| [Start optimization service](tasks/network_optimization.yml#L55) | ansible.builtin.systemd | False |  |
 
 #### File: tasks/power_management.yml
 
@@ -430,8 +423,9 @@ classDef rescue stroke:#665352,stroke-width:2px;
   Install_Helm__Official_Script_2_block_start_0-->|Task| Check_if_helm_is_installed0[check if helm is installed]:::task
   Check_if_helm_is_installed0-->|Task| Install_Helm1[install helm<br>When: **not helm binary stat exists**]:::task
   Install_Helm1-->|Task| Run_helm_installer2[run helm installer<br>When: **not helm binary stat exists**]:::task
-  Run_helm_installer2-.->|End of Block| Install_Helm__Official_Script_2_block_start_0
-  Run_helm_installer2-->|Rescue Start| Install_Helm__Official_Script_2_rescue_start_0[install helm  official script ]:::rescue
+  Run_helm_installer2-->|Task| Install_helm_diff_plugin3[install helm diff plugin]:::task
+  Install_helm_diff_plugin3-.->|End of Block| Install_Helm__Official_Script_2_block_start_0
+  Install_helm_diff_plugin3-->|Rescue Start| Install_Helm__Official_Script_2_rescue_start_0[install helm  official script ]:::rescue
   Install_Helm__Official_Script_2_rescue_start_0-->|Task| Report_helm_installation_failure0[report helm installation failure]:::task
   Report_helm_installation_failure0-.->|End of Rescue Block| Install_Helm__Official_Script_2_block_start_0
   Report_helm_installation_failure0-->End
@@ -554,19 +548,11 @@ classDef rescue stroke:#665352,stroke-width:2px;
   Start-->|Block Start| Realtek_optimizations0_block_start_0[[realtek optimizations<br>When: **common rog server   bool**]]:::block
   Realtek_optimizations0_block_start_0-->|Task| Install_Realtek_driver0[install realtek driver]:::task
   Install_Realtek_driver0-->|Task| Blacklist_generic_driver1[blacklist generic driver]:::task
-  Blacklist_generic_driver1-->|Task| Read_GRUB_config2[read grub config]:::task
-  Read_GRUB_config2-->|Task| Parse_GRUB_cmdline3[parse grub cmdline]:::task
-  Parse_GRUB_cmdline3-->|Task| Extract_GRUB_cmdline_value4[extract grub cmdline value]:::task
-  Extract_GRUB_cmdline_value4-->|Task| Normalize_GRUB_cmdline_value5[normalize grub cmdline value]:::task
-  Normalize_GRUB_cmdline_value5-->|Task| Build_GRUB_cmdline_tokens6[build grub cmdline tokens]:::task
-  Build_GRUB_cmdline_tokens6-->|Task| Build_GRUB_cmdline_tokens_final7[build grub cmdline tokens final]:::task
-  Build_GRUB_cmdline_tokens_final7-->|Task| Build_GRUB_cmdline_line8[build grub cmdline line]:::task
-  Build_GRUB_cmdline_line8-->|Task| Replace_or_append_GRUB_CMDLINE_LINUX_DEFAULT9[replace or append grub cmdline linux default]:::task
-  Replace_or_append_GRUB_CMDLINE_LINUX_DEFAULT9-->|Task| Write_GRUB_config10[write grub config]:::task
-  Write_GRUB_config10-->|Task| Update_GRUB11[update grub<br>When: **common grub aspm changed**]:::task
-  Update_GRUB11-->|Task| Register_driver_change12[register driver change]:::task
-  Register_driver_change12-.->|End of Block| Realtek_optimizations0_block_start_0
-  Register_driver_change12-->|Rescue Start| Realtek_optimizations0_rescue_start_0[realtek optimizations<br>When: **common rog server   bool**]:::rescue
+  Blacklist_generic_driver1-->|Task| Ensure_pcie_aspm_off_in_GRUB2[ensure pcie aspm off in grub]:::task
+  Ensure_pcie_aspm_off_in_GRUB2-->|Task| Update_GRUB3[update grub<br>When: **common grub aspm changed**]:::task
+  Update_GRUB3-->|Task| Register_driver_change4[register driver change]:::task
+  Register_driver_change4-.->|End of Block| Realtek_optimizations0_block_start_0
+  Register_driver_change4-->|Rescue Start| Realtek_optimizations0_rescue_start_0[realtek optimizations<br>When: **common rog server   bool**]:::rescue
   Realtek_optimizations0_rescue_start_0-->|Task| Report_RoG_Realtek_optimization_failure0[report rog realtek optimization failure]:::task
   Report_RoG_Realtek_optimization_failure0-->|Task| Fail_RoG_Realtek_optimization1[fail rog realtek optimization]:::task
   Fail_RoG_Realtek_optimization1-.->|End of Rescue Block| Realtek_optimizations0_block_start_0

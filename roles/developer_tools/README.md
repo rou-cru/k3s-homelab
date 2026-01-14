@@ -91,17 +91,17 @@ Development environments |
 | [Install Vagrant and libvirt](tasks/main.yml#L127) | block | True | Vagrant + libvirt (for Molecule testing) |
 | [Set HashiCorp repo release](tasks/main.yml#L130) | ansible.builtin.set_fact | False |  |
 | [Set HashiCorp repo architecture](tasks/main.yml#L134) | ansible.builtin.set_fact | False |  |
-| [Validate HashiCorp repo architecture](tasks/main.yml#L146) | ansible.builtin.assert | False |  |
-| [Ensure APT keyrings dir (HashiCorp)](tasks/main.yml#L151) | ansible.builtin.file | False |  |
-| [Install HashiCorp keyring](tasks/main.yml#L157) | ansible.builtin.shell | False |  |
-| [Add HashiCorp APT repo](tasks/main.yml#L166) | ansible.builtin.apt_repository | False |  |
-| [Refresh APT cache after HashiCorp repo](tasks/main.yml#L181) | ansible.builtin.apt | False |  |
-| [Install libvirt and dependencies](tasks/main.yml#L185) | ansible.builtin.apt | False |  |
-| [Ensure libvirtd service is enabled and started](tasks/main.yml#L204) | ansible.builtin.systemd | False |  |
-| [Add ansible_user to libvirt group](tasks/main.yml#L209) | ansible.builtin.user | False |  |
-| [Add root to libvirt group](tasks/main.yml#L214) | ansible.builtin.user | False |  |
-| [Install vagrant-libvirt plugin](tasks/main.yml#L219) | ansible.builtin.command | True |  |
-| [Show Vagrant installation success](tasks/main.yml#L226) | ansible.builtin.debug | False |  |
+| [Validate HashiCorp repo architecture](tasks/main.yml#L144) | ansible.builtin.assert | False |  |
+| [Ensure APT keyrings dir (HashiCorp)](tasks/main.yml#L149) | ansible.builtin.file | False |  |
+| [Install HashiCorp keyring](tasks/main.yml#L155) | ansible.builtin.shell | False |  |
+| [Add HashiCorp APT repo](tasks/main.yml#L164) | ansible.builtin.apt_repository | False |  |
+| [Install libvirt and dependencies](tasks/main.yml#L179) | ansible.builtin.apt | False |  |
+| [Ensure libvirtd service is enabled and started](tasks/main.yml#L198) | ansible.builtin.systemd | False |  |
+| [Add ansible_user to libvirt group](tasks/main.yml#L203) | ansible.builtin.user | False |  |
+| [Add root to libvirt group](tasks/main.yml#L208) | ansible.builtin.user | False |  |
+| [Check installed Vagrant plugins](tasks/main.yml#L213) | ansible.builtin.command | False |  |
+| [Install vagrant-libvirt plugin](tasks/main.yml#L221) | ansible.builtin.command | True |  |
+| [Show Vagrant installation success](tasks/main.yml#L231) | ansible.builtin.debug | False |  |
 
 
 ## Task Flow Graphs
@@ -147,12 +147,12 @@ classDef rescue stroke:#665352,stroke-width:2px;
   Validate_HashiCorp_repo_architecture2-->|Task| Ensure_APT_keyrings_dir__HashiCorp_3[ensure apt keyrings dir  hashicorp ]:::task
   Ensure_APT_keyrings_dir__HashiCorp_3-->|Task| Install_HashiCorp_keyring4[install hashicorp keyring]:::task
   Install_HashiCorp_keyring4-->|Task| Add_HashiCorp_APT_repo5[add hashicorp apt repo]:::task
-  Add_HashiCorp_APT_repo5-->|Task| Refresh_APT_cache_after_HashiCorp_repo6[refresh apt cache after hashicorp repo]:::task
-  Refresh_APT_cache_after_HashiCorp_repo6-->|Task| Install_libvirt_and_dependencies7[install libvirt and dependencies]:::task
-  Install_libvirt_and_dependencies7-->|Task| Ensure_libvirtd_service_is_enabled_and_started8[ensure libvirtd service is enabled and started]:::task
-  Ensure_libvirtd_service_is_enabled_and_started8-->|Task| Add_ansible_user_to_libvirt_group9[add ansible user to libvirt group]:::task
-  Add_ansible_user_to_libvirt_group9-->|Task| Add_root_to_libvirt_group10[add root to libvirt group]:::task
-  Add_root_to_libvirt_group10-->|Task| Install_vagrant_libvirt_plugin11[install vagrant libvirt plugin<br>When: **not ansible check mode**]:::task
+  Add_HashiCorp_APT_repo5-->|Task| Install_libvirt_and_dependencies6[install libvirt and dependencies]:::task
+  Install_libvirt_and_dependencies6-->|Task| Ensure_libvirtd_service_is_enabled_and_started7[ensure libvirtd service is enabled and started]:::task
+  Ensure_libvirtd_service_is_enabled_and_started7-->|Task| Add_ansible_user_to_libvirt_group8[add ansible user to libvirt group]:::task
+  Add_ansible_user_to_libvirt_group8-->|Task| Add_root_to_libvirt_group9[add root to libvirt group]:::task
+  Add_root_to_libvirt_group9-->|Task| Check_installed_Vagrant_plugins10[check installed vagrant plugins]:::task
+  Check_installed_Vagrant_plugins10-->|Task| Install_vagrant_libvirt_plugin11[install vagrant libvirt plugin<br>When: **not ansible check mode and vagrant plugin list rc <br>  0 and  vagrant libvirt  not in vagrant plugin<br>list stdout**]:::task
   Install_vagrant_libvirt_plugin11-->|Task| Show_Vagrant_installation_success12[show vagrant installation success]:::task
   Show_Vagrant_installation_success12-.->|End of Block| Install_Vagrant_and_libvirt9_block_start_0
   Show_Vagrant_installation_success12-->|Rescue Start| Install_Vagrant_and_libvirt9_rescue_start_0[install vagrant and libvirt<br>When: **devtools install vagrant   default true    bool**]:::rescue

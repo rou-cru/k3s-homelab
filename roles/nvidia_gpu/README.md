@@ -232,31 +232,31 @@ Supports host setup, cluster setup, and headless X11 configurations.
 | [Normalize setup mode](tasks/host.yml#L11) | ansible.builtin.set_fact | True |  | Ensure pciutils for GPU detection |
 | [Get PCI vendors](tasks/host.yml#L15) | ansible.builtin.shell | False |  |  |
 | [Debug PCI Vendors](tasks/host.yml#L19) | ansible.builtin.debug | False |  |  |
-| [Detect GPU](tasks/host.yml#L32) | ansible.builtin.set_fact | False |  |  |
-| [Set GPU active (auto)](tasks/host.yml#L46) | ansible.builtin.set_fact | True |  |  |
-| [Set GPU active (forced)](tasks/host.yml#L51) | ansible.builtin.set_fact | True |  |  |
-| [Fail if GPU missing](tasks/host.yml#L56) | ansible.builtin.fail | True |  |  |
-| [Set GPU active (disabled)](tasks/host.yml#L62) | ansible.builtin.set_fact | True |  |  |
-| [Install driver deps](tasks/host.yml#L67) | ansible.builtin.apt | True |  |  |
-| [Detect driver](tasks/host.yml#L76) | ansible.builtin.shell | True |  |  |
-| [Set driver version](tasks/host.yml#L86) | ansible.builtin.set_fact | True |  |  |
-| [Set driver fallback](tasks/host.yml#L93) | ansible.builtin.set_fact | True |  |  |
-| [Set manual driver](tasks/host.yml#L106) | ansible.builtin.set_fact | True |  |  |
-| [Blacklist nouveau](tasks/host.yml#L112) | ansible.builtin.copy | True |  |  |
-| [Update initramfs](tasks/host.yml#L121) | ansible.builtin.command | True |  |  |
-| [Set utils package](tasks/host.yml#L126) | ansible.builtin.set_fact | True |  | Derive the nvidia-utils package from the detected driver (e.g., nvidia-driver-535 -> nvidia-utils-535) |
-| [Check broken packages](tasks/host.yml#L130) | ansible.builtin.shell | True |  |  |
-| [Fix broken packages](tasks/host.yml#L135) | ansible.builtin.shell | True |  |  |
-| [Install NVIDIA driver](tasks/host.yml#L152) | ansible.builtin.apt | True |  |  |
-| [Reboot system (nvidia)](tasks/host.yml#L161) | ansible.builtin.reboot | True |  |  |
-| [Ensure APT keyrings dir](tasks/host.yml#L172) | ansible.builtin.file | True |  |  |
-| [Download toolkit keyring](tasks/host.yml#L178) | ansible.builtin.get_url | True |  |  |
-| [Download toolkit repo list](tasks/host.yml#L184) | ansible.builtin.get_url | True |  |  |
-| [Read toolkit repo list](tasks/host.yml#L191) | ansible.builtin.slurp | True |  |  |
-| [Write toolkit repo with signed-by](tasks/host.yml#L196) | ansible.builtin.copy | True |  |  |
-| [Install toolkit](tasks/host.yml#L211) | ansible.builtin.apt | True |  |  |
-| [Create containerd dir](tasks/host.yml#L218) | ansible.builtin.file | True |  |  |
-| [Configure containerd](tasks/host.yml#L224) | ansible.builtin.template | True |  |  |
+| [Detect GPU](tasks/host.yml#L31) | ansible.builtin.set_fact | False |  |  |
+| [Set GPU active (auto)](tasks/host.yml#L45) | ansible.builtin.set_fact | True |  |  |
+| [Set GPU active (forced)](tasks/host.yml#L50) | ansible.builtin.set_fact | True |  |  |
+| [Fail if GPU missing](tasks/host.yml#L55) | ansible.builtin.fail | True |  |  |
+| [Set GPU active (disabled)](tasks/host.yml#L61) | ansible.builtin.set_fact | True |  |  |
+| [Install driver deps](tasks/host.yml#L66) | ansible.builtin.apt | True |  |  |
+| [Detect driver](tasks/host.yml#L75) | ansible.builtin.shell | True |  |  |
+| [Set driver version](tasks/host.yml#L85) | ansible.builtin.set_fact | True |  |  |
+| [Set driver fallback](tasks/host.yml#L92) | ansible.builtin.set_fact | True |  |  |
+| [Set manual driver](tasks/host.yml#L105) | ansible.builtin.set_fact | True |  |  |
+| [Blacklist nouveau](tasks/host.yml#L111) | ansible.builtin.copy | True |  |  |
+| [Update initramfs](tasks/host.yml#L120) | ansible.builtin.command | True |  |  |
+| [Set utils package](tasks/host.yml#L125) | ansible.builtin.set_fact | True |  | Derive the nvidia-utils package from the detected driver (e.g., nvidia-driver-535 -> nvidia-utils-535) |
+| [Check broken packages](tasks/host.yml#L129) | ansible.builtin.shell | True |  |  |
+| [Fix broken packages](tasks/host.yml#L134) | ansible.builtin.shell | True |  |  |
+| [Install NVIDIA driver](tasks/host.yml#L151) | ansible.builtin.apt | True |  |  |
+| [Reboot system (nvidia)](tasks/host.yml#L160) | ansible.builtin.reboot | True |  |  |
+| [Ensure APT keyrings dir](tasks/host.yml#L171) | ansible.builtin.file | True |  |  |
+| [Download toolkit keyring](tasks/host.yml#L177) | ansible.builtin.get_url | True |  |  |
+| [Download toolkit repo list](tasks/host.yml#L183) | ansible.builtin.get_url | True |  |  |
+| [Read toolkit repo list](tasks/host.yml#L190) | ansible.builtin.slurp | True |  |  |
+| [Write toolkit repo with signed-by](tasks/host.yml#L195) | ansible.builtin.copy | True |  |  |
+| [Install toolkit](tasks/host.yml#L210) | ansible.builtin.apt | True |  |  |
+| [Create containerd dir](tasks/host.yml#L217) | ansible.builtin.file | True |  |  |
+| [Configure containerd](tasks/host.yml#L223) | ansible.builtin.template | True |  |  |
 
 
 ## Task Flow Graphs
