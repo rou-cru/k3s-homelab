@@ -22,6 +22,8 @@ rules:
 ignore: |
   .task/
   .devbox/
+  .venv/
+  .ansible/
   devbox.lock
   .git/
   .serena/
