@@ -38,12 +38,16 @@ spec:
             privileged: true
           image: roucru/k3s-gpu-miner:rigel
           imagePullPolicy: Always
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              rigel -a $MINING_ALGO -o $MINING_POOL -u $WALLET_ADDRESS.$MINING_WORKER_NAME -p x --api-bind 0.0.0.0:4067 --no-tui --no-color --cclock $GPU_CORE_OFFSET --mclock $GPU_MEM_OFFSET --temp-limit tc[$GPU_TEMP_CORE_MIN-$GPU_TEMP_CORE_MAX]tm[$GPU_TEMP_MEM_MIN-$GPU_TEMP_MEM_MAX]
           env:
             - name: WALLET_ADDRESS
               valueFrom:
                 secretKeyRef:
                   name: mining-wallets
-                  key: AVAX_WALLET
+                  key: XEL_WALLET
             - name: MINING_WORKER_NAME
               valueFrom:
                 configMapKeyRef:
@@ -53,7 +57,7 @@ spec:
               valueFrom:
                 configMapKeyRef:
                   name: mining-pools
-                  key: UNMINEABLE_AUTOLYKOS
+                  key: KRYPTEX_XEL
             - name: MINING_PORT
               valueFrom:
                 configMapKeyRef:

@@ -5,9 +5,9 @@ metadata:
   namespace: miners
 data:
   ALGO: xelishashv3
-  COIN: AVAX
+  COIN: XEL
   REFERRAL_CODE: 18ps-7t5s
   WORKER_NAME: home-miner
-  MINING_THREADS: "12"
-  CPU_AFFINITY_MASK: "0x0FFF0000"
+  MINING_THREADS: "8"
+  CPU_AFFINITY_MASK: "0x00FF0000"
   DEV_FEE: "1.0"

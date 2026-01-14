@@ -31,7 +31,7 @@ spec:
               valueFrom:
                 configMapKeyRef:
                   name: mining-pools
-                  key: UNMINEABLE_XELISHASH
+                  key: KRYPTEX_XEL
             - name: ALGO
               valueFrom:
                 configMapKeyRef:
@@ -71,14 +71,14 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: mining-wallets
-                  key: AVAX_WALLET
+                  key: XEL_WALLET
           resources:
             requests:
-              cpu: "12"
+              cpu: "8"
               memory: 3Gi
               hugepages-2Mi: 2560Mi
             limits:
-              cpu: "12"
+              cpu: "8"
               memory: 3Gi
               hugepages-2Mi: 2560Mi
           volumeMounts:

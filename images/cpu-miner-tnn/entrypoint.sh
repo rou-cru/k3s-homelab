@@ -30,6 +30,7 @@ fi
 dev_fee="${DEV_FEE:-1.0}"
 
 set -- /usr/local/bin/tnn-miner-cpu \
+  --broadcast \
   --daemon-address "${pool_url}" \
   --port "${pool_port}" \
   --wallet "${user}" \

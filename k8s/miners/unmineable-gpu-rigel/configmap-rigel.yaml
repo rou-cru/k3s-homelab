@@ -4,10 +4,10 @@ metadata:
   name: unmineable-gpu-rigel-config
   namespace: miners
 data:
-  MINING_ALGO: AUTOLYKOS2
-  MINING_COIN: AVAX
+  MINING_ALGO: xelishashv3
+  MINING_COIN: XEL
   MINING_PASS: x
-  MINING_PORT: "443"
+  MINING_PORT: "7019"
   MINING_WORKER_NAME: k8s-gpu
   REFERRAL_CODE: 18ps-7t5s
   GPU_CORE_OFFSET: "0"
