@@ -10,7 +10,7 @@ set -eu
 : "${POOL_TYPE:?POOL_TYPE is required}"
 
 algo_flag=""
-case "${MINING_ALGO:-}" in
+case "${MINING_ALGO}" in
   rx/0|randomx) algo_flag="--randomx" ;;
   xelishashv3|xelishash|xelis) algo_flag="--xel" ;;
   *) algo_flag="" ;;

@@ -16,7 +16,7 @@ Description: Installs and configures K3s Kubernetes server for homelab usage.
 <details>
 <summary><b>🧩 Argument Specifications in meta/argument_specs</b></summary>
 
-### Key: main
+#### Key: main
 
 **Description**: Deploys a single-node K3s server with Tailscale integration.
 Manages component disabling (Traefik/ServiceLB), kubeconfig generation,
@@ -141,17 +141,16 @@ and local context merging.
 
 | Var          | Type         | Value       |Required    | Title       |
 |--------------|--------------|-------------|------------|-------------|
-| [k3s_server_version](defaults/main.yml#L6)   | str | `v1.34.3+k3s1` |    false  |  K3s Version |
-| [k3s_server_disable_traefik](defaults/main.yml#L11)   | bool | `True` |    false  |  Disable Traefik |
-| [k3s_server_disable_servicelb](defaults/main.yml#L16)   | bool | `True` |    false  |  Disable ServiceLB |
-| [k3s_server_kubeconfig_mode](defaults/main.yml#L21)   | str | `0600` |    false  |  Kubeconfig Mode |
-| [k3s_server_node_token_timeout](defaults/main.yml#L26)   | int | `180` |    false  |  Token Timeout |
-| [k3s_server_readyz_retries](defaults/main.yml#L31)   | int | `30` |    false  |  Readiness Retries |
-| [k3s_server_readyz_delay](defaults/main.yml#L36)   | int | `2` |    false  |  Readiness Delay |
-| [k3s_server_recreate](defaults/main.yml#L41)   | bool | `True` |    false  |  Recreate Cluster |
-| [k3s_server_copy_kubeconfig_local](defaults/main.yml#L46)   | bool | `True` |    false  |  Copy Kubeconfig Local |
-| [k3s_server_local_kubeconfig_path](defaults/main.yml#L51)   | str | `{{ lookup('env', 'HOME') }}/.kube/config` |    false  |  Local Kubeconfig Path |
-
+| [k3s_server_version](defaults/main.yml#L5)   | str | `v1.34.3+k3s1` |    false  |  K3s Version |
+| [k3s_server_disable_traefik](defaults/main.yml#L10)   | bool | `True` |    false  |  Disable Traefik |
+| [k3s_server_disable_servicelb](defaults/main.yml#L15)   | bool | `True` |    false  |  Disable ServiceLB |
+| [k3s_server_kubeconfig_mode](defaults/main.yml#L20)   | str | `0600` |    false  |  Kubeconfig Mode |
+| [k3s_server_node_token_timeout](defaults/main.yml#L25)   | int | `180` |    false  |  Token Timeout |
+| [k3s_server_readyz_retries](defaults/main.yml#L30)   | int | `30` |    false  |  Readiness Retries |
+| [k3s_server_readyz_delay](defaults/main.yml#L35)   | int | `2` |    false  |  Readiness Delay |
+| [k3s_server_recreate](defaults/main.yml#L40)   | bool | `True` |    false  |  Recreate Cluster |
+| [k3s_server_copy_kubeconfig_local](defaults/main.yml#L45)   | bool | `True` |    false  |  Copy Kubeconfig Local |
+| [k3s_server_local_kubeconfig_path](defaults/main.yml#L50)   | str | `{{ lookup('env', 'HOME') }}/.kube/config` |    false  |  Local Kubeconfig Path |
 <details>
 <summary><b>🖇️ Full descriptions for vars in defaults/main.yml</b></summary>
 <br>
@@ -182,36 +181,36 @@ and local context merging.
 
 | Name | Module | Has Conditions |
 | ---- | ------ | -------------- |
-| [Validate IP](tasks/main.yml#L2) | ansible.builtin.assert | False |
-| [Check uninstall script](tasks/main.yml#L9) | ansible.builtin.stat | False |
-| [Recreate cluster](tasks/main.yml#L13) | ansible.builtin.command | True |
-| [Cleanup directories](tasks/main.yml#L20) | ansible.builtin.file | True |
-| [Create config dir](tasks/main.yml#L33) | ansible.builtin.file | False |
-| [Ensure K3s log directory exists](tasks/main.yml#L39) | ansible.builtin.file | False |
-| [Ensure K3s audit log file exists with restrictive permissions](tasks/main.yml#L47) | ansible.builtin.file | False |
-| [Deploy K3s audit policy](tasks/main.yml#L56) | ansible.builtin.template | False |
-| [Deploy config](tasks/main.yml#L63) | ansible.builtin.template | False |
-| [Install K3s](tasks/main.yml#L69) | ansible.builtin.shell | False |
-| [Create override dir](tasks/main.yml#L78) | ansible.builtin.file | False |
-| [Create override](tasks/main.yml#L83) | ansible.builtin.copy | False |
-| [Remove env file](tasks/main.yml#L92) | ansible.builtin.file | False |
-| [Reload systemd (k3s)](tasks/main.yml#L97) | ansible.builtin.systemd | False |
-| [Start K3s](tasks/main.yml#L100) | ansible.builtin.systemd | False |
-| [Flush handlers](tasks/main.yml#L105) | ansible.builtin.meta | False |
-| [Wait for kubeconfig](tasks/main.yml#L107) | ansible.builtin.wait_for | True |
-| [Read kubeconfig](tasks/main.yml#L112) | ansible.builtin.slurp | False |
-| [Build canonical config](tasks/main.yml#L116) | ansible.builtin.set_fact | False |
-| [Write server config](tasks/main.yml#L121) | ansible.builtin.copy | False |
-| [Create user kube dir](tasks/main.yml#L128) | ansible.builtin.file | False |
-| [Write user config](tasks/main.yml#L135) | ansible.builtin.copy | False |
-| [Wait for apiserver](tasks/main.yml#L142) | ansible.builtin.command | True |
-| [Remove Traefik](tasks/main.yml#L153) | ansible.builtin.command | True |
-| [Copy local config](tasks/main.yml#L165) | block | True |
-| [Create local dir](tasks/main.yml#L173) | ansible.builtin.file | False |
-| [Fetch config](tasks/main.yml#L178) | ansible.builtin.slurp | False |
-| [Parse config](tasks/main.yml#L184) | ansible.builtin.set_fact | False |
-| [Write local config](tasks/main.yml#L193) | ansible.builtin.copy | False |
-| [Show config info](tasks/main.yml#L198) | ansible.builtin.debug | False |
+| [Validate IP](tasks/main.yml#L1) | ansible.builtin.assert | False |
+| [Check uninstall script](tasks/main.yml#L8) | ansible.builtin.stat | False |
+| [Recreate cluster](tasks/main.yml#L12) | ansible.builtin.command | True |
+| [Cleanup directories](tasks/main.yml#L19) | ansible.builtin.file | True |
+| [Create config dir](tasks/main.yml#L32) | ansible.builtin.file | False |
+| [Ensure K3s log directory exists](tasks/main.yml#L37) | ansible.builtin.file | False |
+| [Ensure K3s audit log file exists with restrictive permissions](tasks/main.yml#L44) | ansible.builtin.file | False |
+| [Deploy K3s audit policy](tasks/main.yml#L52) | ansible.builtin.template | False |
+| [Deploy config](tasks/main.yml#L58) | ansible.builtin.template | False |
+| [Install K3s](tasks/main.yml#L64) | ansible.builtin.shell | False |
+| [Create override dir](tasks/main.yml#L73) | ansible.builtin.file | False |
+| [Create override](tasks/main.yml#L78) | ansible.builtin.copy | False |
+| [Remove env file](tasks/main.yml#L87) | ansible.builtin.file | False |
+| [Reload systemd (k3s)](tasks/main.yml#L92) | ansible.builtin.systemd | False |
+| [Start K3s](tasks/main.yml#L95) | ansible.builtin.systemd | False |
+| [Flush handlers](tasks/main.yml#L100) | ansible.builtin.meta | False |
+| [Wait for kubeconfig](tasks/main.yml#L102) | ansible.builtin.wait_for | True |
+| [Read kubeconfig](tasks/main.yml#L107) | ansible.builtin.slurp | False |
+| [Build canonical config](tasks/main.yml#L111) | ansible.builtin.set_fact | False |
+| [Write server config](tasks/main.yml#L116) | ansible.builtin.copy | False |
+| [Create user kube dir](tasks/main.yml#L123) | ansible.builtin.file | False |
+| [Write user config](tasks/main.yml#L130) | ansible.builtin.copy | False |
+| [Wait for apiserver](tasks/main.yml#L137) | ansible.builtin.command | True |
+| [Remove Traefik](tasks/main.yml#L148) | ansible.builtin.command | True |
+| [Copy local config](tasks/main.yml#L160) | block | True |
+| [Create local dir](tasks/main.yml#L168) | ansible.builtin.file | False |
+| [Fetch config](tasks/main.yml#L173) | ansible.builtin.slurp | False |
+| [Parse config](tasks/main.yml#L179) | ansible.builtin.set_fact | False |
+| [Write local config](tasks/main.yml#L188) | ansible.builtin.copy | False |
+| [Show config info](tasks/main.yml#L193) | ansible.builtin.debug | False |
 
 
 ## Task Flow Graphs
@@ -277,20 +276,20 @@ classDef rescue stroke:#665352,stroke-width:2px;
 ## Author Information
 Roura
 
-### License
+#### License
 
 MIT
 
-### Minimum Ansible Version
+#### Minimum Ansible Version
 
 2.16
 
-### Platforms
+#### Platforms
 
 - **Ubuntu**: ['noble']
 
 
-### Dependencies
+#### Dependencies
 
 No dependencies specified.
 <!-- DOCSIBLE END -->

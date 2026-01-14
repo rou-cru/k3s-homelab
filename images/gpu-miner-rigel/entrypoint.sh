@@ -23,6 +23,8 @@ if [ "${POOL_TYPE}" = "custom" ]; then
     exit 1
   fi
   echo "Using custom rigel command from RIGEL_CMD"
+  # CAUTION: This executes arbitrary commands from the environment variable.
+  # Ensure RIGEL_CMD comes from a trusted source (e.g. K8s manifest).
   exec /bin/sh -c "${RIGEL_CMD}"
 fi
 

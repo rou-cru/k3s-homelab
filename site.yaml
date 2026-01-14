@@ -27,6 +27,7 @@
         fail_msg: "ERROR: Configure your real 'tailscale_authkey' in 'secrets.yaml'."
         success_msg: "Tailscale AuthKey validated successfully."
       tags: always
+      no_log: true
     - name: Validate mining wallet configuration
       ansible.builtin.assert:
         that:
@@ -182,6 +183,7 @@
         mode: "0600"
       become: false
       tags: ["apps", "honeygain"]
+      no_log: true
     - name: Deploy Honeygain via Kustomize
       ansible.builtin.command: kubectl apply -k {{ k8s_manifests_dir }}/miners/honeygain/
       register: honeygain_apply
@@ -197,6 +199,7 @@
         mode: "0600"
       become: false
       tags: ["apps", "miners"]
+      no_log: true
     - name: Deploy Mining Secrets via Kustomize
       ansible.builtin.command: kubectl apply -k {{ k8s_manifests_dir }}/miners/mining-secrets/
       register: mining_secrets_apply

@@ -14,75 +14,11 @@
           blacklist r8169
         mode: "0644"
       register: common_r8169_blacklist
-    - name: Read GRUB config
-      ansible.builtin.slurp:
-        src: /etc/default/grub
-      register: common_grub_file
-    - name: Parse GRUB cmdline
-      ansible.builtin.set_fact:
-        common_grub_lines: "{{ (common_grub_file.content | b64decode).splitlines() }}"
-        common_grub_cmdline_line: >-
-          {{
-
-
-            (common_grub_file.content | b64decode).splitlines()
-            | select('match', '^GRUB_CMDLINE_LINUX_DEFAULT=')
-            | list
-            | first
-            | default('GRUB_CMDLINE_LINUX_DEFAULT=\"\"')
-          }}
-    - name: Extract GRUB cmdline value
-      ansible.builtin.set_fact:
-        common_grub_cmdline_raw: "{{ common_grub_cmdline_line.split('=', 1)[1] | trim }}"
-    - name: Normalize GRUB cmdline value
-      ansible.builtin.set_fact:
-        common_grub_cmdline_value: >-
-          {{
-
-
-            (common_grub_cmdline_raw | length >= 2
-             and common_grub_cmdline_raw[0] == '\"'
-             and common_grub_cmdline_raw[-1] == '\"')
-            | ternary(common_grub_cmdline_raw[1:-1], common_grub_cmdline_raw)
-          }}
-    - name: Build GRUB cmdline tokens
-      ansible.builtin.set_fact:
-        common_grub_cmdline_tokens: "{{ common_grub_cmdline_value.split() }}"
-    - name: Build GRUB cmdline tokens final
-      ansible.builtin.set_fact:
-        common_grub_cmdline_tokens_final: >-
-          {{
-
-
-            (common_grub_cmdline_tokens
-             + (['pcie_aspm=off'] if 'pcie_aspm=off' not in common_grub_cmdline_tokens else []))
-            | unique
-          }}
-    - name: Build GRUB cmdline line
-      ansible.builtin.set_fact:
-        common_grub_cmdline_new: "GRUB_CMDLINE_LINUX_DEFAULT=\"{{ common_grub_cmdline_tokens_final | join(' ') }}\""
-    - name: Replace or append GRUB_CMDLINE_LINUX_DEFAULT
-      ansible.builtin.set_fact:
-        common_grub_lines_new: >-
-          {%- set ns = namespace(replaced=false) -%} {%- set out = [] -%} {%- for line in common_grub_lines -%}
-
-
-            {%- if line.startswith('GRUB_CMDLINE_LINUX_DEFAULT=') -%}
-              {%- set _ = out.append(common_grub_cmdline_new) -%}
-              {%- set ns.replaced = true -%}
-            {%- else -%}
-              {%- set _ = out.append(line) -%}
-            {%- endif -%}
-          {%- endfor -%} {%- if not ns.replaced -%}
-
-
-            {%- set _ = out.append(common_grub_cmdline_new) -%}
-          {%- endif -%} {{ out }}
-    - name: Write GRUB config
-      ansible.builtin.copy:
-        dest: /etc/default/grub
-        content: "{{ (common_grub_lines_new | join('\n')) + '\n' }}"
-        mode: "0644"
+    - name: Ensure pcie_aspm=off in GRUB
+      ansible.builtin.replace:
+        path: /etc/default/grub
+        regexp: '^GRUB_CMDLINE_LINUX_DEFAULT="(?!.*pcie_aspm=off)(.*)"'
+        replace: 'GRUB_CMDLINE_LINUX_DEFAULT="\1 pcie_aspm=off"'
       register: common_grub_aspm
     - name: Update GRUB # noqa: no-handler
       ansible.builtin.command: update-grub
@@ -92,8 +28,6 @@
       ansible.builtin.set_fact:
         common_network_driver_changed: >-
           {{ common_r8168_install.changed or
-
-
              common_r8169_blacklist.changed or
              common_grub_aspm.changed }}
   rescue:

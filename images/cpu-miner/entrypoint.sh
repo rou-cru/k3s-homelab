@@ -6,6 +6,7 @@ set -e
 : "${MINING_ALGO:?MINING_ALGO is required}"
 : "${MINING_WORKER_NAME:?MINING_WORKER_NAME is required}"
 : "${POOL_TYPE:?POOL_TYPE is required}"
+: "${MINING_POOL_SCHEME:=stratum+tcp}"
 THREADS="${MINING_THREADS}"
 
 : "${WALLET_ADDRESS:?WALLET_ADDRESS is required}"
@@ -30,11 +31,11 @@ echo "Algo: ${MINING_ALGO}"
 
 ARGS="-o ${MINING_POOL_SCHEME}://${MINING_POOL_HOST}:${MINING_POOL_PORT} -a ${MINING_ALGO} -u ${USER_ARG} -p ${MINING_PASS:-x} -k --donate-level=0"
 
-if [ ! -z "$THREADS" ]; then
+if [ -n "$THREADS" ]; then
     ARGS="$ARGS --threads=$THREADS"
 fi
 
-if [ ! -z "$CPU_AFFINITY_MASK" ]; then
+if [ -n "$CPU_AFFINITY_MASK" ]; then
     # Convert hex mask to decimal or list for --cpu-affinity if needed
     # But XMRig supports hex mask directly via config or --cpu-affinity
     # We pass it through directly assuming the user knows the format

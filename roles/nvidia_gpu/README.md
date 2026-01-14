@@ -16,7 +16,7 @@ Description: Configures NVIDIA GPUs for K3s, including drivers, container toolki
 <details>
 <summary><b>🧩 Argument Specifications in meta/argument_specs</b></summary>
 
-### Key: main
+#### Key: main
 
 **Description**: Manages NVIDIA drivers, container toolkit, and device plugin installation.
 Supports host setup, cluster setup, and headless X11 configurations.
@@ -25,124 +25,124 @@ Supports host setup, cluster setup, and headless X11 configurations.
 **Options**:
 
 
-- **nvidia_gpu_setup**
-  - **Required**: False
-  - **Type**: str
-  - **Default**: auto
-
-  - **Description**: Control mode for GPU setup ('auto', 'true', 'false').
-
-    - **Choices**:
+  - **nvidia_gpu_setup**
+    - **Required**: False
+    - **Type**: str
+    - **Default**: auto
   
-      - auto
+    - **Description**: Control mode for GPU setup ('auto', 'true', 'false').
   
-      - true
+      - **Choices**:
+    
+          - auto
+    
+          - true
+    
+          - false
+    
   
-      - false
+  
   
 
+  - **nvidia_gpu_driver_package**
+    - **Required**: False
+    - **Type**: str
+    - **Default**: auto
+  
+    - **Description**: Specific driver package to install or "auto" for detection.
+  
+  
+  
 
+  - **nvidia_gpu_driver_fallback**
+    - **Required**: False
+    - **Type**: str
+    - **Default**: nvidia-driver-535
+  
+    - **Description**: Fallback driver if auto-detection fails.
+  
+  
+  
 
+  - **nvidia_gpu_toolkit_repo_url**
+    - **Required**: False
+    - **Type**: str
+    - **Default**: https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list
+  
+    - **Description**: Repository URL for NVIDIA Container Toolkit.
+  
+  
+  
 
-- **nvidia_gpu_driver_package**
-  - **Required**: False
-  - **Type**: str
-  - **Default**: auto
+  - **nvidia_gpu_toolkit_gpg_url**
+    - **Required**: False
+    - **Type**: str
+    - **Default**: https://nvidia.github.io/libnvidia-container/gpgkey
+  
+    - **Description**: GPG key URL for the toolkit repository.
+  
+  
+  
 
-  - **Description**: Specific driver package to install or "auto" for detection.
+  - **nvidia_gpu_device_plugin_version**
+    - **Required**: False
+    - **Type**: str
+    - **Default**: none
+  
+    - **Description**: Version of the NVIDIA device plugin Helm chart.
+  
+  
+  
 
+  - **nvidia_gpu_device_plugin_repo**
+    - **Required**: False
+    - **Type**: str
+    - **Default**: https://nvidia.github.io/k8s-device-plugin
+  
+    - **Description**: Helm repository for the device plugin.
+  
+  
+  
 
+  - **nvidia_gpu_reboot_timeout**
+    - **Required**: False
+    - **Type**: int
+    - **Default**: 600
+  
+    - **Description**: Timeout (seconds) for rebooting after driver installation.
+  
+  
+  
 
+  - **nvidia_gpu_headless_x11_enabled**
+    - **Required**: False
+    - **Type**: bool
+    - **Default**: True
+  
+    - **Description**: Enables X11 services for headless GPU management (fan control, etc.).
+  
+  
+  
 
-- **nvidia_gpu_driver_fallback**
-  - **Required**: False
-  - **Type**: str
-  - **Default**: nvidia-driver-535
+  - **nvidia_gpu_pci_bus_id**
+    - **Required**: False
+    - **Type**: str
+    - **Default**: 1:0:0
+  
+    - **Description**: PCI Bus ID of the GPU for xorg.conf generation.
+  
+  
+  
 
-  - **Description**: Fallback driver if auto-detection fails.
-
-
-
-
-- **nvidia_gpu_toolkit_repo_url**
-  - **Required**: False
-  - **Type**: str
-  - **Default**: https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list
-
-  - **Description**: Repository URL for NVIDIA Container Toolkit.
-
-
-
-
-- **nvidia_gpu_toolkit_gpg_url**
-  - **Required**: False
-  - **Type**: str
-  - **Default**: https://nvidia.github.io/libnvidia-container/gpgkey
-
-  - **Description**: GPG key URL for the toolkit repository.
-
-
-
-
-- **nvidia_gpu_device_plugin_version**
-  - **Required**: False
-  - **Type**: str
-  - **Default**: 0.18.1
-
-  - **Description**: Version of the NVIDIA device plugin Helm chart.
-
-
-
-
-- **nvidia_gpu_device_plugin_repo**
-  - **Required**: False
-  - **Type**: str
-  - **Default**: https://nvidia.github.io/k8s-device-plugin
-
-  - **Description**: Helm repository for the device plugin.
-
-
-
-
-- **nvidia_gpu_reboot_timeout**
-  - **Required**: False
-  - **Type**: int
-  - **Default**: 600
-
-  - **Description**: Timeout (seconds) for rebooting after driver installation.
-
-
-
-
-- **nvidia_gpu_headless_x11_enabled**
-  - **Required**: False
-  - **Type**: bool
-  - **Default**: True
-
-  - **Description**: Enables X11 services for headless GPU management (fan control, etc.).
-
-
-
-
-- **nvidia_gpu_pci_bus_id**
-  - **Required**: False
-  - **Type**: str
-  - **Default**: 1:0:0
-
-  - **Description**: PCI Bus ID of the GPU for xorg.conf generation.
-
-
-
-
-- **nvidia_gpu_coolbits**
-  - **Required**: False
-  - **Type**: str
-  - **Default**: 28
-
-  - **Description**: Coolbits value for unlocking GPU control (fans, clocks).
-
-
-
+  - **nvidia_gpu_coolbits**
+    - **Required**: False
+    - **Type**: str
+    - **Default**: 28
+  
+    - **Description**: Coolbits value for unlocking GPU control (fans, clocks).
+  
+  
+  
 
 
 
@@ -159,18 +159,17 @@ Supports host setup, cluster setup, and headless X11 configurations.
 
 | Var          | Type         | Value       |Required    | Title       |
 |--------------|--------------|-------------|------------|-------------|
-| [nvidia_gpu_setup](defaults/main.yml#L6)   | str | `auto` |    false  |  GPU Setup Mode |
-| [nvidia_gpu_driver_package](defaults/main.yml#L11)   | str | `auto` |    false  |  Driver Package |
-| [nvidia_gpu_driver_fallback](defaults/main.yml#L16)   | str | `nvidia-driver-535` |    false  |  Fallback Driver |
-| [nvidia_gpu_toolkit_repo_url](defaults/main.yml#L21)   | str | `https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list` |    false  |  Toolkit Repo URL |
-| [nvidia_gpu_toolkit_gpg_url](defaults/main.yml#L26)   | str | `https://nvidia.github.io/libnvidia-container/gpgkey` |    false  |  Toolkit GPG Key |
-| [nvidia_gpu_device_plugin_version](defaults/main.yml#L31)   | str | `0.14.3` |    false  |  Device Plugin Version |
-| [nvidia_gpu_device_plugin_repo](defaults/main.yml#L36)   | str | `https://nvidia.github.io/k8s-device-plugin` |    false  |  Device Plugin Repo |
-| [nvidia_gpu_reboot_timeout](defaults/main.yml#L41)   | int | `600` |    false  |  Reboot Timeout |
-| [nvidia_gpu_headless_x11_enabled](defaults/main.yml#L46)   | bool | `True` |    false  |  Headless X11 |
-| [nvidia_gpu_pci_bus_id](defaults/main.yml#L51)   | str | `1:0:0` |    false  |  PCI Bus ID |
-| [nvidia_gpu_coolbits](defaults/main.yml#L56)   | str | `28` |    false  |  Coolbits |
-
+| [nvidia_gpu_setup](defaults/main.yml#L5)   | str | `auto` |    false  |  GPU Setup Mode |
+| [nvidia_gpu_driver_package](defaults/main.yml#L10)   | str | `auto` |    false  |  Driver Package |
+| [nvidia_gpu_driver_fallback](defaults/main.yml#L15)   | str | `nvidia-driver-535` |    false  |  Fallback Driver |
+| [nvidia_gpu_toolkit_repo_url](defaults/main.yml#L20)   | str | `https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list` |    false  |  Toolkit Repo URL |
+| [nvidia_gpu_toolkit_gpg_url](defaults/main.yml#L25)   | str | `https://nvidia.github.io/libnvidia-container/gpgkey` |    false  |  Toolkit GPG Key |
+| [nvidia_gpu_device_plugin_version](defaults/main.yml#L30)   | str | `0.14.3` |    false  |  Device Plugin Version |
+| [nvidia_gpu_device_plugin_repo](defaults/main.yml#L35)   | str | `https://nvidia.github.io/k8s-device-plugin` |    false  |  Device Plugin Repo |
+| [nvidia_gpu_reboot_timeout](defaults/main.yml#L40)   | int | `600` |    false  |  Reboot Timeout |
+| [nvidia_gpu_headless_x11_enabled](defaults/main.yml#L45)   | bool | `True` |    false  |  Headless X11 |
+| [nvidia_gpu_pci_bus_id](defaults/main.yml#L50)   | str | `1:0:0` |    false  |  PCI Bus ID |
+| [nvidia_gpu_coolbits](defaults/main.yml#L55)   | str | `28` |    false  |  Coolbits |
 <details>
 <summary><b>🖇️ Full descriptions for vars in defaults/main.yml</b></summary>
 <br>
@@ -202,62 +201,62 @@ Supports host setup, cluster setup, and headless X11 configurations.
 
 | Name | Module | Has Conditions | Tags |
 | ---- | ------ | -------------- | -----|
-| [NVIDIA GPU cluster setup](tasks/cluster.yml#L2) | block | False | cluster,nvidia |
-| [Create temp values](tasks/cluster.yml#L5) | ansible.builtin.tempfile | False |  |
-| [Copy values](tasks/cluster.yml#L10) | ansible.builtin.copy | False |  |
-| [Install device plugin](tasks/cluster.yml#L15) | kubernetes.core.helm | False |  |
-| [Wait for daemonset](tasks/cluster.yml#L24) | ansible.builtin.command | False |  |
-| [Check GPU resources](tasks/cluster.yml#L31) | ansible.builtin.shell | False |  |
-| [Debug GPU resources](tasks/cluster.yml#L39) | ansible.builtin.debug | False |  |
+| [NVIDIA GPU cluster setup](tasks/cluster.yml#L1) | block | False | cluster,nvidia |
+| [Create temp values](tasks/cluster.yml#L4) | ansible.builtin.tempfile | False |  |
+| [Copy values](tasks/cluster.yml#L9) | ansible.builtin.copy | False |  |
+| [Install device plugin](tasks/cluster.yml#L14) | kubernetes.core.helm | False |  |
+| [Wait for daemonset](tasks/cluster.yml#L23) | ansible.builtin.command | False |  |
+| [Check GPU resources](tasks/cluster.yml#L30) | ansible.builtin.shell | False |  |
+| [Debug GPU resources](tasks/cluster.yml#L38) | ansible.builtin.debug | False |  |
 
 #### File: tasks/headless_optimization.yml
 
 | Name | Module | Has Conditions | Tags |
 | ---- | ------ | -------------- | -----|
-| [NVIDIA GPU headless optimization setup](tasks/headless_optimization.yml#L2) | block | True | nvidia,gpu,nvidia-headless |
-| [Install X11 deps](tasks/headless_optimization.yml#L6) | ansible.builtin.apt | False |  |
-| [Configure xorg](tasks/headless_optimization.yml#L14) | ansible.builtin.template | False |  |
-| [Deploy persistence svc](tasks/headless_optimization.yml#L22) | ansible.builtin.copy | False |  |
-| [Deploy Xorg svc](tasks/headless_optimization.yml#L30) | ansible.builtin.copy | False |  |
-| [Reload systemd (nvidia)](tasks/headless_optimization.yml#L38) | ansible.builtin.systemd | True |  |
-| [Start persistence svc](tasks/headless_optimization.yml#L42) | ansible.builtin.systemd | False |  |
-| [Start Xorg svc](tasks/headless_optimization.yml#L47) | ansible.builtin.systemd | True |  |
-| [Wait for X server](tasks/headless_optimization.yml#L53) | ansible.builtin.wait_for | True |  |
+| [NVIDIA GPU headless optimization setup](tasks/headless_optimization.yml#L1) | block | True | nvidia,gpu,nvidia-headless |
+| [Install X11 deps](tasks/headless_optimization.yml#L5) | ansible.builtin.apt | False |  |
+| [Configure xorg](tasks/headless_optimization.yml#L13) | ansible.builtin.template | False |  |
+| [Deploy persistence svc](tasks/headless_optimization.yml#L21) | ansible.builtin.copy | False |  |
+| [Deploy Xorg svc](tasks/headless_optimization.yml#L29) | ansible.builtin.copy | False |  |
+| [Reload systemd (nvidia)](tasks/headless_optimization.yml#L37) | ansible.builtin.systemd | True |  |
+| [Start persistence svc](tasks/headless_optimization.yml#L41) | ansible.builtin.systemd | False |  |
+| [Start Xorg svc](tasks/headless_optimization.yml#L46) | ansible.builtin.systemd | True |  |
+| [Wait for X server](tasks/headless_optimization.yml#L52) | ansible.builtin.wait_for | True |  |
 
 #### File: tasks/host.yml
 
 | Name | Module | Has Conditions | Tags | Comments |
 | ---- | ------ | -------------- | -----| -------- |
-| [NVIDIA GPU host setup](tasks/host.yml#L2) | block | False | host,nvidia |  |
-| [Install pciutils](tasks/host.yml#L5) | ansible.builtin.apt | False |  |  |
-| [Normalize setup mode](tasks/host.yml#L12) | ansible.builtin.set_fact | True |  | Ensure pciutils for GPU detection |
-| [Get PCI vendors](tasks/host.yml#L16) | ansible.builtin.shell | False |  |  |
-| [Debug PCI Vendors](tasks/host.yml#L20) | ansible.builtin.debug | False |  |  |
+| [NVIDIA GPU host setup](tasks/host.yml#L1) | block | False | host,nvidia |  |
+| [Install pciutils](tasks/host.yml#L4) | ansible.builtin.apt | False |  |  |
+| [Normalize setup mode](tasks/host.yml#L11) | ansible.builtin.set_fact | True |  | Ensure pciutils for GPU detection |
+| [Get PCI vendors](tasks/host.yml#L15) | ansible.builtin.shell | False |  |  |
+| [Debug PCI Vendors](tasks/host.yml#L19) | ansible.builtin.debug | False |  |  |
 | [Detect GPU](tasks/host.yml#L32) | ansible.builtin.set_fact | False |  |  |
-| [Set GPU active (auto)](tasks/host.yml#L45) | ansible.builtin.set_fact | True |  |  |
-| [Set GPU active (forced)](tasks/host.yml#L50) | ansible.builtin.set_fact | True |  |  |
-| [Fail if GPU missing](tasks/host.yml#L55) | ansible.builtin.fail | True |  |  |
-| [Set GPU active (disabled)](tasks/host.yml#L61) | ansible.builtin.set_fact | True |  |  |
-| [Install driver deps](tasks/host.yml#L66) | ansible.builtin.apt | True |  |  |
-| [Detect driver](tasks/host.yml#L75) | ansible.builtin.shell | True |  |  |
-| [Set driver version](tasks/host.yml#L85) | ansible.builtin.set_fact | True |  |  |
-| [Set driver fallback](tasks/host.yml#L92) | ansible.builtin.set_fact | True |  |  |
-| [Set manual driver](tasks/host.yml#L101) | ansible.builtin.set_fact | True |  |  |
-| [Blacklist nouveau](tasks/host.yml#L107) | ansible.builtin.copy | True |  |  |
-| [Update initramfs](tasks/host.yml#L116) | ansible.builtin.command | True |  |  |
-| [Set utils package](tasks/host.yml#L121) | ansible.builtin.set_fact | True |  | Derive the nvidia-utils package from the detected driver (e.g., nvidia-driver-535 -> nvidia-utils-535) |
-| [Check broken packages](tasks/host.yml#L125) | ansible.builtin.shell | True |  |  |
-| [Fix broken packages](tasks/host.yml#L130) | ansible.builtin.shell | True |  |  |
-| [Install NVIDIA driver](tasks/host.yml#L147) | ansible.builtin.apt | True |  |  |
-| [Reboot system (nvidia)](tasks/host.yml#L156) | ansible.builtin.reboot | True |  |  |
-| [Ensure APT keyrings dir](tasks/host.yml#L167) | ansible.builtin.file | True |  |  |
-| [Download toolkit keyring](tasks/host.yml#L173) | ansible.builtin.get_url | True |  |  |
-| [Download toolkit repo list](tasks/host.yml#L179) | ansible.builtin.get_url | True |  |  |
-| [Read toolkit repo list](tasks/host.yml#L186) | ansible.builtin.slurp | True |  |  |
-| [Write toolkit repo with signed-by](tasks/host.yml#L191) | ansible.builtin.copy | True |  |  |
-| [Install toolkit](tasks/host.yml#L204) | ansible.builtin.apt | True |  |  |
-| [Create containerd dir](tasks/host.yml#L211) | ansible.builtin.file | True |  |  |
-| [Configure containerd](tasks/host.yml#L217) | ansible.builtin.template | True |  |  |
+| [Set GPU active (auto)](tasks/host.yml#L46) | ansible.builtin.set_fact | True |  |  |
+| [Set GPU active (forced)](tasks/host.yml#L51) | ansible.builtin.set_fact | True |  |  |
+| [Fail if GPU missing](tasks/host.yml#L56) | ansible.builtin.fail | True |  |  |
+| [Set GPU active (disabled)](tasks/host.yml#L62) | ansible.builtin.set_fact | True |  |  |
+| [Install driver deps](tasks/host.yml#L67) | ansible.builtin.apt | True |  |  |
+| [Detect driver](tasks/host.yml#L76) | ansible.builtin.shell | True |  |  |
+| [Set driver version](tasks/host.yml#L86) | ansible.builtin.set_fact | True |  |  |
+| [Set driver fallback](tasks/host.yml#L93) | ansible.builtin.set_fact | True |  |  |
+| [Set manual driver](tasks/host.yml#L106) | ansible.builtin.set_fact | True |  |  |
+| [Blacklist nouveau](tasks/host.yml#L112) | ansible.builtin.copy | True |  |  |
+| [Update initramfs](tasks/host.yml#L121) | ansible.builtin.command | True |  |  |
+| [Set utils package](tasks/host.yml#L126) | ansible.builtin.set_fact | True |  | Derive the nvidia-utils package from the detected driver (e.g., nvidia-driver-535 -> nvidia-utils-535) |
+| [Check broken packages](tasks/host.yml#L130) | ansible.builtin.shell | True |  |  |
+| [Fix broken packages](tasks/host.yml#L135) | ansible.builtin.shell | True |  |  |
+| [Install NVIDIA driver](tasks/host.yml#L152) | ansible.builtin.apt | True |  |  |
+| [Reboot system (nvidia)](tasks/host.yml#L161) | ansible.builtin.reboot | True |  |  |
+| [Ensure APT keyrings dir](tasks/host.yml#L172) | ansible.builtin.file | True |  |  |
+| [Download toolkit keyring](tasks/host.yml#L178) | ansible.builtin.get_url | True |  |  |
+| [Download toolkit repo list](tasks/host.yml#L184) | ansible.builtin.get_url | True |  |  |
+| [Read toolkit repo list](tasks/host.yml#L191) | ansible.builtin.slurp | True |  |  |
+| [Write toolkit repo with signed-by](tasks/host.yml#L196) | ansible.builtin.copy | True |  |  |
+| [Install toolkit](tasks/host.yml#L211) | ansible.builtin.apt | True |  |  |
+| [Create containerd dir](tasks/host.yml#L218) | ansible.builtin.file | True |  |  |
+| [Configure containerd](tasks/host.yml#L224) | ansible.builtin.template | True |  |  |
 
 
 ## Task Flow Graphs
@@ -353,7 +352,7 @@ classDef rescue stroke:#665352,stroke-width:2px;
   Set_GPU_active__disabled_8-->|Task| Install_driver_deps9[install driver deps<br>When: **nvidia gpu active   default false    bool**]:::task
   Install_driver_deps9-->|Task| Detect_driver10[detect driver<br>When: **nvidia gpu active   default false    bool and<br>nvidia gpu driver package     auto**]:::task
   Detect_driver10-->|Task| Set_driver_version11[set driver version<br>When: **nvidia gpu active   default false    bool and<br>nvidia gpu driver package     auto  and nvidia gpu<br>detected driver stdout   length   0**]:::task
-  Set_driver_version11-->|Task| Set_driver_fallback12[set driver fallback<br>When: **nvidia gpu driver package     auto  and  nvidia<br>gpu detected driver skipped is defined and nvidia<br>gpu detected driver skipped  or  nvidia gpu<br>detected driver stdout   length    0  and nvidia<br>gpu active   default false    bool**]:::task
+  Set_driver_version11-->|Task| Set_driver_fallback12[set driver fallback<br>When: **nvidia gpu driver package     auto  and      <br>nvidia gpu detected driver skipped is defined  <br>and nvidia gpu detected driver skipped   or <br>nvidia gpu detected driver stdout   length    0 <br>and nvidia gpu active   default false    bool**]:::task
   Set_driver_fallback12-->|Task| Set_manual_driver13[set manual driver<br>When: **nvidia gpu active   default false    bool and<br>nvidia gpu driver package     auto**]:::task
   Set_manual_driver13-->|Task| Blacklist_nouveau14[blacklist nouveau<br>When: **nvidia gpu active   default false    bool**]:::task
   Blacklist_nouveau14-->|Task| Update_initramfs15[update initramfs<br>When: **nvidia gpu blacklist nouveau changed**]:::task
@@ -385,20 +384,20 @@ classDef rescue stroke:#665352,stroke-width:2px;
 ## Author Information
 Roura
 
-### License
+#### License
 
 MIT
 
-### Minimum Ansible Version
+#### Minimum Ansible Version
 
 2.20.0
 
-### Platforms
+#### Platforms
 
 - **Ubuntu**: ['noble']
 
 
-### Dependencies
+#### Dependencies
 
 No dependencies specified.
 <!-- DOCSIBLE END -->
