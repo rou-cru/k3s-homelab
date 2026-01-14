@@ -1,4 +1,3 @@
----
 argument_specs:
   main:
     short_description: Validates system requirements before installation.

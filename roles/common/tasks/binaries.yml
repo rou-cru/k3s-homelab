@@ -1,11 +1,9 @@
----
 - name: Install uv (Python Tool Manager)
   block:
     - name: Check if uv is installed
       ansible.builtin.stat:
         path: /usr/local/bin/uv
       register: uv_binary
-
     - name: Download and install uv
       ansible.builtin.get_url:
         url: https://astral.sh/uv/install.sh
@@ -25,7 +23,6 @@
     - name: Report uv installation failure
       ansible.builtin.fail:
         msg: "Failed to install uv tool manager"
-
 - name: Install Kubectl (Official Binary)
   block:
     - name: Get latest stable kubectl version
@@ -34,24 +31,20 @@
         return_content: true
       register: kubectl_version_url
       check_mode: false
-
     - name: Set kubectl version fact
       ansible.builtin.set_fact:
         kubectl_version: "{{ kubectl_version_url.content | trim }}"
-
     - name: Get kubectl checksum
       ansible.builtin.uri:
         url: "https://dl.k8s.io/release/{{ kubectl_version }}/bin/linux/amd64/kubectl.sha256"
         return_content: true
       register: kubectl_checksum_response
       check_mode: false
-
     - name: Check current kubectl version
       ansible.builtin.command: kubectl version --client
       register: kubectl_current_version
       ignore_errors: true
       changed_when: false
-
     - name: Download and install kubectl
       ansible.builtin.get_url:
         url: "https://dl.k8s.io/release/{{ kubectl_version }}/bin/linux/amd64/kubectl"
@@ -65,14 +58,12 @@
     - name: Report kubectl installation failure
       ansible.builtin.fail:
         msg: "Failed to install kubectl binary"
-
 - name: Install Helm (Official Script)
   block:
     - name: Check if helm is installed
       ansible.builtin.stat:
         path: /usr/local/bin/helm
       register: helm_binary
-
     - name: Install Helm
       ansible.builtin.get_url:
         url: https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3

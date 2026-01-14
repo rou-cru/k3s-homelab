@@ -52,8 +52,8 @@ Description: Pre-flight checks to ensure minimum system requirements are met.
 | [Fail on disconnect](tasks/main.yml#L11) | ansible.builtin.fail | True |
 | [Check disk space](tasks/main.yml#L15) | ansible.builtin.shell | False |
 | [Assert disk space](tasks/main.yml#L21) | ansible.builtin.assert | False |
-| [Assert memory](tasks/main.yml#L29) | ansible.builtin.assert | False |
-| [Assert architecture](tasks/main.yml#L34) | ansible.builtin.assert | False |
+| [Assert memory](tasks/main.yml#L28) | ansible.builtin.assert | False |
+| [Assert architecture](tasks/main.yml#L33) | ansible.builtin.assert | False |
 
 
 ## Task Flow Graphs

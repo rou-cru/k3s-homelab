@@ -1,4 +1,3 @@
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -28,31 +27,43 @@ spec:
             privileged: true
             runAsUser: 0
           env:
-            - name: POOL
+            - name: MINING_POOL_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: mining-pools
+                  key: KRYPTEX_XEL_HOST
+            - name: MINING_POOL_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: mining-pools
+                  key: KRYPTEX_XEL_PORT
+            - name: MINING_POOL_SCHEME
+              valueFrom:
+                configMapKeyRef:
+                  name: mining-pools
+                  key: KRYPTEX_XEL_SCHEME
+            - name: MINING_ALGO
               valueFrom:
                 configMapKeyRef:
                   name: unmineable-tnn-config
-                  key: POOL
-            - name: ALGO
+                  key: MINING_ALGO
+            - name: MINING_COIN
               valueFrom:
                 configMapKeyRef:
                   name: unmineable-tnn-config
-                  key: ALGO
-            - name: COIN
-              valueFrom:
-                configMapKeyRef:
-                  name: unmineable-tnn-config
-                  key: COIN
+                  key: MINING_COIN
             - name: REFERRAL_CODE
               valueFrom:
                 configMapKeyRef:
                   name: unmineable-tnn-config
                   key: REFERRAL_CODE
-            - name: WORKER_NAME
+            - name: MINING_WORKER_NAME
               valueFrom:
                 configMapKeyRef:
                   name: unmineable-tnn-config
-                  key: WORKER_NAME
+                  key: MINING_WORKER_NAME
+            - name: POOL_TYPE
+              value: "kryptex"
             - name: MINING_THREADS
               valueFrom:
                 configMapKeyRef:
@@ -75,11 +86,11 @@ spec:
                   key: XEL_WALLET
           resources:
             requests:
-              cpu: "12"
+              cpu: "8"
               memory: 3Gi
               hugepages-2Mi: 2560Mi
             limits:
-              cpu: "12"
+              cpu: "8"
               memory: 3Gi
               hugepages-2Mi: 2560Mi
           volumeMounts:

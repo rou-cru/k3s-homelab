@@ -1,31 +1,34 @@
 #!/bin/sh
 set -e
 
-# Defaults
-POOL="${POOL:-rx.unmineable.com:3333}"
-ALGO="${ALGO:-rx/0}"
-COIN="${COIN:-AVAX}"
-WORKER_NAME="${WORKER_NAME:-cpu-miner}"
-THREADS="${MINING_THREADS}" 
+: "${MINING_POOL_HOST:?MINING_POOL_HOST is required}"
+: "${MINING_POOL_PORT:?MINING_POOL_PORT is required}"
+: "${MINING_ALGO:?MINING_ALGO is required}"
+: "${MINING_WORKER_NAME:?MINING_WORKER_NAME is required}"
+: "${POOL_TYPE:?POOL_TYPE is required}"
+THREADS="${MINING_THREADS}"
 
-if [ -z "$WALLET_ADDRESS" ]; then
-    echo "Error: WALLET_ADDRESS is required"
-    exit 1
-fi
-
-if [ -z "$REFERRAL_CODE" ]; then
-    echo "Warning: No REFERRAL_CODE set"
-    USER_ARG="${COIN}:${WALLET_ADDRESS}.${WORKER_NAME}"
-else
-    USER_ARG="${COIN}:${WALLET_ADDRESS}.${WORKER_NAME}#${REFERRAL_CODE}"
-fi
+: "${WALLET_ADDRESS:?WALLET_ADDRESS is required}"
+case "${POOL_TYPE}" in
+    unmineable)
+        : "${MINING_COIN:?MINING_COIN is required for POOL_TYPE=unmineable}"
+        : "${REFERRAL_CODE:?REFERRAL_CODE is required for POOL_TYPE=unmineable}"
+        USER_ARG="${MINING_COIN}:${WALLET_ADDRESS}.${MINING_WORKER_NAME}#${REFERRAL_CODE}"
+        ;;
+    kryptex)
+        USER_ARG="${WALLET_ADDRESS}.${MINING_WORKER_NAME}"
+        ;;
+    *)
+        echo "Unsupported POOL_TYPE: ${POOL_TYPE}" >&2
+        exit 1
+        ;;
+esac
 
 echo "Starting XMRig..."
-echo "Pool: $POOL"
-echo "Algo: $ALGO"
-echo "User: $USER_ARG"
+echo "Pool: ${MINING_POOL_HOST}:${MINING_POOL_PORT}"
+echo "Algo: ${MINING_ALGO}"
 
-ARGS="-o $POOL -a $ALGO -u $USER_ARG -p x -k --donate-level=0"
+ARGS="-o ${MINING_POOL_SCHEME}://${MINING_POOL_HOST}:${MINING_POOL_PORT} -a ${MINING_ALGO} -u ${USER_ARG} -p ${MINING_PASS:-x} -k --donate-level=0"
 
 if [ ! -z "$THREADS" ]; then
     ARGS="$ARGS --threads=$THREADS"

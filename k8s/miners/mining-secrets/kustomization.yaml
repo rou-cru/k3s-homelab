@@ -1,12 +1,9 @@
----
 namespace: miners
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-
 secretGenerator:
   - name: mining-wallets
     envs:
       - wallets.env
-
 generatorOptions:
   disableNameSuffixHash: true

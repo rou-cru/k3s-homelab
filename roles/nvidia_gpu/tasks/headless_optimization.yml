@@ -1,4 +1,3 @@
----
 - name: NVIDIA GPU headless optimization setup
   tags: ["nvidia", "gpu", "nvidia-headless"]
   when: nvidia_gpu_active | default(false) | bool
@@ -60,6 +59,8 @@
       ansible.builtin.debug:
         msg: >-
           NVIDIA GPU headless optimization failed at {{ ansible_failed_task.name }}:
+
+
            {{ ansible_failed_result | to_nice_json }}
     - name: Fail NVIDIA GPU headless optimization
       ansible.builtin.fail:

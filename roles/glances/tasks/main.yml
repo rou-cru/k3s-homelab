@@ -1,32 +1,29 @@
----
 - name: Check hddtemp availability
   ansible.builtin.command: apt-cache show hddtemp
   register: glances_hddtemp_available
   changed_when: false
   failed_when: false
   check_mode: no
-
 - name: Build Glances system package list
   ansible.builtin.set_fact:
     glances_system_packages: >-
       {{
+
+
         ['python3-venv', 'python3-pip', 'lm-sensors']
         + (['hddtemp'] if glances_hddtemp_available.stdout | length > 0 else [])
       }}
-
 - name: Install system dependencies for Glances and sensors
   ansible.builtin.apt:
     name: "{{ glances_system_packages }}"
     state: present
     update_cache: true
     cache_valid_time: 3600
-
 - name: Create directory for Glances venv
   ansible.builtin.file:
     path: "{{ glances_venv_path }}"
     state: directory
     mode: '0755'
-
 - name: Create Glances virtual environment (uv)
   ansible.builtin.command: uv venv "{{ glances_venv_path }}"
   args:
@@ -36,19 +33,16 @@
   notify: Restart glances
 - name: Install Glances in virtual environment (uv)
   ansible.builtin.command: >-
-    uv pip install --upgrade --python "{{ glances_venv_path }}/bin/python"
-    {{ glances_packages | join(' ') }}
+    uv pip install --upgrade --python "{{ glances_venv_path }}/bin/python" {{ glances_packages | join(' ') }}
   environment:
     PATH: "/root/.cargo/bin:{{ ansible_facts['env']['PATH'] }}"
   notify: Restart glances
-
 - name: Create Systemd service for Glances Web
   ansible.builtin.template:
     src: glances-web.service.j2
     dest: /etc/systemd/system/glances-web.service
     mode: '0644'
   notify: Restart glances
-
 - name: Ensure Glances service is enabled and running
   ansible.builtin.systemd:
     name: glances-web

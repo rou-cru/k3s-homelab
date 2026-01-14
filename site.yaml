@@ -1,4 +1,3 @@
----
 - name: Setup K3s Master Node
   hosts: k3s_server
   become: true
@@ -7,7 +6,6 @@
     # Mining Defaults (Override via standard Ansible variables)
     # XEL wallet used by both CPU and GPU miners
     wallet_cpu: "{{ mining_wallet | default('') }}"
-
   vars_files:
     - "{{ secrets_file | default('secrets.yaml') }}"
   pre_tasks:
@@ -91,6 +89,8 @@
       ansible.builtin.set_fact:
         nvidia_gpu_cluster_enabled: >-
           {{
+
+
             (nvidia_gpu_setup_mode == 'true') or
             (
               (nvidia_gpu_active | default(false) | bool) and
@@ -110,6 +110,8 @@
       ansible.builtin.set_fact:
         miner_control_plane_labels: >-
           {{
+
+
             []
             + (['miner.network=true'] if (miner_label_network | default(true) | bool) else [])
             + (['miner.cpu=true'] if (miner_label_cpu | default(true) | bool) else [])
@@ -119,7 +121,9 @@
     - name: Label control plane for mining workloads
       ansible.builtin.shell: |
         set -euo pipefail
-        NODE_NAME="$(kubectl get nodes -l kubernetes.io/hostname={{ ansible_facts['hostname'] }} -o jsonpath='{.items[0].metadata.name}')"
+        NODE_NAME="$(kubectl get nodes \
+          -l kubernetes.io/hostname={{ ansible_facts['hostname'] }} \
+          -o jsonpath='{.items[0].metadata.name}')"
         kubectl label node "${NODE_NAME}" {{ miner_control_plane_labels | join(' ') }} --overwrite
       args:
         executable: /bin/bash
@@ -145,7 +149,6 @@
         state: absent
       become: false
       tags: ["apps"]
-
     - name: Copy Kustomize bases to remote
       ansible.builtin.copy:
         src: k8s/
@@ -154,7 +157,6 @@
         mode: "0644"
       become: false
       tags: ["apps"]
-
     # --- NAMESPACES ---
     - name: Apply Namespaces
       ansible.builtin.command: kubectl apply -f {{ k8s_manifests_dir }}/namespaces/
@@ -162,7 +164,6 @@
       changed_when: "'configured' in namespaces_apply.stdout or 'created' in namespaces_apply.stdout"
       become: false
       tags: ["apps"]
-
     # --- HONEYGAIN ---
     - name: Generate Honeygain Config (Kustomize Bridge)
       ansible.builtin.copy:
@@ -173,7 +174,6 @@
         mode: "0600"
       become: false
       tags: ["apps", "honeygain"]
-
     - name: Generate Honeygain Secrets (Kustomize Bridge)
       ansible.builtin.copy:
         dest: "{{ k8s_manifests_dir }}/miners/honeygain/secret.env"
@@ -182,14 +182,12 @@
         mode: "0600"
       become: false
       tags: ["apps", "honeygain"]
-
     - name: Deploy Honeygain via Kustomize
       ansible.builtin.command: kubectl apply -k {{ k8s_manifests_dir }}/miners/honeygain/
       register: honeygain_apply
       changed_when: "'configured' in honeygain_apply.stdout or 'created' in honeygain_apply.stdout"
       become: false
       tags: ["apps", "honeygain"]
-
     # --- MINING SECRETS (Centralized Wallets) ---
     - name: Generate Mining Wallets Secret (Kustomize Bridge)
       ansible.builtin.copy:
@@ -199,14 +197,12 @@
         mode: "0600"
       become: false
       tags: ["apps", "miners"]
-
     - name: Deploy Mining Secrets via Kustomize
       ansible.builtin.command: kubectl apply -k {{ k8s_manifests_dir }}/miners/mining-secrets/
       register: mining_secrets_apply
       changed_when: "'configured' in mining_secrets_apply.stdout or 'created' in mining_secrets_apply.stdout"
       become: false
       tags: ["apps", "miners"]
-
     # --- UNMINEABLE CPU TNN ---
     - name: Deploy Unmineable CPU TNN via Kustomize
       ansible.builtin.command: kubectl apply -k {{ k8s_manifests_dir }}/miners/unmineable-cpu-tnn/
@@ -214,17 +210,16 @@
       changed_when: "'configured' in unmineable_cpu_tnn_apply.stdout or 'created' in unmineable_cpu_tnn_apply.stdout"
       become: false
       tags: ["apps", "miners", "unmineable-cpu-tnn"]
-
     # --- UNMINEABLE GPU RIGEL ---
     - name: Determine if GPU mining is enabled
       ansible.builtin.set_fact:
         gpu_mining_enabled: "{{ nvidia_gpu_cluster_enabled | default(false) | bool }}"
       tags: ["apps", "nvidia"]
-
     - name: Deploy Unmineable GPU Rigel via Kustomize
       ansible.builtin.command: kubectl apply -k {{ k8s_manifests_dir }}/miners/unmineable-gpu-rigel/
       register: unmineable_gpu_rigel_apply
-      changed_when: "'configured' in unmineable_gpu_rigel_apply.stdout or 'created' in unmineable_gpu_rigel_apply.stdout"
+      changed_when: >-
+        'configured' in unmineable_gpu_rigel_apply.stdout or 'created' in unmineable_gpu_rigel_apply.stdout
       when: gpu_mining_enabled
       become: false
       tags: ["apps", "miners", "unmineable-gpu-rigel"]

@@ -16,7 +16,7 @@ Description: Installs and configures Tailscale VPN client.
 <details>
 <summary><b>🧩 Argument Specifications in meta/argument_specs</b></summary>
 
-#### Key: main
+### Key: main
 
 **Description**: Installs Tailscale, connects to the tailnet using an auth key, and configures
 settings like DNS acceptance and SSH access.
@@ -105,9 +105,11 @@ settings like DNS acceptance and SSH access.
 | Var          | Type         | Value       |Required    | Title       |
 |--------------|--------------|-------------|------------|-------------|
 | [tailscale_hostname_prefix](defaults/main.yml#L6)   | str | `k3s` |    false  |  Hostname Prefix |
-| [tailscale_tags](defaults/main.yml#L12)   | str |  |    false  |  ACL Tags |
-| [tailscale_accept_dns](defaults/main.yml#L18)   | str | `true` |    false  |  Accept DNS |
-| [tailscale_ssh](defaults/main.yml#L24)   | str | `true` |    false  |  Enable SSH |
+| [tailscale_tags](defaults/main.yml#L11)   | str |  |    false  |  ACL Tags |
+| [tailscale_accept_dns](defaults/main.yml#L16)   | str | `true` |    false  |  Accept DNS |
+| [tailscale_ssh](defaults/main.yml#L21)   | str | `true` |    false  |  Enable SSH |
+| [tailscale_install_script_checksum](defaults/main.yml#L27)   | str | `7fab06250c94a527d5f74002d9fb45ac9fc702c72f7901a959571112c75048f1` |    false  |  Tailscale install script checksum |
+
 <details>
 <summary><b>🖇️ Full descriptions for vars in defaults/main.yml</b></summary>
 <br>
@@ -117,6 +119,7 @@ settings like DNS acceptance and SSH access.
 <tr><td><b>tailscale_tags</b></td><td>Comma-separated list of ACL tags to advertise (e.g., tag:k3s).</td></tr>
 <tr><td><b>tailscale_accept_dns</b></td><td>Whether to accept DNS configuration from the tailnet ("true"/"false").</td></tr>
 <tr><td><b>tailscale_ssh</b></td><td>Whether to enable Tailscale SSH ("true"/"false").</td></tr>
+<tr><td><b>tailscale_install_script_checksum</b></td><td>SHA256 for https://tailscale.com/install.sh (pin to avoid supply-chain drift).</td></tr>
 </table>
 <br>
 </details>
@@ -132,15 +135,16 @@ settings like DNS acceptance and SSH access.
 
 | Name | Module | Has Conditions |
 | ---- | ------ | -------------- |
-| [Install Tailscale](tasks/main.yml#L2) | ansible.builtin.shell | False |
-| [Start tailscaled](tasks/main.yml#L9) | ansible.builtin.systemd | False |
-| [Check status](tasks/main.yml#L15) | ansible.builtin.command | False |
-| [Determine state](tasks/main.yml#L22) | ansible.builtin.set_fact | False |
-| [Configure Tailscale](tasks/main.yml#L32) | ansible.builtin.shell | True |
+| [Install Tailscale](tasks/main.yml#L2) | ansible.builtin.get_url | False |
+| [Run Tailscale installer](tasks/main.yml#L9) | ansible.builtin.command | False |
+| [Start tailscaled](tasks/main.yml#L13) | ansible.builtin.systemd | False |
+| [Check status](tasks/main.yml#L19) | ansible.builtin.command | False |
+| [Determine state](tasks/main.yml#L25) | ansible.builtin.set_fact | False |
+| [Configure Tailscale](tasks/main.yml#L34) | ansible.builtin.shell | True |
 | [Wait for IP](tasks/main.yml#L49) | ansible.builtin.shell | False |
-| [Set IP fact](tasks/main.yml#L63) | ansible.builtin.set_fact | False |
-| [Validate connectivity](tasks/main.yml#L69) | ansible.builtin.wait_for | False |
-| [Warn connectivity](tasks/main.yml#L77) | ansible.builtin.debug | True |
+| [Set IP fact](tasks/main.yml#L64) | ansible.builtin.set_fact | False |
+| [Validate connectivity](tasks/main.yml#L68) | ansible.builtin.wait_for | False |
+| [Warn connectivity](tasks/main.yml#L75) | ansible.builtin.debug | True |
 
 
 ## Task Flow Graphs
@@ -162,15 +166,16 @@ classDef includeVars stroke:#8e44ad,stroke-width:2px;
 classDef rescue stroke:#665352,stroke-width:2px;
 
   Start-->|Task| Install_Tailscale0[install tailscale]:::task
-  Install_Tailscale0-->|Task| Start_tailscaled1[start tailscaled]:::task
-  Start_tailscaled1-->|Task| Check_status2[check status]:::task
-  Check_status2-->|Task| Determine_state3[determine state]:::task
-  Determine_state3-->|Task| Configure_Tailscale4[configure tailscale<br>When: **not tailscale is running   bool**]:::task
-  Configure_Tailscale4-->|Task| Wait_for_IP5[wait for ip]:::task
-  Wait_for_IP5-->|Task| Set_IP_fact6[set ip fact]:::task
-  Set_IP_fact6-->|Task| Validate_connectivity7[validate connectivity]:::task
-  Validate_connectivity7-->|Task| Warn_connectivity8[warn connectivity<br>When: **tailscale connectivity check failed   default<br>false**]:::task
-  Warn_connectivity8-->End
+  Install_Tailscale0-->|Task| Run_Tailscale_installer1[run tailscale installer]:::task
+  Run_Tailscale_installer1-->|Task| Start_tailscaled2[start tailscaled]:::task
+  Start_tailscaled2-->|Task| Check_status3[check status]:::task
+  Check_status3-->|Task| Determine_state4[determine state]:::task
+  Determine_state4-->|Task| Configure_Tailscale5[configure tailscale<br>When: **not tailscale is running   bool**]:::task
+  Configure_Tailscale5-->|Task| Wait_for_IP6[wait for ip]:::task
+  Wait_for_IP6-->|Task| Set_IP_fact7[set ip fact]:::task
+  Set_IP_fact7-->|Task| Validate_connectivity8[validate connectivity]:::task
+  Validate_connectivity8-->|Task| Warn_connectivity9[warn connectivity<br>When: **tailscale connectivity check failed   default<br>false**]:::task
+  Warn_connectivity9-->End
 ```
 
 
@@ -180,20 +185,20 @@ classDef rescue stroke:#665352,stroke-width:2px;
 ## Author Information
 Roura
 
-#### License
+### License
 
 MIT
 
-#### Minimum Ansible Version
+### Minimum Ansible Version
 
 2.20.0
 
-#### Platforms
+### Platforms
 
 - **Ubuntu**: ['noble']
 
 
-#### Dependencies
+### Dependencies
 
 No dependencies specified.
 <!-- DOCSIBLE END -->

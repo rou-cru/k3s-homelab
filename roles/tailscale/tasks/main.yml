@@ -1,4 +1,3 @@
----
 - name: Install Tailscale
   ansible.builtin.get_url:
     url: https://tailscale.com/install.sh
@@ -27,6 +26,7 @@
     # Check if BackendState is Running and Self.Online is true
     tailscale_is_running: >-
       {{
+
 
         tailscale_status_json.rc == 0 and
         (tailscale_status_json.stdout | from_json).BackendState == 'Running'

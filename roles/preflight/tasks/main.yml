@@ -1,4 +1,3 @@
----
 - name: Check connectivity
   ansible.builtin.uri:
     url: https://get.k3s.io
@@ -23,8 +22,13 @@
     that:
       - root_disk_space.stdout | int > 20971520
     fail_msg: >-
-      Insufficient disk space on /. Required: 20GB,
-      Available: {{ (root_disk_space.stdout | int / 1024 / 1024) | round(2) }}GB
+      {{
+
+
+        'Insufficient disk space on /. Required: 20GB, Available: '
+        ~ ((root_disk_space.stdout | int / 1024 / 1024) | round(2))
+        ~ 'GB'
+      }}
 - name: Assert memory
   ansible.builtin.assert:
     that:

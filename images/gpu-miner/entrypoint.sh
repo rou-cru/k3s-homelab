@@ -1,35 +1,40 @@
 #!/bin/bash
 set -e
 
-# Defaults
-POOL="${MINING_POOL:-autolykos.unmineable.com}"
-PORT="${MINING_PORT:-3333}"
-ALGO="${MINING_ALGO:-AUTOLYKOS2}"
-COIN="${MINING_COIN:-AVAX}"
-WORKER="${MINING_WORKER_NAME:-gpu-miner}"
+: "${MINING_POOL_HOST:?MINING_POOL_HOST is required}"
+: "${MINING_POOL_PORT:?MINING_POOL_PORT is required}"
+: "${MINING_ALGO:?MINING_ALGO is required}"
+: "${MINING_WORKER_NAME:?MINING_WORKER_NAME is required}"
+: "${POOL_TYPE:?POOL_TYPE is required}"
 
 if [ -z "$WALLET_ADDRESS" ]; then
     echo "Error: WALLET_ADDRESS is required"
     exit 1
 fi
 
-if [ -z "$REFERRAL_CODE" ]; then
-    USER_ARG="${COIN}:${WALLET_ADDRESS}.${WORKER}"
-else
-    USER_ARG="${COIN}:${WALLET_ADDRESS}.${WORKER}#${REFERRAL_CODE}"
-fi
+case "${POOL_TYPE}" in
+    unmineable)
+        : "${MINING_COIN:?MINING_COIN is required for POOL_TYPE=unmineable}"
+        : "${REFERRAL_CODE:?REFERRAL_CODE is required for POOL_TYPE=unmineable}"
+        USER_ARG="${MINING_COIN}:${WALLET_ADDRESS}.${MINING_WORKER_NAME}#${REFERRAL_CODE}"
+        ;;
+    kryptex)
+        USER_ARG="${WALLET_ADDRESS}.${MINING_WORKER_NAME}"
+        ;;
+    *)
+        echo "Unsupported POOL_TYPE: ${POOL_TYPE}" >&2
+        exit 1
+        ;;
+esac
 
 echo "Starting lolMiner..."
-echo "Algorithm: $ALGO"
-echo "Pool: $POOL:$PORT"
-# Redact wallet address from logs
-REDACTED_USER=$(echo "$USER_ARG" | sed -E 's/([^:]+:)[^.]+/\1[REDACTED]/')
-echo "User: $REDACTED_USER"
+echo "Algorithm: ${MINING_ALGO}"
+echo "Pool: ${MINING_POOL_HOST}:${MINING_POOL_PORT}"
 
 exec lolMiner \
-    --algo "$ALGO" \
-    --pool "$POOL:$PORT" \
+    --algo "${MINING_ALGO}" \
+    --pool "${MINING_POOL_SCHEME}://${MINING_POOL_HOST}:${MINING_POOL_PORT}" \
     --user "$USER_ARG" \
-    --pass x \
+    --pass "${MINING_PASS:-x}" \
     --apiport 4067 \
     --nocolor

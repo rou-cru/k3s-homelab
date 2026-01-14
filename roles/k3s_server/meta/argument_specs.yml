@@ -1,4 +1,3 @@
----
 argument_specs:
   main:
     short_description: Installs and configures K3s server.

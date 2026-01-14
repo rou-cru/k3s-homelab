@@ -1,4 +1,3 @@
----
 glances_state: present
 glances_port: 61208
 glances_bind_address: "127.0.0.1"

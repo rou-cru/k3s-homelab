@@ -1,15 +1,13 @@
----
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: unmineable-tnn-config
   namespace: miners
 data:
-  POOL: stratum+tcp://xel-us.kryptex.network:7019
-  ALGO: xelihashv3
-  COIN: XEL
+  MINING_ALGO: xelishashv3
+  MINING_COIN: XEL
   REFERRAL_CODE: 18ps-7t5s
-  WORKER_NAME: home-miner
-  MINING_THREADS: "12"
-  CPU_AFFINITY_MASK: "0x0FFF0000"
+  MINING_WORKER_NAME: home-miner
+  MINING_THREADS: "8"
+  CPU_AFFINITY_MASK: "0x00FF0000"
   DEV_FEE: "1.0"

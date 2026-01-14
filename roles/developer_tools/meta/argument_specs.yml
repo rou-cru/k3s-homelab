@@ -1,4 +1,3 @@
----
 argument_specs:
   main:
     short_description: Installs development tools and CLIs.
