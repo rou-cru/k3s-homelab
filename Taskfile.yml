@@ -160,7 +160,7 @@ tasks:
       - sh: command -v yamlfmt
         msg: "yamlfmt not found. Run: devbox shell"
     cmds:
-      - yamlfmt .
+      - yamlfmt -conf .yamlfmt
   format-bash:
     desc: "Auto-format rendered bash scripts with shfmt"
     deps:
@@ -207,7 +207,7 @@ tasks:
   ci-format-check:
     desc: "Check formatting without modifying files"
     cmds:
-      - yamlfmt -dry .
+      - yamlfmt -conf .yamlfmt -dry
       - task: render-all
       - shfmt -d -i 4 {{.OUTPUT_DIR}}/*.sh
   clean:
@@ -355,4 +355,4 @@ tasks:
     vars:
       ROLE: "{{index .CLI_ARGS 0}}"
     cmds:
-      - molecule init scenario {{.ROLE}} --driver-name vagrant
+      - cd molecule && molecule init scenario {{.ROLE}} --driver-name vagrant

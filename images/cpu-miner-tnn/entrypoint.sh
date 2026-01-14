@@ -38,7 +38,6 @@ dev_fee="${DEV_FEE:-1.0}"
 set -- /usr/local/bin/tnn-miner-cpu \
   --broadcast \
   --daemon-address "${pool_url}" \
-  --port "${MINING_POOL_PORT}" \
   --wallet "${user}" \
   --password "${MINING_PASS:-x}" \
   --worker-name "${MINING_WORKER_NAME}" \
@@ -50,9 +49,9 @@ if [ -n "${MINING_THREADS:-}" ]; then
   set -- "$@" --threads "${MINING_THREADS}"
 fi
 
-if ! echo "${pool_url}" | grep -qi "stratum"; then
-  set -- "$@" --stratum
-fi
+case "${MINING_POOL_SCHEME}" in
+  *stratum*) set -- "$@" --stratum ;;
+esac
 
 if [ "${algo_flag}" = "--randomx" ]; then
   set -- "$@" --rx-hugepages

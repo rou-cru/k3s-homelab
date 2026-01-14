@@ -27,9 +27,8 @@ esac
 echo "Starting XMRig..."
 echo "Pool: ${MINING_POOL_HOST}:${MINING_POOL_PORT}"
 echo "Algo: ${MINING_ALGO}"
-echo "User: $USER_ARG"
 
-ARGS="-o ${MINING_POOL_HOST}:${MINING_POOL_PORT} -a ${MINING_ALGO} -u ${USER_ARG} -p x -k --donate-level=0"
+ARGS="-o ${MINING_POOL_SCHEME}://${MINING_POOL_HOST}:${MINING_POOL_PORT} -a ${MINING_ALGO} -u ${USER_ARG} -p ${MINING_PASS:-x} -k --donate-level=0"
 
 if [ ! -z "$THREADS" ]; then
     ARGS="$ARGS --threads=$THREADS"

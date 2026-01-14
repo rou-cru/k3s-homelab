@@ -92,9 +92,11 @@
       ansible.builtin.apt_repository:
         repo: >-
           {{
-
-
-            'deb [arch=' ~ hashicorp_repo_arch ~
+            'deb [arch=' ~ (
+              'amd64' if ansible_architecture == 'x86_64'
+              else 'arm64' if ansible_architecture == 'aarch64'
+              else 'unsupported'
+            ) ~
             ' signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] ' ~
             'https://download.docker.com/linux/ubuntu ' ~
             ansible_distribution_release ~
@@ -159,6 +161,7 @@
           gpg --dearmor --batch --yes --no-tty -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
       args:
         executable: /bin/bash
+        creates: /usr/share/keyrings/hashicorp-archive-keyring.gpg
       check_mode: false
     - name: Add HashiCorp APT repo
       ansible.builtin.apt_repository:

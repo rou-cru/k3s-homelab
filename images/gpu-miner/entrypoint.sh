@@ -30,14 +30,11 @@ esac
 echo "Starting lolMiner..."
 echo "Algorithm: ${MINING_ALGO}"
 echo "Pool: ${MINING_POOL_HOST}:${MINING_POOL_PORT}"
-# Redact wallet address from logs
-REDACTED_USER=$(echo "$USER_ARG" | sed -E 's/([^:]+:)[^.]+/\1[REDACTED]/')
-echo "User: $REDACTED_USER"
 
 exec lolMiner \
     --algo "${MINING_ALGO}" \
-    --pool "${MINING_POOL_HOST}:${MINING_POOL_PORT}" \
+    --pool "${MINING_POOL_SCHEME}://${MINING_POOL_HOST}:${MINING_POOL_PORT}" \
     --user "$USER_ARG" \
-    --pass x \
+    --pass "${MINING_PASS:-x}" \
     --apiport 4067 \
     --nocolor

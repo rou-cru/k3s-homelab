@@ -48,7 +48,7 @@ echo "Starting Rigel (${RIGEL_ALGO})..."
 echo "Pool: ${POOL_URL}"
 echo "User: ...${WALLET_ADDRESS: -4}.${MINING_WORKER_NAME}"
 echo "Worker: ${MINING_WORKER_NAME}"
-echo "Power: ${GPU_POWER_LIMIT}W | Core: ${GPU_CORE_OFFSET:+${GPU_CORE_OFFSET}} | Mem: ${GPU_MEM_OFFSET:+${GPU_MEM_OFFSET}}"
+echo "Power: ${GPU_POWER_LIMIT}W | Core: ${GPU_CORE_OFFSET} | Mem: ${GPU_MEM_OFFSET}"
 
 set -- rigel \
   -a "${RIGEL_ALGO}" \

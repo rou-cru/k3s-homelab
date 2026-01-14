@@ -1,0 +1,15 @@
+formatter:
+  type: basic
+  include_document_start: false
+  retain_line_breaks: true
+
+include:
+  - "**/*.{yaml,yml}"
+
+exclude:
+  - ".venv/**/*"
+  - ".ansible/**/*"
+  - ".task/**/*"
+  - ".devbox/**/*"
+  - ".serena/**/*"
+  - "devbox.lock"
