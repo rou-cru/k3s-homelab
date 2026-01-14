@@ -20,14 +20,13 @@
       ansible.builtin.debug:
         msg: >-
           Found PCI Vendors: {{
-
-
             pci_vendor_ids_output.stdout_lines
             | default([])
             | map('trim')
             | map('lower')
             | list
           }}
+        verbosity: 1
       tags: ["host", "nvidia", "debug"]
     - name: Detect GPU
       ansible.builtin.set_fact:

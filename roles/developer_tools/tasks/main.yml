@@ -93,13 +93,13 @@
         repo: >-
           {{
             'deb [arch=' ~ (
-              'amd64' if ansible_architecture == 'x86_64'
-              else 'arm64' if ansible_architecture == 'aarch64'
+              'amd64' if ansible_facts['architecture'] == 'x86_64'
+              else 'arm64' if ansible_facts['architecture'] == 'aarch64'
               else 'unsupported'
             ) ~
             ' signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] ' ~
             'https://download.docker.com/linux/ubuntu ' ~
-            ansible_distribution_release ~
+            ansible_facts['distribution_release'] ~
             ' stable'
           }}
         state: present
@@ -130,22 +130,22 @@
     - name: Set HashiCorp repo release
       ansible.builtin.set_fact:
         hashicorp_repo_release: >-
-          {{ 'jammy' if ansible_distribution_release == 'noble' else ansible_distribution_release }}
+          {{ 'jammy' if ansible_facts['distribution_release'] == 'noble' else ansible_facts['distribution_release'] }}
     - name: Set HashiCorp repo architecture
       ansible.builtin.set_fact:
         hashicorp_repo_arch: >-
           {{
             'amd64'
-            if ansible_architecture == 'x86_64'
+            if ansible_facts['architecture'] == 'x86_64'
             else 'arm64'
-            if ansible_architecture == 'aarch64'
+            if ansible_facts['architecture'] == 'aarch64'
             else 'unsupported'
           }}
     - name: Validate HashiCorp repo architecture
       ansible.builtin.assert:
         that:
           - hashicorp_repo_arch != 'unsupported'
-        fail_msg: "Unsupported architecture for HashiCorp repo: {{ ansible_architecture }}"
+        fail_msg: "Unsupported architecture for HashiCorp repo: {{ ansible_facts['architecture'] }}"
     - name: Ensure APT keyrings dir (HashiCorp)
       ansible.builtin.file:
         path: /usr/share/keyrings
@@ -217,6 +217,7 @@
       check_mode: false
       become: true
       become_user: "{{ ansible_user }}"
+      ignore_errors: true
     - name: Install vagrant-libvirt plugin
       ansible.builtin.command: vagrant plugin install vagrant-libvirt
       register: vagrant_plugin_result
@@ -225,6 +226,7 @@
       become_user: "{{ ansible_user }}"
       when:
         - not ansible_check_mode
+        - vagrant_plugin_list.rc == 0
         - "'vagrant-libvirt' not in vagrant_plugin_list.stdout"
     - name: Show Vagrant installation success
       ansible.builtin.debug:
