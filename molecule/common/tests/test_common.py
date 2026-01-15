@@ -24,5 +24,5 @@ def test_common_packages_installed(host):
 
 def test_swap_entries_commented(host):
     """Ensure no active swap entries remain in /etc/fstab."""
-    cmd = host.run(r"grep -E '^[^#].*\\sswap\\s' /etc/fstab")
+    cmd = host.run("grep -E '^[^#].*[[:space:]]swap[[:space:]]' /etc/fstab")
     assert cmd.rc != 0, "Found active swap entry in /etc/fstab"
