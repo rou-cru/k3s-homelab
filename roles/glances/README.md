@@ -6,13 +6,86 @@
 
 
 
+Description: Install and configure Glances system monitoring with web interface.
 
 
 
 
 
 
+<details>
+<summary><b>🧩 Argument Specifications in meta/argument_specs</b></summary>
 
+#### Key: main
+
+**Description**: 
+- Installs Glances in a Python virtual environment
+- Configures systemd service for web interface
+
+
+**Options**:
+
+
+  - **glances_state**
+    - **Required**: false
+    - **Type**: str
+    - **Default**: present
+  
+    - **Description**: Whether Glances should be installed or removed.
+  
+      - **Choices**:
+    
+          - present
+    
+          - absent
+    
+  
+  
+  
+
+  - **glances_port**
+    - **Required**: false
+    - **Type**: int
+    - **Default**: 61208
+  
+    - **Description**: Port for Glances web interface.
+  
+  
+  
+
+  - **glances_bind_address**
+    - **Required**: false
+    - **Type**: str
+    - **Default**: 127.0.0.1
+  
+    - **Description**: Address to bind Glances web server.
+  
+  
+  
+
+  - **glances_venv_path**
+    - **Required**: false
+    - **Type**: str
+    - **Default**: /opt/glances
+  
+    - **Description**: Path for Python virtual environment.
+  
+  
+  
+
+  - **glances_packages**
+    - **Required**: false
+    - **Type**: list
+    - **Default**: ['glances[all]']
+  
+    - **Description**: Glances packages to install with extras.
+  
+  
+  
+
+
+
+</details>
 
 
 
@@ -86,6 +159,20 @@ classDef rescue stroke:#665352,stroke-width:2px;
 
 
 
+## Author Information
+Roura
+
+#### License
+
+MIT
+
+#### Minimum Ansible Version
+
+2.20.0
+
+#### Platforms
+
+- **Ubuntu**: ['noble']
 
 
 #### Dependencies

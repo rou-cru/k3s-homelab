@@ -81,6 +81,21 @@ argument_specs:
         required: false
         default: 1280
         description: Number of hugepages to allocate if mining is enabled (1280 ~ 2.5Gi).
+      common_power_efficiency_tuning_enabled:
+        type: bool
+        required: false
+        default: false
+        description: Enables Intel P-State power efficiency tuning.
+      common_intel_pstate_max_perf_pct:
+        type: int
+        required: false
+        default: 80
+        description: Maximum performance percentage for Intel P-State driver.
+      common_intel_pstate_no_turbo:
+        type: int
+        required: false
+        default: 1
+        description: Disable Intel Turbo Boost (1=disabled, 0=enabled).
       common_helm_repositories:
         type: list
         required: false
@@ -96,3 +111,13 @@ argument_specs:
             type: str
             required: true
             description: URL of the repository.
+      common_uv_install_script_checksum:
+        type: str
+        required: false
+        default: "10fb1f54d56f3eb60622006797339d4ea0bfda9b358d07db635f73cf89f7094c"
+        description: SHA256 checksum for uv install script verification.
+      common_helm_install_script_checksum:
+        type: str
+        required: false
+        default: "38b65f882d9cae3891755bdb03becc6a01ae6f9cb24826c191f219ddfee70a5d"
+        description: SHA256 checksum for Helm install script verification.

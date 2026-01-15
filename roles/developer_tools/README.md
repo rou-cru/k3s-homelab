@@ -35,6 +35,16 @@ Kubernetes CLIs (kubectl, helm, k9s), Python tools (uv, pipx), and AI CLIs.
   
   
 
+  - **devtools_install_vagrant**
+    - **Required**: False
+    - **Type**: bool
+    - **Default**: True
+  
+    - **Description**: Installs Vagrant for VM provisioning and testing.
+  
+  
+  
+
 
 
 </details>
