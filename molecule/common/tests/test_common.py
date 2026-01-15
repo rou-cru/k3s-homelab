@@ -12,6 +12,12 @@ COMMON_PACKAGES = [
 
 
 def test_common_packages_installed(host):
+    """
+    Verify that all packages listed in COMMON_PACKAGES are installed on the given host.
+    
+    Parameters:
+        host: Test host object used to query package installation status (e.g., a testinfra Host fixture).
+    """
     for package in COMMON_PACKAGES:
         assert host.package(package).is_installed, f"Package not installed: {package}"
 
