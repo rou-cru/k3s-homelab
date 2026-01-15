@@ -1,4 +1,3 @@
----
 # Title: Network Optimization
 # Description: Enables sysctl adjustments for network performance.
 # Type: bool
@@ -90,7 +89,6 @@ common_helm_repositories:
     repo_url: "https://helm.cilium.io/"
   - name: nvdp
     repo_url: "https://nvidia.github.io/k8s-device-plugin"
-
 # Title: UV install script checksum
 # Description: SHA256 for https://astral.sh/uv/install.sh (pin to avoid supply-chain drift).
 # Type: str

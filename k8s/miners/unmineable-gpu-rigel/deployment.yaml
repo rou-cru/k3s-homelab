@@ -1,4 +1,3 @@
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -50,16 +49,23 @@ spec:
                 configMapKeyRef:
                   name: unmineable-gpu-rigel-config
                   key: MINING_WORKER_NAME
-            - name: MINING_POOL
+            - name: MINING_POOL_HOST
               valueFrom:
                 configMapKeyRef:
-                  name: unmineable-gpu-rigel-config
-                  key: MINING_POOL
-            - name: MINING_PORT
+                  name: mining-pools
+                  key: KRYPTEX_XEL_HOST
+            - name: MINING_POOL_PORT
               valueFrom:
                 configMapKeyRef:
-                  name: unmineable-gpu-rigel-config
-                  key: MINING_PORT
+                  name: mining-pools
+                  key: KRYPTEX_XEL_PORT
+            - name: MINING_POOL_SCHEME
+              valueFrom:
+                configMapKeyRef:
+                  name: mining-pools
+                  key: KRYPTEX_XEL_SCHEME
+            - name: POOL_TYPE
+              value: "kryptex"
             - name: MINING_ALGO
               valueFrom:
                 configMapKeyRef:

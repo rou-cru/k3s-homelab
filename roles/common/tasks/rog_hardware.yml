@@ -1,8 +1,5 @@
----
 # ASUS RoG specific hardware configuration
-
 # ASUSCTL - ASUS specific hardware control (optional, disabled by default)
-
 # ROG HARDWARE TWEAKS - Low-level optimizations (always enabled)
 - name: Deploy RoG Hardware Tweaks Script
   ansible.builtin.template:

@@ -1,4 +1,3 @@
----
 argument_specs:
   main:
     short_description: Configures NVIDIA GPUs for K3s.
@@ -36,7 +35,6 @@ argument_specs:
       nvidia_gpu_device_plugin_version:
         type: str
         required: false
-        default: "0.18.1"
         description: Version of the NVIDIA device plugin Helm chart.
       nvidia_gpu_device_plugin_repo:
         type: str

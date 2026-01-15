@@ -1,18 +1,15 @@
----
 - name: Download GitHub CLI keyring
   ansible.builtin.get_url:
     url: https://cli.github.com/packages/githubcli-archive-keyring.gpg
     dest: /usr/share/keyrings/githubcli-archive-keyring.gpg
     mode: '0644'
     force: true
-
 - name: Verify GitHub CLI keyring fingerprint
   ansible.builtin.command: >-
     gpg --show-keys --with-colons /usr/share/keyrings/githubcli-archive-keyring.gpg
   register: githubcli_keyring_fingerprint
   changed_when: false
   when: not ansible_check_mode
-
 - name: Assert GitHub CLI keyring fingerprint
   ansible.builtin.assert:
     that:
@@ -21,15 +18,18 @@
   when:
     - not ansible_check_mode
     - githubcli_keyring_fingerprint is defined
-
 - name: Add GitHub CLI repository
   ansible.builtin.apt_repository:
     repo: >-
-      deb [arch={{ ansible_facts['architecture'] }} signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]
-      https://cli.github.com/packages stable main
+      {{
+
+
+        'deb [arch=' ~ ansible_facts['architecture'] ~
+        ' signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] ' ~
+        'https://cli.github.com/packages stable main'
+      }}
     filename: github-cli
     state: present
-
 - name: Install Python dependencies for K8s Ansible modules
   ansible.builtin.apt:
     name:

@@ -1,4 +1,3 @@
----
 argument_specs:
   main:
     short_description: System tuning and hardware optimization role for K3s homelab.

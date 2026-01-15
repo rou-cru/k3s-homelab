@@ -12,7 +12,7 @@
 
 # Log files
 *.log
-.task/*.log
+.task/*
 
 # Temporary files
 network_report.txt
@@ -43,3 +43,13 @@ k8s-manifests/
 secrets.yaml
 secrets.yml
 secrets.json
+
+# Molecule
+.molecule/
+molecule/**/.cache/
+molecule/**/pytest_cache/
+molecule/**/__pycache__/
+
+# Vagrant
+.vagrant/
+*.box

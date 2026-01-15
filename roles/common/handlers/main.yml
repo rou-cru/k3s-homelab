@@ -1,4 +1,3 @@
----
 - name: Restart logind
   ansible.builtin.service:
     name: systemd-logind

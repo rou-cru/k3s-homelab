@@ -1,4 +1,3 @@
----
 - name: Create temporary values file
   ansible.builtin.tempfile:
     state: file

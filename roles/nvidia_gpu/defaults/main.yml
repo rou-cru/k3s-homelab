@@ -1,4 +1,3 @@
----
 # Title: GPU Setup Mode
 # Description: Control mode for GPU setup ('auto', 'true', 'false').
 # Type: str

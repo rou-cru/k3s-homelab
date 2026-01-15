@@ -1,4 +1,3 @@
----
 - name: Install dev tools (apt)
   ansible.builtin.apt:
     name:
@@ -92,8 +91,17 @@
     - name: Add Docker repo
       ansible.builtin.apt_repository:
         repo: >-
-          deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg]
-          https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
+          {{
+            'deb [arch=' ~ (
+              'amd64' if ansible_facts['architecture'] == 'x86_64'
+              else 'arm64' if ansible_facts['architecture'] == 'aarch64'
+              else 'unsupported'
+            ) ~
+            ' signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] ' ~
+            'https://download.docker.com/linux/ubuntu ' ~
+            ansible_facts['distribution_release'] ~
+            ' stable'
+          }}
         state: present
         filename: docker
     - name: Install Docker CLI
@@ -115,3 +123,119 @@
     - name: Fail Docker installation
       ansible.builtin.fail:
         msg: "Docker installation failed"
+# Vagrant + libvirt (for Molecule testing)
+- name: Install Vagrant and libvirt
+  when: devtools_install_vagrant | default(true) | bool
+  block:
+    - name: Set HashiCorp repo release
+      ansible.builtin.set_fact:
+        hashicorp_repo_release: >-
+          {{ 'jammy' if ansible_facts['distribution_release'] == 'noble' else ansible_facts['distribution_release'] }}
+    - name: Set HashiCorp repo architecture
+      ansible.builtin.set_fact:
+        hashicorp_repo_arch: >-
+          {{
+            'amd64'
+            if ansible_facts['architecture'] == 'x86_64'
+            else 'arm64'
+            if ansible_facts['architecture'] == 'aarch64'
+            else 'unsupported'
+          }}
+    - name: Validate HashiCorp repo architecture
+      ansible.builtin.assert:
+        that:
+          - hashicorp_repo_arch != 'unsupported'
+        fail_msg: "Unsupported architecture for HashiCorp repo: {{ ansible_facts['architecture'] }}"
+    - name: Ensure APT keyrings dir (HashiCorp)
+      ansible.builtin.file:
+        path: /usr/share/keyrings
+        state: directory
+        mode: "0755"
+      check_mode: false
+    - name: Install HashiCorp keyring
+      ansible.builtin.shell: |
+        set -euo pipefail
+        curl -fsSL https://apt.releases.hashicorp.com/gpg | \
+          gpg --dearmor --batch --yes --no-tty -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+      args:
+        executable: /bin/bash
+        creates: /usr/share/keyrings/hashicorp-archive-keyring.gpg
+      check_mode: false
+    - name: Add HashiCorp APT repo
+      ansible.builtin.apt_repository:
+        repo: >-
+          {{
+
+
+            'deb [arch=' ~ hashicorp_repo_arch ~
+            ' signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] ' ~
+            'https://apt.releases.hashicorp.com ' ~
+            hashicorp_repo_release ~
+            ' main'
+          }}
+        state: present
+        filename: hashicorp
+      check_mode: false
+    - name: Install libvirt and dependencies
+      ansible.builtin.apt:
+        name:
+          - qemu-kvm
+          - libvirt-daemon-system
+          - libvirt-clients
+          - libvirt-dev
+          - bridge-utils
+          - virt-manager
+          - gcc
+          - make
+          - pkg-config
+          - ruby-dev
+          - libxml2-dev
+          - libxslt1-dev
+          - zlib1g-dev
+          - vagrant
+        state: present
+        update_cache: true
+    - name: Ensure libvirtd service is enabled and started
+      ansible.builtin.systemd:
+        name: libvirtd
+        enabled: true
+        state: started
+    - name: Add ansible_user to libvirt group
+      ansible.builtin.user:
+        name: "{{ ansible_user }}"
+        groups: libvirt
+        append: true
+    - name: Add root to libvirt group
+      ansible.builtin.user:
+        name: root
+        groups: libvirt
+        append: true
+    - name: Check installed Vagrant plugins
+      ansible.builtin.command: vagrant plugin list
+      register: vagrant_plugin_list
+      changed_when: false
+      check_mode: false
+      become: true
+      become_user: "{{ ansible_user }}"
+      ignore_errors: true
+    - name: Install vagrant-libvirt plugin
+      ansible.builtin.command: vagrant plugin install vagrant-libvirt
+      register: vagrant_plugin_result
+      changed_when: "'Installed the plugin' in vagrant_plugin_result.stdout"
+      become: true
+      become_user: "{{ ansible_user }}"
+      when:
+        - not ansible_check_mode
+        - vagrant_plugin_list.rc == 0
+        - "'vagrant-libvirt' not in vagrant_plugin_list.stdout"
+    - name: Show Vagrant installation success
+      ansible.builtin.debug:
+        msg: "✅ Vagrant + libvirt installed successfully"
+  rescue:
+    - name: Report Vagrant installation failure
+      ansible.builtin.debug:
+        msg: >-
+          Vagrant installation failed at {{ ansible_failed_task.name }}: {{ ansible_failed_result | to_nice_json }}
+    - name: Fail Vagrant installation
+      ansible.builtin.fail:
+        msg: "Vagrant installation failed"

@@ -1,4 +1,3 @@
----
 # Kernel optimization: CPU, networking, and system limits
 - name: Install performance tools
   ansible.builtin.apt:
