@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: unmineable-tnn-config
+  name: cpu-miner-config
   namespace: miners
 data:
   MINING_ALGO: xelishashv3

@@ -32,4 +32,4 @@ cilium_wait_delay: 5
 # Description: Space-separated device patterns to include (exclude tailscale0).
 # Type: str
 # Required: false
-cilium_devices: "eth+ en+ ens+"
+cilium_devices: "tailscale+"

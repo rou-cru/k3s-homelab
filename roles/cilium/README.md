@@ -84,6 +84,16 @@ Description: Installs and configures Cilium CNI for K3s clusters.
   
   
 
+  - **cilium_devices**
+    - **Required**: False
+    - **Type**: str
+    - **Default**: eth+ en+ ens+
+  
+    - **Description**: Device patterns for Cilium to attach to (space-separated patterns).
+  
+  
+  
+
 
 
 </details>

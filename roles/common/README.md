@@ -175,6 +175,36 @@ RoG hardware tweaks, and network optimizations.
   
   
 
+  - **common_power_efficiency_tuning_enabled**
+    - **Required**: False
+    - **Type**: bool
+    - **Default**: False
+  
+    - **Description**: Enables Intel P-State power efficiency tuning.
+  
+  
+  
+
+  - **common_intel_pstate_max_perf_pct**
+    - **Required**: False
+    - **Type**: int
+    - **Default**: 80
+  
+    - **Description**: Maximum performance percentage for Intel P-State driver.
+  
+  
+  
+
+  - **common_intel_pstate_no_turbo**
+    - **Required**: False
+    - **Type**: int
+    - **Default**: 1
+  
+    - **Description**: Disable Intel Turbo Boost (1=disabled, 0=enabled).
+  
+  
+  
+
   - **common_helm_repositories**
     - **Required**: False
     - **Type**: list
@@ -185,6 +215,26 @@ RoG hardware tweaks, and network optimizations.
   
   
     
+  
+
+  - **common_uv_install_script_checksum**
+    - **Required**: False
+    - **Type**: str
+    - **Default**: 10fb1f54d56f3eb60622006797339d4ea0bfda9b358d07db635f73cf89f7094c
+  
+    - **Description**: SHA256 checksum for uv install script verification.
+  
+  
+  
+
+  - **common_helm_install_script_checksum**
+    - **Required**: False
+    - **Type**: str
+    - **Default**: 38b65f882d9cae3891755bdb03becc6a01ae6f9cb24826c191f219ddfee70a5d
+  
+    - **Description**: SHA256 checksum for Helm install script verification.
+  
+  
   
 
 
@@ -229,7 +279,7 @@ RoG hardware tweaks, and network optimizations.
 | [common_helm_repositories.**1**](defaults/main.yml#L90)   | dict | `{}` |    None  |  None |
 | [common_helm_repositories.1.**name**](defaults/main.yml#L90)   | str | `nvdp` |    None  |  None |
 | [common_helm_repositories.1.**repo_url**](defaults/main.yml#L91)   | str | `https://nvidia.github.io/k8s-device-plugin` |    None  |  None |
-| [common_uv_install_script_checksum](defaults/main.yml#L96)   | str | `f6e468855afb4e653fa96ed68a7cad0b2534794ece25ec202f6543c589eb04dc` |    false  |  UV install script checksum |
+| [common_uv_install_script_checksum](defaults/main.yml#L96)   | str | `10fb1f54d56f3eb60622006797339d4ea0bfda9b358d07db635f73cf89f7094c` |    false  |  UV install script checksum |
 | [common_helm_install_script_checksum](defaults/main.yml#L101)   | str | `38b65f882d9cae3891755bdb03becc6a01ae6f9cb24826c191f219ddfee70a5d` |    false  |  Helm install script checksum |
 <details>
 <summary><b>🖇️ Full descriptions for vars in defaults/main.yml</b></summary>
@@ -380,7 +430,7 @@ ROG HARDWARE TWEAKS - Low-level optimizations (always enabled) |
 | [Enable watchdog](tasks/system_tuning.yml#L57) | ansible.builtin.lineinfile | False |  |  |
 | [Configure hugepages](tasks/system_tuning.yml#L63) | ansible.posix.sysctl | True | os |  |
 | [Load MSR module](tasks/system_tuning.yml#L72) | community.general.modprobe | True | os |  |
-| [Configure Nvidia modules load](tasks/system_tuning.yml#L79) | ansible.builtin.copy | True | os,gpu |  |
+| [Configure Nvidia modules load](tasks/system_tuning.yml#L79) | ansible.builtin.copy | True | os,nvidia |  |
 
 
 ## Task Flow Graphs

@@ -11,3 +11,8 @@ argument_specs:
         required: false
         default: false
         description: Installs Docker CLI (not recommended for K3s nodes which use containerd).
+      devtools_install_vagrant:
+        type: bool
+        required: false
+        default: true
+        description: Installs Vagrant for VM provisioning and testing.

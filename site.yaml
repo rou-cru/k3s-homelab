@@ -9,6 +9,11 @@
   vars_files:
     - "{{ secrets_file | default('secrets.yaml') }}"
   pre_tasks:
+    - name: Remove potential malformed NVIDIA source list
+      ansible.builtin.file:
+        path: /etc/apt/sources.list.d/nvidia-container-toolkit.list
+        state: absent
+      tags: always
     - name: Update APT cache
       ansible.builtin.apt:
         update_cache: true
@@ -48,7 +53,7 @@
     - name: Run glances monitoring
       ansible.builtin.import_role:
         name: glances
-      tags: ["host", "monitoring"]
+      tags: ["host", "os"]
     - name: Run common network optimizations
       ansible.builtin.import_role:
         name: common
@@ -60,45 +65,17 @@
         name: developer_tools
       tags: ["host", "os"]
       when: devtools_enabled | default(true) | bool
-    # NVIDIA GPU Host Setup - BEFORE K3s (drivers, toolkit, containerd runtime)
+    # NVIDIA GPU Host Setup - BEFORE K3s (drivers, toolkit, containerd runtime, X11)
     - name: Run NVIDIA GPU host role
       ansible.builtin.import_role:
         name: nvidia_gpu
         tasks_from: host.yml
       tags: ["host", "nvidia"]
       when: nvidia_gpu_setup_mode != 'false'
-    # NVIDIA GPU Headless Optimization - X11, persistence mode (host-only)
-    - name: Run NVIDIA GPU headless optimization
-      ansible.builtin.import_role:
-        name: nvidia_gpu
-        tasks_from: headless_optimization.yml
-      tags: ["host", "nvidia"]
-      when:
-        - nvidia_gpu_active | default(false) | bool
-        - nvidia_gpu_headless_enabled | default(true) | bool
-      ignore_errors: true
-      register: headless_result
-      failed_when: false
-    - name: Warn if NVIDIA headless optimization failed
-      ansible.builtin.debug:
-        msg: "WARNING: NVIDIA headless optimization encountered errors but continuing deployment"
-      when:
-        - headless_result is defined
-        - headless_result.failed | default(false)
-      tags: ["host", "nvidia"]
-    - name: Determine if NVIDIA GPU cluster setup should run
-      ansible.builtin.set_fact:
-        nvidia_gpu_cluster_enabled: >-
-          {{
 
+    - name: Flush host handlers before cluster init
+      ansible.builtin.meta: flush_handlers
 
-            (nvidia_gpu_setup_mode == 'true') or
-            (
-              (nvidia_gpu_active | default(false) | bool) and
-              (nvidia_gpu_setup_mode != 'false')
-            )
-          }}
-      tags: ["host", "cluster", "nvidia"]
     - name: Run tailscale role
       ansible.builtin.import_role:
         name: tailscale
@@ -128,8 +105,11 @@
         kubectl label node "${NODE_NAME}" {{ miner_control_plane_labels | join(' ') }} --overwrite
       args:
         executable: /bin/bash
+      environment:
+        KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
       when: miner_control_plane_labels | length > 0
       tags: ["cluster", "apps", "miners"]
+      become: false
     - name: Run cilium role
       ansible.builtin.import_role:
         name: cilium
@@ -141,7 +121,7 @@
         name: nvidia_gpu
         tasks_from: cluster.yml
       tags: ["cluster", "nvidia"]
-      when: nvidia_gpu_cluster_enabled | default(false) | bool
+      when: nvidia_gpu_active | default(false) | bool
       become: false
   post_tasks:
     - name: Clean remote manifests directory
@@ -161,6 +141,8 @@
     # --- NAMESPACES ---
     - name: Apply Namespaces
       ansible.builtin.command: kubectl apply -f {{ k8s_manifests_dir }}/namespaces/
+      environment:
+        KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
       register: namespaces_apply
       changed_when: "'configured' in namespaces_apply.stdout or 'created' in namespaces_apply.stdout"
       become: false
@@ -186,6 +168,8 @@
       no_log: true
     - name: Deploy Honeygain via Kustomize
       ansible.builtin.command: kubectl apply -k {{ k8s_manifests_dir }}/miners/honeygain/
+      environment:
+        KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
       register: honeygain_apply
       changed_when: "'configured' in honeygain_apply.stdout or 'created' in honeygain_apply.stdout"
       become: false
@@ -202,27 +186,38 @@
       no_log: true
     - name: Deploy Mining Secrets via Kustomize
       ansible.builtin.command: kubectl apply -k {{ k8s_manifests_dir }}/miners/mining-secrets/
+      environment:
+        KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
       register: mining_secrets_apply
       changed_when: "'configured' in mining_secrets_apply.stdout or 'created' in mining_secrets_apply.stdout"
       become: false
       tags: ["apps", "miners"]
+    # --- MINING POOLS ---
+    - name: Deploy Mining Pools ConfigMap via Kustomize
+      ansible.builtin.command: kubectl apply -k {{ k8s_manifests_dir }}/miners/mining-pools/
+      environment:
+        KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
+      register: mining_pools_apply
+      changed_when: "'configured' in mining_pools_apply.stdout or 'created' in mining_pools_apply.stdout"
+      become: false
+      tags: ["apps", "miners"]
     # --- UNMINEABLE CPU TNN ---
     - name: Deploy Unmineable CPU TNN via Kustomize
-      ansible.builtin.command: kubectl apply -k {{ k8s_manifests_dir }}/miners/unmineable-cpu-tnn/
+      ansible.builtin.command: kubectl apply -k {{ k8s_manifests_dir }}/miners/cpu-miner/
+      environment:
+        KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
       register: unmineable_cpu_tnn_apply
       changed_when: "'configured' in unmineable_cpu_tnn_apply.stdout or 'created' in unmineable_cpu_tnn_apply.stdout"
       become: false
-      tags: ["apps", "miners", "unmineable-cpu-tnn"]
+      tags: ["apps", "miners", "cpu-miner"]
     # --- UNMINEABLE GPU RIGEL ---
-    - name: Determine if GPU mining is enabled
-      ansible.builtin.set_fact:
-        gpu_mining_enabled: "{{ nvidia_gpu_cluster_enabled | default(false) | bool }}"
-      tags: ["apps", "nvidia"]
     - name: Deploy Unmineable GPU Rigel via Kustomize
-      ansible.builtin.command: kubectl apply -k {{ k8s_manifests_dir }}/miners/unmineable-gpu-rigel/
+      ansible.builtin.command: kubectl apply -k {{ k8s_manifests_dir }}/miners/gpu-miner/
+      environment:
+        KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
       register: unmineable_gpu_rigel_apply
       changed_when: >-
         'configured' in unmineable_gpu_rigel_apply.stdout or 'created' in unmineable_gpu_rigel_apply.stdout
-      when: gpu_mining_enabled
+      when: nvidia_gpu_active | default(false) | bool
       become: false
-      tags: ["apps", "miners", "unmineable-gpu-rigel"]
+      tags: ["apps", "miners", "gpu-miner"]
