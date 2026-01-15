@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: unmineable-gpu-rigel-config
+  name: gpu-miner-config
   namespace: miners
 data:
   MINING_ALGO: xelishashv3

@@ -8,7 +8,7 @@ socketLB:
   enabled: true
   hostNamespaceOnly: true
 
-devices: "{{ cilium_devices | default('eth+ en+ ens+') }}"
+devices: "{{ cilium_devices }}"
 
 gatewayAPI:
   enabled: true
@@ -74,6 +74,11 @@ ipam:
     clusterPoolIPv4MaskSize: 24
 
 routingMode: "tunnel"
+
+tunnelProtocol: "vxlan"
+
+# Explicit MTU for Tailscale (1280) - VXLAN (50) = 1230
+mtu: 1230
 
 endpointHealthChecking:
   enabled: true

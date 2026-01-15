@@ -203,16 +203,16 @@
       tags: ["apps", "miners"]
     # --- UNMINEABLE CPU TNN ---
     - name: Deploy Unmineable CPU TNN via Kustomize
-      ansible.builtin.command: kubectl apply -k {{ k8s_manifests_dir }}/miners/unmineable-cpu-tnn/
+      ansible.builtin.command: kubectl apply -k {{ k8s_manifests_dir }}/miners/cpu-miner/
       environment:
         KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
       register: unmineable_cpu_tnn_apply
       changed_when: "'configured' in unmineable_cpu_tnn_apply.stdout or 'created' in unmineable_cpu_tnn_apply.stdout"
       become: false
-      tags: ["apps", "miners", "unmineable-cpu-tnn"]
+      tags: ["apps", "miners", "cpu-miner"]
     # --- UNMINEABLE GPU RIGEL ---
     - name: Deploy Unmineable GPU Rigel via Kustomize
-      ansible.builtin.command: kubectl apply -k {{ k8s_manifests_dir }}/miners/unmineable-gpu-rigel/
+      ansible.builtin.command: kubectl apply -k {{ k8s_manifests_dir }}/miners/gpu-miner/
       environment:
         KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
       register: unmineable_gpu_rigel_apply
@@ -220,4 +220,4 @@
         'configured' in unmineable_gpu_rigel_apply.stdout or 'created' in unmineable_gpu_rigel_apply.stdout
       when: nvidia_gpu_active | default(false) | bool
       become: false
-      tags: ["apps", "miners", "unmineable-gpu-rigel"]
+      tags: ["apps", "miners", "gpu-miner"]

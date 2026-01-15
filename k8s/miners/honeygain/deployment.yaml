@@ -39,7 +39,6 @@ spec:
                 name: honeygain-config
             - secretRef:
                 name: honeygain-secret
-          command: ["honeygain"]
           args:
             - "-tou-accept"
             - "-email"
