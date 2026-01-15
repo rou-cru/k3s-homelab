@@ -1,15 +1,19 @@
+# Centralized configuration for cryptocurrency mining pools
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: mining-pools
   namespace: miners
 data:
+  # Kryptex pool configuration for XEL (Elastic) cryptocurrency
   KRYPTEX_XEL_HOST: xel-us.kryptex.network
   KRYPTEX_XEL_PORT: "7019"
   KRYPTEX_XEL_SCHEME: stratum+tcp
+  # Unmineable pool for Autolykos algorithm (ERG/Conflux)
   UNMINEABLE_AUTOLYKOS_HOST: autolykos.unmineable.com
   UNMINEABLE_AUTOLYKOS_PORT: "3333"
   UNMINEABLE_AUTOLYKOS_SCHEME: stratum+ssl
+  # Unmineable pool for XelisHash algorithm
   UNMINEABLE_XELISHASH_HOST: xelishash.unmineable.com
   UNMINEABLE_XELISHASH_PORT: "3333"
   UNMINEABLE_XELISHASH_SCHEME: stratum+ssl

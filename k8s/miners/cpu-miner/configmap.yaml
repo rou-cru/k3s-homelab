@@ -1,13 +1,21 @@
+# CPU miner configuration for XEL cryptocurrency mining
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: cpu-miner-config
   namespace: miners
 data:
+  # XelisHash algorithm optimized for CPU mining
   MINING_ALGO: xelishashv3
+  # Target cryptocurrency (Elastic - XEL)
   MINING_COIN: XEL
+  # Referral code for mining pool rewards
   REFERRAL_CODE: 18ps-7t5s
+  # Worker identification for pool statistics
   MINING_WORKER_NAME: home-miner
+  # Number of CPU threads allocated for mining
   MINING_THREADS: "8"
+  # CPU core affinity mask (hexadecimal) for optimal performance
   CPU_AFFINITY_MASK: "0x00FF0000"
+  # Developer fee percentage for mining software
   DEV_FEE: "1.0"

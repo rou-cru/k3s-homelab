@@ -115,7 +115,7 @@ Description: Installs and configures Cilium CNI for K3s clusters.
 | [cilium_rollout_timeout](defaults/main.yml#L20)   | int | `300` |    false  |  Rollout Timeout |
 | [cilium_wait_retries](defaults/main.yml#L25)   | int | `60` |    false  |  Wait Retries |
 | [cilium_wait_delay](defaults/main.yml#L30)   | int | `5` |    false  |  Wait Delay |
-| [cilium_devices](defaults/main.yml#L35)   | str | `eth+ en+ ens+` |    false  |  Cilium devices |
+| [cilium_devices](defaults/main.yml#L35)   | str | `tailscale+` |    false  |  Cilium devices |
 <details>
 <summary><b>🖇️ Full descriptions for vars in defaults/main.yml</b></summary>
 <br>
@@ -141,15 +141,15 @@ Description: Installs and configures Cilium CNI for K3s clusters.
 
 #### File: tasks/main.yml
 
-| Name | Module | Has Conditions |
-| ---- | ------ | -------------- |
-| [Create temporary values file](tasks/main.yml#L1) | ansible.builtin.tempfile | False |
-| [Ensure Cilium Helm repo](tasks/main.yml#L7) | ansible.builtin.command | False |
-| [Template Cilium values file](tasks/main.yml#L12) | ansible.builtin.template | False |
-| [Install Cilium via Helm](tasks/main.yml#L18) | kubernetes.core.helm | False |
-| [Wait for Cilium DaemonSet to be created](tasks/main.yml#L29) | ansible.builtin.command | False |
-| [Wait for cilium pods](tasks/main.yml#L38) | ansible.builtin.command | False |
-| [Remove temporary values file](tasks/main.yml#L46) | ansible.builtin.file | False |
+| Name | Module | Has Conditions | Comments |
+| ---- | ------ | -------------- | -------- |
+| [Create temporary values file](tasks/main.yml#L2) | ansible.builtin.tempfile | False | Create temporary file for Cilium Helm values configuration |
+| [Ensure Cilium Helm repo](tasks/main.yml#L9) | ansible.builtin.command | False | Add Cilium Helm repository for CNI installation |
+| [Template Cilium values file](tasks/main.yml#L15) | ansible.builtin.template | False | Generate Cilium configuration from Jinja2 template |
+| [Install Cilium via Helm](tasks/main.yml#L22) | kubernetes.core.helm | False | Deploy Cilium CNI using Helm with custom configuration |
+| [Wait for Cilium DaemonSet to be created](tasks/main.yml#L34) | ansible.builtin.command | False | Verify Cilium DaemonSet creation before proceeding |
+| [Wait for cilium pods](tasks/main.yml#L44) | ansible.builtin.command | False | Wait for Cilium pods to be ready across all nodes |
+| [Remove temporary values file](tasks/main.yml#L53) | ansible.builtin.file | False | Clean up temporary configuration file |
 
 
 ## Task Flow Graphs

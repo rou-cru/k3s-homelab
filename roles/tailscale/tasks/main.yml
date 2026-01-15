@@ -1,3 +1,4 @@
+# Download Tailscale installation script with checksum verification
 - name: Install Tailscale
   ansible.builtin.get_url:
     url: https://tailscale.com/install.sh
@@ -5,22 +6,26 @@
     mode: "0755"
     checksum: "sha256:{{ tailscale_install_script_checksum }}"
     timeout: 60
+# Execute Tailscale installation script if not already installed
 - name: Run Tailscale installer
   ansible.builtin.command: /tmp/tailscale-install.sh
   args:
     creates: /usr/sbin/tailscaled
+# Enable and start Tailscale daemon service
 - name: Start tailscaled
   ansible.builtin.systemd:
     name: tailscaled
     enabled: true
     state: started
   ignore_errors: "{{ ansible_check_mode }}"
+# Check current Tailscale connection status in JSON format
 - name: Check status
   ansible.builtin.command: tailscale status --json
   register: tailscale_status_json
   changed_when: false
   failed_when: false
   check_mode: false
+# Determine if Tailscale is actively running and connected
 - name: Determine state
   ansible.builtin.set_fact:
     # Check if BackendState is Running and Self.Online is true
@@ -31,6 +36,7 @@
         tailscale_status_json.rc == 0 and
         (tailscale_status_json.stdout | from_json).BackendState == 'Running'
       }}
+# Configure Tailscale with authentication and custom settings
 - name: Configure Tailscale
   ansible.builtin.shell: |
     tailscale up \
@@ -46,6 +52,7 @@
   # Execute if NOT running (repair) OR if we suspect drift (can be improved later)
   when: not tailscale_is_running | bool
   changed_when: tailscale_up.rc == 0
+# Wait for Tailscale to assign valid 100.x.x.x IP address
 - name: Wait for IP
   ansible.builtin.shell: |
     set -o pipefail
@@ -61,10 +68,12 @@
     - (tailscale_ip_cmd.stdout | trim is regex('^100\.'))
   retries: 20
   delay: 3
+# Store Tailscale IP address as ansible fact for other roles
 - name: Set IP fact
   ansible.builtin.set_fact:
     tailscale_ip: >-
       {{ (tailscale_ip_cmd.stdout_lines | default([])) | first | default(tailscale_ip_cmd.stdout | trim) }}
+# Test SSH connectivity through Tailscale network
 - name: Validate connectivity
   ansible.builtin.wait_for:
     host: "{{ tailscale_ip }}"
@@ -72,6 +81,7 @@
     timeout: 10
   ignore_errors: true
   register: tailscale_connectivity_check
+# Display warning if Tailscale connectivity test fails
 - name: Warn connectivity
   ansible.builtin.debug:
     msg: "⚠️  Tailscale connectivity failed: {{ tailscale_ip }}:22"

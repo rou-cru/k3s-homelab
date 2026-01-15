@@ -338,13 +338,13 @@ RoG hardware tweaks, and network optimizations.
 
 #### File: tasks/dependencies.yml
 
-| Name | Module | Has Conditions |
-| ---- | ------ | -------------- |
-| [Download GitHub CLI keyring](tasks/dependencies.yml#L1) | ansible.builtin.get_url | False |
-| [Verify GitHub CLI keyring fingerprint](tasks/dependencies.yml#L7) | ansible.builtin.command | True |
-| [Assert GitHub CLI keyring fingerprint](tasks/dependencies.yml#L13) | ansible.builtin.assert | True |
-| [Add GitHub CLI repository](tasks/dependencies.yml#L21) | ansible.builtin.apt_repository | False |
-| [Install Python dependencies for K8s Ansible modules](tasks/dependencies.yml#L33) | ansible.builtin.apt | False |
+| Name | Module | Has Conditions | Comments |
+| ---- | ------ | -------------- | -------- |
+| [Download GitHub CLI keyring](tasks/dependencies.yml#L2) | ansible.builtin.get_url | False | Download and verify GitHub CLI repository keyring for secure package installation |
+| [Verify GitHub CLI keyring fingerprint](tasks/dependencies.yml#L9) | ansible.builtin.command | True | Verify GPG key fingerprint for GitHub CLI repository security |
+| [Assert GitHub CLI keyring fingerprint](tasks/dependencies.yml#L16) | ansible.builtin.assert | True | Ensure GitHub CLI keyring matches expected fingerprint for security |
+| [Add GitHub CLI repository](tasks/dependencies.yml#L25) | ansible.builtin.apt_repository | False | Add GitHub CLI repository with signed-by option for package verification |
+| [Install Python dependencies for K8s Ansible modules](tasks/dependencies.yml#L38) | ansible.builtin.apt | False | Install Python modules for Kubernetes Ansible integration and development tools |
 
 #### File: tasks/hardware_tuning.yml
 
@@ -366,37 +366,38 @@ RoG hardware tweaks, and network optimizations.
 
 #### File: tasks/main.yml
 
-| Name | Module | Has Conditions |
-| ---- | ------ | -------------- |
-| [Disable swap](tasks/main.yml#L1) | ansible.builtin.command | True |
-| [Disable swap (fstab)](tasks/main.yml#L5) | ansible.builtin.replace | False |
-| [Detect Ubuntu version](tasks/main.yml#L10) | ansible.builtin.set_fact | False |
-| [Define kernel package](tasks/main.yml#L13) | ansible.builtin.set_fact | True |
-| [Install system base tools](tasks/main.yml#L17) | ansible.builtin.apt | False |
-| [Install dependencies](tasks/main.yml#L28) | ansible.builtin.include_tasks | False |
-| [Install HWE kernel](tasks/main.yml#L30) | ansible.builtin.apt | True |
-| [Install generic kernel](tasks/main.yml#L37) | ansible.builtin.apt | True |
-| [Register kernel change](tasks/main.yml#L43) | ansible.builtin.set_fact | False |
-| [Configure power](tasks/main.yml#L52) | ansible.builtin.include_tasks | False |
-| [Apply hardware tuning](tasks/main.yml#L54) | ansible.builtin.include_tasks | False |
-| [System Tuning](tasks/main.yml#L56) | ansible.builtin.include_tasks | False |
-| [Install Cloud-Native Binaries](tasks/main.yml#L58) | ansible.builtin.include_tasks | False |
-| [Setup Helm Repos](tasks/main.yml#L60) | ansible.builtin.include_tasks | False |
+| Name | Module | Has Conditions | Comments |
+| ---- | ------ | -------------- | -------- |
+| [Disable swap](tasks/main.yml#L2) | ansible.builtin.command | True | Disable swap to meet K3s requirements - Kubernetes doesn't support swap |
+| [Disable swap (fstab)](tasks/main.yml#L7) | ansible.builtin.replace | False | Permanently disable swap by commenting out fstab entries |
+| [Detect Ubuntu version](tasks/main.yml#L13) | ansible.builtin.set_fact | False | Store Ubuntu version for kernel package selection |
+| [Define kernel package](tasks/main.yml#L17) | ansible.builtin.set_fact | True | Use HWE kernel for better hardware support on Ubuntu 20.04-24.04 |
+| [Install system base tools](tasks/main.yml#L22) | ansible.builtin.apt | False | Install essential system tools for K3s and networking |
+| [Install dependencies](tasks/main.yml#L34) | ansible.builtin.include_tasks | False | Install additional system dependencies |
+| [Install HWE kernel](tasks/main.yml#L37) | ansible.builtin.apt | True | Install Hardware Enablement kernel for newer hardware support |
+| [Install generic kernel](tasks/main.yml#L45) | ansible.builtin.apt | True | Fallback to generic kernel if HWE installation fails or unavailable |
+| [Register kernel change](tasks/main.yml#L52) | ansible.builtin.set_fact | False | Track if kernel was changed to trigger reboot later |
+| [Configure power](tasks/main.yml#L62) | ansible.builtin.include_tasks | False | Configure power management settings |
+| [Apply hardware tuning](tasks/main.yml#L65) | ansible.builtin.include_tasks | False | Apply hardware-specific optimizations |
+| [System Tuning](tasks/main.yml#L68) | ansible.builtin.include_tasks | False | Apply system-level performance tuning |
+| [Install Cloud-Native Binaries](tasks/main.yml#L71) | ansible.builtin.include_tasks | False | Install Kubernetes and container tools |
+| [Setup Helm Repos](tasks/main.yml#L74) | ansible.builtin.include_tasks | False | Configure Helm chart repositories |
 
 #### File: tasks/network_optimization.yml
 
 | Name | Module | Has Conditions | Comments |
 | ---- | ------ | -------------- | -------- |
-| [Realtek optimizations](tasks/network_optimization.yml#L2) | block | True | Network optimization: Realtek drivers and network configuration |
-| [Install Realtek driver](tasks/network_optimization.yml#L5) | ansible.builtin.apt | False |  |
-| [Blacklist generic driver](tasks/network_optimization.yml#L10) | ansible.builtin.copy | False |  |
-| [Ensure pcie_aspm=off in GRUB](tasks/network_optimization.yml#L17) | ansible.builtin.replace | False |  |
-| [Update GRUB](tasks/network_optimization.yml#L23) | ansible.builtin.command | True |  |
-| [Register driver change](tasks/network_optimization.yml#L27) | ansible.builtin.set_fact | False |  |
-| [Detect primary ethernet interface](tasks/network_optimization.yml#L41) | ansible.builtin.set_fact | True |  |
-| [Deploy optimization script](tasks/network_optimization.yml#L45) | ansible.builtin.template | False |  |
-| [Deploy optimization service](tasks/network_optimization.yml#L50) | ansible.builtin.copy | False |  |
-| [Start optimization service](tasks/network_optimization.yml#L55) | ansible.builtin.systemd | False |  |
+| [Realtek optimizations](tasks/network_optimization.yml#L3) | block | True | Network optimization: Realtek drivers and network configuration
+Optimize Realtek network drivers for ASUS RoG hardware |
+| [Install Realtek driver](tasks/network_optimization.yml#L7) | ansible.builtin.apt | False | Install optimized Realtek r8168 driver for better performance |
+| [Blacklist generic driver](tasks/network_optimization.yml#L13) | ansible.builtin.copy | False | Prevent r8169 generic driver from loading to avoid conflicts |
+| [Ensure pcie_aspm=off in GRUB](tasks/network_optimization.yml#L21) | ansible.builtin.replace | False | Disable PCIe Active State Power Management for network stability |
+| [Update GRUB](tasks/network_optimization.yml#L28) | ansible.builtin.command | True | Apply GRUB configuration changes for next boot |
+| [Register driver change](tasks/network_optimization.yml#L33) | ansible.builtin.set_fact | False | Track if network driver changes require reboot |
+| [Detect primary ethernet interface](tasks/network_optimization.yml#L49) | ansible.builtin.set_fact | True | Identify primary network interface for optimization targeting |
+| [Deploy optimization script](tasks/network_optimization.yml#L54) | ansible.builtin.template | False | Deploy network optimization script with interface-specific settings |
+| [Deploy optimization service](tasks/network_optimization.yml#L60) | ansible.builtin.copy | False | Install systemd service for network optimization at boot |
+| [Start optimization service](tasks/network_optimization.yml#L66) | ansible.builtin.systemd | False | Enable and start network optimization service |
 
 #### File: tasks/power_management.yml
 

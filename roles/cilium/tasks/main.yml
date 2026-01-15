@@ -1,20 +1,24 @@
+# Create temporary file for Cilium Helm values configuration
 - name: Create temporary values file
   ansible.builtin.tempfile:
     state: file
     suffix: "-cilium-values.yaml"
   register: cilium_values_tmp
   check_mode: no
+# Add Cilium Helm repository for CNI installation
 - name: Ensure Cilium Helm repo
   ansible.builtin.command: helm repo add cilium https://helm.cilium.io/
   register: cilium_repo_add
   changed_when: "'has been added' in cilium_repo_add.stdout"
   failed_when: cilium_repo_add.rc != 0 and 'exists' not in cilium_repo_add.stderr
+# Generate Cilium configuration from Jinja2 template
 - name: Template Cilium values file
   ansible.builtin.template:
     src: cilium-values.yaml.j2
     dest: "{{ cilium_values_tmp.path }}"
     mode: "0600"
   check_mode: no
+# Deploy Cilium CNI using Helm with custom configuration
 - name: Install Cilium via Helm
   kubernetes.core.helm:
     release_name: cilium
@@ -25,7 +29,8 @@
       - "{{ cilium_values_tmp.path }}"
     chart_version: "{{ cilium_version }}"
     kubeconfig: "/home/{{ ansible_user }}/.kube/config"
-    update_repo_cache: true # Good practice to update cache once per install just in case
+    update_repo_cache: true # Ensure latest chart information
+# Verify Cilium DaemonSet creation before proceeding
 - name: Wait for Cilium DaemonSet to be created
   ansible.builtin.command: kubectl -n {{ cilium_namespace }} get ds cilium
   register: cilium_ds_check
@@ -35,6 +40,7 @@
   changed_when: false
   environment:
     KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
+# Wait for Cilium pods to be ready across all nodes
 - name: Wait for cilium pods
   ansible.builtin.command: >-
     kubectl -n {{ cilium_namespace }} rollout status ds/cilium --timeout="{{ cilium_rollout_timeout }}s"
@@ -43,6 +49,7 @@
   failed_when: cilium_rollout.rc != 0
   environment:
     KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
+# Clean up temporary configuration file
 - name: Remove temporary values file
   ansible.builtin.file:
     path: "{{ cilium_values_tmp.path }}"

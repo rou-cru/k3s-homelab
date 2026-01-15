@@ -1,19 +1,24 @@
+# Disable swap to meet K3s requirements - Kubernetes doesn't support swap
 - name: Disable swap
   ansible.builtin.command: swapoff -a
   changed_when: true
   when: ansible_facts['swaptotal_mb'] > 0
+# Permanently disable swap by commenting out fstab entries
 - name: Disable swap (fstab)
   ansible.builtin.replace:
     path: /etc/fstab
     regexp: "^(.*\\sswap\\s.*)$"
     replace: "# \\1"
+# Store Ubuntu version for kernel package selection
 - name: Detect Ubuntu version
   ansible.builtin.set_fact:
     ubuntu_version: "{{ ansible_facts['distribution_version'] }}"
+# Use HWE kernel for better hardware support on Ubuntu 20.04-24.04
 - name: Define kernel package
   ansible.builtin.set_fact:
     hwe_kernel_package: "linux-generic-hwe-{{ ubuntu_version }}"
   when: ubuntu_version is version('20.04', '>=') and ubuntu_version is version('24.04', '<=')
+# Install essential system tools for K3s and networking
 - name: Install system base tools
   ansible.builtin.apt:
     name:
@@ -25,8 +30,10 @@
       - acpid
       - rsync
     state: present
+# Install additional system dependencies
 - name: Install dependencies
   ansible.builtin.include_tasks: dependencies.yml
+# Install Hardware Enablement kernel for newer hardware support
 - name: Install HWE kernel
   ansible.builtin.apt:
     name: "{{ hwe_kernel_package }}"
@@ -34,12 +41,14 @@
   when: hwe_kernel_package is defined
   register: common_hwe_kernel_install
   ignore_errors: true
+# Fallback to generic kernel if HWE installation fails or unavailable
 - name: Install generic kernel
   ansible.builtin.apt:
     name: linux-generic
     state: present
   when: common_hwe_kernel_install is failed or hwe_kernel_package is not defined
   register: common_generic_kernel_install
+# Track if kernel was changed to trigger reboot later
 - name: Register kernel change
   ansible.builtin.set_fact:
     common_kernel_changed: >-
@@ -49,13 +58,18 @@
         (common_hwe_kernel_install.changed | default(false))
         or (common_generic_kernel_install.changed | default(false))
       }}
+# Configure power management settings
 - name: Configure power
   ansible.builtin.include_tasks: power_management.yml
+# Apply hardware-specific optimizations
 - name: Apply hardware tuning
   ansible.builtin.include_tasks: hardware_tuning.yml
+# Apply system-level performance tuning
 - name: System Tuning
   ansible.builtin.include_tasks: system_tuning.yml
+# Install Kubernetes and container tools
 - name: Install Cloud-Native Binaries
   ansible.builtin.include_tasks: binaries.yml
+# Configure Helm chart repositories
 - name: Setup Helm Repos
   ansible.builtin.include_tasks: helm_setup.yml

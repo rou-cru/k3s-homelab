@@ -132,18 +132,18 @@ settings like DNS acceptance and SSH access.
 
 #### File: tasks/main.yml
 
-| Name | Module | Has Conditions |
-| ---- | ------ | -------------- |
-| [Install Tailscale](tasks/main.yml#L1) | ansible.builtin.get_url | False |
-| [Run Tailscale installer](tasks/main.yml#L8) | ansible.builtin.command | False |
-| [Start tailscaled](tasks/main.yml#L12) | ansible.builtin.systemd | False |
-| [Check status](tasks/main.yml#L18) | ansible.builtin.command | False |
-| [Determine state](tasks/main.yml#L24) | ansible.builtin.set_fact | False |
-| [Configure Tailscale](tasks/main.yml#L34) | ansible.builtin.shell | True |
-| [Wait for IP](tasks/main.yml#L49) | ansible.builtin.shell | False |
-| [Set IP fact](tasks/main.yml#L64) | ansible.builtin.set_fact | False |
-| [Validate connectivity](tasks/main.yml#L68) | ansible.builtin.wait_for | False |
-| [Warn connectivity](tasks/main.yml#L75) | ansible.builtin.debug | True |
+| Name | Module | Has Conditions | Comments |
+| ---- | ------ | -------------- | -------- |
+| [Install Tailscale](tasks/main.yml#L2) | ansible.builtin.get_url | False | Download Tailscale installation script with checksum verification |
+| [Run Tailscale installer](tasks/main.yml#L10) | ansible.builtin.command | False | Execute Tailscale installation script if not already installed |
+| [Start tailscaled](tasks/main.yml#L15) | ansible.builtin.systemd | False | Enable and start Tailscale daemon service |
+| [Check status](tasks/main.yml#L22) | ansible.builtin.command | False | Check current Tailscale connection status in JSON format |
+| [Determine state](tasks/main.yml#L29) | ansible.builtin.set_fact | False | Determine if Tailscale is actively running and connected |
+| [Configure Tailscale](tasks/main.yml#L40) | ansible.builtin.shell | True | Configure Tailscale with authentication and custom settings |
+| [Wait for IP](tasks/main.yml#L56) | ansible.builtin.shell | False | Wait for Tailscale to assign valid 100.x.x.x IP address |
+| [Set IP fact](tasks/main.yml#L72) | ansible.builtin.set_fact | False | Store Tailscale IP address as ansible fact for other roles |
+| [Validate connectivity](tasks/main.yml#L77) | ansible.builtin.wait_for | False | Test SSH connectivity through Tailscale network |
+| [Warn connectivity](tasks/main.yml#L85) | ansible.builtin.debug | True | Display warning if Tailscale connectivity test fails |
 
 
 ## Task Flow Graphs

@@ -1,3 +1,4 @@
+# CPU cryptocurrency miner deployment using host network for optimal performance
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -8,7 +9,7 @@ metadata:
 spec:
   replicas: 1
   strategy:
-    type: Recreate
+    type: Recreate  # Ensure clean restart without overlapping instances
   selector:
     matchLabels:
       app: cpu-miner
@@ -17,68 +18,80 @@ spec:
       labels:
         app: cpu-miner
     spec:
-      hostNetwork: true
+      hostNetwork: true  # Use host network for direct hardware access
       dnsPolicy: ClusterFirstWithHostNet
       containers:
         - name: cpu-miner
           image: roucru/k3s-cpu-miner:tnn
           imagePullPolicy: Always
           securityContext:
-            privileged: true
-            runAsUser: 0
+            privileged: true  # Required for CPU affinity and MSR access
+            runAsUser: 0  # Run as root for hardware control
           env:
+            # Mining pool configuration from centralized ConfigMap
             - name: MINING_POOL_HOST
               valueFrom:
                 configMapKeyRef:
                   name: mining-pools
                   key: KRYPTEX_XEL_HOST
+            # Pool port for XEL cryptocurrency mining
             - name: MINING_POOL_PORT
               valueFrom:
                 configMapKeyRef:
                   name: mining-pools
                   key: KRYPTEX_XEL_PORT
+            # Connection scheme (stratum) for mining pool
             - name: MINING_POOL_SCHEME
               valueFrom:
                 configMapKeyRef:
                   name: mining-pools
                   key: KRYPTEX_XEL_SCHEME
+            # Mining algorithm configuration (RandomX for CPU)
             - name: MINING_ALGO
               valueFrom:
                 configMapKeyRef:
                   name: cpu-miner-config
                   key: MINING_ALGO
+            # Target cryptocurrency for mining (XEL)
             - name: MINING_COIN
               valueFrom:
                 configMapKeyRef:
                   name: cpu-miner-config
                   key: MINING_COIN
+            # Referral code for mining pool rewards
             - name: REFERRAL_CODE
               valueFrom:
                 configMapKeyRef:
                   name: cpu-miner-config
                   key: REFERRAL_CODE
+            # Worker identification for pool statistics
             - name: MINING_WORKER_NAME
               valueFrom:
                 configMapKeyRef:
                   name: cpu-miner-config
                   key: MINING_WORKER_NAME
+            # Mining pool type identifier
             - name: POOL_TYPE
               value: "kryptex"
+            # CPU thread allocation for mining
             - name: MINING_THREADS
               valueFrom:
                 configMapKeyRef:
                   name: cpu-miner-config
                   key: MINING_THREADS
+            # CPU core affinity mask for optimal performance
             - name: CPU_AFFINITY_MASK
               valueFrom:
                 configMapKeyRef:
                   name: cpu-miner-config
                   key: CPU_AFFINITY_MASK
+            # Developer fee percentage for mining software
             - name: DEV_FEE
               valueFrom:
                 configMapKeyRef:
                   name: cpu-miner-config
                   key: DEV_FEE
+            # Wallet address for mining rewards from secure Secret
             - name: WALLET_ADDRESS
               valueFrom:
                 secretKeyRef:
@@ -86,18 +99,18 @@ spec:
                   key: XEL_WALLET
           resources:
             requests:
-              cpu: "8"
+              cpu: "8"  # Reserve 8 CPU cores for mining
               memory: 3Gi
-              hugepages-2Mi: 2560Mi
+              hugepages-2Mi: 2560Mi  # Allocate hugepages for RandomX algorithm
             limits:
-              cpu: "8"
+              cpu: "8"  # Limit to 8 CPU cores to prevent system overload
               memory: 3Gi
               hugepages-2Mi: 2560Mi
           volumeMounts:
             - name: dev-cpu
-              mountPath: /dev/cpu
+              mountPath: /dev/cpu  # Access CPU devices for affinity control
             - name: hugepages
-              mountPath: /dev/hugepages
+              mountPath: /dev/hugepages  # Mount hugepages for mining performance
       volumes:
         - name: dev-cpu
           hostPath:
@@ -105,4 +118,4 @@ spec:
             type: Directory
         - name: hugepages
           emptyDir:
-            medium: HugePages-2Mi
+            medium: HugePages-2Mi  # Pre-allocate hugepages for RandomX mining
