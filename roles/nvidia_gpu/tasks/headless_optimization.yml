@@ -1,5 +1,5 @@
 - name: NVIDIA GPU headless optimization setup
-  tags: ["nvidia", "gpu", "nvidia-headless"]
+  tags: ["nvidia"]
   when: nvidia_gpu_active | default(false) | bool
   block:
     - name: Install X11 deps

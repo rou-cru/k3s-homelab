@@ -48,7 +48,7 @@
     - name: Run glances monitoring
       ansible.builtin.import_role:
         name: glances
-      tags: ["host", "monitoring"]
+      tags: ["host", "os"]
     - name: Run common network optimizations
       ansible.builtin.import_role:
         name: common

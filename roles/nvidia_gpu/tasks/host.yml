@@ -16,18 +16,10 @@
       ansible.builtin.shell: cat /sys/bus/pci/devices/*/vendor
       register: pci_vendor_ids_output
       changed_when: false
-    - name: Debug PCI Vendors
+    - name: Debug NVIDIA facts
       ansible.builtin.debug:
-        msg: >-
-          Found PCI Vendors: {{
-            pci_vendor_ids_output.stdout_lines
-            | default([])
-            | map('trim')
-            | map('lower')
-            | list
-          }}
-        verbosity: 1
-      tags: ["host", "nvidia", "debug"]
+        msg: "Setup: {{ nvidia_gpu_setup_mode }}, Active: {{ nvidia_gpu_active }}"
+      tags: ["host", "nvidia"]
     - name: Detect GPU
       ansible.builtin.set_fact:
         nvidia_gpu_present: >-
