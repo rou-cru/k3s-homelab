@@ -51,7 +51,7 @@
       when: nvidia_gpu_headless_x11_enabled | default(true) | bool
     - name: Wait for X server
       ansible.builtin.wait_for:
-        path: /tmp/.X0-lock
+        path: /tmp/.X1-lock
         timeout: 30
       when: nvidia_gpu_headless_x11_enabled | default(true) | bool
   rescue:
