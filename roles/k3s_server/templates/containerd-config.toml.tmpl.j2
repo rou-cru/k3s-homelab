@@ -1,0 +1,32 @@
+version = 2
+
+[plugins]
+[plugins."io.containerd.grpc.v1.cri"]
+[plugins."io.containerd.grpc.v1.cri".containerd]
+{% if 'nvidia' in (containerd_additional_runtimes | default([])) %}
+  default_runtime_name = "nvidia"
+{% else %}
+  default_runtime_name = "runc"
+{% endif %}
+  snapshotter = "overlayfs"
+
+[plugins."io.containerd.grpc.v1.cri".containerd.runtimes]
+[plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
+  runtime_type = "io.containerd.runc.v2"
+
+{% if 'nvidia' in (containerd_additional_runtimes | default([])) %}
+[plugins."io.containerd.grpc.v1.cri".containerd.runtimes.nvidia]
+  runtime_type = "io.containerd.runc.v2"
+[plugins."io.containerd.grpc.v1.cri".containerd.runtimes.nvidia.options]
+  BinaryName = "/usr/bin/nvidia-container-runtime"
+  SystemdCgroup = true
+{% endif %}
+
+{% if 'runsc' in (containerd_additional_runtimes | default([])) %}
+[plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runsc]
+  runtime_type = "io.containerd.runsc.v1"
+{% endif %}
+
+[plugins."io.containerd.grpc.v1.cri".cni]
+  bin_dir = "/var/lib/rancher/k3s/data/current/bin"
+  conf_dir = "/var/lib/rancher/k3s/agent/etc/cni/net.d"

@@ -178,19 +178,11 @@
     cache_valid_time: 3600
   when: nvidia_gpu_active | default(false) | bool
 
-- name: Create containerd dir
-  ansible.builtin.file:
-    path: /var/lib/rancher/k3s/agent/etc/containerd/
-    state: directory
-    mode: "0755"
+- name: Register NVIDIA as an available runtime
+  ansible.builtin.set_fact:
+    containerd_additional_runtimes: "{{ containerd_additional_runtimes | default([]) + ['nvidia'] }}"
   when: nvidia_gpu_active | default(false) | bool
-
-- name: Configure containerd
-  ansible.builtin.template:
-    src: config.toml.tmpl
-    dest: /var/lib/rancher/k3s/agent/etc/containerd/config.toml.tmpl
-    mode: "0644"
-  when: nvidia_gpu_active | default(false) | bool
+  tags: ["host", "nvidia"]
 
 - name: Import headless optimization
   ansible.builtin.import_tasks: headless_optimization.yml

@@ -39,6 +39,20 @@
     path: /etc/rancher/k3s
     state: directory
     mode: "0755"
+
+- name: Ensure K3s agent etc directory exists
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/agent/etc/containerd
+    state: directory
+    mode: "0755"
+    recurse: true
+
+- name: Deploy containerd configuration template
+  ansible.builtin.template:
+    src: containerd-config.toml.tmpl.j2
+    dest: /var/lib/rancher/k3s/agent/etc/containerd/config.toml.tmpl
+    mode: "0644"
+  notify: Restart k3s
 # Create secure log directory for K3s components
 - name: Ensure K3s log directory exists
   ansible.builtin.file:

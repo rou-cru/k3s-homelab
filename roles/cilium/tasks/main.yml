@@ -40,7 +40,7 @@
   changed_when: false
   environment:
     KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
-# Wait for Cilium pods to be ready across all nodes
+# Wait for cilium pods
 - name: Wait for cilium pods
   ansible.builtin.command: >-
     kubectl -n {{ cilium_namespace }} rollout status ds/cilium --timeout="{{ cilium_rollout_timeout }}s"
@@ -49,6 +49,7 @@
   failed_when: cilium_rollout.rc != 0
   environment:
     KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
+
 # Clean up temporary configuration file
 - name: Remove temporary values file
   ansible.builtin.file:

@@ -80,6 +80,10 @@
       ansible.builtin.import_role:
         name: tailscale
       tags: ["host", "network"]
+    - name: Run gvisor role
+      ansible.builtin.import_role:
+        name: gvisor
+      tags: ["host", "os", "security"]
     - name: Run k3s server role
       ansible.builtin.import_role:
         name: k3s_server
