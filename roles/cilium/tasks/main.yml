@@ -50,6 +50,12 @@
   environment:
     KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
 
+# Deploy General Cluster Gateway
+- name: Deploy Cluster Gateway
+  ansible.builtin.import_tasks: gateway.yml
+  become: false
+  tags: ["cluster", "network", "gateway"]
+
 # Clean up temporary configuration file
 - name: Remove temporary values file
   ansible.builtin.file:
