@@ -114,6 +114,11 @@
       when: miner_control_plane_labels | length > 0
       tags: ["cluster", "apps", "miners"]
       become: false
+    - name: Run crds_bootstrap role
+      ansible.builtin.import_role:
+        name: crds_bootstrap
+      tags: ["cluster", "infrastructure"]
+
     - name: Run cilium role
       ansible.builtin.import_role:
         name: cilium

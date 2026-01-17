@@ -1,0 +1,14 @@
+# Title: Gateway API Version
+# Description: Version tag for Gateway API standard install manifest.
+# Type: str
+gateway_api_version: "v1.2.0"
+
+# Title: Prometheus Operator CRDs Chart Version
+# Description: Version of the prometheus-operator-crds Helm chart.
+# Type: str
+prometheus_operator_crds_version: "26.0.0"
+
+# Title: Prometheus Operator CRDs Namespace
+# Description: Namespace where CRDs chart metadata will be installed (CRDs are global).
+# Type: str
+prometheus_operator_crds_namespace: "monitoring"
