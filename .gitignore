@@ -54,3 +54,6 @@ molecule/**/__pycache__/
 # Vagrant
 .vagrant/
 *.box
+.oci
+oci-key.pem
+oci-key-public.pem
