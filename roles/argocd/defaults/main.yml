@@ -1,0 +1,6 @@
+argocd_namespace: argocd
+argocd_chart_version: ""
+argocd_install_crds: true
+argocd_ha_enabled: false
+argocd_dex_enabled: false
+argocd_servicemonitor_enabled: true

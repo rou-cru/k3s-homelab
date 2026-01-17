@@ -1,0 +1,24 @@
+- name: Deploy External Secrets Operator
+  kubernetes.core.helm:
+    name: external-secrets
+    chart_ref: external-secrets/external-secrets
+    release_namespace: "{{ external_secrets_namespace }}"
+    create_namespace: true
+    chart_version: >-
+      {{ external_secrets_chart_version | default(omit)
+         if external_secrets_chart_version != '' else omit }}
+    kubeconfig: "/home/{{ ansible_user }}/.kube/config"
+    values:
+      installCRDs: true
+      serviceMonitor:
+        enabled: "{{ external_secrets_servicemonitor_enabled }}"
+      webhook:
+        serviceMonitor:
+          enabled: "{{ external_secrets_servicemonitor_enabled }}"
+      certController:
+        serviceMonitor:
+          enabled: "{{ external_secrets_servicemonitor_enabled }}"
+      grafanaDashboard:
+        enabled: "{{ external_secrets_grafana_dashboard_enabled }}"
+  become: false
+  tags: ["cluster", "infrastructure", "external-secrets"]

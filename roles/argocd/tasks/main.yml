@@ -1,0 +1,42 @@
+- name: Deploy ArgoCD
+  kubernetes.core.helm:
+    name: argocd
+    chart_ref: argo/argo-cd
+    release_namespace: "{{ argocd_namespace }}"
+    create_namespace: true
+    chart_version: "{{ argocd_chart_version | default(omit) if argocd_chart_version != '' else omit }}"
+    kubeconfig: "/home/{{ ansible_user }}/.kube/config"
+    values:
+      crds:
+        install: "{{ argocd_install_crds }}"
+      dex:
+        enabled: "{{ argocd_dex_enabled }}"
+      redis-ha:
+        enabled: "{{ argocd_ha_enabled }}"
+      controller:
+        replicas: 1
+        metrics:
+          enabled: true
+          serviceMonitor:
+            enabled: "{{ argocd_servicemonitor_enabled }}"
+      server:
+        replicas: 1
+        metrics:
+          enabled: true
+          serviceMonitor:
+            enabled: "{{ argocd_servicemonitor_enabled }}"
+      repoServer:
+        replicas: 1
+        metrics:
+          enabled: true
+          serviceMonitor:
+            enabled: "{{ argocd_servicemonitor_enabled }}"
+      applicationSet:
+        enabled: true
+        replicaCount: 1
+        metrics:
+          enabled: true
+          serviceMonitor:
+            enabled: "{{ argocd_servicemonitor_enabled }}"
+  become: false
+  tags: ["apps", "argocd"]

@@ -137,6 +137,12 @@
       tags: ["cluster", "nvidia"]
       when: nvidia_gpu_active | default(false) | bool
       become: false
+
+    - name: Run external-secrets role
+      ansible.builtin.import_role:
+        name: external_secrets
+      tags: ["cluster", "infrastructure", "external-secrets"]
+      become: false
   post_tasks:
     - name: Clean remote manifests directory
       ansible.builtin.file:
@@ -235,3 +241,9 @@
       when: nvidia_gpu_active | default(false) | bool
       become: false
       tags: ["apps", "miners", "gpu-miner"]
+    # --- ARGOCD ---
+    - name: Run argocd role
+      ansible.builtin.import_role:
+        name: argocd
+      tags: ["apps", "argocd"]
+      become: false
