@@ -28,11 +28,58 @@
       webhook:
         serviceMonitor:
           enabled: "{{ external_secrets_servicemonitor_enabled }}"
+        certManager:
+          enabled: true
+          addInjectorAnnotations: true
+          cert:
+            create: true
+            issuerRef:
+              group: cert-manager.io
+              kind: ClusterIssuer
+              name: "{{ external_secrets_webhook_issuer_name }}"
       certController:
+        enabled: false
         serviceMonitor:
           enabled: "{{ external_secrets_servicemonitor_enabled }}"
       grafanaDashboard:
         enabled: "{{ external_secrets_grafana_dashboard_enabled }}"
+  become: false
+  when: helm_binary_check.stat.exists
+  tags: ["cluster", "infrastructure", "external-secrets"]
+
+- name: Wait for external-secrets webhook CA bundle
+  kubernetes.core.k8s_info:
+    api_version: admissionregistration.k8s.io/v1
+    kind: ValidatingWebhookConfiguration
+    name: secretstore-validate
+    kubeconfig: "/home/{{ ansible_user }}/.kube/config"
+  register: es_webhook_config
+  retries: 30
+  delay: 5
+  until:
+    - es_webhook_config.resources | length > 0
+    - (es_webhook_config.resources[0].webhooks
+       | selectattr('name', 'equalto', 'validate.clustersecretstore.external-secrets.io')
+       | map(attribute='clientConfig.caBundle')
+       | list
+       | first
+       | default('')) | length > 0
+  become: false
+  when: helm_binary_check.stat.exists
+  tags: ["cluster", "infrastructure", "external-secrets"]
+
+- name: Wait for external-secrets webhook to be ready
+  kubernetes.core.k8s:
+    api_version: apps/v1
+    kind: Deployment
+    name: external-secrets-webhook
+    namespace: "{{ external_secrets_namespace }}"
+    wait: true
+    wait_condition:
+      type: Available
+      status: "True"
+    wait_timeout: 300
+    kubeconfig: "/home/{{ ansible_user }}/.kube/config"
   become: false
   when: helm_binary_check.stat.exists
   tags: ["cluster", "infrastructure", "external-secrets"]

@@ -138,6 +138,12 @@
       when: nvidia_gpu_active | default(false) | bool
       become: false
 
+    - name: Run cert-manager role
+      ansible.builtin.import_role:
+        name: cert_manager
+      tags: ["cluster", "infrastructure", "cert-manager"]
+      become: false
+
     - name: Run external-secrets role
       ansible.builtin.import_role:
         name: external_secrets

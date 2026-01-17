@@ -1,0 +1,116 @@
+- name: Check if Helm is installed
+  ansible.builtin.stat:
+    path: /usr/local/bin/helm
+  register: helm_binary_check
+
+- name: Ensure Jetstack Helm repo
+  ansible.builtin.command: helm repo add jetstack https://charts.jetstack.io
+  register: cm_repo_add
+  changed_when: "'has been added' in cm_repo_add.stdout"
+  failed_when: cm_repo_add.rc != 0 and 'exists' not in cm_repo_add.stderr
+  when: helm_binary_check.stat.exists
+
+- name: Deploy cert-manager
+  kubernetes.core.helm:
+    name: cert-manager
+    chart_ref: jetstack/cert-manager
+    release_namespace: "{{ cert_manager_namespace }}"
+    update_repo_cache: true
+    create_namespace: true
+    chart_version: >-
+      {{ cert_manager_chart_version | default(omit)
+         if cert_manager_chart_version != '' else omit }}
+    kubeconfig: "/home/{{ ansible_user }}/.kube/config"
+    values:
+      installCRDs: true
+  become: false
+  when: helm_binary_check.stat.exists
+  tags: ["cluster", "infrastructure", "cert-manager"]
+
+- name: Wait for cert-manager webhook to be available
+  kubernetes.core.k8s:
+    api_version: apps/v1
+    kind: Deployment
+    name: cert-manager-webhook
+    namespace: "{{ cert_manager_namespace }}"
+    wait: true
+    wait_condition:
+      type: Available
+      status: "True"
+    wait_timeout: 300
+    kubeconfig: "/home/{{ ansible_user }}/.kube/config"
+  become: false
+  when: helm_binary_check.stat.exists
+  tags: ["cluster", "infrastructure", "cert-manager"]
+
+- name: Create cert-manager self-signed ClusterIssuer
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: cert-manager.io/v1
+      kind: ClusterIssuer
+      metadata:
+        name: "{{ cert_manager_selfsigned_issuer_name }}"
+      spec:
+        selfSigned: {}
+    kubeconfig: "/home/{{ ansible_user }}/.kube/config"
+  become: false
+  when: helm_binary_check.stat.exists
+  tags: ["cluster", "infrastructure", "cert-manager"]
+
+- name: Create cert-manager CA certificate
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: cert-manager.io/v1
+      kind: Certificate
+      metadata:
+        name: "{{ cert_manager_ca_certificate_name }}"
+        namespace: "{{ cert_manager_namespace }}"
+      spec:
+        isCA: true
+        commonName: "{{ cert_manager_ca_certificate_name }}"
+        secretName: "{{ cert_manager_ca_secret_name }}"
+        privateKey:
+          algorithm: ECDSA
+          size: 256
+          rotationPolicy: Always
+        issuerRef:
+          name: "{{ cert_manager_selfsigned_issuer_name }}"
+          kind: ClusterIssuer
+    kubeconfig: "/home/{{ ansible_user }}/.kube/config"
+  become: false
+  when: helm_binary_check.stat.exists
+  tags: ["cluster", "infrastructure", "cert-manager"]
+
+- name: Wait for cert-manager CA secret
+  kubernetes.core.k8s_info:
+    api_version: v1
+    kind: Secret
+    name: "{{ cert_manager_ca_secret_name }}"
+    namespace: "{{ cert_manager_namespace }}"
+    kubeconfig: "/home/{{ ansible_user }}/.kube/config"
+  register: cert_manager_ca_secret
+  retries: 30
+  delay: 5
+  until:
+    - cert_manager_ca_secret.resources | length > 0
+  become: false
+  when: helm_binary_check.stat.exists
+  tags: ["cluster", "infrastructure", "cert-manager"]
+
+- name: Create cert-manager CA ClusterIssuer
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: cert-manager.io/v1
+      kind: ClusterIssuer
+      metadata:
+        name: "{{ cert_manager_ca_issuer_name }}"
+      spec:
+        ca:
+          secretName: "{{ cert_manager_ca_secret_name }}"
+    kubeconfig: "/home/{{ ansible_user }}/.kube/config"
+  become: false
+  when: helm_binary_check.stat.exists
+  tags: ["cluster", "infrastructure", "cert-manager"]
