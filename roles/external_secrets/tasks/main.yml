@@ -1,8 +1,21 @@
+- name: Check if Helm is installed
+  ansible.builtin.stat:
+    path: /usr/local/bin/helm
+  register: helm_binary_check
+
+- name: Ensure External Secrets Helm repo
+  ansible.builtin.command: helm repo add external-secrets https://charts.external-secrets.io
+  register: es_repo_add
+  changed_when: "'has been added' in es_repo_add.stdout"
+  failed_when: es_repo_add.rc != 0 and 'exists' not in es_repo_add.stderr
+  when: helm_binary_check.stat.exists
+
 - name: Deploy External Secrets Operator
   kubernetes.core.helm:
     name: external-secrets
     chart_ref: external-secrets/external-secrets
     release_namespace: "{{ external_secrets_namespace }}"
+    update_repo_cache: true
     create_namespace: true
     chart_version: >-
       {{ external_secrets_chart_version | default(omit)
@@ -21,6 +34,7 @@
       grafanaDashboard:
         enabled: "{{ external_secrets_grafana_dashboard_enabled }}"
   become: false
+  when: helm_binary_check.stat.exists
   tags: ["cluster", "infrastructure", "external-secrets"]
 
 - name: Create OCI Auth Secret
@@ -40,6 +54,7 @@
         fingerprint: "{{ lookup('ini', 'fingerprint', section='DEFAULT', file='.oci') }}"
     kubeconfig: "/home/{{ ansible_user }}/.kube/config"
   become: false
+  when: helm_binary_check.stat.exists
   tags: ["cluster", "infrastructure", "external-secrets", "oci"]
 
 - name: Create OCI ClusterSecretStore
@@ -70,4 +85,5 @@
                   namespace: "{{ external_secrets_namespace }}"
     kubeconfig: "/home/{{ ansible_user }}/.kube/config"
   become: false
+  when: helm_binary_check.stat.exists
   tags: ["cluster", "infrastructure", "external-secrets", "oci"]

@@ -1,8 +1,21 @@
+- name: Check if Helm is installed
+  ansible.builtin.stat:
+    path: /usr/local/bin/helm
+  register: helm_binary_check
+
+- name: Ensure ArgoCD Helm repo
+  ansible.builtin.command: helm repo add argo https://argoproj.github.io/argo-helm
+  register: argo_repo_add
+  changed_when: "'has been added' in argo_repo_add.stdout"
+  failed_when: argo_repo_add.rc != 0 and 'exists' not in argo_repo_add.stderr
+  when: helm_binary_check.stat.exists
+
 - name: Deploy ArgoCD
   kubernetes.core.helm:
     name: argocd
     chart_ref: argo/argo-cd
     release_namespace: "{{ argocd_namespace }}"
+    update_repo_cache: true
     create_namespace: true
     chart_version: "{{ argocd_chart_version | default(omit) if argocd_chart_version != '' else omit }}"
     kubeconfig: "/home/{{ ansible_user }}/.kube/config"
@@ -39,6 +52,7 @@
           serviceMonitor:
             enabled: "{{ argocd_servicemonitor_enabled }}"
   become: false
+  when: helm_binary_check.stat.exists
   tags: ["apps", "argocd"]
 
 - name: Create ArgoCD Admin Password ExternalSecret
@@ -64,6 +78,7 @@
               key: argocd-admin-pass
   register: argocd_es_created
   become: false
+  when: helm_binary_check.stat.exists
   tags: ["apps", "argocd", "secrets"]
 
 - name: Restart ArgoCD Server to pick up new password
@@ -71,6 +86,6 @@
     cmd: kubectl rollout restart deployment/argocd-server -n {{ argocd_namespace }}
   environment:
     KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
-  when: argocd_es_created.changed
+  when: helm_binary_check.stat.exists and argocd_es_created.changed
   become: false
   tags: ["apps", "argocd", "secrets"]

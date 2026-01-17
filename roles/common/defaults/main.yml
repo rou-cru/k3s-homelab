@@ -89,10 +89,6 @@ common_helm_repositories:
     repo_url: "https://helm.cilium.io/"
   - name: nvdp
     repo_url: "https://nvidia.github.io/k8s-device-plugin"
-  - name: external-secrets
-    repo_url: "https://charts.external-secrets.io"
-  - name: argo
-    repo_url: "https://argoproj.github.io/argo-helm"
 # Title: UV install script checksum
 # Description: SHA256 for https://astral.sh/uv/install.sh (pin to avoid supply-chain drift).
 # Type: str
