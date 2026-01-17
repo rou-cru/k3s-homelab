@@ -70,6 +70,3 @@
 # Install Kubernetes and container tools
 - name: Install Cloud-Native Binaries
   ansible.builtin.include_tasks: binaries.yml
-# Configure Helm chart repositories
-- name: Setup Helm Repos
-  ansible.builtin.include_tasks: helm_setup.yml

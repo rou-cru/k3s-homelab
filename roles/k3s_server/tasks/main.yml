@@ -40,6 +40,12 @@
     state: directory
     mode: "0755"
 
+- name: Ensure CNI config directory exists
+  ansible.builtin.file:
+    path: /etc/cni/net.d
+    state: directory
+    mode: "0755"
+
 - name: Ensure K3s agent etc directory exists
   ansible.builtin.file:
     path: /var/lib/rancher/k3s/agent/etc/containerd

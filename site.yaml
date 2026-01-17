@@ -114,6 +114,11 @@
       when: miner_control_plane_labels | length > 0
       tags: ["cluster", "apps", "miners"]
       become: false
+    - name: Setup Helm Repos
+      ansible.builtin.import_role:
+        name: common
+        tasks_from: helm_setup.yml
+      tags: ["cluster", "infrastructure"]
     - name: Run crds_bootstrap role
       ansible.builtin.import_role:
         name: crds_bootstrap

@@ -5,7 +5,7 @@
       apiVersion: gateway.networking.k8s.io/v1
       kind: Gateway
       metadata:
-        name: cluster-gateway
+        name: public-gateway
         namespace: "{{ cilium_namespace }}"
         annotations:
           # Explicitly set service type to ClusterIP for Cloudflare Tunnel integration
@@ -13,17 +13,19 @@
       spec:
         gatewayClassName: cilium
         listeners:
-        - name: http
-          protocol: HTTP
-          port: 80
-          allowedRoutes:
-            namespaces:
-              from: All
-        - name: https
-          protocol: HTTPS
-          port: 443
-          allowedRoutes:
-            namespaces:
-              from: All
-          # Note: TLS Termination will be handled here, 
+          - name: http
+            protocol: HTTP
+            port: 80
+            allowedRoutes:
+              namespaces:
+                from: All
+          - name: https
+            protocol: HTTPS
+            port: 443
+            allowedRoutes:
+              namespaces:
+                from: All
+          # Note: TLS Termination will be handled here,
           # but requires a certificateRef which we will add later with cert-manager
+    kubeconfig: "/home/{{ ansible_user }}/.kube/config"
+  when: not ansible_check_mode

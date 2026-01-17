@@ -22,14 +22,14 @@ gatewayAPI:
 prometheus:
   enabled: true
   serviceMonitor:
-    enabled: true
+    enabled: {{ not ansible_check_mode | bool }}
 
 operator:
   replicas: 1
   prometheus:
     enabled: true
     serviceMonitor:
-      enabled: true
+      enabled: {{ not ansible_check_mode | bool }}
 
 hubble:
   enabled: true
@@ -44,14 +44,14 @@ hubble:
     port: 9965
     enableOpenMetrics: false
     serviceMonitor:
-      enabled: true
+      enabled: {{ not ansible_check_mode | bool }}
   relay:
     enabled: true
     replicas: 1
     prometheus:
       enabled: true
       serviceMonitor:
-        enabled: true
+        enabled: {{ not ansible_check_mode | bool }}
   ui:
     enabled: true
     replicas: 1
