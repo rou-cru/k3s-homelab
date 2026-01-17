@@ -40,3 +40,37 @@
             enabled: "{{ argocd_servicemonitor_enabled }}"
   become: false
   tags: ["apps", "argocd"]
+
+- name: Create ArgoCD Admin Password ExternalSecret
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: external-secrets.io/v1beta1
+      kind: ExternalSecret
+      metadata:
+        name: argocd-admin-pass
+        namespace: "{{ argocd_namespace }}"
+      spec:
+        refreshInterval: 1h
+        secretStoreRef:
+          name: oci-vault
+          kind: ClusterSecretStore
+        target:
+          name: argocd-secret
+          creationPolicy: Merge
+        data:
+          - secretKey: admin.password
+            remoteRef:
+              key: argocd-admin-pass
+  register: argocd_es_created
+  become: false
+  tags: ["apps", "argocd", "secrets"]
+
+- name: Restart ArgoCD Server to pick up new password
+  ansible.builtin.command:
+    cmd: kubectl rollout restart deployment/argocd-server -n {{ argocd_namespace }}
+  environment:
+    KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
+  when: argocd_es_created.changed
+  become: false
+  tags: ["apps", "argocd", "secrets"]

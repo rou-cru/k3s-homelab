@@ -22,3 +22,52 @@
         enabled: "{{ external_secrets_grafana_dashboard_enabled }}"
   become: false
   tags: ["cluster", "infrastructure", "external-secrets"]
+
+- name: Create OCI Auth Secret
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: oracle-secret
+        namespace: "{{ external_secrets_namespace }}"
+        labels:
+          type: oracle
+      type: Opaque
+      stringData:
+        privateKey: "{{ lookup('file', lookup('ini', 'key_file', section='DEFAULT', file='.oci')) }}"
+        fingerprint: "{{ lookup('ini', 'fingerprint', section='DEFAULT', file='.oci') }}"
+    kubeconfig: "/home/{{ ansible_user }}/.kube/config"
+  become: false
+  tags: ["cluster", "infrastructure", "external-secrets", "oci"]
+
+- name: Create OCI ClusterSecretStore
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: external-secrets.io/v1
+      kind: ClusterSecretStore
+      metadata:
+        name: oci-vault
+      spec:
+        provider:
+          oracle:
+            vault: "{{ lookup('ini', 'vault', section='DEFAULT', file='.oci') }}"
+            region: "{{ lookup('ini', 'region', section='DEFAULT', file='.oci') }}"
+            principalType: UserPrincipal
+            auth:
+              user: "{{ lookup('ini', 'user', section='DEFAULT', file='.oci') }}"
+              tenancy: "{{ lookup('ini', 'tenancy', section='DEFAULT', file='.oci') }}"
+              secretRef:
+                privatekey:
+                  name: oracle-secret
+                  key: privateKey
+                  namespace: "{{ external_secrets_namespace }}"
+                fingerprint:
+                  name: oracle-secret
+                  key: fingerprint
+                  namespace: "{{ external_secrets_namespace }}"
+    kubeconfig: "/home/{{ ansible_user }}/.kube/config"
+  become: false
+  tags: ["cluster", "infrastructure", "external-secrets", "oci"]

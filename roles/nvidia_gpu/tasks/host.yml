@@ -69,7 +69,8 @@
 - name: Detect driver
   ansible.builtin.shell: |
     set -o pipefail
-    ubuntu-drivers devices 2>/dev/null | grep -oP 'driver\s+:\s+\K(nvidia-driver-\d+)(?=\s.*recommended)'
+    ubuntu-drivers devices 2>/dev/null | \
+    grep -oP 'driver\s+:\s+\K(nvidia-driver-\d+)(?=\s.*recommended)'
   args:
     executable: /bin/bash
   register: nvidia_gpu_detected_driver
@@ -90,7 +91,8 @@
     nvidia_gpu_driver_target: "{{ nvidia_gpu_driver_fallback }}"
   when:
     - nvidia_gpu_driver_package == "auto"
-    - (nvidia_gpu_detected_driver.skipped is defined and nvidia_gpu_detected_driver.skipped) or (nvidia_gpu_detected_driver.stdout | length == 0)
+    - (nvidia_gpu_detected_driver.skipped is defined and nvidia_gpu_detected_driver.skipped) or
+      (nvidia_gpu_detected_driver.stdout | length == 0)
     - nvidia_gpu_active | default(false) | bool
 
 - name: Set manual driver
@@ -128,7 +130,8 @@
 
 - name: Fix broken packages
   ansible.builtin.shell: |
-    REMOVED=$(dpkg -l | grep '^iU' | grep nvidia | awk '{print $2}' | xargs -r dpkg --remove --force-remove-reinstreq 2>&1 || true)
+    REMOVED=$(dpkg -l | grep '^iU' | grep nvidia | awk '{print $2}' |
+              xargs -r dpkg --remove --force-remove-reinstreq 2>&1 || true)
     PURGED=$(apt-get purge -y 'nvidia-*' 'libnvidia-*' 2>&1 || true)
     apt-get autoremove -y
     apt-get autoclean
@@ -166,7 +169,11 @@
   ansible.builtin.copy:
     dest: /etc/apt/sources.list.d/nvidia-container-toolkit.list
     content: |
-      deb [signed-by=/etc/apt/keyrings/nvidia-container-toolkit.gpg] https://nvidia.github.io/libnvidia-container/stable/deb/{{ (ansible_facts['architecture'] == 'aarch64') | ternary('arm64', 'amd64') }} /
+      deb [signed-by=/etc/apt/keyrings/nvidia-container-toolkit.gpg] {{
+        'https://nvidia.github.io/libnvidia-container/stable/deb/' +
+        ((ansible_facts['architecture'] == 'aarch64') | ternary('arm64', 'amd64')) +
+        ' /'
+      }}
     mode: "0644"
   when: nvidia_gpu_active | default(false) | bool
 
