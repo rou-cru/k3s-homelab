@@ -11,8 +11,8 @@
 - [ ] **OS**: Ubuntu 24.04 LTS Server (único oficialmente soportado)
 - [ ] **CPU**: x86_64 exclusivamente (ARM no soportado)
 - [ ] **CPU mínimo**: 8 cores (reservar 2-4 para K8s overhead)
-- [ ] **RAM mínimo**: 16GB (recomendado 48GB+)
-- [ ] **Storage root**: 100GB SSD mínimo (500GB+ recomendado, NVMe preferido)
+- [ ] **RAM mínimo**: 16 GB (recomendado 48 GB+)
+- [ ] **Storage root**: 100 GB SSD mínimo (500 GB+ recomendado, NVMe preferido)
 - [ ] **GPU**: Solo NVIDIA soportado
 - [ ] **GPU constraint**: Un solo tipo de GPU por nodo
 
@@ -23,7 +23,7 @@
 - [ ] **Dominio** propio para identificación del provider
 - [ ] **Puertos abiertos (TCP)**: 80, 443, 8443, 8444
 - [ ] **Puertos abiertos (TCP/UDP)**: 30000-32767 (NodePort range)
-- [ ] **Latencia**: <10ms a hubs principales (preferido)
+- [ ] **Latencia**: < 10 ms a hubs principales (preferido)
 
 ### Kubernetes
 
@@ -51,7 +51,7 @@
 ### Hardware
 
 - [ ] **Storage persistente**: Mínimo 4 SSDs o 2 NVMe (para ofrecer persistent storage beta2/beta3)
-- [ ] **Multi-node**: Red <1ms latencia entre nodos, 10Gbps+ para storage traffic
+- [ ] **Multi-node**: Red < 1 ms latencia entre nodos, 10 Gbps+ para storage traffic
 - [ ] **GPU high-end**: A100/H100 para workloads ML competitivos
 
 ### Features Opcionales

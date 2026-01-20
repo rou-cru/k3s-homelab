@@ -48,3 +48,15 @@ k3s_server_copy_kubeconfig_local: true
 # Type: str
 # Required: false
 k3s_server_local_kubeconfig_path: "{{ lookup('env', 'HOME') }}/.kube/config"
+
+# Title: CNI Bin Directory
+# Description: Directory for CNI binaries.
+# Type: str
+# Required: false
+k3s_cni_bin_dir: "/opt/cni/bin"
+
+# Title: CNI Config Directory
+# Description: Directory for CNI configuration.
+# Type: str
+# Required: false
+k3s_cni_conf_dir: "/etc/cni/net.d"

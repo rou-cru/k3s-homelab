@@ -28,5 +28,5 @@ version = 2
 {% endif %}
 
 [plugins."io.containerd.grpc.v1.cri".cni]
-  bin_dir = "/opt/cni/bin"
-  conf_dir = "/etc/cni/net.d"
+  bin_dir = "{{ k3s_cni_bin_dir }}"
+  conf_dir = "{{ k3s_cni_conf_dir }}"

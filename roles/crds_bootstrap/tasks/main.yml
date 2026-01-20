@@ -6,6 +6,18 @@
       https://github.com/kubernetes-sigs/gateway-api/releases/download/{{ gateway_api_version }}/standard-install.yaml
     kubeconfig: "/home/{{ ansible_user }}/.kube/config"
 
+- name: Wait for Gateway API CRDs to be established
+  kubernetes.core.k8s_info:
+    api_version: apiextensions.k8s.io/v1
+    kind: CustomResourceDefinition
+    name: gateways.gateway.networking.k8s.io
+    kubeconfig: "/home/{{ ansible_user }}/.kube/config"
+    wait: true
+    wait_condition:
+      type: Established
+      status: "True"
+    wait_timeout: 60
+
 # Install Prometheus Operator CRDs via Helm
 - name: Add Prometheus Community Helm repo
   kubernetes.core.helm_repository:
@@ -19,5 +31,6 @@
     chart_ref: prometheus-community/prometheus-operator-crds
     release_namespace: "{{ prometheus_operator_crds_namespace }}"
     create_namespace: true
+    update_repo_cache: true
     chart_version: "{{ prometheus_operator_crds_version }}"
     kubeconfig: "/home/{{ ansible_user }}/.kube/config"

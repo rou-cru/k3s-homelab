@@ -27,10 +27,20 @@
     - {key: "net.ipv4.conf.all.rp_filter", value: "0"}
     # Elastic / Logging requirement
     - {key: "vm.max_map_count", value: "1048576"}
-    # Akash Provider requirements
+
+- name: Akash Provider sysctl tuning
+  ansible.posix.sysctl:
+    name: "{{ item.key }}"
+    value: "{{ item.value }}"
+    sysctl_set: true
+    state: present
+    reload: true
+  loop:
     - {key: "net.core.somaxconn", value: "4096"}
     - {key: "net.ipv4.tcp_max_syn_backlog", value: "4096"}
     - {key: "net.ipv4.tcp_slow_start_after_idle", value: "0"}
+  when: akash_provider_enabled | default(false)
+
 - name: Increase FD limits
   community.general.pam_limits:
     domain: "*"

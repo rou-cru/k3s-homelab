@@ -1,17 +1,17 @@
 # Installation of gVisor (runsc)
 - name: Install runsc binary
   ansible.builtin.get_url:
-    url: https://storage.googleapis.com/gvisor/releases/release/latest/x86_64/runsc
+    url: "https://storage.googleapis.com/gvisor/releases/release/{{ gvisor_version }}/x86_64/runsc"
     dest: /usr/local/bin/runsc
     mode: '0755'
     owner: root
     group: root
-    checksum: sha512:https://storage.googleapis.com/gvisor/releases/release/latest/x86_64/runsc.sha512
+    checksum: "sha512:https://storage.googleapis.com/gvisor/releases/release/{{ gvisor_version }}/x86_64/runsc.sha512"
 
 # Register gVisor as an available runtime for the cluster
 - name: Add gVisor to additional runtimes list
   ansible.builtin.set_fact:
-    containerd_additional_runtimes: "{{ containerd_additional_runtimes | default([]) + ['runsc'] }}"
+    containerd_additional_runtimes: "{{ (containerd_additional_runtimes | default([])) | union(['runsc']) }}"
   tags: always
 
 # Use K3s auto-deploy manifests directory for the RuntimeClass
@@ -20,9 +20,13 @@
     path: /var/lib/rancher/k3s/server/manifests
     state: directory
     mode: '0755'
+    owner: root
+    group: root
 
 - name: Deploy gVisor RuntimeClass manifest
   ansible.builtin.copy:
     src: runtime-class.yaml
     dest: /var/lib/rancher/k3s/server/manifests/gvisor-runtime-class.yaml
     mode: '0644'
+    owner: root
+    group: root

@@ -101,6 +101,7 @@
         fingerprint: "{{ lookup('ini', 'fingerprint', section='DEFAULT', file='.oci') }}"
     kubeconfig: "/home/{{ ansible_user }}/.kube/config"
   become: false
+  no_log: true
   when: helm_binary_check.stat.exists
   tags: ["cluster", "infrastructure", "external-secrets", "oci"]
 

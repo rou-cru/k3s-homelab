@@ -42,7 +42,13 @@
 
 - name: Ensure CNI config directory exists
   ansible.builtin.file:
-    path: /etc/cni/net.d
+    path: "{{ k3s_cni_conf_dir }}"
+    state: directory
+    mode: "0755"
+
+- name: Ensure CNI bin directory exists
+  ansible.builtin.file:
+    path: "{{ k3s_cni_bin_dir }}"
     state: directory
     mode: "0755"
 

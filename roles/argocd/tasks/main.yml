@@ -17,7 +17,7 @@
     release_namespace: "{{ argocd_namespace }}"
     update_repo_cache: true
     create_namespace: true
-    chart_version: "{{ argocd_chart_version | default(omit) if argocd_chart_version != '' else omit }}"
+    chart_version: "{{ argocd_chart_version | default(omit, true) }}"
     kubeconfig: "/home/{{ ansible_user }}/.kube/config"
     values:
       crds:
@@ -83,10 +83,17 @@
   tags: ["apps", "argocd", "secrets"]
 
 - name: Restart ArgoCD Server to pick up new password
-  ansible.builtin.command:
-    cmd: kubectl rollout restart deployment/argocd-server -n {{ argocd_namespace }}
-  environment:
-    KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: argocd-server
+        namespace: "{{ argocd_namespace }}"
+        annotations:
+          kubectl.kubernetes.io/restartedAt: "{{ ansible_date_time.iso8601 }}"
+    kubeconfig: "/home/{{ ansible_user }}/.kube/config"
   when: helm_binary_check.stat.exists and argocd_es_created.changed
   become: false
   tags: ["apps", "argocd", "secrets"]
