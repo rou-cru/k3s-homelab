@@ -7,6 +7,11 @@
       changed_when: false
       failed_when: false
 
+    - name: Warn if Helm is not available
+      ansible.builtin.debug:
+        msg: "⚠️ Helm not found - skipping NVIDIA device plugin installation"
+      when: helm_binary_check.rc != 0
+
     - name: Ensure NVIDIA Helm repo
       ansible.builtin.command: helm repo add nvdp https://nvidia.github.io/k8s-device-plugin
       register: nvdp_repo_add
@@ -39,6 +44,7 @@
         chart_version: "{{ nvidia_gpu_device_plugin_version }}"
         kubeconfig: "/home/{{ ansible_user }}/.kube/config"
       when: helm_binary_check.rc == 0
+
     - name: Wait for daemonset
       ansible.builtin.command: >-
         kubectl -n kube-system rollout status ds/nvidia-device-plugin --timeout=300s
@@ -47,6 +53,7 @@
       environment:
         KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
       when: helm_binary_check.rc == 0
+
     - name: Check GPU resources
       ansible.builtin.shell: >-
         kubectl get nodes -o json | jq -r '.items[].status.capacity["nvidia.com/gpu"]'
@@ -56,6 +63,7 @@
       environment:
         KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
       when: helm_binary_check.rc == 0
+
     - name: Debug GPU resources
       ansible.builtin.debug:
         msg: "✅ GPU resources detected: {{ gpu_resources_check.stdout_lines | join(', ') }}"
@@ -74,5 +82,5 @@
       ansible.builtin.file:
         path: "{{ nvidia_device_plugin_values_tmp.path }}"
         state: absent
-      when: nvidia_device_plugin_values_tmp is defined
+      when: nvidia_device_plugin_values_tmp.path is defined
       changed_when: false

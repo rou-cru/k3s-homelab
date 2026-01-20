@@ -11,3 +11,6 @@ version = 2
 
 [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runsc]
   runtime_type = "io.containerd.runsc.v1"
+
+[plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runsc.options]
+  BinaryName = "{{ runsc_binary | default('runsc') }}"

@@ -1,14 +1,15 @@
 - name: Check if Helm is installed
-  ansible.builtin.stat:
-    path: /usr/local/bin/helm
+  ansible.builtin.command: which helm
   register: helm_binary_check
+  changed_when: false
+  failed_when: false
 
 - name: Ensure Jetstack Helm repo
   ansible.builtin.command: helm repo add jetstack https://charts.jetstack.io
   register: cm_repo_add
   changed_when: "'has been added' in cm_repo_add.stdout"
   failed_when: cm_repo_add.rc != 0 and 'exists' not in cm_repo_add.stderr
-  when: helm_binary_check.stat.exists
+  when: helm_binary_check.rc == 0
 
 - name: Deploy cert-manager
   kubernetes.core.helm:
@@ -17,9 +18,7 @@
     release_namespace: "{{ cert_manager_namespace }}"
     update_repo_cache: true
     create_namespace: true
-    chart_version: >-
-      {{ cert_manager_chart_version | default(omit)
-         if cert_manager_chart_version != '' else omit }}
+    chart_version: "{{ cert_manager_chart_version | default(omit, true) }}"
     kubeconfig: "/home/{{ ansible_user }}/.kube/config"
     values:
       crds:
@@ -70,7 +69,7 @@
           limits:
             memory: 128Mi
   become: false
-  when: helm_binary_check.stat.exists
+  when: helm_binary_check.rc == 0
   tags: ["cluster", "infrastructure", "cert-manager"]
 
 - name: Wait for cert-manager webhook to be available
@@ -86,7 +85,7 @@
     wait_timeout: 300
     kubeconfig: "/home/{{ ansible_user }}/.kube/config"
   become: false
-  when: helm_binary_check.stat.exists
+  when: helm_binary_check.rc == 0
   tags: ["cluster", "infrastructure", "cert-manager"]
 
 - name: Create cert-manager self-signed ClusterIssuer
@@ -101,7 +100,7 @@
         selfSigned: {}
     kubeconfig: "/home/{{ ansible_user }}/.kube/config"
   become: false
-  when: helm_binary_check.stat.exists
+  when: helm_binary_check.rc == 0
   tags: ["cluster", "infrastructure", "cert-manager"]
 
 - name: Create cert-manager CA certificate
@@ -126,7 +125,7 @@
           kind: ClusterIssuer
     kubeconfig: "/home/{{ ansible_user }}/.kube/config"
   become: false
-  when: helm_binary_check.stat.exists
+  when: helm_binary_check.rc == 0
   tags: ["cluster", "infrastructure", "cert-manager"]
 
 - name: Wait for cert-manager CA secret
@@ -142,7 +141,7 @@
   until:
     - cert_manager_ca_secret.resources | length > 0
   become: false
-  when: helm_binary_check.stat.exists
+  when: helm_binary_check.rc == 0
   tags: ["cluster", "infrastructure", "cert-manager"]
 
 - name: Create cert-manager CA ClusterIssuer
@@ -158,5 +157,5 @@
           secretName: "{{ cert_manager_ca_secret_name }}"
     kubeconfig: "/home/{{ ansible_user }}/.kube/config"
   become: false
-  when: helm_binary_check.stat.exists
+  when: helm_binary_check.rc == 0
   tags: ["cluster", "infrastructure", "cert-manager"]

@@ -1,14 +1,15 @@
 - name: Check if Helm is installed
-  ansible.builtin.stat:
-    path: /usr/local/bin/helm
+  ansible.builtin.command: which helm
   register: helm_binary_check
+  changed_when: false
+  failed_when: false
 
 - name: Ensure External Secrets Helm repo
   ansible.builtin.command: helm repo add external-secrets https://charts.external-secrets.io
   register: es_repo_add
   changed_when: "'has been added' in es_repo_add.stdout"
   failed_when: es_repo_add.rc != 0 and 'exists' not in es_repo_add.stderr
-  when: helm_binary_check.stat.exists
+  when: helm_binary_check.rc == 0
 
 - name: Deploy External Secrets Operator
   kubernetes.core.helm:
@@ -17,37 +18,13 @@
     release_namespace: "{{ external_secrets_namespace }}"
     update_repo_cache: true
     create_namespace: true
-    chart_version: >-
-      {{ external_secrets_chart_version | default(omit)
-         if external_secrets_chart_version != '' else omit }}
+    chart_version: "{{ external_secrets_chart_version | default(omit, true) }}"
     kubeconfig: "/home/{{ ansible_user }}/.kube/config"
     values:
       installCRDs: true
-
-      replicaCount: 1
-      podDisruptionBudget:
-        enabled: false
-
-      resources:
-        requests:
-          cpu: 10m
-          memory: 32Mi
-        limits:
-          memory: 64Mi
-
-      log:
-        level: warning
-
-      genericTargets:
-        enabled: true
-
       serviceMonitor:
         enabled: "{{ external_secrets_servicemonitor_enabled }}"
-
       webhook:
-        replicaCount: 1
-        podDisruptionBudget:
-          enabled: false
         serviceMonitor:
           enabled: "{{ external_secrets_servicemonitor_enabled }}"
         certManager:
@@ -59,14 +36,12 @@
               group: cert-manager.io
               kind: ClusterIssuer
               name: "{{ external_secrets_webhook_issuer_name }}"
-
       certController:
         enabled: false
-
       grafanaDashboard:
         enabled: "{{ external_secrets_grafana_dashboard_enabled }}"
   become: false
-  when: helm_binary_check.stat.exists
+  when: helm_binary_check.rc == 0
   tags: ["cluster", "infrastructure", "external-secrets"]
 
 - name: Wait for external-secrets webhook CA bundle
@@ -87,7 +62,7 @@
        | first
        | default('')) | length > 0
   become: false
-  when: helm_binary_check.stat.exists
+  when: helm_binary_check.rc == 0
   tags: ["cluster", "infrastructure", "external-secrets"]
 
 - name: Wait for external-secrets webhook to be ready
@@ -103,7 +78,7 @@
     wait_timeout: 300
     kubeconfig: "/home/{{ ansible_user }}/.kube/config"
   become: false
-  when: helm_binary_check.stat.exists
+  when: helm_binary_check.rc == 0
   tags: ["cluster", "infrastructure", "external-secrets"]
 
 - name: Create OCI Auth Secret
@@ -124,7 +99,7 @@
     kubeconfig: "/home/{{ ansible_user }}/.kube/config"
   become: false
   no_log: true
-  when: helm_binary_check.stat.exists
+  when: helm_binary_check.rc == 0
   tags: ["cluster", "infrastructure", "external-secrets", "oci"]
 
 - name: Create OCI ClusterSecretStore
@@ -155,5 +130,6 @@
                   namespace: "{{ external_secrets_namespace }}"
     kubeconfig: "/home/{{ ansible_user }}/.kube/config"
   become: false
-  when: helm_binary_check.stat.exists
+  no_log: true
+  when: helm_binary_check.rc == 0
   tags: ["cluster", "infrastructure", "external-secrets", "oci"]

@@ -12,3 +12,8 @@
   ansible.builtin.command: systemd-tmpfiles --create /etc/tmpfiles.d/energy-tuning.conf
   changed_when: false
   ignore_errors: "{{ ansible_check_mode }}"
+
+- name: Reload sysctl
+  ansible.builtin.command: sysctl -p
+  changed_when: false
+  ignore_errors: "{{ ansible_check_mode }}"
