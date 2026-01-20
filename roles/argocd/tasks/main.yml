@@ -22,31 +22,74 @@
     values:
       crds:
         install: "{{ argocd_install_crds }}"
+        keep: true
+
+      global:
+        logging:
+          level: warning
+
       dex:
         enabled: "{{ argocd_dex_enabled }}"
+
       redis-ha:
         enabled: "{{ argocd_ha_enabled }}"
+
       controller:
         replicas: 1
+        pdb:
+          enabled: false
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            memory: 512Mi
         metrics:
           enabled: true
           serviceMonitor:
             enabled: "{{ argocd_servicemonitor_enabled }}"
+
       server:
         replicas: 1
+        pdb:
+          enabled: false
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            memory: 256Mi
         metrics:
           enabled: true
           serviceMonitor:
             enabled: "{{ argocd_servicemonitor_enabled }}"
+
       repoServer:
         replicas: 1
+        pdb:
+          enabled: false
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            memory: 256Mi
         metrics:
           enabled: true
           serviceMonitor:
             enabled: "{{ argocd_servicemonitor_enabled }}"
+
       applicationSet:
         enabled: true
         replicaCount: 1
+        pdb:
+          enabled: false
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            memory: 256Mi
         metrics:
           enabled: true
           serviceMonitor:
