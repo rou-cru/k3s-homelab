@@ -5,10 +5,9 @@
   failed_when: false
 
 - name: Ensure Jetstack Helm repo
-  ansible.builtin.command: helm repo add jetstack https://charts.jetstack.io
-  register: cm_repo_add
-  changed_when: "'has been added' in cm_repo_add.stdout"
-  failed_when: cm_repo_add.rc != 0 and 'exists' not in cm_repo_add.stderr
+  kubernetes.core.helm_repository:
+    name: jetstack
+    repo_url: https://charts.jetstack.io
   when: helm_binary_check.rc == 0
 
 - name: Deploy cert-manager
@@ -19,7 +18,7 @@
     update_repo_cache: true
     create_namespace: true
     chart_version: "{{ cert_manager_chart_version | default(omit, true) }}"
-    kubeconfig: "/home/{{ ansible_user }}/.kube/config"
+    kubeconfig: "{{ (ansible_user_dir | default(ansible_env.HOME)) }}/.kube/config"
     values:
       crds:
         enabled: true
@@ -39,9 +38,9 @@
 
       # Prometheus monitoring
       prometheus:
-        enabled: true
+        enabled: "{{ cert_manager_prometheus_enabled | default(false) }}"
         servicemonitor:
-          enabled: true
+          enabled: "{{ cert_manager_prometheus_enabled | default(false) }}"
           interval: 60s
           scrapeTimeout: 30s
 
@@ -83,7 +82,7 @@
       type: Available
       status: "True"
     wait_timeout: 300
-    kubeconfig: "/home/{{ ansible_user }}/.kube/config"
+    kubeconfig: "{{ (ansible_user_dir | default(ansible_env.HOME)) }}/.kube/config"
   become: false
   when: helm_binary_check.rc == 0
   tags: ["cluster", "infrastructure", "cert-manager"]
@@ -98,7 +97,7 @@
         name: "{{ cert_manager_selfsigned_issuer_name }}"
       spec:
         selfSigned: {}
-    kubeconfig: "/home/{{ ansible_user }}/.kube/config"
+    kubeconfig: "{{ (ansible_user_dir | default(ansible_env.HOME)) }}/.kube/config"
   become: false
   when: helm_binary_check.rc == 0
   tags: ["cluster", "infrastructure", "cert-manager"]
@@ -123,7 +122,7 @@
         issuerRef:
           name: "{{ cert_manager_selfsigned_issuer_name }}"
           kind: ClusterIssuer
-    kubeconfig: "/home/{{ ansible_user }}/.kube/config"
+    kubeconfig: "{{ (ansible_user_dir | default(ansible_env.HOME)) }}/.kube/config"
   become: false
   when: helm_binary_check.rc == 0
   tags: ["cluster", "infrastructure", "cert-manager"]
@@ -134,7 +133,7 @@
     kind: Secret
     name: "{{ cert_manager_ca_secret_name }}"
     namespace: "{{ cert_manager_namespace }}"
-    kubeconfig: "/home/{{ ansible_user }}/.kube/config"
+    kubeconfig: "{{ (ansible_user_dir | default(ansible_env.HOME)) }}/.kube/config"
   register: cert_manager_ca_secret
   retries: 30
   delay: 5
@@ -155,7 +154,7 @@
       spec:
         ca:
           secretName: "{{ cert_manager_ca_secret_name }}"
-    kubeconfig: "/home/{{ ansible_user }}/.kube/config"
+    kubeconfig: "{{ (ansible_user_dir | default(ansible_env.HOME)) }}/.kube/config"
   become: false
   when: helm_binary_check.rc == 0
   tags: ["cluster", "infrastructure", "cert-manager"]

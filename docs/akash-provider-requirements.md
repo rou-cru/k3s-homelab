@@ -97,7 +97,7 @@
 ### Recomendaciones de la Comunidad
 
 - **Discord #providers**: Canal principal de soporte técnico
-- **Provider software**: Última versión v0.10.0
+- **Provider software**: Última versión v0.10.5 (Nov 2025)
 - **Mínimo viable**: GTX 1660+ para GPU, pero RTX 3000/4000+ para ser competitivo
 - **ROI realista**: Sin GPU de gama alta, difícil ser rentable como provider pequeño
 

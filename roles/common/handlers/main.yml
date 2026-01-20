@@ -14,6 +14,6 @@
   ignore_errors: "{{ ansible_check_mode }}"
 
 - name: Reload sysctl
-  ansible.builtin.command: sysctl -p
+  ansible.builtin.command: sysctl --system
   changed_when: false
   ignore_errors: "{{ ansible_check_mode }}"

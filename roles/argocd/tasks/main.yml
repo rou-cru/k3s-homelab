@@ -5,10 +5,9 @@
   failed_when: false
 
 - name: Ensure ArgoCD Helm repo
-  ansible.builtin.command: helm repo add argo https://argoproj.github.io/argo-helm
-  register: argo_repo_add
-  changed_when: "'has been added' in argo_repo_add.stdout"
-  failed_when: argo_repo_add.rc != 0 and 'exists' not in argo_repo_add.stderr
+  kubernetes.core.helm_repository:
+    name: argo
+    repo_url: https://argoproj.github.io/argo-helm
   when: helm_binary_check.rc == 0
 
 - name: Deploy ArgoCD

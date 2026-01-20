@@ -4,3 +4,4 @@ cert_manager_selfsigned_issuer_name: homelab-selfsigned-issuer
 cert_manager_ca_certificate_name: homelab-ca
 cert_manager_ca_secret_name: homelab-ca-secret
 cert_manager_ca_issuer_name: homelab-ca-issuer
+cert_manager_prometheus_enabled: false

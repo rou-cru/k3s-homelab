@@ -1,5 +1,1 @@
-external_secrets_namespace: external-secrets
-external_secrets_chart_version: ""
-external_secrets_servicemonitor_enabled: true
-external_secrets_grafana_dashboard_enabled: true
-external_secrets_webhook_issuer_name: homelab-ca-issuer
+oci_config_file: "{{ playbook_dir }}/.oci"

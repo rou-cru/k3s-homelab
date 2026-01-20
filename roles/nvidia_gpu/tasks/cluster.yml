@@ -13,10 +13,9 @@
       when: helm_binary_check.rc != 0
 
     - name: Ensure NVIDIA Helm repo
-      ansible.builtin.command: helm repo add nvdp https://nvidia.github.io/k8s-device-plugin
-      register: nvdp_repo_add
-      changed_when: "'has been added' in nvdp_repo_add.stdout"
-      failed_when: nvdp_repo_add.rc != 0 and 'exists' not in nvdp_repo_add.stderr
+      kubernetes.core.helm_repository:
+        name: nvdp
+        repo_url: https://nvidia.github.io/k8s-device-plugin
       when: helm_binary_check.rc == 0
 
     - name: Create temp values
@@ -82,5 +81,5 @@
       ansible.builtin.file:
         path: "{{ nvidia_device_plugin_values_tmp.path }}"
         state: absent
-      when: nvidia_device_plugin_values_tmp.path is defined
+      when: (nvidia_device_plugin_values_tmp | default({})).path is defined
       changed_when: false

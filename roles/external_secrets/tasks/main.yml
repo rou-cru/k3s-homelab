@@ -5,10 +5,9 @@
   failed_when: false
 
 - name: Ensure External Secrets Helm repo
-  ansible.builtin.command: helm repo add external-secrets https://charts.external-secrets.io
-  register: es_repo_add
-  changed_when: "'has been added' in es_repo_add.stdout"
-  failed_when: es_repo_add.rc != 0 and 'exists' not in es_repo_add.stderr
+  kubernetes.core.helm_repository:
+    name: external-secrets
+    repo_url: https://charts.external-secrets.io
   when: helm_binary_check.rc == 0
 
 - name: Deploy External Secrets Operator
@@ -55,7 +54,7 @@
   delay: 5
   until:
     - es_webhook_config.resources | length > 0
-    - (es_webhook_config.resources[0].webhooks
+    - (es_webhook_config.resources[0].webhooks | default([])
        | selectattr('name', 'equalto', 'validate.clustersecretstore.external-secrets.io')
        | map(attribute='clientConfig.caBundle')
        | list
@@ -94,8 +93,8 @@
           type: oracle
       type: Opaque
       stringData:
-        privateKey: "{{ lookup('file', lookup('ini', 'key_file', section='DEFAULT', file='.oci')) }}"
-        fingerprint: "{{ lookup('ini', 'fingerprint', section='DEFAULT', file='.oci') }}"
+        privateKey: "{{ lookup('file', lookup('ini', 'key_file', section='DEFAULT', file=oci_config_file)) }}"
+        fingerprint: "{{ lookup('ini', 'fingerprint', section='DEFAULT', file=oci_config_file) }}"
     kubeconfig: "/home/{{ ansible_user }}/.kube/config"
   become: false
   no_log: true
@@ -113,12 +112,12 @@
       spec:
         provider:
           oracle:
-            vault: "{{ lookup('ini', 'vault', section='DEFAULT', file='.oci') }}"
-            region: "{{ lookup('ini', 'region', section='DEFAULT', file='.oci') }}"
+            vault: "{{ lookup('ini', 'vault', section='DEFAULT', file=oci_config_file) }}"
+            region: "{{ lookup('ini', 'region', section='DEFAULT', file=oci_config_file) }}"
             principalType: UserPrincipal
             auth:
-              user: "{{ lookup('ini', 'user', section='DEFAULT', file='.oci') }}"
-              tenancy: "{{ lookup('ini', 'tenancy', section='DEFAULT', file='.oci') }}"
+              user: "{{ lookup('ini', 'user', section='DEFAULT', file=oci_config_file) }}"
+              tenancy: "{{ lookup('ini', 'tenancy', section='DEFAULT', file=oci_config_file) }}"
               secretRef:
                 privatekey:
                   name: oracle-secret
