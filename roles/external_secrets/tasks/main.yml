@@ -23,9 +23,31 @@
     kubeconfig: "/home/{{ ansible_user }}/.kube/config"
     values:
       installCRDs: true
+
+      replicaCount: 1
+      podDisruptionBudget:
+        enabled: false
+
+      resources:
+        requests:
+          cpu: 10m
+          memory: 32Mi
+        limits:
+          memory: 64Mi
+
+      log:
+        level: warning
+
+      genericTargets:
+        enabled: true
+
       serviceMonitor:
         enabled: "{{ external_secrets_servicemonitor_enabled }}"
+
       webhook:
+        replicaCount: 1
+        podDisruptionBudget:
+          enabled: false
         serviceMonitor:
           enabled: "{{ external_secrets_servicemonitor_enabled }}"
         certManager:
@@ -37,10 +59,10 @@
               group: cert-manager.io
               kind: ClusterIssuer
               name: "{{ external_secrets_webhook_issuer_name }}"
+
       certController:
         enabled: false
-        serviceMonitor:
-          enabled: "{{ external_secrets_servicemonitor_enabled }}"
+
       grafanaDashboard:
         enabled: "{{ external_secrets_grafana_dashboard_enabled }}"
   become: false
