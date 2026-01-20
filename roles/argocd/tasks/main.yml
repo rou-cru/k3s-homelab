@@ -24,6 +24,25 @@
         install: "{{ argocd_install_crds }}"
         keep: true
 
+      configs:
+        cm:
+          statusbadge.enabled: true
+          resource.customizations.ignoreResourceUpdates.external-secrets.io_ExternalSecret: |
+            jqPathExpressions:
+              - '.status'
+          resource.exclusions: |
+            - apiGroups:
+              - external-secrets.io
+              kinds:
+              - PushSecret
+        cmp:
+          create: true
+          plugins:
+            kustomize-with-helm:
+              generate:
+                command: [sh, -c]
+                args: ["kustomize build --enable-helm"]
+
       global:
         logging:
           level: warning
@@ -90,6 +109,21 @@
             memory: 128Mi
           limits:
             memory: 256Mi
+        metrics:
+          enabled: true
+          serviceMonitor:
+            enabled: "{{ argocd_servicemonitor_enabled }}"
+
+      notifications:
+        enabled: true
+        pdb:
+          enabled: false
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            memory: 128Mi
         metrics:
           enabled: true
           serviceMonitor:
