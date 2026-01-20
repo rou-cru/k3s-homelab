@@ -22,7 +22,7 @@
          if cert_manager_chart_version != '' else omit }}
     kubeconfig: "/home/{{ ansible_user }}/.kube/config"
     values:
-      # CRD Management (modern method)
+      # CRD Management
       installCRDs: false
       crds:
         enabled: true
