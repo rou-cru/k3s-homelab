@@ -18,12 +18,34 @@
     update_repo_cache: true
     create_namespace: true
     chart_version: "{{ external_secrets_chart_version | default(omit, true) }}"
-    kubeconfig: "/home/{{ ansible_user }}/.kube/config"
+    kubeconfig: "{{ (ansible_user_dir | default(ansible_env.HOME)) }}/.kube/config"
     values:
       installCRDs: true
+
+      replicaCount: 1
+      podDisruptionBudget:
+        enabled: false
+
+      resources:
+        requests:
+          cpu: 10m
+          memory: 32Mi
+        limits:
+          memory: 64Mi
+
+      log:
+        level: warning
+
+      genericTargets:
+        enabled: true
+
       serviceMonitor:
         enabled: "{{ external_secrets_servicemonitor_enabled }}"
+
       webhook:
+        replicaCount: 1
+        podDisruptionBudget:
+          enabled: false
         serviceMonitor:
           enabled: "{{ external_secrets_servicemonitor_enabled }}"
         certManager:
@@ -35,8 +57,10 @@
               group: cert-manager.io
               kind: ClusterIssuer
               name: "{{ external_secrets_webhook_issuer_name }}"
+
       certController:
         enabled: false
+
       grafanaDashboard:
         enabled: "{{ external_secrets_grafana_dashboard_enabled }}"
   become: false
@@ -48,7 +72,7 @@
     api_version: admissionregistration.k8s.io/v1
     kind: ValidatingWebhookConfiguration
     name: secretstore-validate
-    kubeconfig: "/home/{{ ansible_user }}/.kube/config"
+    kubeconfig: "{{ (ansible_user_dir | default(ansible_env.HOME)) }}/.kube/config"
   register: es_webhook_config
   retries: 30
   delay: 5
@@ -75,7 +99,7 @@
       type: Available
       status: "True"
     wait_timeout: 300
-    kubeconfig: "/home/{{ ansible_user }}/.kube/config"
+    kubeconfig: "{{ (ansible_user_dir | default(ansible_env.HOME)) }}/.kube/config"
   become: false
   when: helm_binary_check.rc == 0
   tags: ["cluster", "infrastructure", "external-secrets"]
@@ -95,7 +119,7 @@
       stringData:
         privateKey: "{{ lookup('file', lookup('ini', 'key_file', section='DEFAULT', file=oci_config_file)) }}"
         fingerprint: "{{ lookup('ini', 'fingerprint', section='DEFAULT', file=oci_config_file) }}"
-    kubeconfig: "/home/{{ ansible_user }}/.kube/config"
+    kubeconfig: "{{ (ansible_user_dir | default(ansible_env.HOME)) }}/.kube/config"
   become: false
   no_log: true
   when: helm_binary_check.rc == 0
@@ -127,7 +151,7 @@
                   name: oracle-secret
                   key: fingerprint
                   namespace: "{{ external_secrets_namespace }}"
-    kubeconfig: "/home/{{ ansible_user }}/.kube/config"
+    kubeconfig: "{{ (ansible_user_dir | default(ansible_env.HOME)) }}/.kube/config"
   become: false
   no_log: true
   when: helm_binary_check.rc == 0

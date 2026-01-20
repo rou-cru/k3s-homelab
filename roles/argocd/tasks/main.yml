@@ -18,35 +18,112 @@
     update_repo_cache: true
     create_namespace: true
     chart_version: "{{ argocd_chart_version | default(omit, true) }}"
-    kubeconfig: "/home/{{ ansible_user }}/.kube/config"
+    kubeconfig: "{{ (ansible_user_dir | default(ansible_env.HOME)) }}/.kube/config"
     values:
       crds:
         install: "{{ argocd_install_crds }}"
+        keep: true
+
+      configs:
+        cm:
+          statusbadge.enabled: true
+          resource.customizations.ignoreResourceUpdates.external-secrets.io_ExternalSecret: |
+            jqPathExpressions:
+              - '.status'
+          resource.exclusions: |
+            - apiGroups:
+              - external-secrets.io
+              kinds:
+              - PushSecret
+        cmp:
+          create: true
+          plugins:
+            kustomize-with-helm:
+              generate:
+                command: [sh, -c]
+                args: ["kustomize build --enable-helm"]
+
+      global:
+        logging:
+          level: warning
+
       dex:
         enabled: "{{ argocd_dex_enabled }}"
+
       redis-ha:
         enabled: "{{ argocd_ha_enabled }}"
+
       controller:
         replicas: 1
+        pdb:
+          enabled: false
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            memory: 512Mi
         metrics:
           enabled: true
           serviceMonitor:
             enabled: "{{ argocd_servicemonitor_enabled }}"
+
       server:
         replicas: 1
+        pdb:
+          enabled: false
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            memory: 256Mi
         metrics:
           enabled: true
           serviceMonitor:
             enabled: "{{ argocd_servicemonitor_enabled }}"
+
       repoServer:
         replicas: 1
+        pdb:
+          enabled: false
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            memory: 256Mi
         metrics:
           enabled: true
           serviceMonitor:
             enabled: "{{ argocd_servicemonitor_enabled }}"
+
       applicationSet:
         enabled: true
         replicaCount: 1
+        pdb:
+          enabled: false
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            memory: 256Mi
+        metrics:
+          enabled: true
+          serviceMonitor:
+            enabled: "{{ argocd_servicemonitor_enabled }}"
+
+      notifications:
+        enabled: true
+        pdb:
+          enabled: false
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            memory: 128Mi
         metrics:
           enabled: true
           serviceMonitor:
@@ -76,7 +153,7 @@
           - secretKey: admin.password
             remoteRef:
               key: argocd-admin-pass
-    kubeconfig: "/home/{{ ansible_user }}/.kube/config"
+    kubeconfig: "{{ (ansible_user_dir | default(ansible_env.HOME)) }}/.kube/config"
   register: argocd_es_created
   become: false
   when: helm_binary_check.rc == 0
@@ -88,7 +165,7 @@
     kind: Secret
     name: argocd-secret
     namespace: "{{ argocd_namespace }}"
-    kubeconfig: "/home/{{ ansible_user }}/.kube/config"
+    kubeconfig: "{{ (ansible_user_dir | default(ansible_env.HOME)) }}/.kube/config"
   register: argocd_secret_check
   retries: 12
   delay: 5
@@ -110,7 +187,7 @@
         namespace: "{{ argocd_namespace }}"
         annotations:
           kubectl.kubernetes.io/restartedAt: "{{ ansible_date_time.iso8601 }}"
-    kubeconfig: "/home/{{ ansible_user }}/.kube/config"
+    kubeconfig: "{{ (ansible_user_dir | default(ansible_env.HOME)) }}/.kube/config"
   when: helm_binary_check.rc == 0 and argocd_es_created.changed
   become: false
   tags: ["apps", "argocd", "secrets"]
