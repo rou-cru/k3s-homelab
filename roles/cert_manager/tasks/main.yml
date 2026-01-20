@@ -22,13 +22,11 @@
          if cert_manager_chart_version != '' else omit }}
     kubeconfig: "/home/{{ ansible_user }}/.kube/config"
     values:
-      # CRD Management (modern method)
       installCRDs: false
       crds:
         enabled: true
         keep: true
 
-      # Controller configuration
       replicaCount: 1
       podDisruptionBudget:
         enabled: false
@@ -40,7 +38,6 @@
         limits:
           memory: 256Mi
 
-      # Prometheus monitoring
       prometheus:
         enabled: true
         servicemonitor:
@@ -48,7 +45,6 @@
           interval: 60s
           scrapeTimeout: 30s
 
-      # Webhook configuration
       webhook:
         replicaCount: 1
         podDisruptionBudget:
@@ -60,7 +56,6 @@
           limits:
             memory: 64Mi
 
-      # CA Injector configuration
       cainjector:
         replicaCount: 1
         podDisruptionBudget:
