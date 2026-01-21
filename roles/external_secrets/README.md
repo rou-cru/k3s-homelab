@@ -6,7 +6,7 @@
 
 
 
-
+Description: Install External Secrets Operator and configure an OCI Vault-backed ClusterSecretStore (requires cert-manager).
 
 
 
@@ -88,9 +88,26 @@ classDef rescue stroke:#665352,stroke-width:2px;
 
 
 
+## Author Information
+rc
+
+#### License
+
+MIT
+
+#### Minimum Ansible Version
+
+2.14
+
+#### Platforms
+
+- **Ubuntu**: ['jammy', 'noble']
 
 
 #### Dependencies
 
-No dependencies specified.
+- **cert_manager**
+  
+  
+
 <!-- DOCSIBLE END -->

@@ -6,7 +6,7 @@
 
 
 
-
+Description: Deploy ArgoCD on K3s via Helm (expects External Secrets and an OCI ClusterSecretStore named oci-vault for admin password).
 
 
 
@@ -96,9 +96,26 @@ classDef rescue stroke:#665352,stroke-width:2px;
 
 
 
+## Author Information
+rc
+
+#### License
+
+MIT
+
+#### Minimum Ansible Version
+
+2.14
+
+#### Platforms
+
+- **Ubuntu**: ['jammy', 'noble']
 
 
 #### Dependencies
 
-No dependencies specified.
+- **external_secrets**
+  
+  
+
 <!-- DOCSIBLE END -->

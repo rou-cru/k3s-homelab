@@ -45,10 +45,28 @@ common_inotify_max_instances: 8192
 common_inotify_max_watches: 524288
 # Title: Power Efficiency Tuning
 # Description: Low-level CPU power management (Intel RAPL & P-State) for efficiency/mining.
+# Type: bool
+# Required: false
 common_power_efficiency_tuning_enabled: false
+# Title: Intel RAPL PL1 Limit (Microwatts)
+# Description: Sustained power limit for Intel RAPL (in microwatts).
+# Type: int
+# Required: false
 common_intel_rapl_pl1_limit_microwatts: 100000000
+# Title: Intel RAPL PL2 Limit (Microwatts)
+# Description: Short-term power limit for Intel RAPL (in microwatts).
+# Type: int
+# Required: false
 common_intel_rapl_pl2_limit_microwatts: 140000000
+# Title: Intel P-State Max Performance Percent
+# Description: Maximum CPU performance percent for Intel P-State driver.
+# Type: int
+# Required: false
 common_intel_pstate_max_perf_pct: 80
+# Title: Intel P-State Disable Turbo
+# Description: Disable turbo boost when set to 1.
+# Type: int
+# Required: false
 common_intel_pstate_no_turbo: 1
 # Title: Watchdog Timeout
 # Description: Hardware watchdog timeout in seconds (RuntimeWatchdogSec).
@@ -81,13 +99,31 @@ common_mining_enabled: true
 # Required: false
 common_hugepages_count: 1280
 # Title: Helm Repositories
-# Description: List of Helm repositories to add.
+# Description: List of Helm repositories to add; each item is {name, repo_url}.
 # Type: list
 # Required: false
 common_helm_repositories:
+  # Title: Helm Repository
+  # Description: Helm repository entry with name and repo_url.
+  # Type: dict
+  # Required: false
+  # Cilium CNI charts
   - name: cilium
+    # Title: Helm Repository URL
+    # Description: Chart repository URL.
+    # Type: str
+    # Required: false
     repo_url: "https://helm.cilium.io/"
+  # Title: Helm Repository
+  # Description: Helm repository entry with name and repo_url.
+  # Type: dict
+  # Required: false
+  # NVIDIA device plugin charts
   - name: nvdp
+    # Title: Helm Repository URL
+    # Description: Chart repository URL.
+    # Type: str
+    # Required: false
     repo_url: "https://nvidia.github.io/k8s-device-plugin"
 # Title: UV install script checksum
 # Description: SHA256 for https://astral.sh/uv/install.sh (pin to avoid supply-chain drift).

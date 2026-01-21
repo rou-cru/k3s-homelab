@@ -33,22 +33,22 @@ Description: Deploy Akash Provider stack on K3s cluster
 | [akash_provider_domain](defaults/main.yml#L37)   | str |  |    true  |  Provider Domain |
 | [akash_bid_price_script](defaults/main.yml#L43)   | str |  |    false  |  Provider Bid Price Script |
 | [akash_provider_attributes](defaults/main.yml#L49)   | list | `[]` |    false  |  Provider Attributes |
-| [akash_provider_attributes.**0**](defaults/main.yml#L50)   | dict | `{}` |    None  |  None |
-| [akash_provider_attributes.0.**key**](defaults/main.yml#L50)   | str | `host` |    None  |  None |
-| [akash_provider_attributes.0.**value**](defaults/main.yml#L51)   | str | `akash` |    None  |  None |
-| [akash_provider_attributes.**1**](defaults/main.yml#L52)   | dict | `{}` |    None  |  None |
-| [akash_provider_attributes.1.**key**](defaults/main.yml#L52)   | str | `tier` |    None  |  None |
-| [akash_provider_attributes.1.**value**](defaults/main.yml#L53)   | str | `community` |    None  |  None |
-| [akash_provider_attributes.**2**](defaults/main.yml#L54)   | dict | `{}` |    None  |  None |
-| [akash_provider_attributes.2.**key**](defaults/main.yml#L54)   | str | `organization` |    None  |  None |
-| [akash_provider_attributes.2.**value**](defaults/main.yml#L55)   | str | `homelab` |    None  |  None |
-| [akash_gpu_vendor](defaults/main.yml#L61)   | str | `nvidia` |    false  |  GPU Vendor |
-| [akash_gpu_model](defaults/main.yml#L67)   | str | `rtx4070` |    false  |  GPU Model |
-| [akash_ingress_nginx_version](defaults/main.yml#L73)   | str | `4.11.3` |    false  |  Ingress Nginx Chart Version |
-| [akash_hostname_operator_version](defaults/main.yml#L79)   | str | `1.0.0` |    false  |  Hostname Operator Chart Version |
-| [akash_inventory_operator_version](defaults/main.yml#L85)   | str | `1.0.0` |    false  |  Inventory Operator Chart Version |
-| [akash_provider_version](defaults/main.yml#L91)   | str | `6.0.0` |    false  |  Provider Chart Version |
-| [akash_gpu_enabled](defaults/main.yml#L97)   | bool | `True` |    false  |  Enable GPU Support |
+| [akash_provider_attributes.**0**](defaults/main.yml#L55)   | dict | `{}` |    false  |  Attribute Item |
+| [akash_provider_attributes.0.**key**](defaults/main.yml#L55)   | str | `host` |    false  |  Attribute Item |
+| [akash_provider_attributes.0.**value**](defaults/main.yml#L60)   | str | `akash` |    false  |  Attribute Value |
+| [akash_provider_attributes.**1**](defaults/main.yml#L66)   | dict | `{}` |    false  |  Attribute Item |
+| [akash_provider_attributes.1.**key**](defaults/main.yml#L66)   | str | `tier` |    false  |  Attribute Item |
+| [akash_provider_attributes.1.**value**](defaults/main.yml#L71)   | str | `community` |    false  |  Attribute Value |
+| [akash_provider_attributes.**2**](defaults/main.yml#L76)   | dict | `{}` |    false  |  Attribute Item |
+| [akash_provider_attributes.2.**key**](defaults/main.yml#L76)   | str | `organization` |    false  |  Attribute Item |
+| [akash_provider_attributes.2.**value**](defaults/main.yml#L81)   | str | `homelab` |    false  |  Attribute Value |
+| [akash_gpu_vendor](defaults/main.yml#L87)   | str | `nvidia` |    false  |  GPU Vendor |
+| [akash_gpu_model](defaults/main.yml#L93)   | str | `rtx4070` |    false  |  GPU Model |
+| [akash_ingress_nginx_version](defaults/main.yml#L99)   | str | `4.11.3` |    false  |  Ingress Nginx Chart Version |
+| [akash_hostname_operator_version](defaults/main.yml#L105)   | str | `1.0.0` |    false  |  Hostname Operator Chart Version |
+| [akash_inventory_operator_version](defaults/main.yml#L111)   | str | `1.0.0` |    false  |  Inventory Operator Chart Version |
+| [akash_provider_version](defaults/main.yml#L117)   | str | `6.0.0` |    false  |  Provider Chart Version |
+| [akash_gpu_enabled](defaults/main.yml#L123)   | bool | `True` |    false  |  Enable GPU Support |
 <details>
 <summary><b>🖇️ Full descriptions for vars in defaults/main.yml</b></summary>
 <br>
@@ -61,7 +61,16 @@ Description: Deploy Akash Provider stack on K3s cluster
 <tr><td><b>akash_node_rpc</b></td><td>RPC endpoint for Akash network.</td></tr>
 <tr><td><b>akash_provider_domain</b></td><td>Public domain for provider endpoints.</td></tr>
 <tr><td><b>akash_bid_price_script</b></td><td>Path to bid pricing script.</td></tr>
-<tr><td><b>akash_provider_attributes</b></td><td>Provider attributes for marketplace.</td></tr>
+<tr><td><b>akash_provider_attributes</b></td><td>Provider attributes for marketplace; list of {key,value} entries (e.g., host=akash, tier=community).</td></tr>
+<tr><td><b>akash_provider_attributes.0</b></td><td>Provider attribute key/value pair (key is namespaced attribute, value is string).</td></tr>
+<tr><td><b>akash_provider_attributes.0.key</b></td><td>Provider attribute key/value pair (key is namespaced attribute, value is string).</td></tr>
+<tr><td><b>akash_provider_attributes.0.value</b></td><td>Provider attribute value (string).</td></tr>
+<tr><td><b>akash_provider_attributes.1</b></td><td>Provider attribute key/value pair (key is namespaced attribute, value is string).</td></tr>
+<tr><td><b>akash_provider_attributes.1.key</b></td><td>Provider attribute key/value pair (key is namespaced attribute, value is string).</td></tr>
+<tr><td><b>akash_provider_attributes.1.value</b></td><td>Provider attribute value (string).</td></tr>
+<tr><td><b>akash_provider_attributes.2</b></td><td>Provider attribute key/value pair (key is namespaced attribute, value is string).</td></tr>
+<tr><td><b>akash_provider_attributes.2.key</b></td><td>Provider attribute key/value pair (key is namespaced attribute, value is string).</td></tr>
+<tr><td><b>akash_provider_attributes.2.value</b></td><td>Provider attribute value (string).</td></tr>
 <tr><td><b>akash_gpu_vendor</b></td><td>GPU vendor for GPU-enabled providers.</td></tr>
 <tr><td><b>akash_gpu_model</b></td><td>GPU model name for attributes.</td></tr>
 <tr><td><b>akash_ingress_nginx_version</b></td><td>Version of ingress-nginx Helm chart.</td></tr>
@@ -92,8 +101,8 @@ Description: Deploy Akash Provider stack on K3s cluster
 | [Deploy Akash Hostname Operator](tasks/main.yml#L74) | kubernetes.core.helm | False | Deploy Akash Hostname Operator |
 | [Deploy Akash Inventory Operator](tasks/main.yml#L84) | kubernetes.core.helm | False | Deploy Akash Inventory Operator |
 | [Build provider attributes](tasks/main.yml#L94) | ansible.builtin.set_fact | False | Build provider attributes |
-| [Deploy Akash Provider](tasks/main.yml#L103) | kubernetes.core.helm | True | Deploy Akash Provider |
-| [Display Akash setup instructions](tasks/main.yml#L134) | ansible.builtin.debug | False | Display post-installation instructions |
+| [Deploy Akash Provider](tasks/main.yml#L108) | kubernetes.core.helm | True | Deploy Akash Provider |
+| [Display Akash setup instructions](tasks/main.yml#L139) | ansible.builtin.debug | False | Display post-installation instructions |
 
 
 ## Task Flow Graphs

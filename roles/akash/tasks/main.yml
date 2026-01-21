@@ -96,7 +96,12 @@
     akash_full_attributes: >-
       {{
         akash_provider_attributes +
-        ([{'key': 'capabilities/gpu/vendor/' + akash_gpu_vendor + '/model/' + akash_gpu_model, 'value': 'true'}] if akash_gpu_enabled | bool else [])
+        ([
+          {
+            'key': 'capabilities/gpu/vendor/' + akash_gpu_vendor + '/model/' + akash_gpu_model,
+            'value': 'true'
+          }
+        ] if akash_gpu_enabled | bool else [])
       }}
 
 # Deploy Akash Provider

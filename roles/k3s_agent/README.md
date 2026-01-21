@@ -130,8 +130,8 @@ Description: Install and configure K3s agent node to join existing cluster
 <tr><td><b>k3s_agent_version</b></td><td>K3s version to install (should match server version).</td></tr>
 <tr><td><b>k3s_agent_server_url</b></td><td>K3s server URL to connect to (use Tailscale IP for security).</td></tr>
 <tr><td><b>k3s_agent_token</b></td><td>K3s server token for node authentication (K10 format with CA hash).</td></tr>
-<tr><td><b>k3s_agent_node_labels</b></td><td>Labels to apply to this node.</td></tr>
-<tr><td><b>k3s_agent_node_taints</b></td><td>Taints to apply to this node.</td></tr>
+<tr><td><b>k3s_agent_node_labels</b></td><td>Labels to apply to this node (list of "key=value" strings).</td></tr>
+<tr><td><b>k3s_agent_node_taints</b></td><td>Taints to apply to this node (list of "key=value:effect", e.g., "gpu=true:NoSchedule").</td></tr>
 <tr><td><b>k3s_agent_readyz_retries</b></td><td>Number of retries for the node readiness check.</td></tr>
 <tr><td><b>k3s_agent_readyz_delay</b></td><td>Delay (seconds) between readiness check retries.</td></tr>
 <tr><td><b>k3s_agent_recreate</b></td><td>If true, uninstalls and wipes previous K3s agent before deploying.</td></tr>

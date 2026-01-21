@@ -6,7 +6,7 @@
 
 
 
-
+Description: Install gVisor runsc and register a RuntimeClass for K3s server workloads.
 
 
 
@@ -82,9 +82,26 @@ classDef rescue stroke:#665352,stroke-width:2px;
 
 
 
+## Author Information
+rc
+
+#### License
+
+MIT
+
+#### Minimum Ansible Version
+
+2.14
+
+#### Platforms
+
+- **Ubuntu**: ['jammy', 'noble']
 
 
 #### Dependencies
 
-No dependencies specified.
+- **k3s_server**
+  
+  
+
 <!-- DOCSIBLE END -->

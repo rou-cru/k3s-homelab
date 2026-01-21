@@ -1,0 +1,17 @@
+---
+galaxy_info:
+  description: Install cert-manager on K3s and bootstrap a self-signed CA with ClusterIssuers.
+  author: rc
+  license: MIT
+  min_ansible_version: "2.14"
+  platforms:
+    - name: Ubuntu
+      versions:
+        - jammy
+        - noble
+  galaxy_tags:
+    - kubernetes
+    - k3s
+    - cert-manager
+
+dependencies: []

@@ -19,9 +19,14 @@ glances_bind_address: "127.0.0.1"
 # Required: false
 glances_venv_path: "/opt/glances"
 # Title: Package List
-# Description: Glances packages to install with all extras for full functionality.
+# Description: Glances packages to install (list of pip specifiers, e.g., "glances[all]").
 # Type: list
 # Required: false
 # Install 'all' extras for full sensor support, web server, gpu, etc.
 glances_packages:
+  # Title: Glances Package
+  # Description: Pip package specifier for Glances (include extras as needed).
+  # Type: str
+  # Required: false
+  # Full extras for web UI and sensors
   - "glances[all]"

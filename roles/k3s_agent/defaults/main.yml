@@ -17,13 +17,13 @@ k3s_agent_server_url: ""
 k3s_agent_token: ""
 
 # Title: Node Labels
-# Description: Labels to apply to this node.
+# Description: Labels to apply to this node (list of "key=value" strings).
 # Type: list
 # Required: false
 k3s_agent_node_labels: []
 
 # Title: Node Taints
-# Description: Taints to apply to this node.
+# Description: Taints to apply to this node (list of "key=value:effect", e.g., "gpu=true:NoSchedule").
 # Type: list
 # Required: false
 k3s_agent_node_taints: []

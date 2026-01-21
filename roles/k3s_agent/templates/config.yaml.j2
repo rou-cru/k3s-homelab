@@ -14,15 +14,15 @@ flannel-backend: "none"
 {% if k3s_agent_node_labels | length > 0 %}
 # Node labels
 node-label:
-{% for label in k3s_agent_node_labels %}
+{%     for label in k3s_agent_node_labels %}
   - "{{ label }}"
-{% endfor %}
+{%     endfor %}
 {% endif %}
 
 {% if k3s_agent_node_taints | length > 0 %}
 # Node taints
 node-taint:
-{% for taint in k3s_agent_node_taints %}
+{%     for taint in k3s_agent_node_taints %}
   - "{{ taint }}"
-{% endfor %}
+{%     endfor %}
 {% endif %}

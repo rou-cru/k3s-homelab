@@ -43,15 +43,41 @@ akash_provider_domain: ""
 akash_bid_price_script: ""
 
 # Title: Provider Attributes
-# Description: Provider attributes for marketplace.
+# Description: Provider attributes for marketplace; list of {key,value} entries (e.g., host=akash, tier=community).
 # Type: list
 # Required: false
 akash_provider_attributes:
+  # Title: Attribute Item
+  # Description: Provider attribute key/value pair (key is namespaced attribute, value is string).
+  # Type: dict
+  # Required: false
+  # Base provider identity
   - key: host
+    # Title: Attribute Value
+    # Description: Provider attribute value (string).
+    # Type: str
+    # Required: false
     value: akash
+  # Title: Attribute Item
+  # Description: Provider attribute key/value pair (key is namespaced attribute, value is string).
+  # Type: dict
+  # Required: false
+  # Pricing tier and organization metadata
   - key: tier
+    # Title: Attribute Value
+    # Description: Provider attribute value (string).
+    # Type: str
+    # Required: false
     value: community
+  # Title: Attribute Item
+  # Description: Provider attribute key/value pair (key is namespaced attribute, value is string).
+  # Type: dict
+  # Required: false
   - key: organization
+    # Title: Attribute Value
+    # Description: Provider attribute value (string).
+    # Type: str
+    # Required: false
     value: homelab
 
 # Title: GPU Vendor

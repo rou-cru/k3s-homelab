@@ -103,7 +103,7 @@ Description: Install and configure Glances system monitoring with web interface.
 | [glances_bind_address](defaults/main.yml#L15)   | str | `127.0.0.1` |    false  |  Bind Address |
 | [glances_venv_path](defaults/main.yml#L20)   | str | `/opt/glances` |    false  |  Virtual Environment Path |
 | [glances_packages](defaults/main.yml#L26)   | list | `[]` |    false  |  Package List |
-| [glances_packages.**0**](defaults/main.yml#L27)   | str | `glances[all]` |    None  |  None |
+| [glances_packages.**0**](defaults/main.yml#L32)   | str | `glances[all]` |    false  |  Glances Package |
 <details>
 <summary><b>🖇️ Full descriptions for vars in defaults/main.yml</b></summary>
 <br>
@@ -113,7 +113,8 @@ Description: Install and configure Glances system monitoring with web interface.
 <tr><td><b>glances_port</b></td><td>Port number for Glances web interface.</td></tr>
 <tr><td><b>glances_bind_address</b></td><td>IP address to bind the web interface (127.0.0.1 for localhost only).</td></tr>
 <tr><td><b>glances_venv_path</b></td><td>Path where Glances virtual environment will be installed.</td></tr>
-<tr><td><b>glances_packages</b></td><td>Glances packages to install with all extras for full functionality.</td></tr>
+<tr><td><b>glances_packages</b></td><td>Glances packages to install (list of pip specifiers, e.g., "glances[all]").</td></tr>
+<tr><td><b>glances_packages.0</b></td><td>Pip package specifier for Glances (include extras as needed).</td></tr>
 </table>
 <br>
 </details>

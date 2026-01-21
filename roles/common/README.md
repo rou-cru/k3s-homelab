@@ -261,26 +261,26 @@ RoG hardware tweaks, and network optimizations.
 | [common_fs_file_max](defaults/main.yml#L35)   | int | `2097152` |    false  |  System File Max |
 | [common_inotify_max_instances](defaults/main.yml#L40)   | int | `8192` |    false  |  Inotify Instances |
 | [common_inotify_max_watches](defaults/main.yml#L45)   | int | `524288` |    false  |  Inotify Watches |
-| [common_power_efficiency_tuning_enabled](defaults/main.yml#L48)   | bool | `False` |    None  |  Power Efficiency Tuning |
-| [common_intel_rapl_pl1_limit_microwatts](defaults/main.yml#L49)   | int | `100000000` |    None  |  None |
-| [common_intel_rapl_pl2_limit_microwatts](defaults/main.yml#L50)   | int | `140000000` |    None  |  None |
-| [common_intel_pstate_max_perf_pct](defaults/main.yml#L51)   | int | `80` |    None  |  None |
-| [common_intel_pstate_no_turbo](defaults/main.yml#L52)   | int | `1` |    None  |  None |
-| [common_watchdog_timeout_sec](defaults/main.yml#L57)   | int | `120` |    false  |  Watchdog Timeout |
-| [common_battery_charge_threshold](defaults/main.yml#L62)   | int | `80` |    false  |  Battery Charge Threshold |
-| [common_thermal_policy](defaults/main.yml#L67)   | int | `1` |    false  |  Thermal Policy |
-| [common_ring_buffer_target](defaults/main.yml#L72)   | int | `4096` |    false  |  Ring Buffer Target |
-| [common_mining_enabled](defaults/main.yml#L77)   | bool | `True` |    false  |  Mining Optimization |
-| [common_hugepages_count](defaults/main.yml#L82)   | int | `1280` |    false  |  Hugepages Count |
-| [common_helm_repositories](defaults/main.yml#L87)   | list | `[]` |    false  |  Helm Repositories |
-| [common_helm_repositories.**0**](defaults/main.yml#L88)   | dict | `{}` |    None  |  None |
-| [common_helm_repositories.0.**name**](defaults/main.yml#L88)   | str | `cilium` |    None  |  None |
-| [common_helm_repositories.0.**repo_url**](defaults/main.yml#L89)   | str | `https://helm.cilium.io/` |    None  |  None |
-| [common_helm_repositories.**1**](defaults/main.yml#L90)   | dict | `{}` |    None  |  None |
-| [common_helm_repositories.1.**name**](defaults/main.yml#L90)   | str | `nvdp` |    None  |  None |
-| [common_helm_repositories.1.**repo_url**](defaults/main.yml#L91)   | str | `https://nvidia.github.io/k8s-device-plugin` |    None  |  None |
-| [common_uv_install_script_checksum](defaults/main.yml#L96)   | str | `10fb1f54d56f3eb60622006797339d4ea0bfda9b358d07db635f73cf89f7094c` |    false  |  UV install script checksum |
-| [common_helm_install_script_checksum](defaults/main.yml#L101)   | str | `38b65f882d9cae3891755bdb03becc6a01ae6f9cb24826c191f219ddfee70a5d` |    false  |  Helm install script checksum |
+| [common_power_efficiency_tuning_enabled](defaults/main.yml#L50)   | bool | `False` |    false  |  Power Efficiency Tuning |
+| [common_intel_rapl_pl1_limit_microwatts](defaults/main.yml#L55)   | int | `100000000` |    false  |  Intel RAPL PL1 Limit (Microwatts) |
+| [common_intel_rapl_pl2_limit_microwatts](defaults/main.yml#L60)   | int | `140000000` |    false  |  Intel RAPL PL2 Limit (Microwatts) |
+| [common_intel_pstate_max_perf_pct](defaults/main.yml#L65)   | int | `80` |    false  |  Intel P-State Max Performance Percent |
+| [common_intel_pstate_no_turbo](defaults/main.yml#L70)   | int | `1` |    false  |  Intel P-State Disable Turbo |
+| [common_watchdog_timeout_sec](defaults/main.yml#L75)   | int | `120` |    false  |  Watchdog Timeout |
+| [common_battery_charge_threshold](defaults/main.yml#L80)   | int | `80` |    false  |  Battery Charge Threshold |
+| [common_thermal_policy](defaults/main.yml#L85)   | int | `1` |    false  |  Thermal Policy |
+| [common_ring_buffer_target](defaults/main.yml#L90)   | int | `4096` |    false  |  Ring Buffer Target |
+| [common_mining_enabled](defaults/main.yml#L95)   | bool | `True` |    false  |  Mining Optimization |
+| [common_hugepages_count](defaults/main.yml#L100)   | int | `1280` |    false  |  Hugepages Count |
+| [common_helm_repositories](defaults/main.yml#L105)   | list | `[]` |    false  |  Helm Repositories |
+| [common_helm_repositories.**0**](defaults/main.yml#L111)   | dict | `{}` |    false  |  Helm Repository |
+| [common_helm_repositories.0.**name**](defaults/main.yml#L111)   | str | `cilium` |    false  |  Helm Repository |
+| [common_helm_repositories.0.**repo_url**](defaults/main.yml#L116)   | str | `https://helm.cilium.io/` |    false  |  Helm Repository URL |
+| [common_helm_repositories.**1**](defaults/main.yml#L122)   | dict | `{}` |    false  |  Helm Repository |
+| [common_helm_repositories.1.**name**](defaults/main.yml#L122)   | str | `nvdp` |    false  |  Helm Repository |
+| [common_helm_repositories.1.**repo_url**](defaults/main.yml#L127)   | str | `https://nvidia.github.io/k8s-device-plugin` |    false  |  Helm Repository URL |
+| [common_uv_install_script_checksum](defaults/main.yml#L132)   | str | `10fb1f54d56f3eb60622006797339d4ea0bfda9b358d07db635f73cf89f7094c` |    false  |  UV install script checksum |
+| [common_helm_install_script_checksum](defaults/main.yml#L137)   | str | `38b65f882d9cae3891755bdb03becc6a01ae6f9cb24826c191f219ddfee70a5d` |    false  |  Helm install script checksum |
 <details>
 <summary><b>🖇️ Full descriptions for vars in defaults/main.yml</b></summary>
 <br>
@@ -296,13 +296,23 @@ RoG hardware tweaks, and network optimizations.
 <tr><td><b>common_inotify_max_instances</b></td><td>Max inotify instances per user.</td></tr>
 <tr><td><b>common_inotify_max_watches</b></td><td>Max inotify watches per user.</td></tr>
 <tr><td><b>common_power_efficiency_tuning_enabled</b></td><td>Low-level CPU power management (Intel RAPL & P-State) for efficiency/mining.</td></tr>
+<tr><td><b>common_intel_rapl_pl1_limit_microwatts</b></td><td>Sustained power limit for Intel RAPL (in microwatts).</td></tr>
+<tr><td><b>common_intel_rapl_pl2_limit_microwatts</b></td><td>Short-term power limit for Intel RAPL (in microwatts).</td></tr>
+<tr><td><b>common_intel_pstate_max_perf_pct</b></td><td>Maximum CPU performance percent for Intel P-State driver.</td></tr>
+<tr><td><b>common_intel_pstate_no_turbo</b></td><td>Disable turbo boost when set to 1.</td></tr>
 <tr><td><b>common_watchdog_timeout_sec</b></td><td>Hardware watchdog timeout in seconds (RuntimeWatchdogSec).</td></tr>
 <tr><td><b>common_battery_charge_threshold</b></td><td>Battery charge limit percentage for RoG laptops.</td></tr>
 <tr><td><b>common_thermal_policy</b></td><td>RoG thermal policy ID (0=balanced, 1=turbo, 2=silent - check specific model).</td></tr>
 <tr><td><b>common_ring_buffer_target</b></td><td>Target size for network ring buffers.</td></tr>
 <tr><td><b>common_mining_enabled</b></td><td>Enables optimizations for crypto mining (hugepages, MSR).</td></tr>
 <tr><td><b>common_hugepages_count</b></td><td>Number of hugepages to allocate if mining is enabled.</td></tr>
-<tr><td><b>common_helm_repositories</b></td><td>List of Helm repositories to add.</td></tr>
+<tr><td><b>common_helm_repositories</b></td><td>List of Helm repositories to add; each item is {name, repo_url}.</td></tr>
+<tr><td><b>common_helm_repositories.0</b></td><td>Helm repository entry with name and repo_url.</td></tr>
+<tr><td><b>common_helm_repositories.0.name</b></td><td>Helm repository entry with name and repo_url.</td></tr>
+<tr><td><b>common_helm_repositories.0.repo_url</b></td><td>Chart repository URL.</td></tr>
+<tr><td><b>common_helm_repositories.1</b></td><td>Helm repository entry with name and repo_url.</td></tr>
+<tr><td><b>common_helm_repositories.1.name</b></td><td>Helm repository entry with name and repo_url.</td></tr>
+<tr><td><b>common_helm_repositories.1.repo_url</b></td><td>Chart repository URL.</td></tr>
 <tr><td><b>common_uv_install_script_checksum</b></td><td>SHA256 for https://astral.sh/uv/install.sh (pin to avoid supply-chain drift).</td></tr>
 <tr><td><b>common_helm_install_script_checksum</b></td><td>SHA256 for https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3.</td></tr>
 </table>

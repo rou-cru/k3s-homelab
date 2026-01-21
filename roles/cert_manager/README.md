@@ -6,7 +6,7 @@
 
 
 
-
+Description: Install cert-manager on K3s and bootstrap a self-signed CA with ClusterIssuers.
 
 
 
@@ -102,6 +102,20 @@ classDef rescue stroke:#665352,stroke-width:2px;
 
 
 
+## Author Information
+rc
+
+#### License
+
+MIT
+
+#### Minimum Ansible Version
+
+2.14
+
+#### Platforms
+
+- **Ubuntu**: ['jammy', 'noble']
 
 
 #### Dependencies
