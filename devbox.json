@@ -19,7 +19,8 @@
     "ansible@latest",
     "python@3.12",
     "uv@latest",
-    "trufflehog@latest"
+    "trufflehog@latest",
+    "sshpass@latest"
   ],
   "shell": {
     "init_hook": [
