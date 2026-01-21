@@ -1,0 +1,18 @@
+---
+galaxy_info:
+  author: rc
+  description: Deploy Longhorn distributed storage on K3s
+  license: MIT
+  min_ansible_version: "2.14"
+  platforms:
+    - name: Ubuntu
+      versions:
+        - jammy
+        - noble
+  galaxy_tags:
+    - kubernetes
+    - k3s
+    - storage
+    - longhorn
+
+dependencies: []

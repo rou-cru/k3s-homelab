@@ -1,0 +1,126 @@
+---
+# CPU cryptocurrency miner deployment using host network for optimal performance
+# Priority: Background - will be preempted when higher priority workloads need resources
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cpu-miner
+  namespace: workloads
+  labels:
+    app: cpu-miner
+    app.kubernetes.io/managed-by: argocd
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: cpu-miner
+  template:
+    metadata:
+      labels:
+        app: cpu-miner
+    spec:
+      priorityClassName: priority-background
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      tolerations:
+        - key: "miner.cpu"
+          operator: "Equal"
+          value: "true"
+          effect: "NoSchedule"
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: miner.cpu
+                    operator: In
+                    values: ["true"]
+      containers:
+        - name: cpu-miner
+          image: roucru/k3s-cpu-miner:tnn
+          imagePullPolicy: Always
+          securityContext:
+            privileged: true
+            runAsUser: 0
+          env:
+            - name: MINING_POOL_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: mining-pools
+                  key: KRYPTEX_XEL_HOST
+            - name: MINING_POOL_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: mining-pools
+                  key: KRYPTEX_XEL_PORT
+            - name: MINING_POOL_SCHEME
+              valueFrom:
+                configMapKeyRef:
+                  name: mining-pools
+                  key: KRYPTEX_XEL_SCHEME
+            - name: MINING_ALGO
+              valueFrom:
+                configMapKeyRef:
+                  name: cpu-miner-config
+                  key: MINING_ALGO
+            - name: MINING_COIN
+              valueFrom:
+                configMapKeyRef:
+                  name: cpu-miner-config
+                  key: MINING_COIN
+            - name: REFERRAL_CODE
+              valueFrom:
+                configMapKeyRef:
+                  name: cpu-miner-config
+                  key: REFERRAL_CODE
+            - name: MINING_WORKER_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: cpu-miner-config
+                  key: MINING_WORKER_NAME
+            - name: POOL_TYPE
+              value: "kryptex"
+            - name: MINING_THREADS
+              valueFrom:
+                configMapKeyRef:
+                  name: cpu-miner-config
+                  key: MINING_THREADS
+            - name: CPU_AFFINITY_MASK
+              valueFrom:
+                configMapKeyRef:
+                  name: cpu-miner-config
+                  key: CPU_AFFINITY_MASK
+            - name: DEV_FEE
+              valueFrom:
+                configMapKeyRef:
+                  name: cpu-miner-config
+                  key: DEV_FEE
+            - name: WALLET_ADDRESS
+              valueFrom:
+                secretKeyRef:
+                  name: mining-wallets
+                  key: XEL_WALLET
+          resources:
+            requests:
+              cpu: "8"
+              memory: 3Gi
+              hugepages-2Mi: 2560Mi
+            limits:
+              cpu: "8"
+              memory: 3Gi
+              hugepages-2Mi: 2560Mi
+          volumeMounts:
+            - name: dev-cpu
+              mountPath: /dev/cpu
+            - name: hugepages
+              mountPath: /dev/hugepages
+      volumes:
+        - name: dev-cpu
+          hostPath:
+            path: /dev/cpu
+            type: Directory
+        - name: hugepages
+          emptyDir:
+            medium: HugePages-2Mi

@@ -1,0 +1,149 @@
+---
+# Akash Provider Installation
+# Deploys Akash provider stack on K3s cluster
+
+# Validate required variables
+- name: Validate Akash configuration
+  ansible.builtin.assert:
+    that:
+      - akash_wallet_address | length > 0
+      - akash_provider_domain | length > 0
+    fail_msg: "ERROR: akash_wallet_address and akash_provider_domain are required"
+
+# Add Akash Helm repository
+- name: Add Akash Helm repository
+  kubernetes.core.helm_repository:
+    name: akash
+    repo_url: "https://akash-network.github.io/helm-charts"
+  become: false
+
+# Add Ingress Nginx Helm repository
+- name: Add Ingress Nginx Helm repository
+  kubernetes.core.helm_repository:
+    name: ingress-nginx
+    repo_url: "https://kubernetes.github.io/ingress-nginx"
+  become: false
+
+# Create akash-services namespace
+- name: Create akash-services namespace
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: akash-services
+        labels:
+          app.kubernetes.io/managed-by: ansible
+          pod-security.kubernetes.io/enforce: restricted
+  become: false
+
+# Deploy Ingress Nginx for Akash
+- name: Deploy Ingress Nginx for Akash
+  kubernetes.core.helm:
+    name: akash-ingress
+    chart_ref: ingress-nginx/ingress-nginx
+    chart_version: "{{ akash_ingress_nginx_version }}"
+    release_namespace: akash-services
+    create_namespace: false
+    values:
+      controller:
+        ingressClassResource:
+          name: akash-nginx
+          enabled: true
+          default: false
+        ingressClass: akash-nginx
+        hostNetwork: true
+        dnsPolicy: ClusterFirstWithHostNet
+        kind: DaemonSet
+        service:
+          enabled: false
+        config:
+          allow-snippet-annotations: "false"
+          proxy-buffer-size: "16k"
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+  become: false
+
+# Deploy Akash Hostname Operator
+- name: Deploy Akash Hostname Operator
+  kubernetes.core.helm:
+    name: akash-hostname-operator
+    chart_ref: akash/akash-hostname-operator
+    chart_version: "{{ akash_hostname_operator_version }}"
+    release_namespace: akash-services
+    create_namespace: false
+  become: false
+
+# Deploy Akash Inventory Operator
+- name: Deploy Akash Inventory Operator
+  kubernetes.core.helm:
+    name: akash-inventory-operator
+    chart_ref: akash/akash-inventory-operator
+    chart_version: "{{ akash_inventory_operator_version }}"
+    release_namespace: akash-services
+    create_namespace: false
+  become: false
+
+# Build provider attributes
+- name: Build provider attributes
+  ansible.builtin.set_fact:
+    akash_full_attributes: >-
+      {{
+        akash_provider_attributes +
+        ([{'key': 'capabilities/gpu/vendor/' + akash_gpu_vendor + '/model/' + akash_gpu_model, 'value': 'true'}] if akash_gpu_enabled | bool else [])
+      }}
+
+# Deploy Akash Provider
+- name: Deploy Akash Provider
+  kubernetes.core.helm:
+    name: akash-provider
+    chart_ref: akash/provider
+    chart_version: "{{ akash_provider_version }}"
+    release_namespace: akash-services
+    create_namespace: false
+    values:
+      provider:
+        moniker: "{{ akash_node_moniker }}"
+        domain: "{{ akash_provider_domain }}"
+        attributes: "{{ akash_full_attributes }}"
+        withdrawalPeriod: "24h"
+        bidPriceStrategy: "shellScript"
+        bidPriceScript: "{{ akash_bid_price_script | default('') }}"
+      node:
+        chainId: "{{ akash_chain_id }}"
+        rpcEndpoint: "{{ akash_node_rpc }}"
+      keyring:
+        backend: "{{ akash_keyring_backend }}"
+      resources:
+        requests:
+          cpu: 100m
+          memory: 256Mi
+        limits:
+          cpu: 500m
+          memory: 512Mi
+  become: false
+  when: akash_wallet_address | length > 0
+
+# Display post-installation instructions
+- name: Display Akash setup instructions
+  ansible.builtin.debug:
+    msg: |
+      ====================================
+      Akash Provider Deployed
+      ====================================
+      Moniker: {{ akash_node_moniker }}
+      Domain: {{ akash_provider_domain }}
+      GPU Enabled: {{ akash_gpu_enabled }}
+
+      Next steps:
+      1. Import wallet keys to provider pod
+      2. Configure TLSRoute for ingress
+      3. Set up Egress Gateway for SNAT
+      4. Register provider on Akash network
+      ====================================

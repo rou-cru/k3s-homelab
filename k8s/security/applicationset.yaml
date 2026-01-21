@@ -1,0 +1,41 @@
+---
+# ArgoCD ApplicationSet for Security Stack
+# Auto-discovers and deploys security policies from k8s/security/
+# Includes Kyverno, NetworkPolicies, and policy enforcement tools
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: security
+  namespace: argocd
+spec:
+  generators:
+    - git:
+        repoURL: https://github.com/YOUR_USERNAME/k3s-homelab.git  # TODO: Replace with your repo URL
+        revision: HEAD
+        directories:
+          - path: k8s/security/*
+          - path: k8s/security/governance
+            exclude: true   # Governance deployed separately
+          - path: k8s/security/infrastructure
+            exclude: true   # Infrastructure deployed via bootstrap
+  template:
+    metadata:
+      name: '{{path.basename}}'
+      labels:
+        stack: security
+    spec:
+      project: security
+      source:
+        repoURL: https://github.com/YOUR_USERNAME/k3s-homelab.git  # TODO: Replace with your repo URL
+        targetRevision: HEAD
+        path: '{{path}}'
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: security
+      syncPolicy:
+        automated:
+          prune: true      # Remove policies when deleted from Git
+          selfHeal: true   # Auto-correct policy drift
+        syncOptions:
+          - CreateNamespace=false  # Namespace created by governance
+          - PruneLast=true         # Delete policies last to avoid disruption

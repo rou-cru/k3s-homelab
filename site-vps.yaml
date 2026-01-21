@@ -1,0 +1,98 @@
+---
+# site-vps.yaml - Setup K3s VPS Agent Node
+# This playbook configures a VPS as an edge/gateway node for the k3s cluster
+
+- name: Setup K3s VPS Agent Node
+  hosts: vps
+  become: true
+  vars_files:
+    - "{{ secrets_file | default('secrets.yaml') }}"
+  pre_tasks:
+    - name: Update APT cache
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 3600
+      tags: always
+
+    - name: Validate Tailscale AuthKey presence
+      ansible.builtin.assert:
+        that:
+          - tailscale_authkey is defined
+          - tailscale_authkey | length > 0
+          - "tailscale_authkey != 'tskey-auth-REPLACE-WITH-REAL-KEY'"
+        fail_msg: "ERROR: Configure your real 'tailscale_authkey' in 'secrets.yaml'."
+        success_msg: "Tailscale AuthKey validated successfully."
+      tags: always
+      no_log: true
+
+  tasks:
+    # Phase 1: OS-level configuration
+    - name: Run preflight role
+      ansible.builtin.import_role:
+        name: preflight
+      tags: ["host", "os"]
+
+    - name: Run common role
+      ansible.builtin.import_role:
+        name: common
+      tags: ["host", "os"]
+
+    - name: Run glances monitoring
+      ansible.builtin.import_role:
+        name: glances
+      tags: ["host", "os"]
+
+    # Phase 2: Network connectivity
+    - name: Run tailscale role
+      ansible.builtin.import_role:
+        name: tailscale
+      tags: ["host", "network"]
+
+    # Phase 3: Container runtime isolation
+    - name: Run gvisor role
+      ansible.builtin.import_role:
+        name: gvisor
+      tags: ["host", "os", "security"]
+
+    - name: Flush host handlers before cluster join
+      ansible.builtin.meta: flush_handlers
+
+    # Phase 4: K3s Agent join
+    - name: Retrieve K3s server token from master
+      ansible.builtin.slurp:
+        src: /var/lib/rancher/k3s/server/node-token
+      register: k3s_token_raw
+      delegate_to: "{{ groups['k3s_server'][0] }}"
+      become: true
+      tags: ["cluster"]
+
+    - name: Set K3s token fact
+      ansible.builtin.set_fact:
+        k3s_agent_token: "{{ k3s_token_raw.content | b64decode | trim }}"
+      no_log: true
+      tags: ["cluster"]
+
+    - name: Run k3s_agent role
+      ansible.builtin.import_role:
+        name: k3s_agent
+      tags: ["cluster"]
+
+  post_tasks:
+    - name: Display VPS setup summary
+      ansible.builtin.debug:
+        msg: |
+          ====================================
+          VPS Node Setup Complete
+          ====================================
+          Hostname: {{ ansible_hostname }}
+          Tailscale IP: {{ tailscale_ip }}
+          Public IP: {{ ansible_host }}
+          K3s Server: {{ k3s_agent_server_url }}
+          Exit Node: {{ tailscale_exit_node_enabled | default(false) }}
+
+          Next steps:
+          1. Approve exit node in Tailscale admin console
+          2. Verify node is Ready: kubectl get nodes
+          3. Configure Gateway API resources
+          ====================================
+      tags: always

@@ -1,0 +1,191 @@
+# Validate Tailscale IP address format for secure cluster communication
+- name: Validate Tailscale IP
+  ansible.builtin.assert:
+    that:
+      - tailscale_ip is defined
+      - tailscale_ip | length > 0
+      - tailscale_ip is match('^100\.')
+    fail_msg: "ERROR: Invalid tailscale_ip ({{ tailscale_ip | default('undefined') }}). Must be 100.x.x.x"
+
+# Validate required server connection parameters
+- name: Validate server parameters
+  ansible.builtin.assert:
+    that:
+      - k3s_agent_server_url | length > 0
+      - k3s_agent_token | length > 0
+    fail_msg: "ERROR: k3s_agent_server_url and k3s_agent_token are required"
+
+# Check if K3s agent uninstall script exists for cleanup operations
+- name: Check uninstall script
+  ansible.builtin.stat:
+    path: /usr/local/bin/k3s-agent-uninstall.sh
+  register: k3s_agent_uninstall_script
+
+# Uninstall existing K3s agent if recreation is requested
+- name: Recreate agent
+  ansible.builtin.command: /usr/local/bin/k3s-agent-uninstall.sh
+  when:
+    - k3s_agent_recreate | bool
+    - k3s_agent_uninstall_script.stat.exists
+  register: k3s_uninstall
+  changed_when: k3s_uninstall.rc == 0
+
+# Remove K3s data directories for clean installation
+- name: Cleanup directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /var/lib/rancher/k3s
+    - /etc/rancher/k3s
+    - /var/lib/kubelet
+    - /var/lib/cni
+    - /etc/cni/net.d
+  when:
+    - k3s_agent_recreate | bool
+    - k3s_agent_uninstall_script.stat.exists
+
+# Create K3s configuration directory
+- name: Create config dir
+  ansible.builtin.file:
+    path: /etc/rancher/k3s
+    state: directory
+    mode: "0755"
+
+# Ensure CNI config directory exists
+- name: Ensure CNI config directory exists
+  ansible.builtin.file:
+    path: "{{ k3s_cni_conf_dir }}"
+    state: directory
+    mode: "0755"
+
+# Ensure CNI bin directory exists
+- name: Ensure CNI bin directory exists
+  ansible.builtin.file:
+    path: "{{ k3s_cni_bin_dir }}"
+    state: directory
+    mode: "0755"
+
+# Ensure K3s agent etc directory exists for containerd config
+- name: Ensure K3s agent etc directory exists
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/agent/etc/containerd
+    state: directory
+    mode: "0755"
+    recurse: true
+
+# Deploy containerd configuration template (same as server)
+- name: Deploy containerd configuration template
+  ansible.builtin.template:
+    src: containerd-config.toml.tmpl.j2
+    dest: /var/lib/rancher/k3s/agent/etc/containerd/config.toml.tmpl
+    mode: "0644"
+  notify: Restart k3s-agent
+
+# Deploy K3s agent configuration
+- name: Deploy agent config
+  ansible.builtin.template:
+    src: config.yaml.j2
+    dest: /etc/rancher/k3s/config.yaml
+    mode: "0600"
+  notify: Restart k3s-agent
+
+# Download and install K3s agent with specified version
+- name: Install K3s agent
+  ansible.builtin.shell: |
+    set -o pipefail
+    curl -sfL https://get.k3s.io | \
+      INSTALL_K3S_VERSION="{{ k3s_agent_version }}" \
+      INSTALL_K3S_EXEC="agent" \
+      K3S_URL="{{ k3s_agent_server_url }}" \
+      K3S_TOKEN="{{ k3s_agent_token }}" \
+      sh -
+  args:
+    executable: /bin/bash
+    creates: /usr/local/bin/k3s
+  no_log: true
+
+# Create systemd override directory for K3s agent service customization
+- name: Create override dir
+  ansible.builtin.file:
+    path: /etc/systemd/system/k3s-agent.service.d
+    state: directory
+    mode: "0755"
+
+# Override K3s agent service configuration for clean startup
+- name: Create override
+  ansible.builtin.copy:
+    dest: /etc/systemd/system/k3s-agent.service.d/override.conf
+    content: |
+      [Service]
+      ExecStart=
+      ExecStart=/usr/local/bin/k3s agent
+    mode: "0644"
+  notify: Restart k3s-agent
+
+# Reload systemd configuration after service changes
+- name: Reload systemd
+  ansible.builtin.systemd:
+    daemon_reload: true
+
+# Enable and start K3s agent service
+- name: Start K3s agent
+  ansible.builtin.systemd:
+    name: k3s-agent
+    enabled: true
+    state: started
+
+# Apply pending service restarts before continuing
+- name: Flush handlers
+  ansible.builtin.meta: flush_handlers
+
+# Wait for node to appear and become ready on the cluster
+- name: Wait for node to be ready
+  ansible.builtin.shell: |
+    set -o pipefail
+    kubectl get node {{ ansible_hostname }} -o jsonpath='{.status.conditions[?(@.type=="Ready")].status}'
+  args:
+    executable: /bin/bash
+  environment:
+    KUBECONFIG: "{{ k3s_agent_kubeconfig_path | default('/etc/rancher/k3s/k3s.yaml') }}"
+  delegate_to: "{{ groups['k3s_server'][0] }}"
+  register: node_ready
+  retries: "{{ k3s_agent_readyz_retries }}"
+  delay: "{{ k3s_agent_readyz_delay }}"
+  until: node_ready.stdout == "True"
+  changed_when: false
+  when: not ansible_check_mode
+  become: true
+
+# Apply node labels if specified
+- name: Apply node labels
+  ansible.builtin.command: >
+    kubectl label node {{ ansible_hostname }} {{ item }} --overwrite
+  environment:
+    KUBECONFIG: "{{ k3s_agent_kubeconfig_path | default('/etc/rancher/k3s/k3s.yaml') }}"
+  delegate_to: "{{ groups['k3s_server'][0] }}"
+  loop: "{{ k3s_agent_node_labels }}"
+  when:
+    - k3s_agent_node_labels | length > 0
+    - not ansible_check_mode
+  changed_when: true
+  become: true
+
+# Apply node taints if specified
+- name: Apply node taints
+  ansible.builtin.command: >
+    kubectl taint node {{ ansible_hostname }} {{ item }} --overwrite
+  environment:
+    KUBECONFIG: "{{ k3s_agent_kubeconfig_path | default('/etc/rancher/k3s/k3s.yaml') }}"
+  delegate_to: "{{ groups['k3s_server'][0] }}"
+  loop: "{{ k3s_agent_node_taints }}"
+  when:
+    - k3s_agent_node_taints | length > 0
+    - not ansible_check_mode
+  changed_when: true
+  become: true
+
+# Display success message
+- name: Show agent join status
+  ansible.builtin.debug:
+    msg: "✅ K3s agent {{ ansible_hostname }} joined cluster at {{ k3s_agent_server_url }}"

@@ -1,0 +1,146 @@
+---
+# ArgoCD AppProjects for k3s-homelab multi-tenant architecture
+# Each project defines RBAC boundaries and deployment permissions for a stack
+# Projects implement least-privilege principle - workloads can only deploy to specific namespaces
+
+# Infrastructure Project - Core cluster components
+# Managed via Ansible bootstrap, includes CNI, cert-manager, external-secrets
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: infrastructure
+  namespace: argocd
+spec:
+  description: Core infrastructure components (bootstrap-managed)
+  sourceRepos:
+    - '*'  # Allow any repository (in production, restrict to specific repos)
+  destinations:
+    - namespace: kube-system
+      server: https://kubernetes.default.svc
+    - namespace: cert-manager
+      server: https://kubernetes.default.svc
+    - namespace: external-secrets
+      server: https://kubernetes.default.svc
+  clusterResourceWhitelist:
+    - group: '*'
+      kind: '*'  # Infrastructure needs broad access for CNI, storage, etc.
+  namespaceResourceWhitelist:
+    - group: '*'
+      kind: '*'
+---
+# Observability Project - Monitoring, logging, alerting stack
+# Includes Prometheus, Grafana, Loki, and Fluent-bit
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: observability
+  namespace: argocd
+spec:
+  description: Observability stack - monitoring, logging, alerting
+  sourceRepos:
+    - '*'
+  destinations:
+    - namespace: observability
+      server: https://kubernetes.default.svc
+  clusterResourceWhitelist:
+    - group: monitoring.coreos.com
+      kind: '*'  # CRDs for Prometheus Operator
+    - group: ''
+      kind: ServiceAccount  # Needed for Prometheus scrapers
+  namespaceResourceWhitelist:
+    - group: '*'
+      kind: '*'
+---
+# Security Project - Policy enforcement and network security
+# Includes Kyverno for runtime policies and CiliumNetworkPolicies
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: security
+  namespace: argocd
+spec:
+  description: Security stack - policy enforcement, network segmentation
+  sourceRepos:
+    - '*'
+  destinations:
+    - namespace: security
+      server: https://kubernetes.default.svc
+    - namespace: kyverno
+      server: https://kubernetes.default.svc
+  clusterResourceWhitelist:
+    - group: kyverno.io
+      kind: '*'  # ClusterPolicies are cluster-scoped
+    - group: cilium.io
+      kind: '*'  # CiliumClusterwideNetworkPolicies
+    - group: ''
+      kind: Namespace  # Can create namespaces for security tools
+  namespaceResourceWhitelist:
+    - group: '*'
+      kind: '*'
+---
+# Workloads Project - User applications and miners
+# Lowest privilege - can only deploy to specific workload namespaces
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: workloads
+  namespace: argocd
+spec:
+  description: User workloads - miners, applications
+  sourceRepos:
+    - '*'
+  destinations:
+    - namespace: workloads
+      server: https://kubernetes.default.svc
+    - namespace: miners
+      server: https://kubernetes.default.svc
+  clusterResourceWhitelist:
+    - group: ''
+      kind: Namespace  # Can create workload namespaces only
+  namespaceResourceWhitelist:
+    - group: '*'
+      kind: '*'
+---
+# Akash Project - Cloud provider and tenant workload isolation
+# Restricted permissions - tenant workloads run here with strict isolation
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: akash
+  namespace: argocd
+spec:
+  description: Akash provider and tenant workloads
+  sourceRepos:
+    - '*'
+  destinations:
+    - namespace: akash-services
+      server: https://kubernetes.default.svc
+  clusterResourceWhitelist:
+    - group: ''
+      kind: Namespace  # Creates akash-services namespace only
+  namespaceResourceWhitelist:
+    - group: '*'
+      kind: '*'
+---
+# Storage Project - Longhorn distributed storage system
+# Manages persistent volumes and storage classes cluster-wide
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: storage
+  namespace: argocd
+spec:
+  description: Storage infrastructure - Longhorn
+  sourceRepos:
+    - '*'
+  destinations:
+    - namespace: longhorn-system
+      server: https://kubernetes.default.svc
+  clusterResourceWhitelist:
+    - group: longhorn.io
+      kind: '*'  # Longhorn volumes, replicas, settings (cluster-scoped)
+    - group: storage.k8s.io
+      kind: '*'  # StorageClasses, VolumeSnapshotClasses
+  namespaceResourceWhitelist:
+    - group: '*'
+      kind: '*'

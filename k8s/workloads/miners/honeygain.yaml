@@ -1,0 +1,63 @@
+---
+# Honeygain bandwidth sharing deployment
+# Priority: Background - will be preempted when higher priority workloads need resources
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: honeygain
+  namespace: workloads
+  labels:
+    app: honeygain
+    app.kubernetes.io/managed-by: argocd
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: honeygain
+  template:
+    metadata:
+      labels:
+        app: honeygain
+    spec:
+      priorityClassName: priority-background
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      tolerations:
+        - key: "miner.network"
+          operator: "Equal"
+          value: "true"
+          effect: "NoSchedule"
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: miner.network
+                    operator: In
+                    values: ["true"]
+      containers:
+        - name: honeygain
+          image: honeygain/honeygain:latest
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - configMapRef:
+                name: honeygain-config
+            - secretRef:
+                name: honeygain-secret
+          args:
+            - "-tou-accept"
+            - "-email"
+            - "$(HONEYGAIN_EMAIL)"
+            - "-pass"
+            - "$(HONEYGAIN_PASS)"
+            - "-device"
+            - "$(HONEYGAIN_DEVICE)"
+          resources:
+            requests:
+              cpu: "50m"
+              memory: 64Mi
+            limits:
+              cpu: "200m"
+              memory: 128Mi

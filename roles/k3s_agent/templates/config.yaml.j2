@@ -1,0 +1,28 @@
+# /etc/rancher/k3s/config.yaml - Managed by Ansible
+# Declarative configuration for K3s Agent
+
+# Server connection
+server: "{{ k3s_agent_server_url }}"
+token: "{{ k3s_agent_token }}"
+
+# Network - Bind to Tailscale IP for secure inter-node communication
+node-ip: "{{ tailscale_ip }}"
+
+# CNI - Cilium handles networking, disable Flannel
+flannel-backend: "none"
+
+{% if k3s_agent_node_labels | length > 0 %}
+# Node labels
+node-label:
+{% for label in k3s_agent_node_labels %}
+  - "{{ label }}"
+{% endfor %}
+{% endif %}
+
+{% if k3s_agent_node_taints | length > 0 %}
+# Node taints
+node-taint:
+{% for taint in k3s_agent_node_taints %}
+  - "{{ taint }}"
+{% endfor %}
+{% endif %}
