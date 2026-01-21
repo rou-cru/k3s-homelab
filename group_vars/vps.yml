@@ -1,6 +1,11 @@
 # group_vars/vps.yml - Configuration overrides for VPS nodes
 # These settings disable hardware-specific features not applicable to virtual machines
 
+# Connection & Privilege settings
+ansible_user: root
+ansible_become: false
+ansible_ssh_pipelining: false
+
 # Common role overrides
 # Disable mining optimizations (hugepages, MSR module)
 common_mining_enabled: false

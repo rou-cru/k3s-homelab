@@ -155,7 +155,6 @@
   until: node_ready.stdout == "True"
   changed_when: false
   when: not ansible_check_mode
-  become: true
 
 # Apply node labels if specified
 - name: Apply node labels
@@ -169,7 +168,6 @@
     - k3s_agent_node_labels | length > 0
     - not ansible_check_mode
   changed_when: true
-  become: true
 
 # Apply node taints if specified
 - name: Apply node taints
@@ -183,7 +181,6 @@
     - k3s_agent_node_taints | length > 0
     - not ansible_check_mode
   changed_when: true
-  become: true
 
 # Display success message
 - name: Show agent join status
