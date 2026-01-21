@@ -4,7 +4,8 @@
 # Connection & Privilege settings
 ansible_user: root
 ansible_become: false
-ansible_ssh_pipelining: false
+# SSH pipelining enabled for better performance (no sudo conflicts as we connect as root)
+ansible_ssh_pipelining: true
 
 # Common role overrides
 # Disable mining optimizations (hugepages, MSR module)
