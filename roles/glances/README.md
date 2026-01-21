@@ -96,14 +96,27 @@ Description: Install and configure Glances system monitoring with web interface.
 
 #### File: defaults/main.yml
 
-| Var          | Type         | Value       |
-|--------------|--------------|-------------|
-| [glances_state](defaults/main.yml#L1)   | str | `present` |    
-| [glances_port](defaults/main.yml#L2)   | int | `61208` |    
-| [glances_bind_address](defaults/main.yml#L3)   | str | `127.0.0.1` |    
-| [glances_venv_path](defaults/main.yml#L4)   | str | `/opt/glances` |    
-| [glances_packages](defaults/main.yml#L6)   | list | `[]` |    
-| [glances_packages.**0**](defaults/main.yml#L7)   | str | `glances[all]` |    
+| Var          | Type         | Value       |Required    | Title       |
+|--------------|--------------|-------------|------------|-------------|
+| [glances_state](defaults/main.yml#L5)   | str | `present` |    false  |  Installation State |
+| [glances_port](defaults/main.yml#L10)   | int | `61208` |    false  |  Web Interface Port |
+| [glances_bind_address](defaults/main.yml#L15)   | str | `127.0.0.1` |    false  |  Bind Address |
+| [glances_venv_path](defaults/main.yml#L20)   | str | `/opt/glances` |    false  |  Virtual Environment Path |
+| [glances_packages](defaults/main.yml#L26)   | list | `[]` |    false  |  Package List |
+| [glances_packages.**0**](defaults/main.yml#L27)   | str | `glances[all]` |    None  |  None |
+<details>
+<summary><b>🖇️ Full descriptions for vars in defaults/main.yml</b></summary>
+<br>
+<table>
+<th>Var</th><th>Description</th>
+<tr><td><b>glances_state</b></td><td>Whether Glances should be present or absent.</td></tr>
+<tr><td><b>glances_port</b></td><td>Port number for Glances web interface.</td></tr>
+<tr><td><b>glances_bind_address</b></td><td>IP address to bind the web interface (127.0.0.1 for localhost only).</td></tr>
+<tr><td><b>glances_venv_path</b></td><td>Path where Glances virtual environment will be installed.</td></tr>
+<tr><td><b>glances_packages</b></td><td>Glances packages to install with all extras for full functionality.</td></tr>
+</table>
+<br>
+</details>
 
 
 
@@ -114,16 +127,16 @@ Description: Install and configure Glances system monitoring with web interface.
 
 #### File: tasks/main.yml
 
-| Name | Module | Has Conditions |
-| ---- | ------ | -------------- |
-| [Check hddtemp availability](tasks/main.yml#L1) | ansible.builtin.command | False |
-| [Build Glances system package list](tasks/main.yml#L7) | ansible.builtin.set_fact | False |
-| [Install system dependencies for Glances and sensors](tasks/main.yml#L16) | ansible.builtin.apt | False |
-| [Create directory for Glances venv](tasks/main.yml#L22) | ansible.builtin.file | False |
-| [Create Glances virtual environment (uv)](tasks/main.yml#L27) | ansible.builtin.command | False |
-| [Install Glances in virtual environment (uv)](tasks/main.yml#L34) | ansible.builtin.command | False |
-| [Create Systemd service for Glances Web](tasks/main.yml#L40) | ansible.builtin.template | False |
-| [Ensure Glances service is enabled and running](tasks/main.yml#L46) | ansible.builtin.systemd | False |
+| Name | Module | Has Conditions | Comments |
+| ---- | ------ | -------------- | -------- |
+| [Check hddtemp availability](tasks/main.yml#L2) | ansible.builtin.command | False | Check if hddtemp package is available for disk temperature monitoring |
+| [Build Glances system package list](tasks/main.yml#L9) | ansible.builtin.set_fact | False | Build package list including hddtemp if available |
+| [Install system dependencies for Glances and sensors](tasks/main.yml#L19) | ansible.builtin.apt | False | Install system packages required for Glances and hardware monitoring |
+| [Create directory for Glances venv](tasks/main.yml#L26) | ansible.builtin.file | False | Create dedicated directory for Glances virtual environment |
+| [Create Glances virtual environment (uv)](tasks/main.yml#L32) | ansible.builtin.command | False | Create Python virtual environment using uv for Glances installation |
+| [Install Glances in virtual environment (uv)](tasks/main.yml#L40) | ansible.builtin.command | False | Install Glances with all extras in the virtual environment |
+| [Create Systemd service for Glances Web](tasks/main.yml#L47) | ansible.builtin.template | False | Deploy systemd service for Glances web interface |
+| [Ensure Glances service is enabled and running](tasks/main.yml#L54) | ansible.builtin.systemd | False | Enable and start Glances web service |
 
 
 ## Task Flow Graphs

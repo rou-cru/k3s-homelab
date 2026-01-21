@@ -1,15 +1,18 @@
+# Verify Helm binary is available for ArgoCD deployment
 - name: Check if Helm is installed
   ansible.builtin.command: which helm
   register: helm_binary_check
   changed_when: false
   failed_when: false
 
+# Add ArgoCD Helm repository for chart installation
 - name: Ensure ArgoCD Helm repo
   kubernetes.core.helm_repository:
     name: argo
     repo_url: https://argoproj.github.io/argo-helm
   when: helm_binary_check.rc == 0
 
+# Deploy ArgoCD using Helm with custom configuration
 - name: Deploy ArgoCD
   kubernetes.core.helm:
     name: argocd
@@ -132,6 +135,7 @@
   when: helm_binary_check.rc == 0
   tags: ["apps", "argocd"]
 
+# Create ExternalSecret for ArgoCD admin password from vault
 - name: Create ArgoCD Admin Password ExternalSecret
   kubernetes.core.k8s:
     state: present
@@ -159,6 +163,7 @@
   when: helm_binary_check.rc == 0
   tags: ["apps", "argocd", "secrets"]
 
+# Wait for ExternalSecret controller to populate admin password
 - name: Wait for argocd-secret to have admin.password
   kubernetes.core.k8s_info:
     api_version: v1
@@ -176,6 +181,7 @@
   become: false
   tags: ["apps", "argocd", "secrets"]
 
+# Restart ArgoCD server to load new admin password from secret
 - name: Restart ArgoCD Server to pick up new password
   kubernetes.core.k8s:
     state: present

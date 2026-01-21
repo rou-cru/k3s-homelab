@@ -202,12 +202,15 @@ Supports host setup, cluster setup, and headless X11 configurations.
 | Name | Module | Has Conditions | Tags |
 | ---- | ------ | -------------- | -----|
 | [NVIDIA GPU cluster setup](tasks/cluster.yml#L1) | block | False | cluster,nvidia |
-| [Create temp values](tasks/cluster.yml#L4) | ansible.builtin.tempfile | False |  |
-| [Copy values](tasks/cluster.yml#L9) | ansible.builtin.copy | False |  |
-| [Install device plugin](tasks/cluster.yml#L14) | kubernetes.core.helm | False |  |
-| [Wait for daemonset](tasks/cluster.yml#L23) | ansible.builtin.command | False |  |
-| [Check GPU resources](tasks/cluster.yml#L30) | ansible.builtin.shell | False |  |
-| [Debug GPU resources](tasks/cluster.yml#L38) | ansible.builtin.debug | False |  |
+| [Check if Helm is installed](tasks/cluster.yml#L4) | ansible.builtin.command | False |  |
+| [Warn if Helm is not available](tasks/cluster.yml#L10) | ansible.builtin.debug | True |  |
+| [Ensure NVIDIA Helm repo](tasks/cluster.yml#L15) | kubernetes.core.helm_repository | True |  |
+| [Create temp values](tasks/cluster.yml#L21) | ansible.builtin.tempfile | True |  |
+| [Copy values](tasks/cluster.yml#L28) | ansible.builtin.copy | True |  |
+| [Install device plugin](tasks/cluster.yml#L35) | kubernetes.core.helm | True |  |
+| [Wait for daemonset](tasks/cluster.yml#L47) | ansible.builtin.command | True |  |
+| [Check GPU resources](tasks/cluster.yml#L56) | ansible.builtin.shell | True |  |
+| [Debug GPU resources](tasks/cluster.yml#L66) | ansible.builtin.debug | True |  |
 
 #### File: tasks/headless_optimization.yml
 
@@ -224,35 +227,34 @@ Supports host setup, cluster setup, and headless X11 configurations.
 
 #### File: tasks/host.yml
 
-| Name | Module | Has Conditions |
-| ---- | ------ | -------------- |
-| [Install pciutils](tasks/host.yml#L1) | ansible.builtin.apt | False |
-| [Normalize setup mode](tasks/host.yml#L8) | ansible.builtin.set_fact | False |
-| [Get PCI vendors](tasks/host.yml#L12) | ansible.builtin.shell | False |
-| [Detect GPU](tasks/host.yml#L17) | ansible.builtin.set_fact | False |
-| [Set GPU active (auto)](tasks/host.yml#L30) | ansible.builtin.set_fact | True |
-| [Set GPU active (forced)](tasks/host.yml#L36) | ansible.builtin.set_fact | True |
-| [Fail if GPU missing](tasks/host.yml#L42) | ansible.builtin.fail | True |
-| [Set GPU active (disabled)](tasks/host.yml#L49) | ansible.builtin.set_fact | True |
-| [Debug NVIDIA facts](tasks/host.yml#L55) | ansible.builtin.debug | False |
-| [Install driver deps](tasks/host.yml#L59) | ansible.builtin.apt | True |
-| [Detect driver](tasks/host.yml#L69) | ansible.builtin.shell | True |
-| [Set driver version](tasks/host.yml#L80) | ansible.builtin.set_fact | True |
-| [Set driver fallback](tasks/host.yml#L88) | ansible.builtin.set_fact | True |
-| [Set manual driver](tasks/host.yml#L96) | ansible.builtin.set_fact | True |
-| [Blacklist nouveau](tasks/host.yml#L103) | ansible.builtin.copy | True |
-| [Update initramfs](tasks/host.yml#L113) | ansible.builtin.command | True |
-| [Set utils package](tasks/host.yml#L118) | ansible.builtin.set_fact | True |
-| [Check broken packages](tasks/host.yml#L123) | ansible.builtin.shell | True |
-| [Fix broken packages](tasks/host.yml#L129) | ansible.builtin.shell | True |
-| [Install NVIDIA driver](tasks/host.yml#L140) | ansible.builtin.apt | True |
-| [Reboot system (nvidia)](tasks/host.yml#L150) | ansible.builtin.reboot | True |
-| [Ensure APT keyrings dir](tasks/host.yml#L158) | ansible.builtin.file | True |
-| [Write toolkit repo](tasks/host.yml#L165) | ansible.builtin.copy | True |
-| [Install toolkit](tasks/host.yml#L173) | ansible.builtin.apt | True |
-| [Create containerd dir](tasks/host.yml#L181) | ansible.builtin.file | True |
-| [Configure containerd](tasks/host.yml#L188) | ansible.builtin.template | True |
-| [Import headless optimization](tasks/host.yml#L195) | ansible.builtin.import_tasks | True |
+| Name | Module | Has Conditions | Tags |
+| ---- | ------ | -------------- | -----|
+| [Install pciutils](tasks/host.yml#L1) | ansible.builtin.apt | False |  |
+| [Normalize setup mode](tasks/host.yml#L8) | ansible.builtin.set_fact | False |  |
+| [Get PCI vendors](tasks/host.yml#L12) | ansible.builtin.shell | False |  |
+| [Detect GPU](tasks/host.yml#L17) | ansible.builtin.set_fact | False |  |
+| [Set GPU active (auto)](tasks/host.yml#L30) | ansible.builtin.set_fact | True |  |
+| [Set GPU active (forced)](tasks/host.yml#L36) | ansible.builtin.set_fact | True |  |
+| [Fail if GPU missing](tasks/host.yml#L42) | ansible.builtin.fail | True |  |
+| [Set GPU active (disabled)](tasks/host.yml#L49) | ansible.builtin.set_fact | True |  |
+| [Debug NVIDIA facts](tasks/host.yml#L55) | ansible.builtin.debug | False |  |
+| [Install driver deps](tasks/host.yml#L59) | ansible.builtin.apt | True |  |
+| [Detect driver](tasks/host.yml#L69) | ansible.builtin.shell | True |  |
+| [Set driver version](tasks/host.yml#L81) | ansible.builtin.set_fact | True |  |
+| [Set driver fallback](tasks/host.yml#L89) | ansible.builtin.set_fact | True |  |
+| [Set manual driver](tasks/host.yml#L98) | ansible.builtin.set_fact | True |  |
+| [Blacklist nouveau](tasks/host.yml#L105) | ansible.builtin.copy | True |  |
+| [Update initramfs](tasks/host.yml#L115) | ansible.builtin.command | True |  |
+| [Set utils package](tasks/host.yml#L120) | ansible.builtin.set_fact | True |  |
+| [Check broken packages](tasks/host.yml#L125) | ansible.builtin.shell | True |  |
+| [Fix broken packages](tasks/host.yml#L131) | ansible.builtin.shell | True |  |
+| [Install NVIDIA driver](tasks/host.yml#L143) | ansible.builtin.apt | True |  |
+| [Reboot system (nvidia)](tasks/host.yml#L153) | ansible.builtin.reboot | True |  |
+| [Ensure APT keyrings dir](tasks/host.yml#L161) | ansible.builtin.file | True |  |
+| [Write toolkit repo](tasks/host.yml#L168) | ansible.builtin.copy | True |  |
+| [Install toolkit](tasks/host.yml#L180) | ansible.builtin.apt | True |  |
+| [Register NVIDIA as an available runtime](tasks/host.yml#L188) | ansible.builtin.set_fact | True | host,nvidia |
+| [Import headless optimization](tasks/host.yml#L194) | ansible.builtin.import_tasks | True |  |
 
 
 ## Task Flow Graphs
@@ -274,14 +276,17 @@ classDef includeVars stroke:#8e44ad,stroke-width:2px;
 classDef rescue stroke:#665352,stroke-width:2px;
 
   Start-->|Block Start| NVIDIA_GPU_cluster_setup0_block_start_0[[nvidia gpu cluster setup]]:::block
-  NVIDIA_GPU_cluster_setup0_block_start_0-->|Task| Create_temp_values0[create temp values]:::task
-  Create_temp_values0-->|Task| Copy_values1[copy values]:::task
-  Copy_values1-->|Task| Install_device_plugin2[install device plugin]:::task
-  Install_device_plugin2-->|Task| Wait_for_daemonset3[wait for daemonset]:::task
-  Wait_for_daemonset3-->|Task| Check_GPU_resources4[check gpu resources]:::task
-  Check_GPU_resources4-->|Task| Debug_GPU_resources5[debug gpu resources]:::task
-  Debug_GPU_resources5-.->|End of Block| NVIDIA_GPU_cluster_setup0_block_start_0
-  Debug_GPU_resources5-->|Rescue Start| NVIDIA_GPU_cluster_setup0_rescue_start_0[nvidia gpu cluster setup]:::rescue
+  NVIDIA_GPU_cluster_setup0_block_start_0-->|Task| Check_if_Helm_is_installed0[check if helm is installed]:::task
+  Check_if_Helm_is_installed0-->|Task| Warn_if_Helm_is_not_available1[warn if helm is not available<br>When: **helm binary check rc    0**]:::task
+  Warn_if_Helm_is_not_available1-->|Task| Ensure_NVIDIA_Helm_repo2[ensure nvidia helm repo<br>When: **helm binary check rc    0**]:::task
+  Ensure_NVIDIA_Helm_repo2-->|Task| Create_temp_values3[create temp values<br>When: **helm binary check rc    0**]:::task
+  Create_temp_values3-->|Task| Copy_values4[copy values<br>When: **helm binary check rc    0**]:::task
+  Copy_values4-->|Task| Install_device_plugin5[install device plugin<br>When: **helm binary check rc    0**]:::task
+  Install_device_plugin5-->|Task| Wait_for_daemonset6[wait for daemonset<br>When: **helm binary check rc    0**]:::task
+  Wait_for_daemonset6-->|Task| Check_GPU_resources7[check gpu resources<br>When: **helm binary check rc    0**]:::task
+  Check_GPU_resources7-->|Task| Debug_GPU_resources8[debug gpu resources<br>When: **helm binary check rc    0**]:::task
+  Debug_GPU_resources8-.->|End of Block| NVIDIA_GPU_cluster_setup0_block_start_0
+  Debug_GPU_resources8-->|Rescue Start| NVIDIA_GPU_cluster_setup0_rescue_start_0[nvidia gpu cluster setup]:::rescue
   NVIDIA_GPU_cluster_setup0_rescue_start_0-->|Task| Report_NVIDIA_GPU_cluster_setup_failure0[report nvidia gpu cluster setup failure]:::task
   Report_NVIDIA_GPU_cluster_setup_failure0-->|Task| Fail_NVIDIA_GPU_cluster_setup1[fail nvidia gpu cluster setup]:::task
   Fail_NVIDIA_GPU_cluster_setup1-.->|End of Rescue Block| NVIDIA_GPU_cluster_setup0_block_start_0
@@ -353,10 +358,9 @@ classDef rescue stroke:#665352,stroke-width:2px;
   Reboot_system__nvidia_20-->|Task| Ensure_APT_keyrings_dir21[ensure apt keyrings dir<br>When: **nvidia gpu active   default false    bool**]:::task
   Ensure_APT_keyrings_dir21-->|Task| Write_toolkit_repo22[write toolkit repo<br>When: **nvidia gpu active   default false    bool**]:::task
   Write_toolkit_repo22-->|Task| Install_toolkit23[install toolkit<br>When: **nvidia gpu active   default false    bool**]:::task
-  Install_toolkit23-->|Task| Create_containerd_dir24[create containerd dir<br>When: **nvidia gpu active   default false    bool**]:::task
-  Create_containerd_dir24-->|Task| Configure_containerd25[configure containerd<br>When: **nvidia gpu active   default false    bool**]:::task
-  Configure_containerd25-->|Import task| Import_headless_optimization_headless_optimization_yml_26[/import headless optimization<br>When: **nvidia gpu active   default false    bool and<br>nvidia gpu headless x11 enabled   default true   <br>bool**<br>import_task: headless optimization yml/]:::importTasks
-  Import_headless_optimization_headless_optimization_yml_26-->End
+  Install_toolkit23-->|Task| Register_NVIDIA_as_an_available_runtime24[register nvidia as an available runtime<br>When: **nvidia gpu active   default false    bool**]:::task
+  Register_NVIDIA_as_an_available_runtime24-->|Import task| Import_headless_optimization_headless_optimization_yml_25[/import headless optimization<br>When: **nvidia gpu active   default false    bool and<br>nvidia gpu headless x11 enabled   default true   <br>bool**<br>import_task: headless optimization yml/]:::importTasks
+  Import_headless_optimization_headless_optimization_yml_25-->End
 ```
 
 

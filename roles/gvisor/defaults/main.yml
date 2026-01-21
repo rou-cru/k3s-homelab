@@ -1,1 +1,5 @@
+# Title: gVisor Version
+# Description: Version of gVisor runtime to install.
+# Type: str
+# Required: false
 gvisor_version: "20231204.0"

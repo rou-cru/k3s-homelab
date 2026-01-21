@@ -1,21 +1,25 @@
+# Install system tools for hardware optimization - IRQ balancing and radio frequency management
 - name: Install tuning tools
   ansible.builtin.apt:
     name:
       - irqbalance
       - rfkill
     state: present
+# Install ALSA utilities for audio optimization when enabled
 - name: Install audio tools
   ansible.builtin.apt:
     name:
       - alsa-utils
     state: present
   when: common_audio_optimization_enabled | bool
+# Enable IRQ balancing service for better CPU utilization across cores
 - name: Start irqbalance
   ansible.builtin.systemd:
     name: irqbalance
     enabled: true
     state: started
   ignore_errors: "{{ ansible_check_mode }}"
+# Disable WiFi and Bluetooth radios to reduce power consumption and interference
 - name: Block wireless radios
   ansible.builtin.command: rfkill block {{ item }}
   loop:
@@ -24,6 +28,7 @@
   when: common_radio_block_enabled | bool
   changed_when: false
   failed_when: false
+# Configure PAM limits for real-time audio processing and unlimited memory locking
 - name: Optimize audio limits
   community.general.pam_limits:
     domain: "*"
@@ -34,6 +39,7 @@
     - {type: "-", item: "memlock", value: "unlimited"}
     - {type: "-", item: "rtprio", value: "95"}
   when: common_audio_optimization_enabled | bool
+# Enable automatic SSD trimming for optimal storage performance and longevity
 - name: Enable fstrim
   ansible.builtin.systemd:
     name: fstrim.timer

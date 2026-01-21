@@ -1,1 +1,5 @@
+# Title: OCI Configuration File
+# Description: Path to Oracle Cloud Infrastructure configuration file.
+# Type: str
+# Required: false
 oci_config_file: "{{ playbook_dir }}/.oci"
