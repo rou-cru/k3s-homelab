@@ -215,15 +215,11 @@
       register: vagrant_plugin_list
       changed_when: false
       check_mode: false
-      become: true
-      become_user: "{{ ansible_user }}"
       ignore_errors: true
     - name: Install vagrant-libvirt plugin
       ansible.builtin.command: vagrant plugin install vagrant-libvirt
       register: vagrant_plugin_result
       changed_when: "'Installed the plugin' in vagrant_plugin_result.stdout"
-      become: true
-      become_user: "{{ ansible_user }}"
       when:
         - not ansible_check_mode
         - vagrant_plugin_list.rc == 0

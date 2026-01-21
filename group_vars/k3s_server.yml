@@ -1,0 +1,6 @@
+# group_vars/k3s_server.yml - Configuration for K3s Master Nodes
+# These nodes are physical machines managed by a non-root user (rc), requiring sudo.
+
+# Privilege Escalation
+ansible_become: true
+ansible_user: rc
