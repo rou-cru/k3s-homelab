@@ -24,6 +24,9 @@ metadata:
     io.cilium/lb-ipam-ips: "74.208.250.178"
 spec:
   gatewayClassName: cilium
+  infrastructure:
+    annotations:
+      io.cilium/node-selector: "egress-gateway=vps"
   listeners:
     # HTTP listener (redirects to HTTPS)
     - name: http
