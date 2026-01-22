@@ -63,3 +63,9 @@ k3s_cni_conf_dir: "/etc/cni/net.d"
 # Type: list
 # Required: false
 k3s_agent_kubelet_args: []
+
+# Title: Containerd Optimizations
+# Description: Enable containerd performance and resource optimizations.
+# Type: bool
+# Required: false
+containerd_optimized: true

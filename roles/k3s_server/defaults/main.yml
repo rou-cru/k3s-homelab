@@ -60,3 +60,9 @@ k3s_cni_bin_dir: "/opt/cni/bin"
 # Type: str
 # Required: false
 k3s_cni_conf_dir: "/etc/cni/net.d"
+
+# Title: Containerd Optimizations
+# Description: Enable containerd performance and resource optimizations.
+# Type: bool
+# Required: false
+containerd_optimized: true
