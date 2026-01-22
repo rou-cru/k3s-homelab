@@ -4,7 +4,6 @@
 
 - name: Setup K3s VPS Agent Node
   hosts: vps
-  become: true
   vars_files:
     - "{{ secrets_file | default('secrets.yaml') }}"
   pre_tasks:

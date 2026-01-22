@@ -1,0 +1,8 @@
+---
+# Preflight check defaults
+
+# Minimum RAM required in MB (default 2GB)
+preflight_min_ram_mb: 2048
+
+# Minimum Disk space on / required in GB (default 20GB)
+preflight_min_disk_gb: 20
