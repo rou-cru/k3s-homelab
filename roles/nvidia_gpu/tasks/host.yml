@@ -114,7 +114,9 @@
 
 - name: Update initramfs # noqa: no-handler
   ansible.builtin.command: update-initramfs -u
-  when: nvidia_gpu_blacklist_nouveau.changed
+  when:
+    - nvidia_gpu_blacklist_nouveau.changed
+    - not ansible_check_mode
   changed_when: true
 
 - name: Set utils package
@@ -138,6 +140,7 @@
   when:
     - nvidia_gpu_active | default(false) | bool
     - nvidia_gpu_broken_check.stdout | int > 0
+    - not ansible_check_mode
   changed_when: true
 
 - name: Install NVIDIA driver
@@ -157,6 +160,7 @@
   when:
     - nvidia_gpu_active | default(false) | bool
     - nvidia_gpu_driver_install.changed or nvidia_gpu_blacklist_nouveau.changed
+    - not ansible_check_mode
 
 - name: Ensure APT keyrings dir
   ansible.builtin.file:

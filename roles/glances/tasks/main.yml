@@ -36,13 +36,15 @@
   environment:
     PATH: "/root/.cargo/bin:{{ ansible_facts['env']['PATH'] }}"
   notify: Restart glances
+  when: not ansible_check_mode
 # Install Glances with all extras in the virtual environment
-- name: Install Glances in virtual environment (uv)
-  ansible.builtin.command: >-
-    uv pip install --upgrade --python "{{ glances_venv_path }}/bin/python" {{ glances_packages | join(' ') }}
-  environment:
-    PATH: "/root/.cargo/bin:{{ ansible_facts['env']['PATH'] }}"
+- name: Install Glances in virtual environment
+  ansible.builtin.pip:
+    name: "{{ glances_packages }}"
+    executable: "{{ glances_venv_path }}/bin/pip"
+    extra_args: --upgrade
   notify: Restart glances
+  when: not ansible_check_mode
 # Deploy systemd service for Glances web interface
 - name: Create Systemd service for Glances Web
   ansible.builtin.template:

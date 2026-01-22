@@ -24,6 +24,14 @@
       tags: always
       no_log: true
 
+    - name: Validate k3s_server group exists
+      ansible.builtin.assert:
+        that:
+          - groups['k3s_server'] is defined
+          - groups['k3s_server'] | length > 0
+        fail_msg: "ERROR: No hosts in 'k3s_server' group. Check your inventory."
+      tags: always
+
   tasks:
     # Phase 1: OS-level configuration
     - name: Run preflight role
@@ -63,6 +71,7 @@
       register: k3s_token_raw
       delegate_to: "{{ groups['k3s_server'][0] }}"
       become: true
+      no_log: true
       tags: ["cluster"]
 
     - name: Set K3s token fact
@@ -84,9 +93,9 @@
           VPS Node Setup Complete
           ====================================
           Hostname: {{ ansible_hostname }}
-          Tailscale IP: {{ tailscale_ip }}
+          Tailscale IP: {{ tailscale_ip | default('Not configured') }}
           Public IP: {{ ansible_host }}
-          K3s Server: {{ k3s_agent_server_url }}
+          K3s Server: {{ k3s_agent_server_url | default('Not configured') }}
           Exit Node: {{ tailscale_exit_node_enabled | default(false) }}
 
           Next steps:

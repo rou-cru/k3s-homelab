@@ -73,7 +73,7 @@ spec:
             - name: REFERRAL_CODE
               valueFrom:
                 configMapKeyRef:
-                  name: cpu-miner-config
+                  name: mining-common
                   key: REFERRAL_CODE
             - name: MINING_WORKER_NAME
               valueFrom:

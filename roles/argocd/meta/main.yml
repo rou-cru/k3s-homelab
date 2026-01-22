@@ -1,6 +1,8 @@
 ---
 galaxy_info:
-  description: Deploy ArgoCD on K3s via Helm (expects External Secrets and an OCI ClusterSecretStore named oci-vault for admin password).
+  description: >-
+    Deploy ArgoCD on K3s via Helm (expects External Secrets and an OCI
+    ClusterSecretStore named oci-vault for admin password).
   author: rc
   license: MIT
   min_ansible_version: "2.14"

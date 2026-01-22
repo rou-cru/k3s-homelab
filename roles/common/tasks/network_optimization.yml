@@ -27,7 +27,9 @@
     # Apply GRUB configuration changes for next boot
     - name: Update GRUB # noqa: no-handler
       ansible.builtin.command: update-grub
-      when: common_grub_aspm.changed
+      when:
+        - common_grub_aspm.changed
+        - not ansible_check_mode
       changed_when: true
     # Track if network driver changes require reboot
     - name: Register driver change
@@ -41,7 +43,7 @@
     - name: Report RoG/Realtek optimization failure
       ansible.builtin.debug:
         msg: >-
-          RoG/Realtek optimization failed at {{ ansible_failed_task.name }}: {{ ansible_failed_result | to_nice_json }}
+          RoG/Realtek optimization failed at {{ ansible_failed_task.name }}: {{ ansible_failed_result | to_json }}
     - name: Fail RoG/Realtek optimization
       ansible.builtin.fail:
         msg: "RoG/Realtek optimization failed"

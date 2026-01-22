@@ -30,8 +30,6 @@ data:
   MINING_ALGO: xelishashv3
   # Target cryptocurrency (Elastic - XEL)
   MINING_COIN: XEL
-  # Referral code for mining pool rewards
-  REFERRAL_CODE: 18ps-7t5s
   # Worker identification for pool statistics
   MINING_WORKER_NAME: home-miner
   # Number of CPU threads allocated for mining
@@ -40,6 +38,16 @@ data:
   CPU_AFFINITY_MASK: "0x00FF0000"
   # Developer fee percentage for mining software
   DEV_FEE: "1.0"
+---
+# Shared mining configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mining-common
+  namespace: workloads
+data:
+  # Referral code for mining pool rewards
+  REFERRAL_CODE: 18ps-7t5s
 ---
 # GPU miner configuration for XEL cryptocurrency mining with thermal management
 apiVersion: v1
@@ -56,8 +64,6 @@ data:
   MINING_PASS: x
   # Worker identification for pool statistics
   MINING_WORKER_NAME: k8s-gpu
-  # Referral code for mining pool rewards
-  REFERRAL_CODE: 18ps-7t5s
   # GPU core clock offset (0 = no overclocking)
   GPU_CORE_OFFSET: "0"
   # GPU memory clock offset (0 = no overclocking)

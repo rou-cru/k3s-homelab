@@ -2,7 +2,7 @@
 # Description: K3s version to install (should match server version).
 # Type: str
 # Required: false
-k3s_agent_version: "v1.34.3+k3s1"
+k3s_agent_version: "v1.35.0+k3s1"
 
 # Title: Server URL
 # Description: K3s server URL to connect to (use Tailscale IP for security).
@@ -69,3 +69,9 @@ k3s_agent_kubelet_args: []
 # Type: bool
 # Required: false
 containerd_optimized: true
+
+# Title: Containerd Default Runtime
+# Description: Default runtime name for containerd (use RuntimeClass to opt-in to others).
+# Type: str
+# Required: false
+containerd_default_runtime: "runc"

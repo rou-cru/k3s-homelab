@@ -5,7 +5,7 @@
       - irqbalance
       - rfkill
     state: present
-  when: ansible_virtualization_role != 'guest'
+  when: ansible_facts['virtualization_role'] != 'guest'
 
 # Install ALSA utilities for audio optimization when enabled
 - name: Install audio tools
@@ -21,7 +21,7 @@
     name: irqbalance
     enabled: true
     state: started
-  when: ansible_virtualization_role != 'guest'
+  when: ansible_facts['virtualization_role'] != 'guest'
   ignore_errors: "{{ ansible_check_mode }}"
 
 # Disable WiFi and Bluetooth radios to reduce power consumption and interference
@@ -32,7 +32,8 @@
     - bluetooth
   when:
     - common_radio_block_enabled | bool
-    - ansible_virtualization_role != 'guest'
+    - ansible_facts['virtualization_role'] != 'guest'
+    - not ansible_check_mode
   changed_when: false
   failed_when: false
 # Configure PAM limits for real-time audio processing and unlimited memory locking

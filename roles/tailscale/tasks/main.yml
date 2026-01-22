@@ -6,11 +6,13 @@
     mode: "0755"
     checksum: "sha256:{{ tailscale_install_script_checksum }}"
     timeout: 60
+  when: not ansible_check_mode
 # Execute Tailscale installation script if not already installed
 - name: Run Tailscale installer
   ansible.builtin.command: /tmp/tailscale-install.sh
   args:
     creates: /usr/sbin/tailscaled
+  when: not ansible_check_mode
 # Enable and start Tailscale daemon service
 - name: Start tailscaled
   ansible.builtin.systemd:
@@ -18,6 +20,7 @@
     enabled: true
     state: started
   ignore_errors: "{{ ansible_check_mode }}"
+  when: not ansible_check_mode
 # Check current Tailscale connection status in JSON format
 # Determines if Tailscale daemon is running and connected to control plane
 - name: Check status
@@ -56,7 +59,9 @@
   register: tailscale_up
   no_log: true
   # Execute if NOT running (repair) OR if we suspect drift (can be improved later)
-  when: not tailscale_is_running | bool
+  when:
+    - not tailscale_is_running | bool
+    - not ansible_check_mode
   changed_when: tailscale_up.rc == 0
 
 # Configure exit node if enabled (idempotent even when already running)
@@ -66,8 +71,9 @@
   when:
     - tailscale_exit_node_enabled | bool
     - tailscale_is_running | bool
+    - not ansible_check_mode
   register: tailscale_exit_node_set
-  changed_when: tailscale_exit_node_set.rc == 0
+  changed_when: false
 
 # Advertise routes if specified (idempotent even when already running)
 # Updates subnet routes without requiring reconnect
@@ -76,8 +82,9 @@
   when:
     - tailscale_advertise_routes | length > 0
     - tailscale_is_running | bool
+    - not ansible_check_mode
   register: tailscale_routes_set
-  changed_when: tailscale_routes_set.rc == 0
+  changed_when: false
 # Wait for Tailscale to assign valid 100.x.x.x IP address
 - name: Wait for IP
   ansible.builtin.shell: |

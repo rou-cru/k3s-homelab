@@ -2,7 +2,7 @@
 # Description: K3s version to install (e.g., v1.34.3+k3s1).
 # Type: str
 # Required: false
-k3s_server_version: "v1.34.3+k3s1"
+k3s_server_version: "v1.35.0+k3s1"
 # Title: Disable Traefik
 # Description: Disables the default Traefik ingress controller.
 # Type: bool

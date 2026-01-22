@@ -41,7 +41,7 @@
         values_files:
           - "{{ nvidia_device_plugin_values_tmp.path }}"
         chart_version: "{{ nvidia_gpu_device_plugin_version }}"
-        kubeconfig: "{{ (ansible_user_dir | default(ansible_env.HOME)) }}/.kube/config"
+        kubeconfig: "/home/{{ ansible_user }}/.kube/config"
       when: helm_binary_check.rc == 0
 
     - name: Wait for daemonset
@@ -50,7 +50,7 @@
       register: nvidia_device_plugin_rollout
       changed_when: false
       environment:
-        KUBECONFIG: "{{ (ansible_user_dir | default(ansible_env.HOME)) }}/.kube/config"
+        KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
       when: helm_binary_check.rc == 0
 
     - name: Check GPU resources
@@ -60,7 +60,7 @@
       changed_when: false
       failed_when: gpu_resources_check.rc != 0 and 'not found' not in gpu_resources_check.stderr
       environment:
-        KUBECONFIG: "{{ (ansible_user_dir | default(ansible_env.HOME)) }}/.kube/config"
+        KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
       when: helm_binary_check.rc == 0
 
     - name: Debug GPU resources
@@ -68,11 +68,12 @@
         msg: "✅ GPU resources detected: {{ gpu_resources_check.stdout_lines | join(', ') }}"
         verbosity: 1
       when: helm_binary_check.rc == 0
+  when: not ansible_check_mode
   rescue:
     - name: Report NVIDIA GPU cluster setup failure
       ansible.builtin.debug:
         msg: >-
-          NVIDIA GPU cluster setup failed at {{ ansible_failed_task.name }}: {{ ansible_failed_result | to_nice_json }}
+          NVIDIA GPU cluster setup failed at {{ ansible_failed_task.name }}: {{ ansible_failed_result | to_json }}
     - name: Fail NVIDIA GPU cluster setup
       ansible.builtin.fail:
         msg: "NVIDIA GPU cluster setup failed"

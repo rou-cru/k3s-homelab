@@ -216,7 +216,7 @@ honeygain_device: "bandwidth-miner"           # Device identifier
 ## Key Defaults and Versions
 
 ### K3s Configuration
-- **Version**: `v1.34.3+k3s1`
+- **Version**: `v1.35.0+k3s1`
 - **Traefik**: Disabled (for Cilium)
 - **Recreate**: `true` (allows clean reinstall)
 

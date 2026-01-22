@@ -57,7 +57,7 @@ k3s_agent_node_labels:
 # Node taints to prevent general workloads from scheduling
 # Only networking/gateway workloads should run here
 k3s_agent_node_taints:
-  - "node-role.kubernetes.io/edge=true:PreferNoSchedule"
+  - "node-role.kubernetes.io/edge=true:NoSchedule"
 
 # Resource constraints awareness (2 vCore, 4GB RAM, 120GB disk)
 # Note: Most workloads should NOT run on VPS - it's a network appliance

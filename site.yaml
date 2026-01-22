@@ -111,7 +111,9 @@
         executable: /bin/bash
       environment:
         KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
-      when: miner_control_plane_labels | length > 0
+      when:
+        - miner_control_plane_labels | length > 0
+        - not ansible_check_mode
       tags: ["cluster", "apps", "miners"]
       become: false
     - name: Setup Helm Repos
@@ -119,23 +121,28 @@
         name: common
         tasks_from: helm_setup.yml
       tags: ["cluster", "infrastructure"]
+      when: not ansible_check_mode
     - name: Run crds_bootstrap role
       ansible.builtin.import_role:
         name: crds_bootstrap
       tags: ["cluster", "infrastructure"]
+      when: not ansible_check_mode
 
     - name: Run cilium role
       ansible.builtin.import_role:
         name: cilium
       tags: ["cluster", "network"]
       become: false
+      when: not ansible_check_mode
     # NVIDIA GPU Cluster Setup - AFTER Cilium (device plugin Helm chart)
     - name: Run NVIDIA GPU cluster role
       ansible.builtin.import_role:
         name: nvidia_gpu
         tasks_from: cluster.yml
       tags: ["cluster", "nvidia"]
-      when: nvidia_gpu_active | default(false) | bool
+      when:
+        - nvidia_gpu_active | default(false) | bool
+        - not ansible_check_mode
       become: false
 
     - name: Run cert-manager role
@@ -143,12 +150,14 @@
         name: cert_manager
       tags: ["cluster", "infrastructure", "cert-manager"]
       become: false
+      when: not ansible_check_mode
 
     - name: Run external-secrets role
       ansible.builtin.import_role:
         name: external_secrets
       tags: ["cluster", "infrastructure", "external-secrets"]
       become: false
+      when: not ansible_check_mode
   post_tasks:
     - name: Clean remote manifests directory
       ansible.builtin.file:
@@ -173,6 +182,7 @@
       changed_when: "'configured' in namespaces_apply.stdout or 'created' in namespaces_apply.stdout"
       become: false
       tags: ["apps"]
+      when: not ansible_check_mode
     # --- HONEYGAIN ---
     - name: Generate Honeygain Config (Kustomize Bridge)
       ansible.builtin.copy:
@@ -200,6 +210,7 @@
       changed_when: "'configured' in honeygain_apply.stdout or 'created' in honeygain_apply.stdout"
       become: false
       tags: ["apps", "honeygain"]
+      when: not ansible_check_mode
     # --- MINING SECRETS (Centralized Wallets) ---
     - name: Generate Mining Wallets Secret (Kustomize Bridge)
       ansible.builtin.copy:
@@ -218,6 +229,7 @@
       changed_when: "'configured' in mining_secrets_apply.stdout or 'created' in mining_secrets_apply.stdout"
       become: false
       tags: ["apps", "miners"]
+      when: not ansible_check_mode
     # --- MINING POOLS ---
     - name: Deploy Mining Pools ConfigMap via Kustomize
       ansible.builtin.command: kubectl apply -k {{ k8s_manifests_dir }}/miners/mining-pools/
@@ -227,6 +239,7 @@
       changed_when: "'configured' in mining_pools_apply.stdout or 'created' in mining_pools_apply.stdout"
       become: false
       tags: ["apps", "miners"]
+      when: not ansible_check_mode
     # --- UNMINEABLE CPU TNN ---
     - name: Deploy Unmineable CPU TNN via Kustomize
       ansible.builtin.command: kubectl apply -k {{ k8s_manifests_dir }}/miners/cpu-miner/
@@ -236,6 +249,7 @@
       changed_when: "'configured' in unmineable_cpu_tnn_apply.stdout or 'created' in unmineable_cpu_tnn_apply.stdout"
       become: false
       tags: ["apps", "miners", "cpu-miner"]
+      when: not ansible_check_mode
     # --- UNMINEABLE GPU RIGEL ---
     - name: Deploy Unmineable GPU Rigel via Kustomize
       ansible.builtin.command: kubectl apply -k {{ k8s_manifests_dir }}/miners/gpu-miner/
@@ -244,7 +258,9 @@
       register: unmineable_gpu_rigel_apply
       changed_when: >-
         'configured' in unmineable_gpu_rigel_apply.stdout or 'created' in unmineable_gpu_rigel_apply.stdout
-      when: nvidia_gpu_active | default(false) | bool
+      when:
+        - nvidia_gpu_active | default(false) | bool
+        - not ansible_check_mode
       become: false
       tags: ["apps", "miners", "gpu-miner"]
     # --- ARGOCD ---
@@ -253,3 +269,4 @@
         name: argocd
       tags: ["apps", "argocd"]
       become: false
+      when: not ansible_check_mode

@@ -20,7 +20,7 @@
 - name: Assert disk space
   ansible.builtin.assert:
     that:
-      - root_disk_space.stdout | int > (preflight_min_disk_gb | int * 1024 * 1024)
+      - root_disk_space.stdout | int >= (preflight_min_disk_gb | int * 1024 * 1024)
     fail_msg: >-
       {{
         'Insufficient disk space on /. Required: ' ~ preflight_min_disk_gb ~ 'GB, Available: '
@@ -31,7 +31,9 @@
   ansible.builtin.assert:
     that:
       - ansible_facts['memtotal_mb'] >= preflight_min_ram_mb | int
-    fail_msg: "Insufficient memory. Required: {{ preflight_min_ram_mb }}MB, Available: {{ ansible_facts['memtotal_mb'] }}MB"
+    fail_msg: >-
+      Insufficient memory. Required: {{ preflight_min_ram_mb }}MB, Available:
+      {{ ansible_facts['memtotal_mb'] }}MB
 - name: Assert architecture
   ansible.builtin.assert:
     that:

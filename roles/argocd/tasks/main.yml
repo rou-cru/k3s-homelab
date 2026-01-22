@@ -10,7 +10,9 @@
   kubernetes.core.helm_repository:
     name: argo
     repo_url: https://argoproj.github.io/argo-helm
-  when: helm_binary_check.rc == 0
+  when:
+    - helm_binary_check.rc == 0
+    - not ansible_check_mode
 
 # Deploy ArgoCD using Helm with custom configuration
 - name: Deploy ArgoCD
@@ -21,7 +23,7 @@
     update_repo_cache: true
     create_namespace: true
     chart_version: "{{ argocd_chart_version | default(omit, true) }}"
-    kubeconfig: "{{ (ansible_user_dir | default(ansible_env.HOME)) }}/.kube/config"
+    kubeconfig: "/home/{{ ansible_user }}/.kube/config"
     values:
       crds:
         install: "{{ argocd_install_crds }}"
@@ -132,7 +134,9 @@
           serviceMonitor:
             enabled: "{{ argocd_servicemonitor_enabled }}"
   become: false
-  when: helm_binary_check.rc == 0
+  when:
+    - helm_binary_check.rc == 0
+    - not ansible_check_mode
   tags: ["apps", "argocd"]
 
 # Create ExternalSecret for ArgoCD admin password from vault
@@ -157,10 +161,12 @@
           - secretKey: admin.password
             remoteRef:
               key: argocd-admin-pass
-    kubeconfig: "{{ (ansible_user_dir | default(ansible_env.HOME)) }}/.kube/config"
+    kubeconfig: "/home/{{ ansible_user }}/.kube/config"
   register: argocd_es_created
   become: false
-  when: helm_binary_check.rc == 0
+  when:
+    - helm_binary_check.rc == 0
+    - not ansible_check_mode
   tags: ["apps", "argocd", "secrets"]
 
 # Wait for ExternalSecret controller to populate admin password
@@ -170,14 +176,17 @@
     kind: Secret
     name: argocd-secret
     namespace: "{{ argocd_namespace }}"
-    kubeconfig: "{{ (ansible_user_dir | default(ansible_env.HOME)) }}/.kube/config"
+    kubeconfig: "/home/{{ ansible_user }}/.kube/config"
   register: argocd_secret_check
   retries: 12
   delay: 5
   until:
     - argocd_secret_check.resources | length > 0
     - "'admin.password' in (argocd_secret_check.resources[0].data | default({}))"
-  when: helm_binary_check.rc == 0 and argocd_es_created.changed
+  when:
+    - helm_binary_check.rc == 0
+    - argocd_es_created.changed
+    - not ansible_check_mode
   become: false
   tags: ["apps", "argocd", "secrets"]
 
@@ -192,8 +201,11 @@
         name: argocd-server
         namespace: "{{ argocd_namespace }}"
         annotations:
-          kubectl.kubernetes.io/restartedAt: "{{ ansible_date_time.iso8601 }}"
-    kubeconfig: "{{ (ansible_user_dir | default(ansible_env.HOME)) }}/.kube/config"
-  when: helm_binary_check.rc == 0 and argocd_es_created.changed
+          kubectl.kubernetes.io/restartedAt: "{{ ansible_facts['date_time']['iso8601'] }}"
+    kubeconfig: "/home/{{ ansible_user }}/.kube/config"
+  when:
+    - helm_binary_check.rc == 0
+    - argocd_es_created.changed
+    - not ansible_check_mode
   become: false
   tags: ["apps", "argocd", "secrets"]

@@ -17,6 +17,7 @@
   when:
     - k3s_server_recreate | bool
     - k3s_uninstall_script.stat.exists
+    - not ansible_check_mode
   register: k3s_uninstall
   changed_when: k3s_uninstall.rc == 0
 # Remove K3s data directories for clean installation
@@ -106,6 +107,7 @@
   args:
     executable: /bin/bash
     creates: /usr/local/bin/k3s
+  when: not ansible_check_mode
 # Create systemd override directory for K3s service customization
 - name: Create override dir
   ansible.builtin.file:
@@ -253,7 +255,7 @@
     - name: Report kubeconfig copy failure
       ansible.builtin.debug:
         msg: >-
-          Kubeconfig copy failed at {{ ansible_failed_task.name }}: {{ ansible_failed_result | to_nice_json }}
+          Kubeconfig copy failed at {{ ansible_failed_task.name }}: {{ ansible_failed_result | to_json }}
     - name: Fail kubeconfig copy
       ansible.builtin.fail:
         msg: "Kubeconfig copy to local machine failed"

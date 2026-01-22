@@ -11,7 +11,9 @@
 - name: Validate server parameters
   ansible.builtin.assert:
     that:
+      - k3s_agent_server_url is defined
       - k3s_agent_server_url | length > 0
+      - k3s_agent_token is defined
       - k3s_agent_token | length > 0
     fail_msg: "ERROR: k3s_agent_server_url and k3s_agent_token are required"
 
@@ -27,6 +29,7 @@
   when:
     - k3s_agent_recreate | bool
     - k3s_agent_uninstall_script.stat.exists
+    - not ansible_check_mode
   register: k3s_uninstall
   changed_when: k3s_uninstall.rc == 0
 
@@ -104,6 +107,7 @@
     executable: /bin/bash
     creates: /usr/local/bin/k3s
   no_log: true
+  when: not ansible_check_mode
 
 # Create systemd override directory for K3s agent service customization
 - name: Create override dir

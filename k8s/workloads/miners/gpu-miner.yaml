@@ -89,7 +89,7 @@ spec:
             - name: REFERRAL_CODE
               valueFrom:
                 configMapKeyRef:
-                  name: gpu-miner-config
+                  name: mining-common
                   key: REFERRAL_CODE
             - name: MINING_PASS
               valueFrom:
@@ -131,5 +131,8 @@ spec:
             - name: NVIDIA_DRIVER_CAPABILITIES
               value: "all"
           resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
             limits:
               nvidia.com/gpu: "1"

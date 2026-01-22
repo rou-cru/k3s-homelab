@@ -8,9 +8,6 @@ token: "{{ k3s_agent_token }}"
 # Network - Bind to Tailscale IP for secure inter-node communication
 node-ip: "{{ tailscale_ip }}"
 
-# CNI - Cilium handles networking, disable Flannel
-flannel-backend: "none"
-
 {% if k3s_agent_node_labels | length > 0 %}
 # Node labels
 node-label:

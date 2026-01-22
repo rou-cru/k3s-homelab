@@ -24,6 +24,7 @@
   args:
     creates: /root/.nvm/nvm.sh
     executable: /bin/bash
+  when: not ansible_check_mode
 - name: Install latest Node.js LTS via NVM
   ansible.builtin.shell: |
     set -euo pipefail
@@ -33,6 +34,7 @@
     nvm alias default 'lts/*'
   args:
     executable: /bin/bash
+  when: not ansible_check_mode
 - name: Enable Corepack and activate pnpm
   ansible.builtin.shell: |
     set -euo pipefail
@@ -42,11 +44,13 @@
     corepack prepare pnpm@latest --activate
   args:
     executable: /bin/bash
+  when: not ansible_check_mode
 - name: Install Devbox
   ansible.builtin.shell: |
     curl -fsSL https://get.jetpack.io/devbox | bash
   args:
     creates: /usr/local/bin/devbox
+  when: not ansible_check_mode
 # Python CLI tools (pipx/uv)
 - name: Install nvitop
   ansible.builtin.command: uv tool install nvitop
@@ -54,7 +58,9 @@
     creates: /root/.local/bin/nvitop
   environment:
     PATH: "/root/.cargo/bin:{{ ansible_facts['env']['PATH'] }}"
-  when: nvidia_gpu_setup_mode | default('auto') != 'false'
+  when:
+    - nvidia_gpu_setup_mode | default('auto') != 'false'
+    - not ansible_check_mode
 - name: Install Kimi
   ansible.builtin.command: uv tool install kimi-cli
   args:
@@ -62,6 +68,7 @@
   environment:
     PATH: "/root/.cargo/bin:{{ ansible_facts['env']['PATH'] }}"
   ignore_errors: true
+  when: not ansible_check_mode
 # AI CLI tools (npm)
 - name: Install AI tools
   ansible.builtin.shell: |
@@ -77,9 +84,12 @@
     - "@qwen-code/qwen-code"
     - "@openai/codex"
   ignore_errors: true
+  when: not ansible_check_mode
 # Docker (optional, disabled by default)
 - name: Install Docker
-  when: devtools_install_docker | default(false) | bool
+  when:
+    - devtools_install_docker | default(false) | bool
+    - not ansible_check_mode
   block:
     - name: Add Docker key
       ansible.builtin.shell: |
@@ -119,13 +129,15 @@
     - name: Report Docker installation failure
       ansible.builtin.debug:
         msg: >-
-          Docker installation failed at {{ ansible_failed_task.name }}: {{ ansible_failed_result | to_nice_json }}
+          Docker installation failed at {{ ansible_failed_task.name }}: {{ ansible_failed_result | to_json }}
     - name: Fail Docker installation
       ansible.builtin.fail:
         msg: "Docker installation failed"
 # Vagrant + libvirt (for Molecule testing)
 - name: Install Vagrant and libvirt
-  when: devtools_install_vagrant | default(true) | bool
+  when:
+    - devtools_install_vagrant | default(true) | bool
+    - not ansible_check_mode
   block:
     - name: Set HashiCorp repo release
       ansible.builtin.set_fact:
@@ -151,7 +163,7 @@
         path: /usr/share/keyrings
         state: directory
         mode: "0755"
-      check_mode: false
+      when: not ansible_check_mode
     - name: Install HashiCorp keyring
       ansible.builtin.shell: |
         set -euo pipefail
@@ -160,7 +172,7 @@
       args:
         executable: /bin/bash
         creates: /usr/share/keyrings/hashicorp-archive-keyring.gpg
-      check_mode: false
+      when: not ansible_check_mode
     - name: Add HashiCorp APT repo
       ansible.builtin.apt_repository:
         repo: >-
@@ -175,7 +187,7 @@
           }}
         state: present
         filename: hashicorp
-      check_mode: false
+      when: not ansible_check_mode
     - name: Install libvirt and dependencies
       ansible.builtin.apt:
         name:
@@ -214,7 +226,6 @@
       ansible.builtin.command: vagrant plugin list
       register: vagrant_plugin_list
       changed_when: false
-      check_mode: false
       ignore_errors: true
     - name: Install vagrant-libvirt plugin
       ansible.builtin.command: vagrant plugin install vagrant-libvirt
@@ -231,7 +242,7 @@
     - name: Report Vagrant installation failure
       ansible.builtin.debug:
         msg: >-
-          Vagrant installation failed at {{ ansible_failed_task.name }}: {{ ansible_failed_result | to_nice_json }}
+          Vagrant installation failed at {{ ansible_failed_task.name }}: {{ ansible_failed_result | to_json }}
     - name: Fail Vagrant installation
       ansible.builtin.fail:
         msg: "Vagrant installation failed"
