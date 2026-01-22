@@ -12,11 +12,7 @@ version = 2
 {% endif %}
 
 [plugins."io.containerd.grpc.v1.cri".containerd]
-{% if 'nvidia' in (containerd_additional_runtimes | default([])) %}
-  default_runtime_name = "nvidia"
-{% else %}
-  default_runtime_name = "runc"
-{% endif %}
+  default_runtime_name = "{{ containerd_default_runtime | default('runc') }}"
   snapshotter = "overlayfs"
 {% if containerd_optimized | default(true) %}
   disable_snapshot_annotations = false
