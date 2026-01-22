@@ -57,3 +57,9 @@ k3s_cni_bin_dir: "/opt/cni/bin"
 # Type: str
 # Required: false
 k3s_cni_conf_dir: "/etc/cni/net.d"
+
+# Title: Kubelet Arguments
+# Description: Additional arguments to pass to kubelet (list of strings).
+# Type: list
+# Required: false
+k3s_agent_kubelet_args: []
