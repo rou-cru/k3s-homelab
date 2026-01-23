@@ -157,6 +157,7 @@
   ansible.builtin.slurp:
     src: /etc/rancher/k3s/k3s.yaml
   register: k3s_kubeconfig_raw
+  no_log: true
   when: not ansible_check_mode
 # Replace localhost with Tailscale IP for remote cluster access
 - name: Build canonical config

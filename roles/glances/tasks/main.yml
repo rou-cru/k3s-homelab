@@ -28,6 +28,17 @@
     path: "{{ glances_venv_path }}"
     state: directory
     mode: '0755'
+- name: Check uv availability
+  ansible.builtin.stat:
+    path: /usr/local/bin/uv
+  register: glances_uv_binary
+  changed_when: false
+- name: Fail when uv is missing
+  ansible.builtin.fail:
+    msg: "uv not found at /usr/local/bin/uv. Run the common role to install uv before glances."
+  when:
+    - not ansible_check_mode
+    - not glances_uv_binary.stat.exists
 # Create Python virtual environment using uv for Glances installation
 - name: Create Glances virtual environment (uv)
   ansible.builtin.command: uv venv "{{ glances_venv_path }}"
