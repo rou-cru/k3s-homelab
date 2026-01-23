@@ -23,15 +23,30 @@ Description: Common configurations for K3s nodes (server and agent)
 
 #### File: defaults/main.yml
 
-| Var          | Type         | Value       |
-|--------------|--------------|-------------|
-| [k3s_version](defaults/main.yml#L2)   | str | `v1.35.0+k3s1` |    
-| [containerd_optimized](defaults/main.yml#L5)   | bool | `True` |    
-| [containerd_default_runtime](defaults/main.yml#L6)   | str | `runc` |    
-| [containerd_additional_runtimes](defaults/main.yml#L7)   | list | `[]` |    
-| [k3s_cni_bin_dir](defaults/main.yml#L10)   | str | `/opt/cni/bin` |    
-| [k3s_cni_conf_dir](defaults/main.yml#L11)   | str | `/etc/cni/net.d` |    
-| [k3s_recreate](defaults/main.yml#L14)   | bool | `False` |    
+| Var          | Type         | Value       |Required    | Title       |
+|--------------|--------------|-------------|------------|-------------|
+| [k3s_version](defaults/main.yml#L5)   | str | `v1.35.0+k3s1` |    false  |  K3s Version |
+| [containerd_optimized](defaults/main.yml#L10)   | bool | `True` |    false  |  Containerd Optimized |
+| [containerd_default_runtime](defaults/main.yml#L15)   | str | `runc` |    false  |  Containerd Default Runtime |
+| [containerd_additional_runtimes](defaults/main.yml#L20)   | list | `[]` |    false  |  Containerd Additional Runtimes |
+| [k3s_cni_bin_dir](defaults/main.yml#L25)   | str | `/opt/cni/bin` |    false  |  K3s CNI Binary Directory |
+| [k3s_cni_conf_dir](defaults/main.yml#L30)   | str | `/etc/cni/net.d` |    false  |  K3s CNI Configuration Directory |
+| [k3s_recreate](defaults/main.yml#L35)   | bool | `False` |    false  |  Recreate K3s |
+<details>
+<summary><b>🖇️ Full descriptions for vars in defaults/main.yml</b></summary>
+<br>
+<table>
+<th>Var</th><th>Description</th>
+<tr><td><b>k3s_version</b></td><td>K3s version to install.</td></tr>
+<tr><td><b>containerd_optimized</b></td><td>Enable containerd optimized configuration.</td></tr>
+<tr><td><b>containerd_default_runtime</b></td><td>Default container runtime to use.</td></tr>
+<tr><td><b>containerd_additional_runtimes</b></td><td>List of additional container runtimes to register.</td></tr>
+<tr><td><b>k3s_cni_bin_dir</b></td><td>Path to CNI binaries.</td></tr>
+<tr><td><b>k3s_cni_conf_dir</b></td><td>Path to CNI configuration files.</td></tr>
+<tr><td><b>k3s_recreate</b></td><td>If true, uninstalls and wipes previous K3s installation before deploying.</td></tr>
+</table>
+<br>
+</details>
 
 
 

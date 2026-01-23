@@ -1,8 +1,10 @@
----
-# Preflight check defaults
-
-# Minimum RAM required in MB (default 2GB)
+# Title: Minimum RAM
+# Description: Minimum RAM required in MB.
+# Type: int
+# Required: false
 preflight_min_ram_mb: 2048
-
-# Minimum Disk space on / required in GB (default 20GB)
+# Title: Minimum Disk Space
+# Description: Minimum Disk space on / required in GB.
+# Type: int
+# Required: false
 preflight_min_disk_gb: 20

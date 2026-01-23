@@ -1,3 +1,4 @@
+# Verify network connectivity to K3s download endpoint
 - name: Check connectivity
   ansible.builtin.uri:
     url: https://get.k3s.io
@@ -7,16 +8,19 @@
   failed_when: false
   changed_when: false
   check_mode: false
+# Abort if network is unreachable
 - name: Fail on disconnect
   ansible.builtin.fail:
     msg: "No network connectivity detected. Cannot proceed with installation."
   when: preflight_network_check.status is not defined or preflight_network_check.status != 200
+# Check available disk space on root filesystem
 - name: Check disk space
   ansible.builtin.shell:
     cmd: df --output=avail / | tail -1
   register: root_disk_space
   changed_when: false
   check_mode: false
+# Validate disk space meets minimum requirements
 - name: Assert disk space
   ansible.builtin.assert:
     that:
@@ -27,6 +31,7 @@
         ~ ((root_disk_space.stdout | int / 1024 / 1024) | round(2))
         ~ 'GB'
       }}
+# Validate system memory meets minimum requirements
 - name: Assert memory
   ansible.builtin.assert:
     that:
@@ -34,6 +39,7 @@
     fail_msg: >-
       Insufficient memory. Required: {{ preflight_min_ram_mb }}MB, Available:
       {{ ansible_facts['memtotal_mb'] }}MB
+# Validate system architecture is supported
 - name: Assert architecture
   ansible.builtin.assert:
     that:

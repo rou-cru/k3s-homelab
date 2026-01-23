@@ -252,10 +252,10 @@ RoG hardware tweaks, and network optimizations.
 
 | Var          | Type         | Value       |Required    | Title       |
 |--------------|--------------|-------------|------------|-------------|
-| [common_network_optimization_enabled](defaults/main.yml#L5)   | bool | `True` |    false  |  Network Optimization |
-| [common_rog_server](defaults/main.yml#L10)   | bool | `True` |    false  |  RoG Server Support |
-| [common_radio_block_enabled](defaults/main.yml#L15)   | bool | `True` |    false  |  Radio Block |
-| [common_audio_optimization_enabled](defaults/main.yml#L20)   | bool | `True` |    false  |  Audio Optimization |
+| [common_network_optimization_enabled](defaults/main.yml#L5)   | bool | `False` |    false  |  Network Optimization |
+| [common_rog_server](defaults/main.yml#L10)   | bool | `False` |    false  |  RoG Server Support |
+| [common_radio_block_enabled](defaults/main.yml#L15)   | bool | `False` |    false  |  Radio Block |
+| [common_audio_optimization_enabled](defaults/main.yml#L20)   | bool | `False` |    false  |  Audio Optimization |
 | [common_file_descriptors_soft](defaults/main.yml#L25)   | int | `100000` |    false  |  File Descriptors (Soft) |
 | [common_file_descriptors_hard](defaults/main.yml#L30)   | int | `100000` |    false  |  File Descriptors (Hard) |
 | [common_fs_file_max](defaults/main.yml#L35)   | int | `2097152` |    false  |  System File Max |
@@ -270,7 +270,7 @@ RoG hardware tweaks, and network optimizations.
 | [common_battery_charge_threshold](defaults/main.yml#L80)   | int | `80` |    false  |  Battery Charge Threshold |
 | [common_thermal_policy](defaults/main.yml#L85)   | int | `1` |    false  |  Thermal Policy |
 | [common_ring_buffer_target](defaults/main.yml#L90)   | int | `4096` |    false  |  Ring Buffer Target |
-| [common_mining_enabled](defaults/main.yml#L95)   | bool | `True` |    false  |  Mining Optimization |
+| [common_mining_enabled](defaults/main.yml#L95)   | bool | `False` |    false  |  Mining Optimization |
 | [common_hugepages_count](defaults/main.yml#L100)   | int | `1280` |    false  |  Hugepages Count |
 | [common_helm_repositories](defaults/main.yml#L105)   | list | `[]` |    false  |  Helm Repositories |
 | [common_helm_repositories.**0**](defaults/main.yml#L111)   | dict | `{}` |    false  |  Helm Repository |
