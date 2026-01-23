@@ -39,8 +39,6 @@
     - /etc/cni/net.d
   when:
     - k3s_recreate | bool
-    - (k3s_server_uninstall_script.stat.exists or k3s_agent_uninstall_script.stat.exists)
-
 # Create base directories
 - name: Ensure K3s config directory exists
   ansible.builtin.file:
