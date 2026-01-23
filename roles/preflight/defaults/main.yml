@@ -1,8 +1,12 @@
+---
+# Preflight check defaults
+
 # Title: Minimum RAM
 # Description: Minimum RAM required in MB.
 # Type: int
 # Required: false
 preflight_min_ram_mb: 2048
+
 # Title: Minimum Disk Space
 # Description: Minimum Disk space on / required in GB.
 # Type: int
