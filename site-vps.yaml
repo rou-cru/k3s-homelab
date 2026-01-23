@@ -73,12 +73,14 @@
       become: true
       no_log: true
       tags: ["cluster"]
+      when: not ansible_check_mode
 
     - name: Set K3s token fact
       ansible.builtin.set_fact:
         k3s_agent_token: "{{ k3s_token_raw.content | b64decode | trim }}"
       no_log: true
       tags: ["cluster"]
+      when: k3s_token_raw is not skipped
 
     - name: Run k3s_agent role
       ansible.builtin.import_role:
@@ -92,7 +94,7 @@
           ====================================
           VPS Node Setup Complete
           ====================================
-          Hostname: {{ ansible_hostname }}
+          Hostname: {{ ansible_facts['hostname'] }}
           Tailscale IP: {{ tailscale_ip | default('Not configured') }}
           Public IP: {{ ansible_host }}
           K3s Server: {{ k3s_agent_server_url | default('Not configured') }}

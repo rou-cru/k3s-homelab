@@ -34,7 +34,7 @@
   args:
     creates: "{{ glances_venv_path }}/bin/python"
   environment:
-    PATH: "/root/.cargo/bin:{{ ansible_facts['env']['PATH'] }}"
+    PATH: "/usr/local/bin:{{ ansible_facts['env']['PATH'] }}"
   notify: Restart glances
   when: not ansible_check_mode
 # Install Glances with all extras in the virtual environment
@@ -59,3 +59,4 @@
     state: started
     enabled: true
     daemon_reload: true
+  when: not ansible_check_mode

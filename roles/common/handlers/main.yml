@@ -1,23 +1,25 @@
+# Restart systemd-logind to apply login manager configuration changes
 - name: Restart logind
   ansible.builtin.service:
     name: systemd-logind
     state: restarted
-  ignore_errors: "{{ ansible_check_mode }}"
   when: not ansible_check_mode
+
+# Restart CPU frequency scaling daemon to apply governor changes
 - name: Restart cpufrequtils
   ansible.builtin.service:
     name: cpufrequtils
     state: restarted
-  ignore_errors: "{{ ansible_check_mode }}"
   when: not ansible_check_mode
+
+# Apply energy tuning tmpfiles configuration for power management
 - name: Apply power tuning
   ansible.builtin.command: systemd-tmpfiles --create /etc/tmpfiles.d/energy-tuning.conf
   changed_when: false
-  ignore_errors: "{{ ansible_check_mode }}"
   when: not ansible_check_mode
 
+# Reload system sysctl parameters to apply kernel tuning
 - name: Reload sysctl
   ansible.builtin.command: sysctl --system
   changed_when: false
-  ignore_errors: "{{ ansible_check_mode }}"
   when: not ansible_check_mode

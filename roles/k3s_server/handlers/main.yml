@@ -1,3 +1,4 @@
+# Restart K3s server service when configuration changes
 - name: Restart k3s
   ansible.builtin.service:
     name: k3s

@@ -2,9 +2,9 @@
 # These settings disable hardware-specific features not applicable to virtual machines
 
 # Connection & Privilege settings
-ansible_user: root
-ansible_become: false
-# SSH pipelining enabled for better performance (no sudo conflicts as we connect as root)
+# ansible_user defined in host_vars/k3s-vps.yml (rc with SSH key)
+ansible_become: true
+# SSH pipelining enabled for better performance
 ansible_ssh_pipelining: true
 
 # Common role overrides

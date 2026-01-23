@@ -18,8 +18,8 @@ argument_specs:
         description: K3s server URL (use Tailscale IP)
       k3s_agent_token:
         type: str
-        required: true
-        description: K3s server token for node authentication
+        required: false
+        description: K3s server token for node authentication (set dynamically from server)
       k3s_agent_node_labels:
         type: list
         elements: str
@@ -36,5 +36,5 @@ argument_specs:
         description: Uninstall and wipe previous K3s agent before deploying
       tailscale_ip:
         type: str
-        required: true
-        description: Tailscale IP address (100.x.x.x) for node communication
+        required: false
+        description: Tailscale IP address (100.x.x.x) for node communication (set by tailscale role)
