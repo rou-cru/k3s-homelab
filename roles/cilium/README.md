@@ -139,21 +139,47 @@ Description: Installs and configures Cilium CNI for K3s clusters.
 ### Tasks
 
 
+#### File: tasks/gateway.yml
+
+| Name | Module | Has Conditions |
+| ---- | ------ | -------------- |
+| [Deploy General Cluster Gateway](tasks/gateway.yml#L1) | kubernetes.core.k8s | True |
+
 #### File: tasks/main.yml
 
-| Name | Module | Has Conditions | Comments |
-| ---- | ------ | -------------- | -------- |
-| [Create temporary values file](tasks/main.yml#L2) | ansible.builtin.tempfile | False | Create temporary file for Cilium Helm values configuration |
-| [Ensure Cilium Helm repo](tasks/main.yml#L9) | ansible.builtin.command | False | Add Cilium Helm repository for CNI installation |
-| [Template Cilium values file](tasks/main.yml#L15) | ansible.builtin.template | False | Generate Cilium configuration from Jinja2 template |
-| [Install Cilium via Helm](tasks/main.yml#L22) | kubernetes.core.helm | False | Deploy Cilium CNI using Helm with custom configuration |
-| [Wait for Cilium DaemonSet to be created](tasks/main.yml#L34) | ansible.builtin.command | False | Verify Cilium DaemonSet creation before proceeding |
-| [Wait for cilium pods](tasks/main.yml#L44) | ansible.builtin.command | False | Wait for Cilium pods to be ready across all nodes |
-| [Remove temporary values file](tasks/main.yml#L53) | ansible.builtin.file | False | Clean up temporary configuration file |
+| Name | Module | Has Conditions | Tags | Comments |
+| ---- | ------ | -------------- | -----| -------- |
+| [Create temporary values file](tasks/main.yml#L2) | ansible.builtin.tempfile | False |  | Create temporary file for Cilium Helm values configuration |
+| [Ensure Cilium Helm repo](tasks/main.yml#L9) | ansible.builtin.command | False |  | Add Cilium Helm repository for CNI installation |
+| [Template Cilium values file](tasks/main.yml#L15) | ansible.builtin.template | False |  | Generate Cilium configuration from Jinja2 template |
+| [Install Cilium via Helm](tasks/main.yml#L22) | kubernetes.core.helm | False |  | Deploy Cilium CNI using Helm with custom configuration |
+| [Wait for Cilium DaemonSet to be created](tasks/main.yml#L34) | ansible.builtin.command | False |  | Verify Cilium DaemonSet creation before proceeding |
+| [Wait for cilium pods](tasks/main.yml#L44) | ansible.builtin.command | False |  | Wait for cilium pods |
+| [Deploy Cluster Gateway](tasks/main.yml#L54) | ansible.builtin.import_tasks | False | cluster,network,gateway | Deploy General Cluster Gateway |
+| [Remove temporary values file](tasks/main.yml#L60) | ansible.builtin.file | False |  | Clean up temporary configuration file |
 
 
 ## Task Flow Graphs
 
+
+
+### Graph for gateway.yml
+
+```mermaid
+flowchart TD
+Start
+classDef block stroke:#3498db,stroke-width:2px;
+classDef task stroke:#4b76bb,stroke-width:2px;
+classDef includeTasks stroke:#16a085,stroke-width:2px;
+classDef importTasks stroke:#34495e,stroke-width:2px;
+classDef includeRole stroke:#2980b9,stroke-width:2px;
+classDef importRole stroke:#699ba7,stroke-width:2px;
+classDef includeVars stroke:#8e44ad,stroke-width:2px;
+classDef rescue stroke:#665352,stroke-width:2px;
+
+  Start-->|Task| Deploy_General_Cluster_Gateway0[deploy general cluster gateway<br>When: **not ansible check mode**]:::task
+  Deploy_General_Cluster_Gateway0-->End
+```
 
 
 ### Graph for main.yml
@@ -176,8 +202,9 @@ classDef rescue stroke:#665352,stroke-width:2px;
   Template_Cilium_values_file2-->|Task| Install_Cilium_via_Helm3[install cilium via helm]:::task
   Install_Cilium_via_Helm3-->|Task| Wait_for_Cilium_DaemonSet_to_be_created4[wait for cilium daemonset to be created]:::task
   Wait_for_Cilium_DaemonSet_to_be_created4-->|Task| Wait_for_cilium_pods5[wait for cilium pods]:::task
-  Wait_for_cilium_pods5-->|Task| Remove_temporary_values_file6[remove temporary values file]:::task
-  Remove_temporary_values_file6-->End
+  Wait_for_cilium_pods5-->|Import task| Deploy_Cluster_Gateway_gateway_yml_6[/deploy cluster gateway<br>import_task: gateway yml/]:::importTasks
+  Deploy_Cluster_Gateway_gateway_yml_6-->|Task| Remove_temporary_values_file7[remove temporary values file]:::task
+  Remove_temporary_values_file7-->End
 ```
 
 

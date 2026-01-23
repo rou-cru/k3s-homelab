@@ -1,0 +1,40 @@
+---
+argument_specs:
+  main:
+    short_description: Install and configure K3s agent node
+    description:
+      - Installs K3s in agent mode and joins an existing cluster
+      - Configures Tailscale-based secure communication
+      - Supports custom node labels and taints
+    author: rc
+    options:
+      k3s_agent_version:
+        type: str
+        default: "v1.34.3+k3s1"
+        description: K3s version to install (should match server version)
+      k3s_agent_server_url:
+        type: str
+        required: true
+        description: K3s server URL (use Tailscale IP)
+      k3s_agent_token:
+        type: str
+        required: false
+        description: K3s server token for node authentication (set dynamically from server)
+      k3s_agent_node_labels:
+        type: list
+        elements: str
+        default: []
+        description: Labels to apply to this node
+      k3s_agent_node_taints:
+        type: list
+        elements: str
+        default: []
+        description: Taints to apply to this node
+      k3s_agent_recreate:
+        type: bool
+        default: false
+        description: Uninstall and wipe previous K3s agent before deploying
+      tailscale_ip:
+        type: str
+        required: false
+        description: Tailscale IP address (100.x.x.x) for node communication (set by tailscale role)

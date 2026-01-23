@@ -1,0 +1,30 @@
+# Title: ArgoCD Namespace
+# Description: Kubernetes namespace where ArgoCD will be installed.
+# Type: str
+# Required: false
+argocd_namespace: argocd
+# Title: Chart Version
+# Description: ArgoCD Helm chart version (empty for latest).
+# Type: str
+# Required: false
+argocd_chart_version: ""
+# Title: Install CRDs
+# Description: Whether to install ArgoCD Custom Resource Definitions.
+# Type: bool
+# Required: false
+argocd_install_crds: true
+# Title: High Availability
+# Description: Enable high availability mode for ArgoCD.
+# Type: bool
+# Required: false
+argocd_ha_enabled: false
+# Title: Dex Integration
+# Description: Enable Dex for SSO authentication integration.
+# Type: bool
+# Required: false
+argocd_dex_enabled: false
+# Title: ServiceMonitor
+# Description: Enable Prometheus ServiceMonitor for metrics collection.
+# Type: bool
+# Required: false
+argocd_servicemonitor_enabled: true

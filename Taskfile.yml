@@ -249,15 +249,11 @@ tasks:
     cmds:
       - |
         echo "🔐 Starting Interactive Secrets Setup"
-        echo "You will be asked for: tailscale_authkey, ansible_ssh_pass, ansible_become_password, honeygain_pass"
+        echo "You will be asked for: tailscale_authkey, ansible_become_password, honeygain_pass"
         echo "---------------------------------------------------------------------------------------------------"
 
         read -p "Tailscale AuthKey (tskey-auth-...): " tailscale_key
         [ -n "$tailscale_key" ] && task secrets:set -- tailscale_authkey "$tailscale_key"
-
-        read -s -p "SSH Password (ansible_ssh_pass): " ssh_pass
-        echo ""
-        [ -n "$ssh_pass" ] && task secrets:set -- ansible_ssh_pass "$ssh_pass"
 
         read -s -p "Sudo Password (ansible_become_password): " sudo_pass
         echo ""

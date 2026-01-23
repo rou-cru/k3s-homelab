@@ -1,0 +1,138 @@
+---
+# GPU cryptocurrency miner deployment with NVIDIA runtime support
+# Priority: Background - will be preempted when Akash workloads need GPU
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gpu-miner
+  namespace: workloads
+  labels:
+    app: gpu-miner
+    app.kubernetes.io/managed-by: argocd
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: gpu-miner
+  template:
+    metadata:
+      labels:
+        app: gpu-miner
+    spec:
+      priorityClassName: priority-background
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      runtimeClassName: nvidia
+      tolerations:
+        - key: "miner.gpu"
+          operator: "Equal"
+          value: "true"
+          effect: "NoSchedule"
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: nvidia.com/gpu.present
+                    operator: In
+                    values: ["true"]
+              - matchExpressions:
+                  - key: feature.node.kubernetes.io/pci-10de.present
+                    operator: In
+                    values: ["true"]
+      containers:
+        - name: gpu-miner
+          image: roucru/k3s-gpu-miner:rigel
+          imagePullPolicy: Always
+          securityContext:
+            privileged: true
+          env:
+            - name: WALLET_ADDRESS
+              valueFrom:
+                secretKeyRef:
+                  name: mining-wallets
+                  key: XEL_WALLET
+            - name: MINING_WORKER_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: gpu-miner-config
+                  key: MINING_WORKER_NAME
+            - name: MINING_POOL_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: mining-pools
+                  key: KRYPTEX_XEL_HOST
+            - name: MINING_POOL_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: mining-pools
+                  key: KRYPTEX_XEL_PORT
+            - name: MINING_POOL_SCHEME
+              valueFrom:
+                configMapKeyRef:
+                  name: mining-pools
+                  key: KRYPTEX_XEL_SCHEME
+            - name: POOL_TYPE
+              value: "kryptex"
+            - name: MINING_ALGO
+              valueFrom:
+                configMapKeyRef:
+                  name: gpu-miner-config
+                  key: MINING_ALGO
+            - name: MINING_COIN
+              valueFrom:
+                configMapKeyRef:
+                  name: gpu-miner-config
+                  key: MINING_COIN
+            - name: REFERRAL_CODE
+              valueFrom:
+                configMapKeyRef:
+                  name: mining-common
+                  key: REFERRAL_CODE
+            - name: MINING_PASS
+              valueFrom:
+                configMapKeyRef:
+                  name: gpu-miner-config
+                  key: MINING_PASS
+            - name: GPU_CORE_OFFSET
+              valueFrom:
+                configMapKeyRef:
+                  name: gpu-miner-config
+                  key: GPU_CORE_OFFSET
+            - name: GPU_MEM_OFFSET
+              valueFrom:
+                configMapKeyRef:
+                  name: gpu-miner-config
+                  key: GPU_MEM_OFFSET
+            - name: GPU_TEMP_CORE_MIN
+              valueFrom:
+                configMapKeyRef:
+                  name: gpu-miner-config
+                  key: GPU_TEMP_CORE_MIN
+            - name: GPU_TEMP_CORE_MAX
+              valueFrom:
+                configMapKeyRef:
+                  name: gpu-miner-config
+                  key: GPU_TEMP_CORE_MAX
+            - name: GPU_TEMP_MEM_MIN
+              valueFrom:
+                configMapKeyRef:
+                  name: gpu-miner-config
+                  key: GPU_TEMP_MEM_MIN
+            - name: GPU_TEMP_MEM_MAX
+              valueFrom:
+                configMapKeyRef:
+                  name: gpu-miner-config
+                  key: GPU_TEMP_MEM_MAX
+            - name: NVIDIA_VISIBLE_DEVICES
+              value: "all"
+            - name: NVIDIA_DRIVER_CAPABILITIES
+              value: "all"
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              nvidia.com/gpu: "1"

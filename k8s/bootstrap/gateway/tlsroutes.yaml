@@ -1,0 +1,24 @@
+---
+# TLSRoute for Akash passthrough - Layer 4 SNI routing
+# Cilium acts as pure L4 router, forwards encrypted TLS traffic without termination
+# Akash Nginx Ingress Controller handles its own TLS termination
+# See: .serena/memories/public_exposure_plan.md
+
+apiVersion: gateway.networking.k8s.io/v1alpha2
+kind: TLSRoute
+metadata:
+  name: akash-passthrough
+  namespace: akash-services
+spec:
+  parentRefs:
+    - name: public-gateway
+      namespace: kube-system
+      sectionName: akash-passthrough  # Matches TLS passthrough listener
+  hostnames:
+    - "*.akash.network"  # SNI-based routing for Akash tenant domains
+  rules:
+    - backendRefs:
+        # Akash provider deploys its own Nginx Ingress Controller
+        # This service is created automatically by Akash helm chart
+        - name: akash-ingress-nginx-controller
+          port: 443  # Encrypted traffic forwarded directly

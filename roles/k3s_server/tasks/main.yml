@@ -6,6 +6,7 @@
       - tailscale_ip | length > 0
       - tailscale_ip is match('^100\.')
     fail_msg: "ERROR: Invalid tailscale_ip ({{ tailscale_ip | default('undefined') }}). Must be 100.x.x.x"
+  when: tailscale_ip is defined
 # Check if K3s uninstall script exists for cleanup operations
 - name: Check uninstall script
   ansible.builtin.stat:
@@ -17,6 +18,7 @@
   when:
     - k3s_server_recreate | bool
     - k3s_uninstall_script.stat.exists
+    - not ansible_check_mode
   register: k3s_uninstall
   changed_when: k3s_uninstall.rc == 0
 # Remove K3s data directories for clean installation
@@ -39,6 +41,32 @@
     path: /etc/rancher/k3s
     state: directory
     mode: "0755"
+
+- name: Ensure CNI config directory exists
+  ansible.builtin.file:
+    path: "{{ k3s_cni_conf_dir }}"
+    state: directory
+    mode: "0755"
+
+- name: Ensure CNI bin directory exists
+  ansible.builtin.file:
+    path: "{{ k3s_cni_bin_dir }}"
+    state: directory
+    mode: "0755"
+
+- name: Ensure K3s agent etc directory exists
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/agent/etc/containerd
+    state: directory
+    mode: "0755"
+    recurse: true
+
+- name: Deploy containerd configuration template
+  ansible.builtin.template:
+    src: containerd-config.toml.tmpl.j2
+    dest: /var/lib/rancher/k3s/agent/etc/containerd/config.toml.tmpl
+    mode: "0644"
+  notify: Restart k3s
 # Create secure log directory for K3s components
 - name: Ensure K3s log directory exists
   ansible.builtin.file:
@@ -70,6 +98,7 @@
     dest: /etc/rancher/k3s/config.yaml
     mode: "0600"
   notify: Restart k3s
+  when: not ansible_check_mode
 # Download and install K3s with specified version
 - name: Install K3s
   ansible.builtin.shell: |
@@ -80,6 +109,7 @@
   args:
     executable: /bin/bash
     creates: /usr/local/bin/k3s
+  when: not ansible_check_mode
 # Create systemd override directory for K3s service customization
 - name: Create override dir
   ansible.builtin.file:
@@ -112,6 +142,7 @@
     name: k3s
     enabled: true
     state: started
+  when: not ansible_check_mode
 # Apply pending service restarts before continuing
 - name: Flush handlers
   ansible.builtin.meta: flush_handlers
@@ -126,12 +157,15 @@
   ansible.builtin.slurp:
     src: /etc/rancher/k3s/k3s.yaml
   register: k3s_kubeconfig_raw
+  no_log: true
+  when: not ansible_check_mode
 # Replace localhost with Tailscale IP for remote cluster access
 - name: Build canonical config
   ansible.builtin.set_fact:
     k3s_kubeconfig_canonical: |
       {{ k3s_kubeconfig_raw.content | b64decode |
          regex_replace('https://[0-9.]+:6443', 'https://' + tailscale_ip + ':6443') }}
+  when: not ansible_check_mode
 # Store Tailscale-enabled kubeconfig for server access
 - name: Write server config
   ansible.builtin.copy:
@@ -140,6 +174,7 @@
     owner: root
     group: root
     mode: "{{ k3s_server_kubeconfig_mode }}"
+  when: not ansible_check_mode
 # Create secure kubeconfig directory for ansible user
 - name: Create user kube dir
   ansible.builtin.file:
@@ -148,6 +183,7 @@
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
     mode: "0700"
+  when: not ansible_check_mode
 # Deploy Tailscale-enabled kubeconfig for ansible user
 - name: Write user config
   ansible.builtin.copy:
@@ -156,6 +192,7 @@
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
     mode: "0600"
+  when: not ansible_check_mode
 # Verify Kubernetes API server is ready before proceeding
 - name: Wait for apiserver
   ansible.builtin.command: kubectl api-resources
@@ -227,7 +264,7 @@
     - name: Report kubeconfig copy failure
       ansible.builtin.debug:
         msg: >-
-          Kubeconfig copy failed at {{ ansible_failed_task.name }}: {{ ansible_failed_result | to_nice_json }}
+          Kubeconfig copy failed at {{ ansible_failed_task.name }}: {{ ansible_failed_result | to_json }}
     - name: Fail kubeconfig copy
       ansible.builtin.fail:
         msg: "Kubeconfig copy to local machine failed"

@@ -2,7 +2,9 @@
 - name: Disable swap
   ansible.builtin.command: swapoff -a
   changed_when: true
-  when: ansible_facts['swaptotal_mb'] > 0
+  when:
+    - ansible_facts['swaptotal_mb'] > 0
+    - not ansible_check_mode
 # Permanently disable swap by commenting out fstab entries
 - name: Disable swap (fstab)
   ansible.builtin.replace:
@@ -70,6 +72,3 @@
 # Install Kubernetes and container tools
 - name: Install Cloud-Native Binaries
   ansible.builtin.include_tasks: binaries.yml
-# Configure Helm chart repositories
-- name: Setup Helm Repos
-  ansible.builtin.include_tasks: helm_setup.yml

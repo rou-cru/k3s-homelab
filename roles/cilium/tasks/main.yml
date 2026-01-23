@@ -5,12 +5,14 @@
     suffix: "-cilium-values.yaml"
   register: cilium_values_tmp
   check_mode: no
+  when: not ansible_check_mode
 # Add Cilium Helm repository for CNI installation
 - name: Ensure Cilium Helm repo
   ansible.builtin.command: helm repo add cilium https://helm.cilium.io/
   register: cilium_repo_add
   changed_when: "'has been added' in cilium_repo_add.stdout"
   failed_when: cilium_repo_add.rc != 0 and 'exists' not in cilium_repo_add.stderr
+  when: not ansible_check_mode
 # Generate Cilium configuration from Jinja2 template
 - name: Template Cilium values file
   ansible.builtin.template:
@@ -18,6 +20,7 @@
     dest: "{{ cilium_values_tmp.path }}"
     mode: "0600"
   check_mode: no
+  when: not ansible_check_mode
 # Deploy Cilium CNI using Helm with custom configuration
 - name: Install Cilium via Helm
   kubernetes.core.helm:
@@ -30,6 +33,7 @@
     chart_version: "{{ cilium_version }}"
     kubeconfig: "/home/{{ ansible_user }}/.kube/config"
     update_repo_cache: true # Ensure latest chart information
+  when: not ansible_check_mode
 # Verify Cilium DaemonSet creation before proceeding
 - name: Wait for Cilium DaemonSet to be created
   ansible.builtin.command: kubectl -n {{ cilium_namespace }} get ds cilium
@@ -40,7 +44,8 @@
   changed_when: false
   environment:
     KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
-# Wait for Cilium pods to be ready across all nodes
+  when: not ansible_check_mode
+# Wait for cilium pods
 - name: Wait for cilium pods
   ansible.builtin.command: >-
     kubectl -n {{ cilium_namespace }} rollout status ds/cilium --timeout="{{ cilium_rollout_timeout }}s"
@@ -49,9 +54,19 @@
   failed_when: cilium_rollout.rc != 0
   environment:
     KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
+  when: not ansible_check_mode
+
+# Deploy General Cluster Gateway
+- name: Deploy Cluster Gateway
+  ansible.builtin.import_tasks: gateway.yml
+  become: false
+  tags: ["cluster", "network", "gateway"]
+  when: not ansible_check_mode
+
 # Clean up temporary configuration file
 - name: Remove temporary values file
   ansible.builtin.file:
     path: "{{ cilium_values_tmp.path }}"
     state: absent
   changed_when: false
+  when: not ansible_check_mode

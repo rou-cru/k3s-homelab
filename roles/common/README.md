@@ -261,26 +261,26 @@ RoG hardware tweaks, and network optimizations.
 | [common_fs_file_max](defaults/main.yml#L35)   | int | `2097152` |    false  |  System File Max |
 | [common_inotify_max_instances](defaults/main.yml#L40)   | int | `8192` |    false  |  Inotify Instances |
 | [common_inotify_max_watches](defaults/main.yml#L45)   | int | `524288` |    false  |  Inotify Watches |
-| [common_power_efficiency_tuning_enabled](defaults/main.yml#L48)   | bool | `False` |    None  |  Power Efficiency Tuning |
-| [common_intel_rapl_pl1_limit_microwatts](defaults/main.yml#L49)   | int | `100000000` |    None  |  None |
-| [common_intel_rapl_pl2_limit_microwatts](defaults/main.yml#L50)   | int | `140000000` |    None  |  None |
-| [common_intel_pstate_max_perf_pct](defaults/main.yml#L51)   | int | `80` |    None  |  None |
-| [common_intel_pstate_no_turbo](defaults/main.yml#L52)   | int | `1` |    None  |  None |
-| [common_watchdog_timeout_sec](defaults/main.yml#L57)   | int | `120` |    false  |  Watchdog Timeout |
-| [common_battery_charge_threshold](defaults/main.yml#L62)   | int | `80` |    false  |  Battery Charge Threshold |
-| [common_thermal_policy](defaults/main.yml#L67)   | int | `1` |    false  |  Thermal Policy |
-| [common_ring_buffer_target](defaults/main.yml#L72)   | int | `4096` |    false  |  Ring Buffer Target |
-| [common_mining_enabled](defaults/main.yml#L77)   | bool | `True` |    false  |  Mining Optimization |
-| [common_hugepages_count](defaults/main.yml#L82)   | int | `1280` |    false  |  Hugepages Count |
-| [common_helm_repositories](defaults/main.yml#L87)   | list | `[]` |    false  |  Helm Repositories |
-| [common_helm_repositories.**0**](defaults/main.yml#L88)   | dict | `{}` |    None  |  None |
-| [common_helm_repositories.0.**name**](defaults/main.yml#L88)   | str | `cilium` |    None  |  None |
-| [common_helm_repositories.0.**repo_url**](defaults/main.yml#L89)   | str | `https://helm.cilium.io/` |    None  |  None |
-| [common_helm_repositories.**1**](defaults/main.yml#L90)   | dict | `{}` |    None  |  None |
-| [common_helm_repositories.1.**name**](defaults/main.yml#L90)   | str | `nvdp` |    None  |  None |
-| [common_helm_repositories.1.**repo_url**](defaults/main.yml#L91)   | str | `https://nvidia.github.io/k8s-device-plugin` |    None  |  None |
-| [common_uv_install_script_checksum](defaults/main.yml#L96)   | str | `10fb1f54d56f3eb60622006797339d4ea0bfda9b358d07db635f73cf89f7094c` |    false  |  UV install script checksum |
-| [common_helm_install_script_checksum](defaults/main.yml#L101)   | str | `38b65f882d9cae3891755bdb03becc6a01ae6f9cb24826c191f219ddfee70a5d` |    false  |  Helm install script checksum |
+| [common_power_efficiency_tuning_enabled](defaults/main.yml#L50)   | bool | `False` |    false  |  Power Efficiency Tuning |
+| [common_intel_rapl_pl1_limit_microwatts](defaults/main.yml#L55)   | int | `100000000` |    false  |  Intel RAPL PL1 Limit (Microwatts) |
+| [common_intel_rapl_pl2_limit_microwatts](defaults/main.yml#L60)   | int | `140000000` |    false  |  Intel RAPL PL2 Limit (Microwatts) |
+| [common_intel_pstate_max_perf_pct](defaults/main.yml#L65)   | int | `80` |    false  |  Intel P-State Max Performance Percent |
+| [common_intel_pstate_no_turbo](defaults/main.yml#L70)   | int | `1` |    false  |  Intel P-State Disable Turbo |
+| [common_watchdog_timeout_sec](defaults/main.yml#L75)   | int | `120` |    false  |  Watchdog Timeout |
+| [common_battery_charge_threshold](defaults/main.yml#L80)   | int | `80` |    false  |  Battery Charge Threshold |
+| [common_thermal_policy](defaults/main.yml#L85)   | int | `1` |    false  |  Thermal Policy |
+| [common_ring_buffer_target](defaults/main.yml#L90)   | int | `4096` |    false  |  Ring Buffer Target |
+| [common_mining_enabled](defaults/main.yml#L95)   | bool | `True` |    false  |  Mining Optimization |
+| [common_hugepages_count](defaults/main.yml#L100)   | int | `1280` |    false  |  Hugepages Count |
+| [common_helm_repositories](defaults/main.yml#L105)   | list | `[]` |    false  |  Helm Repositories |
+| [common_helm_repositories.**0**](defaults/main.yml#L111)   | dict | `{}` |    false  |  Helm Repository |
+| [common_helm_repositories.0.**name**](defaults/main.yml#L111)   | str | `cilium` |    false  |  Helm Repository |
+| [common_helm_repositories.0.**repo_url**](defaults/main.yml#L116)   | str | `https://helm.cilium.io/` |    false  |  Helm Repository URL |
+| [common_helm_repositories.**1**](defaults/main.yml#L122)   | dict | `{}` |    false  |  Helm Repository |
+| [common_helm_repositories.1.**name**](defaults/main.yml#L122)   | str | `nvdp` |    false  |  Helm Repository |
+| [common_helm_repositories.1.**repo_url**](defaults/main.yml#L127)   | str | `https://nvidia.github.io/k8s-device-plugin` |    false  |  Helm Repository URL |
+| [common_uv_install_script_checksum](defaults/main.yml#L132)   | str | `10fb1f54d56f3eb60622006797339d4ea0bfda9b358d07db635f73cf89f7094c` |    false  |  UV install script checksum |
+| [common_helm_install_script_checksum](defaults/main.yml#L137)   | str | `38b65f882d9cae3891755bdb03becc6a01ae6f9cb24826c191f219ddfee70a5d` |    false  |  Helm install script checksum |
 <details>
 <summary><b>🖇️ Full descriptions for vars in defaults/main.yml</b></summary>
 <br>
@@ -296,13 +296,23 @@ RoG hardware tweaks, and network optimizations.
 <tr><td><b>common_inotify_max_instances</b></td><td>Max inotify instances per user.</td></tr>
 <tr><td><b>common_inotify_max_watches</b></td><td>Max inotify watches per user.</td></tr>
 <tr><td><b>common_power_efficiency_tuning_enabled</b></td><td>Low-level CPU power management (Intel RAPL & P-State) for efficiency/mining.</td></tr>
+<tr><td><b>common_intel_rapl_pl1_limit_microwatts</b></td><td>Sustained power limit for Intel RAPL (in microwatts).</td></tr>
+<tr><td><b>common_intel_rapl_pl2_limit_microwatts</b></td><td>Short-term power limit for Intel RAPL (in microwatts).</td></tr>
+<tr><td><b>common_intel_pstate_max_perf_pct</b></td><td>Maximum CPU performance percent for Intel P-State driver.</td></tr>
+<tr><td><b>common_intel_pstate_no_turbo</b></td><td>Disable turbo boost when set to 1.</td></tr>
 <tr><td><b>common_watchdog_timeout_sec</b></td><td>Hardware watchdog timeout in seconds (RuntimeWatchdogSec).</td></tr>
 <tr><td><b>common_battery_charge_threshold</b></td><td>Battery charge limit percentage for RoG laptops.</td></tr>
 <tr><td><b>common_thermal_policy</b></td><td>RoG thermal policy ID (0=balanced, 1=turbo, 2=silent - check specific model).</td></tr>
 <tr><td><b>common_ring_buffer_target</b></td><td>Target size for network ring buffers.</td></tr>
 <tr><td><b>common_mining_enabled</b></td><td>Enables optimizations for crypto mining (hugepages, MSR).</td></tr>
 <tr><td><b>common_hugepages_count</b></td><td>Number of hugepages to allocate if mining is enabled.</td></tr>
-<tr><td><b>common_helm_repositories</b></td><td>List of Helm repositories to add.</td></tr>
+<tr><td><b>common_helm_repositories</b></td><td>List of Helm repositories to add; each item is {name, repo_url}.</td></tr>
+<tr><td><b>common_helm_repositories.0</b></td><td>Helm repository entry with name and repo_url.</td></tr>
+<tr><td><b>common_helm_repositories.0.name</b></td><td>Helm repository entry with name and repo_url.</td></tr>
+<tr><td><b>common_helm_repositories.0.repo_url</b></td><td>Chart repository URL.</td></tr>
+<tr><td><b>common_helm_repositories.1</b></td><td>Helm repository entry with name and repo_url.</td></tr>
+<tr><td><b>common_helm_repositories.1.name</b></td><td>Helm repository entry with name and repo_url.</td></tr>
+<tr><td><b>common_helm_repositories.1.repo_url</b></td><td>Chart repository URL.</td></tr>
 <tr><td><b>common_uv_install_script_checksum</b></td><td>SHA256 for https://astral.sh/uv/install.sh (pin to avoid supply-chain drift).</td></tr>
 <tr><td><b>common_helm_install_script_checksum</b></td><td>SHA256 for https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3.</td></tr>
 </table>
@@ -348,14 +358,14 @@ RoG hardware tweaks, and network optimizations.
 
 #### File: tasks/hardware_tuning.yml
 
-| Name | Module | Has Conditions |
-| ---- | ------ | -------------- |
-| [Install tuning tools](tasks/hardware_tuning.yml#L1) | ansible.builtin.apt | False |
-| [Install audio tools](tasks/hardware_tuning.yml#L7) | ansible.builtin.apt | True |
-| [Start irqbalance](tasks/hardware_tuning.yml#L13) | ansible.builtin.systemd | False |
-| [Block wireless radios](tasks/hardware_tuning.yml#L19) | ansible.builtin.command | True |
-| [Optimize audio limits](tasks/hardware_tuning.yml#L27) | community.general.pam_limits | True |
-| [Enable fstrim](tasks/hardware_tuning.yml#L37) | ansible.builtin.systemd | False |
+| Name | Module | Has Conditions | Comments |
+| ---- | ------ | -------------- | -------- |
+| [Install tuning tools](tasks/hardware_tuning.yml#L2) | ansible.builtin.apt | False | Install system tools for hardware optimization - IRQ balancing and radio frequency management |
+| [Install audio tools](tasks/hardware_tuning.yml#L9) | ansible.builtin.apt | True | Install ALSA utilities for audio optimization when enabled |
+| [Start irqbalance](tasks/hardware_tuning.yml#L16) | ansible.builtin.systemd | False | Enable IRQ balancing service for better CPU utilization across cores |
+| [Block wireless radios](tasks/hardware_tuning.yml#L23) | ansible.builtin.command | True | Disable WiFi and Bluetooth radios to reduce power consumption and interference |
+| [Optimize audio limits](tasks/hardware_tuning.yml#L32) | community.general.pam_limits | True | Configure PAM limits for real-time audio processing and unlimited memory locking |
+| [Enable fstrim](tasks/hardware_tuning.yml#L43) | ansible.builtin.systemd | False | Enable automatic SSD trimming for optimal storage performance and longevity |
 
 #### File: tasks/helm_setup.yml
 
@@ -381,7 +391,6 @@ RoG hardware tweaks, and network optimizations.
 | [Apply hardware tuning](tasks/main.yml#L65) | ansible.builtin.include_tasks | False | Apply hardware-specific optimizations |
 | [System Tuning](tasks/main.yml#L68) | ansible.builtin.include_tasks | False | Apply system-level performance tuning |
 | [Install Cloud-Native Binaries](tasks/main.yml#L71) | ansible.builtin.include_tasks | False | Install Kubernetes and container tools |
-| [Setup Helm Repos](tasks/main.yml#L74) | ansible.builtin.include_tasks | False | Configure Helm chart repositories |
 
 #### File: tasks/network_optimization.yml
 
@@ -423,15 +432,16 @@ ROG HARDWARE TWEAKS - Low-level optimizations (always enabled) |
 | ---- | ------ | -------------- | -----| -------- |
 | [Install performance tools](tasks/system_tuning.yml#L2) | ansible.builtin.apt | False |  | Kernel optimization: CPU, networking, and system limits |
 | [Set CPU governor](tasks/system_tuning.yml#L7) | ansible.builtin.lineinfile | False |  |  |
-| [Enable BBR](tasks/system_tuning.yml#L15) | ansible.posix.sysctl | False |  |  |
-| [Increase FD limits](tasks/system_tuning.yml#L30) | community.general.pam_limits | False |  |  |
-| [Increase file-max](tasks/system_tuning.yml#L39) | ansible.posix.sysctl | False |  |  |
-| [Increase inotify watches](tasks/system_tuning.yml#L45) | ansible.posix.sysctl | False |  |  |
-| [Increase user watches](tasks/system_tuning.yml#L51) | ansible.posix.sysctl | False |  |  |
-| [Enable watchdog](tasks/system_tuning.yml#L57) | ansible.builtin.lineinfile | False |  |  |
-| [Configure hugepages](tasks/system_tuning.yml#L63) | ansible.posix.sysctl | True | os |  |
-| [Load MSR module](tasks/system_tuning.yml#L72) | community.general.modprobe | True | os |  |
-| [Configure Nvidia modules load](tasks/system_tuning.yml#L79) | ansible.builtin.copy | True | os,nvidia |  |
+| [Enable BBR and Network Tuning](tasks/system_tuning.yml#L15) | ansible.posix.sysctl | False |  |  |
+| [Akash Provider sysctl tuning](tasks/system_tuning.yml#L32) | ansible.posix.sysctl | True |  |  |
+| [Increase FD limits](tasks/system_tuning.yml#L46) | community.general.pam_limits | False |  |  |
+| [Increase file-max](tasks/system_tuning.yml#L55) | ansible.posix.sysctl | False |  |  |
+| [Increase inotify watches](tasks/system_tuning.yml#L61) | ansible.posix.sysctl | False |  |  |
+| [Increase user watches](tasks/system_tuning.yml#L67) | ansible.posix.sysctl | False |  |  |
+| [Enable watchdog](tasks/system_tuning.yml#L73) | ansible.builtin.lineinfile | False |  |  |
+| [Configure hugepages](tasks/system_tuning.yml#L79) | ansible.posix.sysctl | True | os |  |
+| [Load MSR module](tasks/system_tuning.yml#L88) | community.general.modprobe | True | os |  |
+| [Configure Nvidia modules load](tasks/system_tuning.yml#L95) | ansible.builtin.copy | True | os,nvidia |  |
 
 
 ## Task Flow Graphs
@@ -577,8 +587,7 @@ classDef rescue stroke:#665352,stroke-width:2px;
   Configure_power_power_management_yml_9-->|Include task| Apply_hardware_tuning_hardware_tuning_yml_10[apply hardware tuning<br>include_task: hardware tuning yml]:::includeTasks
   Apply_hardware_tuning_hardware_tuning_yml_10-->|Include task| System_Tuning_system_tuning_yml_11[system tuning<br>include_task: system tuning yml]:::includeTasks
   System_Tuning_system_tuning_yml_11-->|Include task| Install_Cloud_Native_Binaries_binaries_yml_12[install cloud native binaries<br>include_task: binaries yml]:::includeTasks
-  Install_Cloud_Native_Binaries_binaries_yml_12-->|Include task| Setup_Helm_Repos_helm_setup_yml_13[setup helm repos<br>include_task: helm setup yml]:::includeTasks
-  Setup_Helm_Repos_helm_setup_yml_13-->End
+  Install_Cloud_Native_Binaries_binaries_yml_12-->End
 ```
 
 
@@ -673,16 +682,17 @@ classDef rescue stroke:#665352,stroke-width:2px;
 
   Start-->|Task| Install_performance_tools0[install performance tools]:::task
   Install_performance_tools0-->|Task| Set_CPU_governor1[set cpu governor]:::task
-  Set_CPU_governor1-->|Task| Enable_BBR2[enable bbr]:::task
-  Enable_BBR2-->|Task| Increase_FD_limits3[increase fd limits]:::task
-  Increase_FD_limits3-->|Task| Increase_file_max4[increase file max]:::task
-  Increase_file_max4-->|Task| Increase_inotify_watches5[increase inotify watches]:::task
-  Increase_inotify_watches5-->|Task| Increase_user_watches6[increase user watches]:::task
-  Increase_user_watches6-->|Task| Enable_watchdog7[enable watchdog]:::task
-  Enable_watchdog7-->|Task| Configure_hugepages8[configure hugepages<br>When: **common mining enabled   default true**]:::task
-  Configure_hugepages8-->|Task| Load_MSR_module9[load msr module<br>When: **common mining enabled   default true**]:::task
-  Load_MSR_module9-->|Task| Configure_Nvidia_modules_load10[configure nvidia modules load<br>When: **common mining enabled   default true**]:::task
-  Configure_Nvidia_modules_load10-->End
+  Set_CPU_governor1-->|Task| Enable_BBR_and_Network_Tuning2[enable bbr and network tuning]:::task
+  Enable_BBR_and_Network_Tuning2-->|Task| Akash_Provider_sysctl_tuning3[akash provider sysctl tuning<br>When: **akash provider enabled   default false**]:::task
+  Akash_Provider_sysctl_tuning3-->|Task| Increase_FD_limits4[increase fd limits]:::task
+  Increase_FD_limits4-->|Task| Increase_file_max5[increase file max]:::task
+  Increase_file_max5-->|Task| Increase_inotify_watches6[increase inotify watches]:::task
+  Increase_inotify_watches6-->|Task| Increase_user_watches7[increase user watches]:::task
+  Increase_user_watches7-->|Task| Enable_watchdog8[enable watchdog]:::task
+  Enable_watchdog8-->|Task| Configure_hugepages9[configure hugepages<br>When: **common mining enabled   default true**]:::task
+  Configure_hugepages9-->|Task| Load_MSR_module10[load msr module<br>When: **common mining enabled   default true**]:::task
+  Load_MSR_module10-->|Task| Configure_Nvidia_modules_load11[configure nvidia modules load<br>When: **common mining enabled   default true**]:::task
+  Configure_Nvidia_modules_load11-->End
 ```
 
 

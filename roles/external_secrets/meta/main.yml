@@ -1,0 +1,20 @@
+---
+galaxy_info:
+  description: >-
+    Install External Secrets Operator and configure an OCI Vault-backed
+    ClusterSecretStore (requires cert-manager).
+  author: rc
+  license: MIT
+  min_ansible_version: "2.14"
+  platforms:
+    - name: Ubuntu
+      versions:
+        - jammy
+        - noble
+  galaxy_tags:
+    - kubernetes
+    - k3s
+    - external-secrets
+
+dependencies:
+  - role: cert_manager

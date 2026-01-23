@@ -12,13 +12,13 @@
     create: true
     mode: "0644"
   notify: Restart cpufrequtils
-- name: Enable BBR
+- name: Enable BBR and Network Tuning
   ansible.posix.sysctl:
     name: "{{ item.key }}"
     value: "{{ item.value }}"
     sysctl_set: true
     state: present
-    reload: true
+    reload: false
   loop:
     - {key: "net.core.default_qdisc", value: "fq_codel"}
     - {key: "net.ipv4.tcp_congestion_control", value: "bbr"}
@@ -27,6 +27,22 @@
     - {key: "net.ipv4.conf.all.rp_filter", value: "0"}
     # Elastic / Logging requirement
     - {key: "vm.max_map_count", value: "1048576"}
+  notify: Reload sysctl
+
+- name: Akash Provider sysctl tuning
+  ansible.posix.sysctl:
+    name: "{{ item.key }}"
+    value: "{{ item.value }}"
+    sysctl_set: true
+    state: present
+    reload: false
+  loop:
+    - {key: "net.core.somaxconn", value: "4096"}
+    - {key: "net.ipv4.tcp_max_syn_backlog", value: "4096"}
+    - {key: "net.ipv4.tcp_slow_start_after_idle", value: "0"}
+  when: akash_provider_enabled | default(false)
+  notify: Reload sysctl
+
 - name: Increase FD limits
   community.general.pam_limits:
     domain: "*"

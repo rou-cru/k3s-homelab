@@ -1,0 +1,19 @@
+---
+galaxy_info:
+  author: rc
+  description: Deploy Akash Provider stack on K3s cluster
+  license: MIT
+  min_ansible_version: "2.14"
+  platforms:
+    - name: Ubuntu
+      versions:
+        - jammy
+        - noble
+  galaxy_tags:
+    - kubernetes
+    - k3s
+    - akash
+    - provider
+
+dependencies:
+  - role: gvisor

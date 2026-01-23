@@ -1,0 +1,203 @@
+---
+# Kyverno ClusterPolicies for k3s-homelab
+# Implements runtime security and policy enforcement
+# See: .serena/memories/network_security_policy.md
+
+# Policy 1: Force gVisor runtime for Akash workloads
+# Provides kernel-level isolation for untrusted tenant workloads
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: enforce-gvisor-akash
+  annotations:
+    policies.kyverno.io/title: Enforce gVisor for Akash
+    policies.kyverno.io/category: Security
+    policies.kyverno.io/severity: high
+    policies.kyverno.io/description: >-
+      Forces gVisor (runsc) runtime for all pods in akash-services namespace.
+      Provides kernel-level isolation even if network policies fail.
+spec:
+  validationFailureAction: Enforce
+  background: true
+  rules:
+    - name: inject-gvisor-runtime
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+              namespaces:
+                - akash-services
+      mutate:
+        patchStrategicMerge:
+          spec:
+            runtimeClassName: gvisor
+---
+# Policy 2: Enforce PriorityClass based on namespace
+# Ensures scheduler priorities are correctly applied
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: enforce-priority-class
+  annotations:
+    policies.kyverno.io/title: Enforce PriorityClass by Namespace
+    policies.kyverno.io/category: Scheduling
+    policies.kyverno.io/severity: medium
+    policies.kyverno.io/description: >-
+      Automatically assigns PriorityClass based on namespace labels.
+      Ensures scheduler priorities are consistently applied.
+spec:
+  validationFailureAction: Audit  # Start with audit, move to enforce
+  background: true
+  rules:
+    # Observability namespace -> priority-observability
+    - name: priority-observability
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+              namespaces:
+                - observability
+      mutate:
+        patchStrategicMerge:
+          spec:
+            priorityClassName: priority-observability
+    # Akash namespace -> priority-akash-prod
+    - name: priority-akash
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+              namespaces:
+                - akash-services
+      mutate:
+        patchStrategicMerge:
+          spec:
+            priorityClassName: priority-akash-prod
+    # Workloads namespace (miners) -> priority-background
+    - name: priority-background
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+              namespaces:
+                - workloads
+              selector:
+                matchLabels:
+                  app.kubernetes.io/part-of: miners
+      mutate:
+        patchStrategicMerge:
+          spec:
+            priorityClassName: priority-background
+---
+# Policy 3: Require resource limits for all pods
+# Prevents resource exhaustion and enables proper scheduling
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-resource-limits
+  annotations:
+    policies.kyverno.io/title: Require Resource Limits
+    policies.kyverno.io/category: Best Practices
+    policies.kyverno.io/severity: medium
+    policies.kyverno.io/description: >-
+      Requires all containers to specify CPU and memory limits.
+      Exempts system namespaces from this requirement.
+spec:
+  validationFailureAction: Audit  # Start with audit
+  background: true
+  rules:
+    - name: validate-limits
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+      exclude:
+        any:
+          - resources:
+              namespaces:
+                - kube-system
+                - kube-public
+                - kube-node-lease
+                - cilium
+                - cert-manager
+                - external-secrets
+                - argocd
+      validate:
+        message: "All containers must have CPU and memory limits defined."
+        pattern:
+          spec:
+            containers:
+              - resources:
+                  limits:
+                    memory: "?*"
+                    cpu: "?*"
+---
+# Policy 4: Block privileged containers in Akash namespace
+# Additional hardening for untrusted workloads
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: block-privileged-akash
+  annotations:
+    policies.kyverno.io/title: Block Privileged in Akash
+    policies.kyverno.io/category: Security
+    policies.kyverno.io/severity: critical
+    policies.kyverno.io/description: >-
+      Prevents privileged containers in akash-services namespace.
+      Tenant workloads must not have elevated privileges.
+spec:
+  validationFailureAction: Enforce
+  background: true
+  rules:
+    - name: deny-privileged
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+              namespaces:
+                - akash-services
+      validate:
+        message: "Privileged containers are not allowed in akash-services namespace."
+        pattern:
+          spec:
+            containers:
+              - securityContext:
+                  privileged: "!true"
+            initContainers:
+              - securityContext:
+                  privileged: "!true"
+---
+# Policy 5: Block host namespaces in Akash
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: block-host-namespaces-akash
+  annotations:
+    policies.kyverno.io/title: Block Host Namespaces in Akash
+    policies.kyverno.io/category: Security
+    policies.kyverno.io/severity: critical
+spec:
+  validationFailureAction: Enforce
+  background: true
+  rules:
+    - name: deny-host-namespaces
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+              namespaces:
+                - akash-services
+      validate:
+        message: "Host namespaces (hostNetwork, hostPID, hostIPC) are not allowed in akash-services."
+        pattern:
+          spec:
+            =(hostNetwork): "false"
+            =(hostPID): "false"
+            =(hostIPC): "false"

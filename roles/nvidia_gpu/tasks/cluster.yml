@@ -1,25 +1,49 @@
 - name: NVIDIA GPU cluster setup
   tags: ["cluster", "nvidia"]
   block:
+    - name: Check if Helm is installed
+      ansible.builtin.command: which helm
+      register: helm_binary_check
+      changed_when: false
+      failed_when: false
+
+    - name: Warn if Helm is not available
+      ansible.builtin.debug:
+        msg: "⚠️ Helm not found - skipping NVIDIA device plugin installation"
+      when: helm_binary_check.rc != 0
+
+    - name: Ensure NVIDIA Helm repo
+      kubernetes.core.helm_repository:
+        name: nvdp
+        repo_url: https://nvidia.github.io/k8s-device-plugin
+      when: helm_binary_check.rc == 0
+
     - name: Create temp values
       ansible.builtin.tempfile:
         state: file
         suffix: "-nvidia-device-plugin-values.yaml"
       register: nvidia_device_plugin_values_tmp
+      when: helm_binary_check.rc == 0
+
     - name: Copy values
       ansible.builtin.copy:
         src: nvidia-device-plugin-values.yaml
         dest: "{{ nvidia_device_plugin_values_tmp.path }}"
         mode: "0600"
+      when: helm_binary_check.rc == 0
+
     - name: Install device plugin
       kubernetes.core.helm:
         release_name: nvidia-device-plugin
         chart_ref: nvdp/nvidia-device-plugin
         release_namespace: kube-system
+        update_repo_cache: true
         values_files:
           - "{{ nvidia_device_plugin_values_tmp.path }}"
         chart_version: "{{ nvidia_gpu_device_plugin_version }}"
         kubeconfig: "/home/{{ ansible_user }}/.kube/config"
+      when: helm_binary_check.rc == 0
+
     - name: Wait for daemonset
       ansible.builtin.command: >-
         kubectl -n kube-system rollout status ds/nvidia-device-plugin --timeout=300s
@@ -27,6 +51,8 @@
       changed_when: false
       environment:
         KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
+      when: helm_binary_check.rc == 0
+
     - name: Check GPU resources
       ansible.builtin.shell: >-
         kubectl get nodes -o json | jq -r '.items[].status.capacity["nvidia.com/gpu"]'
@@ -35,15 +61,19 @@
       failed_when: gpu_resources_check.rc != 0 and 'not found' not in gpu_resources_check.stderr
       environment:
         KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
+      when: helm_binary_check.rc == 0
+
     - name: Debug GPU resources
       ansible.builtin.debug:
         msg: "✅ GPU resources detected: {{ gpu_resources_check.stdout_lines | join(', ') }}"
         verbosity: 1
+      when: helm_binary_check.rc == 0
+  when: not ansible_check_mode
   rescue:
     - name: Report NVIDIA GPU cluster setup failure
       ansible.builtin.debug:
         msg: >-
-          NVIDIA GPU cluster setup failed at {{ ansible_failed_task.name }}: {{ ansible_failed_result | to_nice_json }}
+          NVIDIA GPU cluster setup failed at {{ ansible_failed_task.name }}: {{ ansible_failed_result | to_json }}
     - name: Fail NVIDIA GPU cluster setup
       ansible.builtin.fail:
         msg: "NVIDIA GPU cluster setup failed"
@@ -52,5 +82,5 @@
       ansible.builtin.file:
         path: "{{ nvidia_device_plugin_values_tmp.path }}"
         state: absent
-      when: nvidia_device_plugin_values_tmp is defined
+      when: (nvidia_device_plugin_values_tmp | default({})).path is defined
       changed_when: false

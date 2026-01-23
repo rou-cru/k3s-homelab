@@ -24,6 +24,7 @@ network_report.txt
 .codex/auth.json
 .codex/history.jsonl
 .codex/version.json
+.codex/tmp/
 .vscode/
 .idea/
 
@@ -53,3 +54,6 @@ molecule/**/__pycache__/
 # Vagrant
 .vagrant/
 *.box
+.oci
+oci-key.pem
+oci-key-public.pem

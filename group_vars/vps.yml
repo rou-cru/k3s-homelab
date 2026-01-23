@@ -1,0 +1,66 @@
+# group_vars/vps.yml - Configuration overrides for VPS nodes
+# These settings disable hardware-specific features not applicable to virtual machines
+
+# Connection & Privilege settings
+# ansible_user defined in host_vars/k3s-vps.yml (rc with SSH key)
+ansible_become: true
+# SSH pipelining enabled for better performance
+ansible_ssh_pipelining: true
+
+# Common role overrides
+# Disable mining optimizations (hugepages, MSR module)
+common_mining_enabled: false
+
+# Disable audio optimization (alsa-utils, realtime limits)
+common_audio_optimization_enabled: false
+
+# Disable radio blocking (no WiFi/Bluetooth on VPS)
+common_radio_block_enabled: false
+
+# Disable ASUS RoG specific tweaks
+common_rog_server: false
+
+# Disable Intel-specific power tuning (virtualized CPU)
+common_power_efficiency_tuning_enabled: false
+
+# NVIDIA GPU role override - explicitly disable
+nvidia_gpu_setup_mode: 'false'
+
+# Developer tools - minimal for VPS (network appliance role)
+devtools_enabled: false
+
+# Tailscale configuration for VPS
+# Enable exit node functionality for Egress Gateway
+tailscale_exit_node_enabled: true
+tailscale_tags: "tag:k3s,tag:vps"
+
+# K3s Agent configuration
+# Server URL pointing to master's Tailscale IP
+k3s_agent_server_url: "https://100.114.180.12:6443"
+
+# Kubelet resource protection for 4GB RAM VPS
+# Reserve memory for system and Kubernetes components
+k3s_agent_kubelet_args:
+  - "--system-reserved=cpu=200m,memory=512Mi"
+  - "--kube-reserved=cpu=200m,memory=512Mi"
+  - "--eviction-hard=memory.available<256Mi,nodefs.available<10%"
+  - "--eviction-soft=memory.available<512Mi,nodefs.available<15%"
+  - "--eviction-soft-grace-period=memory.available=1m30s,nodefs.available=2m"
+
+# Node labels for VPS
+k3s_agent_node_labels:
+  - "node-role.kubernetes.io/edge=true"
+  - "topology.kubernetes.io/zone=vps"
+  - "node.kubernetes.io/instance-type=vps"
+  - "egress-gateway=vps"
+
+# Node taints to prevent general workloads from scheduling
+# Only networking/gateway workloads should run here
+k3s_agent_node_taints:
+  - "node-role.kubernetes.io/edge=true:NoSchedule"
+
+# Resource constraints awareness (2 vCore, 4GB RAM, 120GB disk)
+# Note: Most workloads should NOT run on VPS - it's a network appliance
+
+# gVisor can be enabled but isn't required on VPS (no Akash tenant workloads)
+gvisor_install: true

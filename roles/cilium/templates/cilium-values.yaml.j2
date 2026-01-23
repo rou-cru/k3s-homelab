@@ -19,6 +19,18 @@ gatewayAPI:
     name: cilium-secrets
     sync: true
 
+prometheus:
+  enabled: true
+  serviceMonitor:
+    enabled: {{ not ansible_check_mode | bool }}
+
+operator:
+  replicas: 1
+  prometheus:
+    enabled: true
+    serviceMonitor:
+      enabled: {{ not ansible_check_mode | bool }}
+
 hubble:
   enabled: true
   metrics:
@@ -31,11 +43,15 @@ hubble:
       - http
     port: 9965
     enableOpenMetrics: false
+    serviceMonitor:
+      enabled: {{ not ansible_check_mode | bool }}
   relay:
     enabled: true
     replicas: 1
     prometheus:
-      enabled: false
+      enabled: true
+      serviceMonitor:
+        enabled: {{ not ansible_check_mode | bool }}
   ui:
     enabled: true
     replicas: 1
@@ -87,9 +103,6 @@ k8sNetworkPolicy:
   enabled: true
 
 defaultLBServiceIPAM: lbipam
-
-operator:
-  replicas: 1
 
 debug:
   enabled: false

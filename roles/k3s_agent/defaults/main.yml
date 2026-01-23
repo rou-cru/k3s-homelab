@@ -1,0 +1,77 @@
+# Title: K3s Agent Version
+# Description: K3s version to install (should match server version).
+# Type: str
+# Required: false
+k3s_agent_version: "v1.35.0+k3s1"
+
+# Title: Server URL
+# Description: K3s server URL to connect to (use Tailscale IP for security).
+# Type: str
+# Required: true
+k3s_agent_server_url: ""
+
+# Title: Server Token
+# Description: K3s server token for node authentication (K10 format with CA hash).
+# Type: str
+# Required: true
+k3s_agent_token: ""
+
+# Title: Node Labels
+# Description: Labels to apply to this node (list of "key=value" strings).
+# Type: list
+# Required: false
+k3s_agent_node_labels: []
+
+# Title: Node Taints
+# Description: Taints to apply to this node (list of "key=value:effect", e.g., "gpu=true:NoSchedule").
+# Type: list
+# Required: false
+k3s_agent_node_taints: []
+
+# Title: Readiness Retries
+# Description: Number of retries for the node readiness check.
+# Type: int
+# Required: false
+k3s_agent_readyz_retries: 30
+
+# Title: Readiness Delay
+# Description: Delay (seconds) between readiness check retries.
+# Type: int
+# Required: false
+k3s_agent_readyz_delay: 5
+
+# Title: Recreate Agent
+# Description: If true, uninstalls and wipes previous K3s agent before deploying.
+# Type: bool
+# Required: false
+k3s_agent_recreate: false
+
+# Title: CNI Bin Directory
+# Description: Directory for CNI binaries.
+# Type: str
+# Required: false
+k3s_cni_bin_dir: "/opt/cni/bin"
+
+# Title: CNI Config Directory
+# Description: Directory for CNI configuration.
+# Type: str
+# Required: false
+k3s_cni_conf_dir: "/etc/cni/net.d"
+
+# Title: Kubelet Arguments
+# Description: Additional arguments to pass to kubelet (list of strings).
+# Type: list
+# Required: false
+k3s_agent_kubelet_args: []
+
+# Title: Containerd Optimizations
+# Description: Enable containerd performance and resource optimizations.
+# Type: bool
+# Required: false
+containerd_optimized: true
+
+# Title: Containerd Default Runtime
+# Description: Default runtime name for containerd (use RuntimeClass to opt-in to others).
+# Type: str
+# Required: false
+containerd_default_runtime: "runc"

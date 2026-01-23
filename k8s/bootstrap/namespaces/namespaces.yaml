@@ -1,0 +1,52 @@
+---
+# Namespace: observability
+# Stack: Prometheus, Grafana, Loki, Fluent-bit
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: observability
+  labels:
+    app.kubernetes.io/managed-by: argocd
+    stack: observability
+---
+# Namespace: security
+# Stack: Kyverno, Policy-Reporter, Network Policies
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: security
+  labels:
+    app.kubernetes.io/managed-by: argocd
+    stack: security
+---
+# Namespace: workloads
+# Stack: Miners, general user workloads
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: workloads
+  labels:
+    app.kubernetes.io/managed-by: argocd
+    stack: workloads
+---
+# Namespace: akash-services
+# Stack: Akash provider, tenant workloads
+# Note: Strict isolation via CiliumNetworkPolicy + gVisor
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: akash-services
+  labels:
+    app.kubernetes.io/managed-by: argocd
+    stack: akash
+    pod-security.kubernetes.io/enforce: restricted
+---
+# Namespace: longhorn-system
+# Stack: Distributed storage
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: longhorn-system
+  labels:
+    app.kubernetes.io/managed-by: argocd
+    stack: storage

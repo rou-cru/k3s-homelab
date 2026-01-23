@@ -1,0 +1,170 @@
+- name: Check if Helm is installed
+  ansible.builtin.command: which helm
+  register: helm_binary_check
+  changed_when: false
+  failed_when: false
+
+- name: Ensure External Secrets Helm repo
+  kubernetes.core.helm_repository:
+    name: external-secrets
+    repo_url: https://charts.external-secrets.io
+  when:
+    - helm_binary_check.rc == 0
+    - not ansible_check_mode
+
+- name: Deploy External Secrets Operator
+  kubernetes.core.helm:
+    name: external-secrets
+    chart_ref: external-secrets/external-secrets
+    release_namespace: "{{ external_secrets_namespace }}"
+    update_repo_cache: true
+    create_namespace: true
+    chart_version: "{{ external_secrets_chart_version | default(omit, true) }}"
+    kubeconfig: "/home/{{ ansible_user }}/.kube/config"
+    values:
+      installCRDs: true
+
+      replicaCount: 1
+      podDisruptionBudget:
+        enabled: false
+
+      resources:
+        requests:
+          cpu: 10m
+          memory: 32Mi
+        limits:
+          memory: 64Mi
+
+      log:
+        level: warning
+
+      genericTargets:
+        enabled: true
+
+      serviceMonitor:
+        enabled: "{{ external_secrets_servicemonitor_enabled }}"
+
+      webhook:
+        replicaCount: 1
+        podDisruptionBudget:
+          enabled: false
+        serviceMonitor:
+          enabled: "{{ external_secrets_servicemonitor_enabled }}"
+        certManager:
+          enabled: true
+          addInjectorAnnotations: true
+          cert:
+            create: true
+            issuerRef:
+              group: cert-manager.io
+              kind: ClusterIssuer
+              name: "{{ external_secrets_webhook_issuer_name }}"
+
+      certController:
+        enabled: false
+
+      grafanaDashboard:
+        enabled: "{{ external_secrets_grafana_dashboard_enabled }}"
+  become: false
+  when:
+    - helm_binary_check.rc == 0
+    - not ansible_check_mode
+  tags: ["cluster", "infrastructure", "external-secrets"]
+
+- name: Wait for external-secrets webhook CA bundle
+  kubernetes.core.k8s_info:
+    api_version: admissionregistration.k8s.io/v1
+    kind: ValidatingWebhookConfiguration
+    name: secretstore-validate
+    kubeconfig: "/home/{{ ansible_user }}/.kube/config"
+  register: es_webhook_config
+  retries: 30
+  delay: 5
+  until:
+    - es_webhook_config.resources | length > 0
+    - (es_webhook_config.resources[0].webhooks | default([])
+       | selectattr('name', 'equalto', 'validate.clustersecretstore.external-secrets.io')
+       | map(attribute='clientConfig.caBundle')
+       | list
+       | first
+       | default('')) | length > 0
+  become: false
+  when:
+    - helm_binary_check.rc == 0
+    - not ansible_check_mode
+  tags: ["cluster", "infrastructure", "external-secrets"]
+
+- name: Wait for external-secrets webhook to be ready
+  kubernetes.core.k8s:
+    api_version: apps/v1
+    kind: Deployment
+    name: external-secrets-webhook
+    namespace: "{{ external_secrets_namespace }}"
+    wait: true
+    wait_condition:
+      type: Available
+      status: "True"
+    wait_timeout: 300
+    kubeconfig: "/home/{{ ansible_user }}/.kube/config"
+  become: false
+  when:
+    - helm_binary_check.rc == 0
+    - not ansible_check_mode
+  tags: ["cluster", "infrastructure", "external-secrets"]
+
+- name: Create OCI Auth Secret
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: oracle-secret
+        namespace: "{{ external_secrets_namespace }}"
+        labels:
+          type: oracle
+      type: Opaque
+      stringData:
+        privateKey: "{{ lookup('file', lookup('ini', 'key_file', section='DEFAULT', file=oci_config_file)) }}"
+        fingerprint: "{{ lookup('ini', 'fingerprint', section='DEFAULT', file=oci_config_file) }}"
+    kubeconfig: "/home/{{ ansible_user }}/.kube/config"
+  become: false
+  no_log: true
+  when:
+    - helm_binary_check.rc == 0
+    - not ansible_check_mode
+  tags: ["cluster", "infrastructure", "external-secrets", "oci"]
+
+- name: Create OCI ClusterSecretStore
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: external-secrets.io/v1
+      kind: ClusterSecretStore
+      metadata:
+        name: oci-vault
+      spec:
+        provider:
+          oracle:
+            vault: "{{ lookup('ini', 'vault', section='DEFAULT', file=oci_config_file) }}"
+            region: "{{ lookup('ini', 'region', section='DEFAULT', file=oci_config_file) }}"
+            principalType: UserPrincipal
+            auth:
+              user: "{{ lookup('ini', 'user', section='DEFAULT', file=oci_config_file) }}"
+              tenancy: "{{ lookup('ini', 'tenancy', section='DEFAULT', file=oci_config_file) }}"
+              secretRef:
+                privatekey:
+                  name: oracle-secret
+                  key: privateKey
+                  namespace: "{{ external_secrets_namespace }}"
+                fingerprint:
+                  name: oracle-secret
+                  key: fingerprint
+                  namespace: "{{ external_secrets_namespace }}"
+    kubeconfig: "/home/{{ ansible_user }}/.kube/config"
+  become: false
+  no_log: true
+  when:
+    - helm_binary_check.rc == 0
+    - not ansible_check_mode
+  tags: ["cluster", "infrastructure", "external-secrets", "oci"]

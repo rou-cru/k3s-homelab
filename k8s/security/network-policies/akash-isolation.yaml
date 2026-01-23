@@ -1,0 +1,143 @@
+---
+# CiliumNetworkPolicy for Akash Tenant Isolation
+# Implements Zero Trust for untrusted workloads
+# See: .serena/memories/network_security_policy.md
+
+# Default deny all for akash-services namespace
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: akash-default-deny
+  namespace: akash-services
+spec:
+  description: "Default deny all traffic for Akash tenants"
+  endpointSelector: {}
+  ingress:
+    - {}
+  egress:
+    - {}
+---
+# Allow DNS resolution (required for basic operation)
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: akash-allow-dns
+  namespace: akash-services
+spec:
+  description: "Allow DNS queries to CoreDNS"
+  endpointSelector: {}
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: kube-system
+            k8s-app: kube-dns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: UDP
+            - port: "53"
+              protocol: TCP
+---
+# Allow ingress from Akash Nginx Ingress Controller
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: akash-allow-ingress
+  namespace: akash-services
+spec:
+  description: "Allow ingress from Akash Nginx controller"
+  endpointSelector: {}
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: ingress-nginx
+            app.kubernetes.io/instance: akash-ingress
+      toPorts:
+        - ports:
+            - port: "80"
+              protocol: TCP
+            - port: "443"
+              protocol: TCP
+            - port: "8080"
+              protocol: TCP
+            - port: "8443"
+              protocol: TCP
+---
+# Allow Prometheus scraping
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: akash-allow-prometheus
+  namespace: akash-services
+spec:
+  description: "Allow Prometheus to scrape metrics"
+  endpointSelector: {}
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: observability
+            app.kubernetes.io/name: prometheus
+      toPorts:
+        - ports:
+            - port: "9090"
+              protocol: TCP
+            - port: "9100"
+              protocol: TCP
+            - port: "metrics"
+              protocol: TCP
+---
+# Block access to internal cluster IPs (API Server, internal services)
+apiVersion: cilium.io/v2
+kind: CiliumClusterwideNetworkPolicy
+metadata:
+  name: akash-block-internal
+spec:
+  description: "Block Akash tenants from accessing internal cluster resources"
+  endpointSelector:
+    matchLabels:
+      k8s:io.kubernetes.pod.namespace: akash-services
+  egressDeny:
+    # Block Kubernetes API Server
+    - toCIDR:
+        - 10.43.0.1/32   # Default K3s ClusterIP for API server
+    # Block internal pod network
+    - toCIDR:
+        - 10.42.0.0/16   # K3s default pod CIDR
+    # Block service network
+    - toCIDR:
+        - 10.43.0.0/16   # K3s default service CIDR
+    # Block RFC1918 private ranges (LAN access)
+    - toCIDR:
+        - 192.168.0.0/16
+        - 172.16.0.0/12
+    # Block Tailscale network
+    - toCIDR:
+        - 100.64.0.0/10
+    # Block link-local
+    - toCIDR:
+        - 169.254.0.0/16
+    # Block metadata endpoints (cloud provider)
+    - toCIDR:
+        - 169.254.169.254/32
+---
+# Allow egress to public internet (via Egress Gateway)
+# Note: Traffic will be SNAT'd to VPS public IP
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: akash-allow-internet
+  namespace: akash-services
+spec:
+  description: "Allow egress to public internet (routed via Egress Gateway)"
+  endpointSelector: {}
+  egress:
+    # Allow all non-private IPs (internet)
+    # Egress Gateway will handle SNAT
+    - toCIDRSet:
+        - cidr: 0.0.0.0/0
+          except:
+            - 10.0.0.0/8
+            - 172.16.0.0/12
+            - 192.168.0.0/16
+            - 100.64.0.0/10
+            - 169.254.0.0/16
