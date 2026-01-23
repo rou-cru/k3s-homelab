@@ -7,7 +7,7 @@ token: "{{ k3s_agent_token }}"
 
 # Network - Bind to Tailscale IP for secure inter-node communication
 node-ip: "{{ tailscale_ip }}"
-disable-kube-proxy: true
+disable-kube-proxy: "{{ k3s_agent_disable_kube_proxy | default(false) }}"
 
 {% if k3s_agent_node_labels | length > 0 %}
 # Node labels
