@@ -4,3 +4,15 @@
 # Privilege Escalation
 ansible_become: true
 ansible_user: rc
+
+# Hardware & Performance Optimizations (Physical Server)
+# Enable Realtek r8168 driver and sysctl network tuning
+common_network_optimization_enabled: true
+# Enable ASUS RoG specific drivers/leds
+common_rog_server: true
+# Enable WiFi/BT radio blocking
+common_radio_block_enabled: true
+# Enable ALSA and realtime audio limits
+common_audio_optimization_enabled: true
+# Enable Mining Optimizations (Hugepages, MSR)
+common_mining_enabled: true

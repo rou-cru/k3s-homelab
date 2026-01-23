@@ -1,0 +1,17 @@
+galaxy_info:
+  author: rc
+  description: Common configurations for K3s nodes (server and agent)
+  company: Homelab
+  license: MIT
+  min_ansible_version: "2.14"
+  platforms:
+    - name: Ubuntu
+      versions:
+        - jammy
+        - noble
+  galaxy_tags:
+    - k3s
+    - kubernetes
+    - common
+
+dependencies: []

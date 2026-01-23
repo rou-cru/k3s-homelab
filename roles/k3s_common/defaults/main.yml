@@ -1,0 +1,14 @@
+# K3s Version
+k3s_version: "v1.35.0+k3s1"
+
+# Containerd Configuration
+containerd_optimized: true
+containerd_default_runtime: "runc"
+containerd_additional_runtimes: []
+
+# CNI Paths
+k3s_cni_bin_dir: "/opt/cni/bin"
+k3s_cni_conf_dir: "/etc/cni/net.d"
+
+# Recreate logic (controlled by parent roles, but defaulted here safety)
+k3s_recreate: false

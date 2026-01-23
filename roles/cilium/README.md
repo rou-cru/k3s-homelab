@@ -149,14 +149,14 @@ Description: Installs and configures Cilium CNI for K3s clusters.
 
 | Name | Module | Has Conditions | Tags | Comments |
 | ---- | ------ | -------------- | -----| -------- |
-| [Create temporary values file](tasks/main.yml#L2) | ansible.builtin.tempfile | False |  | Create temporary file for Cilium Helm values configuration |
-| [Ensure Cilium Helm repo](tasks/main.yml#L9) | ansible.builtin.command | False |  | Add Cilium Helm repository for CNI installation |
-| [Template Cilium values file](tasks/main.yml#L15) | ansible.builtin.template | False |  | Generate Cilium configuration from Jinja2 template |
-| [Install Cilium via Helm](tasks/main.yml#L22) | kubernetes.core.helm | False |  | Deploy Cilium CNI using Helm with custom configuration |
-| [Wait for Cilium DaemonSet to be created](tasks/main.yml#L34) | ansible.builtin.command | False |  | Verify Cilium DaemonSet creation before proceeding |
-| [Wait for cilium pods](tasks/main.yml#L44) | ansible.builtin.command | False |  | Wait for cilium pods |
-| [Deploy Cluster Gateway](tasks/main.yml#L54) | ansible.builtin.import_tasks | False | cluster,network,gateway | Deploy General Cluster Gateway |
-| [Remove temporary values file](tasks/main.yml#L60) | ansible.builtin.file | False |  | Clean up temporary configuration file |
+| [Create temporary values file](tasks/main.yml#L2) | ansible.builtin.tempfile | True |  | Create temporary file for Cilium Helm values configuration |
+| [Ensure Cilium Helm repo](tasks/main.yml#L10) | ansible.builtin.command | True |  | Add Cilium Helm repository for CNI installation |
+| [Template Cilium values file](tasks/main.yml#L17) | ansible.builtin.template | True |  | Generate Cilium configuration from Jinja2 template |
+| [Install Cilium via Helm](tasks/main.yml#L25) | kubernetes.core.helm | True |  | Deploy Cilium CNI using Helm with custom configuration |
+| [Wait for Cilium DaemonSet to be created](tasks/main.yml#L38) | ansible.builtin.command | True |  | Verify Cilium DaemonSet creation before proceeding |
+| [Wait for cilium pods](tasks/main.yml#L49) | ansible.builtin.command | True |  | Wait for cilium pods |
+| [Deploy Cluster Gateway](tasks/main.yml#L60) | ansible.builtin.import_tasks | True | cluster,network,gateway | Deploy General Cluster Gateway |
+| [Remove temporary values file](tasks/main.yml#L67) | ansible.builtin.file | True |  | Clean up temporary configuration file |
 
 
 ## Task Flow Graphs
@@ -196,14 +196,14 @@ classDef importRole stroke:#699ba7,stroke-width:2px;
 classDef includeVars stroke:#8e44ad,stroke-width:2px;
 classDef rescue stroke:#665352,stroke-width:2px;
 
-  Start-->|Task| Create_temporary_values_file0[create temporary values file]:::task
-  Create_temporary_values_file0-->|Task| Ensure_Cilium_Helm_repo1[ensure cilium helm repo]:::task
-  Ensure_Cilium_Helm_repo1-->|Task| Template_Cilium_values_file2[template cilium values file]:::task
-  Template_Cilium_values_file2-->|Task| Install_Cilium_via_Helm3[install cilium via helm]:::task
-  Install_Cilium_via_Helm3-->|Task| Wait_for_Cilium_DaemonSet_to_be_created4[wait for cilium daemonset to be created]:::task
-  Wait_for_Cilium_DaemonSet_to_be_created4-->|Task| Wait_for_cilium_pods5[wait for cilium pods]:::task
-  Wait_for_cilium_pods5-->|Import task| Deploy_Cluster_Gateway_gateway_yml_6[/deploy cluster gateway<br>import_task: gateway yml/]:::importTasks
-  Deploy_Cluster_Gateway_gateway_yml_6-->|Task| Remove_temporary_values_file7[remove temporary values file]:::task
+  Start-->|Task| Create_temporary_values_file0[create temporary values file<br>When: **not ansible check mode**]:::task
+  Create_temporary_values_file0-->|Task| Ensure_Cilium_Helm_repo1[ensure cilium helm repo<br>When: **not ansible check mode**]:::task
+  Ensure_Cilium_Helm_repo1-->|Task| Template_Cilium_values_file2[template cilium values file<br>When: **not ansible check mode**]:::task
+  Template_Cilium_values_file2-->|Task| Install_Cilium_via_Helm3[install cilium via helm<br>When: **not ansible check mode**]:::task
+  Install_Cilium_via_Helm3-->|Task| Wait_for_Cilium_DaemonSet_to_be_created4[wait for cilium daemonset to be created<br>When: **not ansible check mode**]:::task
+  Wait_for_Cilium_DaemonSet_to_be_created4-->|Task| Wait_for_cilium_pods5[wait for cilium pods<br>When: **not ansible check mode**]:::task
+  Wait_for_cilium_pods5-->|Import task| Deploy_Cluster_Gateway_gateway_yml_6[/deploy cluster gateway<br>When: **not ansible check mode**<br>import_task: gateway yml/]:::importTasks
+  Deploy_Cluster_Gateway_gateway_yml_6-->|Task| Remove_temporary_values_file7[remove temporary values file<br>When: **not ansible check mode**]:::task
   Remove_temporary_values_file7-->End
 ```
 

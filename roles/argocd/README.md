@@ -59,10 +59,10 @@ Description: Deploy ArgoCD on K3s via Helm (expects External Secrets and an OCI 
 | ---- | ------ | -------------- | -----| -------- |
 | [Check if Helm is installed](tasks/main.yml#L2) | ansible.builtin.command | False |  | Verify Helm binary is available for ArgoCD deployment |
 | [Ensure ArgoCD Helm repo](tasks/main.yml#L9) | kubernetes.core.helm_repository | True |  | Add ArgoCD Helm repository for chart installation |
-| [Deploy ArgoCD](tasks/main.yml#L16) | kubernetes.core.helm | True | apps,argocd | Deploy ArgoCD using Helm with custom configuration |
-| [Create ArgoCD Admin Password ExternalSecret](tasks/main.yml#L139) | kubernetes.core.k8s | True | apps,argocd,secrets | Create ExternalSecret for ArgoCD admin password from vault |
-| [Wait for argocd-secret to have admin.password](tasks/main.yml#L167) | kubernetes.core.k8s_info | True | apps,argocd,secrets | Wait for ExternalSecret controller to populate admin password |
-| [Restart ArgoCD Server to pick up new password](tasks/main.yml#L185) | kubernetes.core.k8s | True | apps,argocd,secrets | Restart ArgoCD server to load new admin password from secret |
+| [Deploy ArgoCD](tasks/main.yml#L18) | kubernetes.core.helm | True | apps,argocd | Deploy ArgoCD using Helm with custom configuration |
+| [Create ArgoCD Admin Password ExternalSecret](tasks/main.yml#L143) | kubernetes.core.k8s | True | apps,argocd,secrets | Create ExternalSecret for ArgoCD admin password from vault |
+| [Wait for argocd-secret to have admin.password](tasks/main.yml#L173) | kubernetes.core.k8s_info | True | apps,argocd,secrets | Wait for ExternalSecret controller to populate admin password |
+| [Restart ArgoCD Server to pick up new password](tasks/main.yml#L194) | kubernetes.core.k8s | True | apps,argocd,secrets | Restart ArgoCD server to load new admin password from secret |
 
 
 ## Task Flow Graphs
@@ -84,11 +84,11 @@ classDef includeVars stroke:#8e44ad,stroke-width:2px;
 classDef rescue stroke:#665352,stroke-width:2px;
 
   Start-->|Task| Check_if_Helm_is_installed0[check if helm is installed]:::task
-  Check_if_Helm_is_installed0-->|Task| Ensure_ArgoCD_Helm_repo1[ensure argocd helm repo<br>When: **helm binary check rc    0**]:::task
-  Ensure_ArgoCD_Helm_repo1-->|Task| Deploy_ArgoCD2[deploy argocd<br>When: **helm binary check rc    0**]:::task
-  Deploy_ArgoCD2-->|Task| Create_ArgoCD_Admin_Password_ExternalSecret3[create argocd admin password externalsecret<br>When: **helm binary check rc    0**]:::task
-  Create_ArgoCD_Admin_Password_ExternalSecret3-->|Task| Wait_for_argocd_secret_to_have_admin_password4[wait for argocd secret to have admin password<br>When: **helm binary check rc    0 and argocd es created<br>changed**]:::task
-  Wait_for_argocd_secret_to_have_admin_password4-->|Task| Restart_ArgoCD_Server_to_pick_up_new_password5[restart argocd server to pick up new password<br>When: **helm binary check rc    0 and argocd es created<br>changed**]:::task
+  Check_if_Helm_is_installed0-->|Task| Ensure_ArgoCD_Helm_repo1[ensure argocd helm repo<br>When: **helm binary check rc    0 and not ansible check<br>mode**]:::task
+  Ensure_ArgoCD_Helm_repo1-->|Task| Deploy_ArgoCD2[deploy argocd<br>When: **helm binary check rc    0 and not ansible check<br>mode**]:::task
+  Deploy_ArgoCD2-->|Task| Create_ArgoCD_Admin_Password_ExternalSecret3[create argocd admin password externalsecret<br>When: **helm binary check rc    0 and not ansible check<br>mode**]:::task
+  Create_ArgoCD_Admin_Password_ExternalSecret3-->|Task| Wait_for_argocd_secret_to_have_admin_password4[wait for argocd secret to have admin password<br>When: **helm binary check rc    0 and argocd es created<br>changed and not ansible check mode**]:::task
+  Wait_for_argocd_secret_to_have_admin_password4-->|Task| Restart_ArgoCD_Server_to_pick_up_new_password5[restart argocd server to pick up new password<br>When: **helm binary check rc    0 and argocd es created<br>changed and not ansible check mode**]:::task
   Restart_ArgoCD_Server_to_pick_up_new_password5-->End
 ```
 

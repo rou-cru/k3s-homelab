@@ -2,22 +2,22 @@
 # Description: Enables sysctl adjustments for network performance.
 # Type: bool
 # Required: false
-common_network_optimization_enabled: true
+common_network_optimization_enabled: false
 # Title: RoG Server Support
 # Description: Enables ASUS RoG specific hardware tweaks (drivers, LEDs, power profiles).
 # Type: bool
 # Required: false
-common_rog_server: true
+common_rog_server: false
 # Title: Radio Block
 # Description: Soft-blocks WiFi and Bluetooth radios to save power.
 # Type: bool
 # Required: false
-common_radio_block_enabled: true
+common_radio_block_enabled: false
 # Title: Audio Optimization
 # Description: Installs alsa-utils and configures realtime limits for audio.
 # Type: bool
 # Required: false
-common_audio_optimization_enabled: true
+common_audio_optimization_enabled: false
 # Title: File Descriptors (Soft)
 # Description: Soft limit for open file descriptors (ulimit -n).
 # Type: int
@@ -92,7 +92,7 @@ common_ring_buffer_target: 4096
 # Description: Enables optimizations for crypto mining (hugepages, MSR).
 # Type: bool
 # Required: false
-common_mining_enabled: true
+common_mining_enabled: false
 # Title: Hugepages Count
 # Description: Number of hugepages to allocate if mining is enabled.
 # Type: int

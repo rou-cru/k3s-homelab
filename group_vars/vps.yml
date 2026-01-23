@@ -8,20 +8,6 @@ ansible_become: true
 ansible_ssh_pipelining: true
 
 # Common role overrides
-# Disable mining optimizations (hugepages, MSR module)
-common_mining_enabled: false
-
-# Disable audio optimization (alsa-utils, realtime limits)
-common_audio_optimization_enabled: false
-
-# Disable radio blocking (no WiFi/Bluetooth on VPS)
-common_radio_block_enabled: false
-
-# Disable ASUS RoG specific tweaks
-common_rog_server: false
-
-# Disable Intel-specific power tuning (virtualized CPU)
-common_power_efficiency_tuning_enabled: false
 
 # NVIDIA GPU role override - explicitly disable
 nvidia_gpu_setup_mode: 'false'

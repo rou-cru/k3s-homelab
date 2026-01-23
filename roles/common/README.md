@@ -330,21 +330,21 @@ RoG hardware tweaks, and network optimizations.
 
 | Name | Module | Has Conditions |
 | ---- | ------ | -------------- |
-| [Install uv (Python Tool Manager)](tasks/binaries.yml#L1) | block | False |
+| [Install uv (Python Tool Manager)](tasks/binaries.yml#L1) | block | True |
 | [Check if uv is installed](tasks/binaries.yml#L3) | ansible.builtin.stat | False |
 | [Download and install uv](tasks/binaries.yml#L7) | ansible.builtin.get_url | True |
 | [Run uv installer](tasks/binaries.yml#L16) | ansible.builtin.command | True |
-| [Install Kubectl (Official Binary)](tasks/binaries.yml#L26) | block | False |
-| [Get latest stable kubectl version](tasks/binaries.yml#L28) | ansible.builtin.uri | False |
-| [Set kubectl version fact](tasks/binaries.yml#L34) | ansible.builtin.set_fact | False |
-| [Get kubectl checksum](tasks/binaries.yml#L37) | ansible.builtin.uri | False |
-| [Check current kubectl version](tasks/binaries.yml#L43) | ansible.builtin.command | False |
-| [Download and install kubectl](tasks/binaries.yml#L48) | ansible.builtin.get_url | True |
-| [Install Helm (Official Script)](tasks/binaries.yml#L61) | block | False |
-| [Check if helm is installed](tasks/binaries.yml#L63) | ansible.builtin.stat | False |
-| [Install Helm](tasks/binaries.yml#L67) | ansible.builtin.get_url | True |
-| [Run helm installer](tasks/binaries.yml#L78) | ansible.builtin.command | True |
-| [Install helm-diff plugin](tasks/binaries.yml#L84) | ansible.builtin.command | False |
+| [Install Kubectl (Official Binary)](tasks/binaries.yml#L27) | block | True |
+| [Get latest stable kubectl version](tasks/binaries.yml#L29) | ansible.builtin.uri | False |
+| [Set kubectl version fact](tasks/binaries.yml#L35) | ansible.builtin.set_fact | False |
+| [Get kubectl checksum](tasks/binaries.yml#L38) | ansible.builtin.uri | False |
+| [Check current kubectl version](tasks/binaries.yml#L44) | ansible.builtin.command | False |
+| [Download and install kubectl](tasks/binaries.yml#L49) | ansible.builtin.get_url | True |
+| [Install Helm (Official Script)](tasks/binaries.yml#L63) | block | True |
+| [Check if helm is installed](tasks/binaries.yml#L65) | ansible.builtin.stat | False |
+| [Install Helm](tasks/binaries.yml#L69) | ansible.builtin.get_url | True |
+| [Run helm installer](tasks/binaries.yml#L80) | ansible.builtin.command | True |
+| [Install helm-diff plugin](tasks/binaries.yml#L86) | ansible.builtin.command | True |
 
 #### File: tasks/dependencies.yml
 
@@ -360,12 +360,12 @@ RoG hardware tweaks, and network optimizations.
 
 | Name | Module | Has Conditions | Comments |
 | ---- | ------ | -------------- | -------- |
-| [Install tuning tools](tasks/hardware_tuning.yml#L2) | ansible.builtin.apt | False | Install system tools for hardware optimization - IRQ balancing and radio frequency management |
-| [Install audio tools](tasks/hardware_tuning.yml#L9) | ansible.builtin.apt | True | Install ALSA utilities for audio optimization when enabled |
-| [Start irqbalance](tasks/hardware_tuning.yml#L16) | ansible.builtin.systemd | False | Enable IRQ balancing service for better CPU utilization across cores |
-| [Block wireless radios](tasks/hardware_tuning.yml#L23) | ansible.builtin.command | True | Disable WiFi and Bluetooth radios to reduce power consumption and interference |
-| [Optimize audio limits](tasks/hardware_tuning.yml#L32) | community.general.pam_limits | True | Configure PAM limits for real-time audio processing and unlimited memory locking |
-| [Enable fstrim](tasks/hardware_tuning.yml#L43) | ansible.builtin.systemd | False | Enable automatic SSD trimming for optimal storage performance and longevity |
+| [Install tuning tools](tasks/hardware_tuning.yml#L2) | ansible.builtin.apt | True | Install system tools for hardware optimization - IRQ balancing and radio frequency management |
+| [Install audio tools](tasks/hardware_tuning.yml#L11) | ansible.builtin.apt | True | Install ALSA utilities for audio optimization when enabled |
+| [Start irqbalance](tasks/hardware_tuning.yml#L19) | ansible.builtin.systemd | True | Enable IRQ balancing service for better CPU utilization across cores |
+| [Block wireless radios](tasks/hardware_tuning.yml#L28) | ansible.builtin.command | True | Disable WiFi and Bluetooth radios to reduce power consumption and interference |
+| [Optimize audio limits](tasks/hardware_tuning.yml#L40) | community.general.pam_limits | True | Configure PAM limits for real-time audio processing and unlimited memory locking |
+| [Enable fstrim](tasks/hardware_tuning.yml#L51) | ansible.builtin.systemd | False | Enable automatic SSD trimming for optimal storage performance and longevity |
 
 #### File: tasks/helm_setup.yml
 
@@ -379,18 +379,18 @@ RoG hardware tweaks, and network optimizations.
 | Name | Module | Has Conditions | Comments |
 | ---- | ------ | -------------- | -------- |
 | [Disable swap](tasks/main.yml#L2) | ansible.builtin.command | True | Disable swap to meet K3s requirements - Kubernetes doesn't support swap |
-| [Disable swap (fstab)](tasks/main.yml#L7) | ansible.builtin.replace | False | Permanently disable swap by commenting out fstab entries |
-| [Detect Ubuntu version](tasks/main.yml#L13) | ansible.builtin.set_fact | False | Store Ubuntu version for kernel package selection |
-| [Define kernel package](tasks/main.yml#L17) | ansible.builtin.set_fact | True | Use HWE kernel for better hardware support on Ubuntu 20.04-24.04 |
-| [Install system base tools](tasks/main.yml#L22) | ansible.builtin.apt | False | Install essential system tools for K3s and networking |
-| [Install dependencies](tasks/main.yml#L34) | ansible.builtin.include_tasks | False | Install additional system dependencies |
-| [Install HWE kernel](tasks/main.yml#L37) | ansible.builtin.apt | True | Install Hardware Enablement kernel for newer hardware support |
-| [Install generic kernel](tasks/main.yml#L45) | ansible.builtin.apt | True | Fallback to generic kernel if HWE installation fails or unavailable |
-| [Register kernel change](tasks/main.yml#L52) | ansible.builtin.set_fact | False | Track if kernel was changed to trigger reboot later |
-| [Configure power](tasks/main.yml#L62) | ansible.builtin.include_tasks | False | Configure power management settings |
-| [Apply hardware tuning](tasks/main.yml#L65) | ansible.builtin.include_tasks | False | Apply hardware-specific optimizations |
-| [System Tuning](tasks/main.yml#L68) | ansible.builtin.include_tasks | False | Apply system-level performance tuning |
-| [Install Cloud-Native Binaries](tasks/main.yml#L71) | ansible.builtin.include_tasks | False | Install Kubernetes and container tools |
+| [Disable swap (fstab)](tasks/main.yml#L9) | ansible.builtin.replace | False | Permanently disable swap by commenting out fstab entries |
+| [Detect Ubuntu version](tasks/main.yml#L15) | ansible.builtin.set_fact | False | Store Ubuntu version for kernel package selection |
+| [Define kernel package](tasks/main.yml#L19) | ansible.builtin.set_fact | True | Use HWE kernel for better hardware support on Ubuntu 20.04-24.04 |
+| [Install system base tools](tasks/main.yml#L24) | ansible.builtin.apt | False | Install essential system tools for K3s and networking |
+| [Install dependencies](tasks/main.yml#L36) | ansible.builtin.include_tasks | False | Install additional system dependencies |
+| [Install HWE kernel](tasks/main.yml#L39) | ansible.builtin.apt | True | Install Hardware Enablement kernel for newer hardware support |
+| [Install generic kernel](tasks/main.yml#L47) | ansible.builtin.apt | True | Fallback to generic kernel if HWE installation fails or unavailable |
+| [Register kernel change](tasks/main.yml#L54) | ansible.builtin.set_fact | False | Track if kernel was changed to trigger reboot later |
+| [Configure power](tasks/main.yml#L64) | ansible.builtin.include_tasks | False | Configure power management settings |
+| [Apply hardware tuning](tasks/main.yml#L67) | ansible.builtin.include_tasks | False | Apply hardware-specific optimizations |
+| [System Tuning](tasks/main.yml#L70) | ansible.builtin.include_tasks | False | Apply system-level performance tuning |
+| [Install Cloud-Native Binaries](tasks/main.yml#L73) | ansible.builtin.include_tasks | False | Install Kubernetes and container tools |
 
 #### File: tasks/network_optimization.yml
 
@@ -402,11 +402,11 @@ Optimize Realtek network drivers for ASUS RoG hardware |
 | [Blacklist generic driver](tasks/network_optimization.yml#L13) | ansible.builtin.copy | False | Prevent r8169 generic driver from loading to avoid conflicts |
 | [Ensure pcie_aspm=off in GRUB](tasks/network_optimization.yml#L21) | ansible.builtin.replace | False | Disable PCIe Active State Power Management for network stability |
 | [Update GRUB](tasks/network_optimization.yml#L28) | ansible.builtin.command | True | Apply GRUB configuration changes for next boot |
-| [Register driver change](tasks/network_optimization.yml#L33) | ansible.builtin.set_fact | False | Track if network driver changes require reboot |
-| [Detect primary ethernet interface](tasks/network_optimization.yml#L49) | ansible.builtin.set_fact | True | Identify primary network interface for optimization targeting |
-| [Deploy optimization script](tasks/network_optimization.yml#L54) | ansible.builtin.template | False | Deploy network optimization script with interface-specific settings |
-| [Deploy optimization service](tasks/network_optimization.yml#L60) | ansible.builtin.copy | False | Install systemd service for network optimization at boot |
-| [Start optimization service](tasks/network_optimization.yml#L66) | ansible.builtin.systemd | False | Enable and start network optimization service |
+| [Register driver change](tasks/network_optimization.yml#L35) | ansible.builtin.set_fact | False | Track if network driver changes require reboot |
+| [Detect primary ethernet interface](tasks/network_optimization.yml#L51) | ansible.builtin.set_fact | True | Identify primary network interface for optimization targeting |
+| [Deploy optimization script](tasks/network_optimization.yml#L56) | ansible.builtin.template | False | Deploy network optimization script with interface-specific settings |
+| [Deploy optimization service](tasks/network_optimization.yml#L62) | ansible.builtin.copy | False | Install systemd service for network optimization at boot |
+| [Start optimization service](tasks/network_optimization.yml#L68) | ansible.builtin.systemd | False | Enable and start network optimization service |
 
 #### File: tasks/power_management.yml
 
@@ -462,31 +462,31 @@ classDef importRole stroke:#699ba7,stroke-width:2px;
 classDef includeVars stroke:#8e44ad,stroke-width:2px;
 classDef rescue stroke:#665352,stroke-width:2px;
 
-  Start-->|Block Start| Install_uv__Python_Tool_Manager_0_block_start_0[[install uv  python tool manager ]]:::block
+  Start-->|Block Start| Install_uv__Python_Tool_Manager_0_block_start_0[[install uv  python tool manager <br>When: **not ansible check mode**]]:::block
   Install_uv__Python_Tool_Manager_0_block_start_0-->|Task| Check_if_uv_is_installed0[check if uv is installed]:::task
   Check_if_uv_is_installed0-->|Task| Download_and_install_uv1[download and install uv<br>When: **not uv binary stat exists**]:::task
   Download_and_install_uv1-->|Task| Run_uv_installer2[run uv installer<br>When: **not uv binary stat exists**]:::task
   Run_uv_installer2-.->|End of Block| Install_uv__Python_Tool_Manager_0_block_start_0
-  Run_uv_installer2-->|Rescue Start| Install_uv__Python_Tool_Manager_0_rescue_start_0[install uv  python tool manager ]:::rescue
+  Run_uv_installer2-->|Rescue Start| Install_uv__Python_Tool_Manager_0_rescue_start_0[install uv  python tool manager <br>When: **not ansible check mode**]:::rescue
   Install_uv__Python_Tool_Manager_0_rescue_start_0-->|Task| Report_uv_installation_failure0[report uv installation failure]:::task
   Report_uv_installation_failure0-.->|End of Rescue Block| Install_uv__Python_Tool_Manager_0_block_start_0
-  Report_uv_installation_failure0-->|Block Start| Install_Kubectl__Official_Binary_1_block_start_0[[install kubectl  official binary ]]:::block
+  Report_uv_installation_failure0-->|Block Start| Install_Kubectl__Official_Binary_1_block_start_0[[install kubectl  official binary <br>When: **not ansible check mode**]]:::block
   Install_Kubectl__Official_Binary_1_block_start_0-->|Task| Get_latest_stable_kubectl_version0[get latest stable kubectl version]:::task
   Get_latest_stable_kubectl_version0-->|Task| Set_kubectl_version_fact1[set kubectl version fact]:::task
   Set_kubectl_version_fact1-->|Task| Get_kubectl_checksum2[get kubectl checksum]:::task
   Get_kubectl_checksum2-->|Task| Check_current_kubectl_version3[check current kubectl version]:::task
   Check_current_kubectl_version3-->|Task| Download_and_install_kubectl4[download and install kubectl<br>When: **kubectl current version failed or kubectl version<br>not in kubectl current version stdout**]:::task
   Download_and_install_kubectl4-.->|End of Block| Install_Kubectl__Official_Binary_1_block_start_0
-  Download_and_install_kubectl4-->|Rescue Start| Install_Kubectl__Official_Binary_1_rescue_start_0[install kubectl  official binary ]:::rescue
+  Download_and_install_kubectl4-->|Rescue Start| Install_Kubectl__Official_Binary_1_rescue_start_0[install kubectl  official binary <br>When: **not ansible check mode**]:::rescue
   Install_Kubectl__Official_Binary_1_rescue_start_0-->|Task| Report_kubectl_installation_failure0[report kubectl installation failure]:::task
   Report_kubectl_installation_failure0-.->|End of Rescue Block| Install_Kubectl__Official_Binary_1_block_start_0
-  Report_kubectl_installation_failure0-->|Block Start| Install_Helm__Official_Script_2_block_start_0[[install helm  official script ]]:::block
+  Report_kubectl_installation_failure0-->|Block Start| Install_Helm__Official_Script_2_block_start_0[[install helm  official script <br>When: **not ansible check mode**]]:::block
   Install_Helm__Official_Script_2_block_start_0-->|Task| Check_if_helm_is_installed0[check if helm is installed]:::task
   Check_if_helm_is_installed0-->|Task| Install_Helm1[install helm<br>When: **not helm binary stat exists**]:::task
   Install_Helm1-->|Task| Run_helm_installer2[run helm installer<br>When: **not helm binary stat exists**]:::task
-  Run_helm_installer2-->|Task| Install_helm_diff_plugin3[install helm diff plugin]:::task
+  Run_helm_installer2-->|Task| Install_helm_diff_plugin3[install helm diff plugin<br>When: **not ansible check mode or helm binary stat exists**]:::task
   Install_helm_diff_plugin3-.->|End of Block| Install_Helm__Official_Script_2_block_start_0
-  Install_helm_diff_plugin3-->|Rescue Start| Install_Helm__Official_Script_2_rescue_start_0[install helm  official script ]:::rescue
+  Install_helm_diff_plugin3-->|Rescue Start| Install_Helm__Official_Script_2_rescue_start_0[install helm  official script <br>When: **not ansible check mode**]:::rescue
   Install_Helm__Official_Script_2_rescue_start_0-->|Task| Report_helm_installation_failure0[report helm installation failure]:::task
   Report_helm_installation_failure0-.->|End of Rescue Block| Install_Helm__Official_Script_2_block_start_0
   Report_helm_installation_failure0-->End
@@ -530,10 +530,10 @@ classDef importRole stroke:#699ba7,stroke-width:2px;
 classDef includeVars stroke:#8e44ad,stroke-width:2px;
 classDef rescue stroke:#665352,stroke-width:2px;
 
-  Start-->|Task| Install_tuning_tools0[install tuning tools]:::task
+  Start-->|Task| Install_tuning_tools0[install tuning tools<br>When: **ansible facts  virtualization role       guest**]:::task
   Install_tuning_tools0-->|Task| Install_audio_tools1[install audio tools<br>When: **common audio optimization enabled   bool**]:::task
-  Install_audio_tools1-->|Task| Start_irqbalance2[start irqbalance]:::task
-  Start_irqbalance2-->|Task| Block_wireless_radios3[block wireless radios<br>When: **common radio block enabled   bool**]:::task
+  Install_audio_tools1-->|Task| Start_irqbalance2[start irqbalance<br>When: **ansible facts  virtualization role       guest**]:::task
+  Start_irqbalance2-->|Task| Block_wireless_radios3[block wireless radios<br>When: **common radio block enabled   bool and ansible<br>facts  virtualization role       guest  and not<br>ansible check mode**]:::task
   Block_wireless_radios3-->|Task| Optimize_audio_limits4[optimize audio limits<br>When: **common audio optimization enabled   bool**]:::task
   Optimize_audio_limits4-->|Task| Enable_fstrim5[enable fstrim]:::task
   Enable_fstrim5-->End
@@ -574,7 +574,7 @@ classDef importRole stroke:#699ba7,stroke-width:2px;
 classDef includeVars stroke:#8e44ad,stroke-width:2px;
 classDef rescue stroke:#665352,stroke-width:2px;
 
-  Start-->|Task| Disable_swap0[disable swap<br>When: **ansible facts  swaptotal mb     0**]:::task
+  Start-->|Task| Disable_swap0[disable swap<br>When: **ansible facts  swaptotal mb     0 and not ansible<br>check mode**]:::task
   Disable_swap0-->|Task| Disable_swap__fstab_1[disable swap  fstab ]:::task
   Disable_swap__fstab_1-->|Task| Detect_Ubuntu_version2[detect ubuntu version]:::task
   Detect_Ubuntu_version2-->|Task| Define_kernel_package3[define kernel package<br>When: **ubuntu version is version  20 04         and<br>ubuntu version is version  24 04**]:::task
@@ -609,7 +609,7 @@ classDef rescue stroke:#665352,stroke-width:2px;
   Realtek_optimizations0_block_start_0-->|Task| Install_Realtek_driver0[install realtek driver]:::task
   Install_Realtek_driver0-->|Task| Blacklist_generic_driver1[blacklist generic driver]:::task
   Blacklist_generic_driver1-->|Task| Ensure_pcie_aspm_off_in_GRUB2[ensure pcie aspm off in grub]:::task
-  Ensure_pcie_aspm_off_in_GRUB2-->|Task| Update_GRUB3[update grub<br>When: **common grub aspm changed**]:::task
+  Ensure_pcie_aspm_off_in_GRUB2-->|Task| Update_GRUB3[update grub<br>When: **common grub aspm changed and not ansible check<br>mode**]:::task
   Update_GRUB3-->|Task| Register_driver_change4[register driver change]:::task
   Register_driver_change4-.->|End of Block| Realtek_optimizations0_block_start_0
   Register_driver_change4-->|Rescue Start| Realtek_optimizations0_rescue_start_0[realtek optimizations<br>When: **common rog server   bool**]:::rescue

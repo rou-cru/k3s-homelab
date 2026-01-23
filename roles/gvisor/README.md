@@ -100,8 +100,5 @@ MIT
 
 #### Dependencies
 
-- **k3s_server**
-  
-  
-
+No dependencies specified.
 <!-- DOCSIBLE END -->

@@ -35,7 +35,16 @@ Description: Pre-flight checks to ensure minimum system requirements are met.
 
 
 
+### Defaults
 
+**These are static variables with lower priority**
+
+#### File: defaults/main.yml
+
+| Var          | Type         | Value       |
+|--------------|--------------|-------------|
+| [preflight_min_ram_mb](defaults/main.yml#L5)   | int | `2048` |    
+| [preflight_min_disk_gb](defaults/main.yml#L8)   | int | `20` |    
 
 
 
@@ -52,7 +61,7 @@ Description: Pre-flight checks to ensure minimum system requirements are met.
 | [Fail on disconnect](tasks/main.yml#L10) | ansible.builtin.fail | True |
 | [Check disk space](tasks/main.yml#L14) | ansible.builtin.shell | False |
 | [Assert disk space](tasks/main.yml#L20) | ansible.builtin.assert | False |
-| [Assert memory](tasks/main.yml#L32) | ansible.builtin.assert | False |
+| [Assert memory](tasks/main.yml#L30) | ansible.builtin.assert | False |
 | [Assert architecture](tasks/main.yml#L37) | ansible.builtin.assert | False |
 
 

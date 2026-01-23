@@ -19,73 +19,12 @@
     fail_msg: "ERROR: k3s_agent_server_url and k3s_agent_token are required"
   when: not ansible_check_mode
 
-# Check if K3s agent uninstall script exists for cleanup operations
-- name: Check uninstall script
-  ansible.builtin.stat:
-    path: /usr/local/bin/k3s-agent-uninstall.sh
-  register: k3s_agent_uninstall_script
-
-# Uninstall existing K3s agent if recreation is requested
-- name: Recreate agent
-  ansible.builtin.command: /usr/local/bin/k3s-agent-uninstall.sh
-  when:
-    - k3s_agent_recreate | bool
-    - k3s_agent_uninstall_script.stat.exists
-    - not ansible_check_mode
-  register: k3s_uninstall
-  changed_when: k3s_uninstall.rc == 0
-
-# Remove K3s data directories for clean installation
-- name: Cleanup directories
-  ansible.builtin.file:
-    path: "{{ item }}"
-    state: absent
-  loop:
-    - /var/lib/rancher/k3s
-    - /etc/rancher/k3s
-    - /var/lib/kubelet
-    - /var/lib/cni
-    - /etc/cni/net.d
-  when:
-    - k3s_agent_recreate | bool
-    - k3s_agent_uninstall_script.stat.exists
-
-# Create K3s configuration directory
-- name: Create config dir
-  ansible.builtin.file:
-    path: /etc/rancher/k3s
-    state: directory
-    mode: "0755"
-
-# Ensure CNI config directory exists
-- name: Ensure CNI config directory exists
-  ansible.builtin.file:
-    path: "{{ k3s_cni_conf_dir }}"
-    state: directory
-    mode: "0755"
-
-# Ensure CNI bin directory exists
-- name: Ensure CNI bin directory exists
-  ansible.builtin.file:
-    path: "{{ k3s_cni_bin_dir }}"
-    state: directory
-    mode: "0755"
-
-# Ensure K3s agent etc directory exists for containerd config
-- name: Ensure K3s agent etc directory exists
-  ansible.builtin.file:
-    path: /var/lib/rancher/k3s/agent/etc/containerd
-    state: directory
-    mode: "0755"
-    recurse: true
-
-# Deploy containerd configuration template (same as server)
-- name: Deploy containerd configuration template
-  ansible.builtin.template:
-    src: containerd-config.toml.tmpl.j2
-    dest: /var/lib/rancher/k3s/agent/etc/containerd/config.toml.tmpl
-    mode: "0644"
-  notify: Restart k3s-agent
+# Import common K3s setup tasks (directories, containerd, uninstall logic)
+- name: Run K3s Common
+  ansible.builtin.import_role:
+    name: k3s_common
+  vars:
+    k3s_recreate: "{{ k3s_agent_recreate }}"
 
 # Deploy K3s agent configuration
 - name: Deploy agent config

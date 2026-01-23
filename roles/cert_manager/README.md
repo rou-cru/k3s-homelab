@@ -61,12 +61,12 @@ Description: Install cert-manager on K3s and bootstrap a self-signed CA with Clu
 | ---- | ------ | -------------- | -----|
 | [Check if Helm is installed](tasks/main.yml#L1) | ansible.builtin.command | False |  |
 | [Ensure Jetstack Helm repo](tasks/main.yml#L7) | kubernetes.core.helm_repository | True |  |
-| [Deploy cert-manager](tasks/main.yml#L13) | kubernetes.core.helm | True | cluster,infrastructure,cert-manager |
-| [Wait for cert-manager webhook to be available](tasks/main.yml#L74) | kubernetes.core.k8s | True | cluster,infrastructure,cert-manager |
-| [Create cert-manager self-signed ClusterIssuer](tasks/main.yml#L90) | kubernetes.core.k8s | True | cluster,infrastructure,cert-manager |
-| [Create cert-manager CA certificate](tasks/main.yml#L105) | kubernetes.core.k8s | True | cluster,infrastructure,cert-manager |
-| [Wait for cert-manager CA secret](tasks/main.yml#L130) | kubernetes.core.k8s_info | True | cluster,infrastructure,cert-manager |
-| [Create cert-manager CA ClusterIssuer](tasks/main.yml#L146) | kubernetes.core.k8s | True | cluster,infrastructure,cert-manager |
+| [Deploy cert-manager](tasks/main.yml#L15) | kubernetes.core.helm | True | cluster,infrastructure,cert-manager |
+| [Wait for cert-manager webhook to be available](tasks/main.yml#L78) | kubernetes.core.k8s | True | cluster,infrastructure,cert-manager |
+| [Create cert-manager self-signed ClusterIssuer](tasks/main.yml#L96) | kubernetes.core.k8s | True | cluster,infrastructure,cert-manager |
+| [Create cert-manager CA certificate](tasks/main.yml#L113) | kubernetes.core.k8s | True | cluster,infrastructure,cert-manager |
+| [Wait for cert-manager CA secret](tasks/main.yml#L140) | kubernetes.core.k8s_info | True | cluster,infrastructure,cert-manager |
+| [Create cert-manager CA ClusterIssuer](tasks/main.yml#L158) | kubernetes.core.k8s | True | cluster,infrastructure,cert-manager |
 
 
 ## Task Flow Graphs
@@ -88,13 +88,13 @@ classDef includeVars stroke:#8e44ad,stroke-width:2px;
 classDef rescue stroke:#665352,stroke-width:2px;
 
   Start-->|Task| Check_if_Helm_is_installed0[check if helm is installed]:::task
-  Check_if_Helm_is_installed0-->|Task| Ensure_Jetstack_Helm_repo1[ensure jetstack helm repo<br>When: **helm binary check rc    0**]:::task
-  Ensure_Jetstack_Helm_repo1-->|Task| Deploy_cert_manager2[deploy cert manager<br>When: **helm binary check rc    0**]:::task
-  Deploy_cert_manager2-->|Task| Wait_for_cert_manager_webhook_to_be_available3[wait for cert manager webhook to be available<br>When: **helm binary check rc    0**]:::task
-  Wait_for_cert_manager_webhook_to_be_available3-->|Task| Create_cert_manager_self_signed_ClusterIssuer4[create cert manager self signed clusterissuer<br>When: **helm binary check rc    0**]:::task
-  Create_cert_manager_self_signed_ClusterIssuer4-->|Task| Create_cert_manager_CA_certificate5[create cert manager ca certificate<br>When: **helm binary check rc    0**]:::task
-  Create_cert_manager_CA_certificate5-->|Task| Wait_for_cert_manager_CA_secret6[wait for cert manager ca secret<br>When: **helm binary check rc    0**]:::task
-  Wait_for_cert_manager_CA_secret6-->|Task| Create_cert_manager_CA_ClusterIssuer7[create cert manager ca clusterissuer<br>When: **helm binary check rc    0**]:::task
+  Check_if_Helm_is_installed0-->|Task| Ensure_Jetstack_Helm_repo1[ensure jetstack helm repo<br>When: **helm binary check rc    0 and not ansible check<br>mode**]:::task
+  Ensure_Jetstack_Helm_repo1-->|Task| Deploy_cert_manager2[deploy cert manager<br>When: **helm binary check rc    0 and not ansible check<br>mode**]:::task
+  Deploy_cert_manager2-->|Task| Wait_for_cert_manager_webhook_to_be_available3[wait for cert manager webhook to be available<br>When: **helm binary check rc    0 and not ansible check<br>mode**]:::task
+  Wait_for_cert_manager_webhook_to_be_available3-->|Task| Create_cert_manager_self_signed_ClusterIssuer4[create cert manager self signed clusterissuer<br>When: **helm binary check rc    0 and not ansible check<br>mode**]:::task
+  Create_cert_manager_self_signed_ClusterIssuer4-->|Task| Create_cert_manager_CA_certificate5[create cert manager ca certificate<br>When: **helm binary check rc    0 and not ansible check<br>mode**]:::task
+  Create_cert_manager_CA_certificate5-->|Task| Wait_for_cert_manager_CA_secret6[wait for cert manager ca secret<br>When: **helm binary check rc    0 and not ansible check<br>mode**]:::task
+  Wait_for_cert_manager_CA_secret6-->|Task| Create_cert_manager_CA_ClusterIssuer7[create cert manager ca clusterissuer<br>When: **helm binary check rc    0 and not ansible check<br>mode**]:::task
   Create_cert_manager_CA_ClusterIssuer7-->End
 ```
 
