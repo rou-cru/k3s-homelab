@@ -556,9 +556,9 @@ classDef importRole stroke:#699ba7,stroke-width:2px;
 classDef includeVars stroke:#8e44ad,stroke-width:2px;
 classDef rescue stroke:#665352,stroke-width:2px;
 
-  Start-->|Task| Download_GitHub_CLI_keyring0[download github cli keyring<br>When: **common install github cli repo   bool**]:::task
-  Download_GitHub_CLI_keyring0-->|Task| Verify_GitHub_CLI_keyring_fingerprint1[verify github cli keyring fingerprint<br>When: **common install github cli repo   bool and not<br>ansible check mode**]:::task
-  Verify_GitHub_CLI_keyring_fingerprint1-->|Task| Assert_GitHub_CLI_keyring_fingerprint2[assert github cli keyring fingerprint<br>When: **common install github cli repo   bool and not<br>ansible check mode and githubcli keyring<br>fingerprint is defined**]:::task
+  Start-->|Task| Download_GitHub_CLI_keyring0[download GitHub cli keyring<br>When: **common install github cli repo   bool**]:::task
+  Download_GitHub_CLI_keyring0-->|Task| Verify_GitHub_CLI_keyring_fingerprint1[verify GitHub cli keyring fingerprint<br>When: **common install github cli repo   bool and not<br>ansible check mode**]:::task
+  Verify_GitHub_CLI_keyring_fingerprint1-->|Task| Assert_GitHub_CLI_keyring_fingerprint2[assert GitHub cli keyring fingerprint<br>When: **common install github cli repo   bool and not<br>ansible check mode and githubcli keyring<br>fingerprint is defined**]:::task
   Assert_GitHub_CLI_keyring_fingerprint2-->|Task| Add_GitHub_CLI_repository3[add github cli repository<br>When: **common install github cli repo   bool**]:::task
   Add_GitHub_CLI_repository3-->|Task| Install_Python_dependencies_for_K8s_Ansible_modules4[install python dependencies for k8s ansible<br>modules<br>When: **common install k8s python   bool**]:::task
   Install_Python_dependencies_for_K8s_Ansible_modules4-->|Task| Install_debug_packages5[install debug packages<br>When: **common install debug packages   bool and common<br>debug packages   length   0**]:::task
