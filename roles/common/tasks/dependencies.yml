@@ -5,13 +5,16 @@
     dest: /usr/share/keyrings/githubcli-archive-keyring.gpg
     mode: '0644'
     force: true
+  when: common_install_github_cli_repo | bool
 # Verify GPG key fingerprint for GitHub CLI repository security
 - name: Verify GitHub CLI keyring fingerprint
   ansible.builtin.command: >-
     gpg --show-keys --with-colons /usr/share/keyrings/githubcli-archive-keyring.gpg
   register: githubcli_keyring_fingerprint
   changed_when: false
-  when: not ansible_check_mode
+  when:
+    - common_install_github_cli_repo | bool
+    - not ansible_check_mode
 # Ensure GitHub CLI keyring matches expected fingerprint for security
 - name: Assert GitHub CLI keyring fingerprint
   ansible.builtin.assert:
@@ -19,6 +22,7 @@
       - "'fpr:::::::::2C6106201985B60E6C7AC87323F3D4EA75716059:' in githubcli_keyring_fingerprint.stdout"
     fail_msg: "GitHub CLI keyring fingerprint mismatch."
   when:
+    - common_install_github_cli_repo | bool
     - not ansible_check_mode
     - githubcli_keyring_fingerprint is defined
 # Add GitHub CLI repository with signed-by option for package verification
@@ -34,7 +38,8 @@
       }}
     filename: github-cli
     state: present
-# Install Python modules for Kubernetes Ansible integration and development tools
+  when: common_install_github_cli_repo | bool
+# Install Python modules for Kubernetes Ansible integration
 - name: Install Python dependencies for K8s Ansible modules
   ansible.builtin.apt:
     name:
@@ -42,21 +47,24 @@
       - python3-pip
       - python3-yaml
       - python3-jsonpatch
-      # System tools requested by OS mapping
-      - gh
-      - imagemagick
-      - s-tui
-      - fbi
-      - nvtop
-      - tree
-      - tmux
-      - ripgrep
-      - make
-      - cmake
-      - ninja-build
-      - git
-      - timeshift
-      - xvfb
-      - sqlite3
     state: present
     update_cache: true
+  when: common_install_k8s_python | bool
+# Install lightweight debug packages
+- name: Install debug packages
+  ansible.builtin.apt:
+    name: "{{ common_debug_packages }}"
+    state: present
+    update_cache: true
+  when:
+    - common_install_debug_packages | bool
+    - common_debug_packages | length > 0
+# Install developer/workstation packages
+- name: Install dev packages
+  ansible.builtin.apt:
+    name: "{{ common_dev_packages }}"
+    state: present
+    update_cache: true
+  when:
+    - common_install_dev_packages | bool
+    - common_dev_packages | length > 0

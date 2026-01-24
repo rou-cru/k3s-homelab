@@ -1,0 +1,17 @@
+# Installation of gVisor (runsc)
+- name: Install runsc binary
+  ansible.builtin.get_url:
+    url: "https://storage.googleapis.com/gvisor/releases/release/{{ gvisor_version }}/x86_64/runsc"
+    dest: /usr/local/bin/runsc
+    mode: '0755'
+    owner: root
+    group: root
+    checksum: "sha512:https://storage.googleapis.com/gvisor/releases/release/{{ gvisor_version }}/x86_64/runsc.sha512"
+  when: "'k3s_server' in group_names"
+
+# Register gVisor as an available runtime for the cluster
+- name: Add gVisor to additional runtimes list
+  ansible.builtin.set_fact:
+    containerd_additional_runtimes: "{{ (containerd_additional_runtimes | default([])) | union(['runsc']) }}"
+  tags: always
+  when: "'k3s_server' in group_names"

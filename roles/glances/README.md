@@ -195,8 +195,5 @@ MIT
 
 #### Dependencies
 
-- **common**
-  
-  
-
+No dependencies specified.
 <!-- DOCSIBLE END -->

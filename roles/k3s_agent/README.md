@@ -120,7 +120,11 @@ Description: Install and configure K3s agent node to join existing cluster
 | [k3s_agent_readyz_retries](defaults/main.yml#L35)   | int | `30` |    false  |  Readiness Retries |
 | [k3s_agent_readyz_delay](defaults/main.yml#L41)   | int | `5` |    false  |  Readiness Delay |
 | [k3s_agent_recreate](defaults/main.yml#L47)   | bool | `False` |    false  |  Recreate Agent |
-| [k3s_agent_kubelet_args](defaults/main.yml#L53)   | list | `[]` |    false  |  Kubelet Arguments |
+| [k3s_cni_bin_dir](defaults/main.yml#L53)   | str | `/opt/cni/bin` |    false  |  CNI Bin Directory |
+| [k3s_cni_conf_dir](defaults/main.yml#L59)   | str | `/etc/cni/net.d` |    false  |  CNI Config Directory |
+| [k3s_agent_kubelet_args](defaults/main.yml#L65)   | list | `[]` |    false  |  Kubelet Arguments |
+| [containerd_optimized](defaults/main.yml#L71)   | bool | `True` |    false  |  Containerd Optimizations |
+| [containerd_default_runtime](defaults/main.yml#L77)   | str | `runc` |    false  |  Containerd Default Runtime |
 <details>
 <summary><b>🖇️ Full descriptions for vars in defaults/main.yml</b></summary>
 <br>
@@ -134,7 +138,11 @@ Description: Install and configure K3s agent node to join existing cluster
 <tr><td><b>k3s_agent_readyz_retries</b></td><td>Number of retries for the node readiness check.</td></tr>
 <tr><td><b>k3s_agent_readyz_delay</b></td><td>Delay (seconds) between readiness check retries.</td></tr>
 <tr><td><b>k3s_agent_recreate</b></td><td>If true, uninstalls and wipes previous K3s agent before deploying.</td></tr>
+<tr><td><b>k3s_cni_bin_dir</b></td><td>Directory for CNI binaries.</td></tr>
+<tr><td><b>k3s_cni_conf_dir</b></td><td>Directory for CNI configuration.</td></tr>
 <tr><td><b>k3s_agent_kubelet_args</b></td><td>Additional arguments to pass to kubelet (list of strings).</td></tr>
+<tr><td><b>containerd_optimized</b></td><td>Enable containerd performance and resource optimizations.</td></tr>
+<tr><td><b>containerd_default_runtime</b></td><td>Default runtime name for containerd (use RuntimeClass to opt-in to others).</td></tr>
 </table>
 <br>
 </details>

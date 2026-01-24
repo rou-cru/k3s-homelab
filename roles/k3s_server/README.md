@@ -151,6 +151,9 @@ and local context merging.
 | [k3s_server_recreate](defaults/main.yml#L40)   | bool | `True` |    false  |  Recreate Cluster |
 | [k3s_server_copy_kubeconfig_local](defaults/main.yml#L45)   | bool | `True` |    false  |  Copy Kubeconfig Local |
 | [k3s_server_local_kubeconfig_path](defaults/main.yml#L50)   | str | `{{ lookup('env', 'HOME') }}/.kube/config` |    false  |  Local Kubeconfig Path |
+| [k3s_cni_bin_dir](defaults/main.yml#L56)   | str | `/opt/cni/bin` |    false  |  CNI Bin Directory |
+| [k3s_cni_conf_dir](defaults/main.yml#L62)   | str | `/etc/cni/net.d` |    false  |  CNI Config Directory |
+| [containerd_optimized](defaults/main.yml#L68)   | bool | `True` |    false  |  Containerd Optimizations |
 <details>
 <summary><b>🖇️ Full descriptions for vars in defaults/main.yml</b></summary>
 <br>
@@ -166,6 +169,9 @@ and local context merging.
 <tr><td><b>k3s_server_recreate</b></td><td>If true, uninstalls and wipes previous K3s installation before deploying.</td></tr>
 <tr><td><b>k3s_server_copy_kubeconfig_local</b></td><td>If true, copies the generated kubeconfig to the Ansible controller.</td></tr>
 <tr><td><b>k3s_server_local_kubeconfig_path</b></td><td>Local path where the kubeconfig should be saved.</td></tr>
+<tr><td><b>k3s_cni_bin_dir</b></td><td>Directory for CNI binaries.</td></tr>
+<tr><td><b>k3s_cni_conf_dir</b></td><td>Directory for CNI configuration.</td></tr>
+<tr><td><b>containerd_optimized</b></td><td>Enable containerd performance and resource optimizations.</td></tr>
 </table>
 <br>
 </details>

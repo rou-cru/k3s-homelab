@@ -43,8 +43,8 @@ Description: Pre-flight checks to ensure minimum system requirements are met.
 
 | Var          | Type         | Value       |Required    | Title       |
 |--------------|--------------|-------------|------------|-------------|
-| [preflight_min_ram_mb](defaults/main.yml#L5)   | int | `2048` |    false  |  Minimum RAM |
-| [preflight_min_disk_gb](defaults/main.yml#L10)   | int | `20` |    false  |  Minimum Disk Space |
+| [preflight_min_ram_mb](defaults/main.yml#L8)   | int | `2048` |    false  |  Minimum RAM |
+| [preflight_min_disk_gb](defaults/main.yml#L14)   | int | `20` |    false  |  Minimum Disk Space |
 <details>
 <summary><b>🖇️ Full descriptions for vars in defaults/main.yml</b></summary>
 <br>

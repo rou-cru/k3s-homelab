@@ -64,11 +64,19 @@
     src: network-optimization.service
     dest: /etc/systemd/system/network-optimization.service
     mode: "0644"
+# Ensure systemd sees the new unit before enabling it
+- name: Reload systemd daemon for network optimization
+  ansible.builtin.systemd:
+    daemon_reload: true
+  when:
+    - ansible_service_mgr == 'systemd'
+    - not ansible_check_mode
 # Enable and start network optimization service
 - name: Start optimization service
   ansible.builtin.systemd:
-    name: network-optimization
+    name: network-optimization.service
     enabled: true
     state: started
-    daemon_reload: true
-  ignore_errors: "{{ ansible_check_mode }}"
+  when:
+    - ansible_service_mgr == 'systemd'
+    - not ansible_check_mode
