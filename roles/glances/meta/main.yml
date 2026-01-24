@@ -14,5 +14,4 @@ galaxy_info:
     - glances
     - system
     - homelab
-dependencies:
-  - role: common
+dependencies: []

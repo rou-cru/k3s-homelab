@@ -52,7 +52,8 @@ tasks:
       - |
         for role in roles/*/; do
           echo "Processing $role..."
-          .venv/bin/docsible --role "$role" --graph --comments --task-line --no-backup --no-docsible
+          .venv/bin/docsible --role "$role" --graph --comments --task-line --no-backup --no-docsible \
+            --md-role-template docs/docsible-role-template.md.j2
         done
       - echo "✅ Documentation generated."
   validate:

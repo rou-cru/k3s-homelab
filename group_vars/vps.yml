@@ -22,6 +22,20 @@ common_rog_server: false
 
 # Disable Intel-specific power tuning (virtualized CPU)
 common_power_efficiency_tuning_enabled: false
+# Skip HWE kernel on VPS
+common_install_hwe_kernel: false
+# Skip NetworkManager on VPS
+common_install_network_manager: false
+# Skip ACPI daemon on VPS
+common_install_acpid: false
+# Enable network optimization for VPS gateway role
+common_network_optimization_enabled: true
+# Keep minimal tooling for debugging and incidents
+common_install_cloud_binaries: false
+common_install_k8s_python: false
+common_install_debug_packages: true
+common_install_dev_packages: false
+common_install_github_cli_repo: false
 
 # NVIDIA GPU role override - explicitly disable
 nvidia_gpu_setup_mode: 'false'
@@ -62,5 +76,5 @@ k3s_agent_node_taints:
 # Resource constraints awareness (2 vCore, 4GB RAM, 120GB disk)
 # Note: Most workloads should NOT run on VPS - it's a network appliance
 
-# gVisor can be enabled but isn't required on VPS (no Akash tenant workloads)
-gvisor_install: true
+# gVisor disabled on VPS
+gvisor_install: false

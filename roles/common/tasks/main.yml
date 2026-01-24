@@ -28,10 +28,19 @@
       - ca-certificates
       - iptables
       - ethtool
-      - network-manager
-      - acpid
       - rsync
     state: present
+# Optional base packages for workstation-style hosts
+- name: Install NetworkManager
+  ansible.builtin.apt:
+    name: network-manager
+    state: present
+  when: common_install_network_manager | bool
+- name: Install ACPI daemon
+  ansible.builtin.apt:
+    name: acpid
+    state: present
+  when: common_install_acpid | bool
 # Install additional system dependencies
 - name: Install dependencies
   ansible.builtin.include_tasks: dependencies.yml
@@ -40,7 +49,9 @@
   ansible.builtin.apt:
     name: "{{ hwe_kernel_package }}"
     state: present
-  when: hwe_kernel_package is defined
+  when:
+    - hwe_kernel_package is defined
+    - common_install_hwe_kernel | bool
   register: common_hwe_kernel_install
   ignore_errors: true
 # Fallback to generic kernel if HWE installation fails or unavailable
@@ -48,16 +59,16 @@
   ansible.builtin.apt:
     name: linux-generic
     state: present
-  when: common_hwe_kernel_install is failed or hwe_kernel_package is not defined
+  when: >-
+    (common_hwe_kernel_install is skipped) or
+    (common_hwe_kernel_install is failed) or
+    (hwe_kernel_package is not defined)
   register: common_generic_kernel_install
 # Track if kernel was changed to trigger reboot later
 - name: Register kernel change
   ansible.builtin.set_fact:
     common_kernel_changed: >-
-      {{
-
-
-        (common_hwe_kernel_install.changed | default(false))
+      {{ (common_hwe_kernel_install.changed | default(false))
         or (common_generic_kernel_install.changed | default(false))
       }}
 # Configure power management settings

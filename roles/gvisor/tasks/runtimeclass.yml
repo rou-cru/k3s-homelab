@@ -1,0 +1,18 @@
+# Use K3s auto-deploy manifests directory for the RuntimeClass
+- name: Ensure K3s manifests directory exists
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/server/manifests
+    state: directory
+    mode: '0750'
+    owner: root
+    group: root
+  when: "'k3s_server' in group_names and (gvisor_install | default(true) | bool)"
+
+- name: Deploy gVisor RuntimeClass manifest
+  ansible.builtin.copy:
+    src: runtime-class.yaml
+    dest: /var/lib/rancher/k3s/server/manifests/gvisor-runtime-class.yaml
+    mode: '0640'
+    owner: root
+    group: root
+  when: "'k3s_server' in group_names and (gvisor_install | default(true) | bool)"

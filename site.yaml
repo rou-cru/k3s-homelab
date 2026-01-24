@@ -80,14 +80,22 @@
       ansible.builtin.import_role:
         name: tailscale
       tags: ["host", "network"]
-    - name: Run gvisor role
+    - name: Run gvisor role (host runtime)
       ansible.builtin.import_role:
         name: gvisor
+        tasks_from: host.yml
       tags: ["host", "os", "security"]
+      when: not ansible_check_mode
     - name: Run k3s server role
       ansible.builtin.import_role:
         name: k3s_server
       tags: ["cluster"]
+    - name: Run gvisor RuntimeClass (post-k3s)
+      ansible.builtin.import_role:
+        name: gvisor
+        tasks_from: runtimeclass.yml
+      tags: ["cluster", "security"]
+      when: not ansible_check_mode
     - name: Build control plane miner labels
       ansible.builtin.set_fact:
         miner_control_plane_labels: >-
@@ -169,8 +177,8 @@
       ansible.builtin.copy:
         src: k8s/
         dest: "{{ k8s_manifests_dir }}/"
-        directory_mode: "0755"
-        mode: "0644"
+        directory_mode: "0750"
+        mode: "0640"
       become: false
       tags: ["apps"]
     # --- NAMESPACES ---

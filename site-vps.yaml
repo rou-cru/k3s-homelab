@@ -49,17 +49,18 @@
         name: glances
       tags: ["host", "os"]
 
+    - name: Run common network optimizations
+      ansible.builtin.import_role:
+        name: common
+        tasks_from: network_optimization.yml
+      when: common_network_optimization_enabled | default(false)
+      tags: ["host", "os", "network"]
+
     # Phase 2: Network connectivity
     - name: Run tailscale role
       ansible.builtin.import_role:
         name: tailscale
       tags: ["host", "network"]
-
-    # Phase 3: Container runtime isolation
-    - name: Run gvisor role
-      ansible.builtin.import_role:
-        name: gvisor
-      tags: ["host", "os", "security"]
 
     - name: Flush host handlers before cluster join
       ansible.builtin.meta: flush_handlers

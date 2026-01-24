@@ -170,6 +170,9 @@ Supports host setup, cluster setup, and headless X11 configurations.
 | [nvidia_gpu_headless_x11_enabled](defaults/main.yml#L45)   | bool | `True` |    false  |  Headless X11 |
 | [nvidia_gpu_pci_bus_id](defaults/main.yml#L50)   | str | `1:0:0` |    false  |  PCI Bus ID |
 | [nvidia_gpu_coolbits](defaults/main.yml#L55)   | str | `28` |    false  |  Coolbits |
+
+
+
 <details>
 <summary><b>🖇️ Full descriptions for vars in defaults/main.yml</b></summary>
 <br>
@@ -201,7 +204,7 @@ Supports host setup, cluster setup, and headless X11 configurations.
 
 | Name | Module | Has Conditions | Tags |
 | ---- | ------ | -------------- | -----|
-| [NVIDIA GPU cluster setup](tasks/cluster.yml#L1) | block | False | cluster,nvidia |
+| [NVIDIA GPU cluster setup](tasks/cluster.yml#L1) | block | True | cluster,nvidia |
 | [Check if Helm is installed](tasks/cluster.yml#L4) | ansible.builtin.command | False |  |
 | [Warn if Helm is not available](tasks/cluster.yml#L10) | ansible.builtin.debug | True |  |
 | [Ensure NVIDIA Helm repo](tasks/cluster.yml#L15) | kubernetes.core.helm_repository | True |  |
@@ -245,16 +248,16 @@ Supports host setup, cluster setup, and headless X11 configurations.
 | [Set manual driver](tasks/host.yml#L98) | ansible.builtin.set_fact | True |  |
 | [Blacklist nouveau](tasks/host.yml#L105) | ansible.builtin.copy | True |  |
 | [Update initramfs](tasks/host.yml#L115) | ansible.builtin.command | True |  |
-| [Set utils package](tasks/host.yml#L120) | ansible.builtin.set_fact | True |  |
-| [Check broken packages](tasks/host.yml#L125) | ansible.builtin.shell | True |  |
-| [Fix broken packages](tasks/host.yml#L131) | ansible.builtin.shell | True |  |
-| [Install NVIDIA driver](tasks/host.yml#L143) | ansible.builtin.apt | True |  |
-| [Reboot system (nvidia)](tasks/host.yml#L153) | ansible.builtin.reboot | True |  |
-| [Ensure APT keyrings dir](tasks/host.yml#L161) | ansible.builtin.file | True |  |
-| [Write toolkit repo](tasks/host.yml#L168) | ansible.builtin.copy | True |  |
-| [Install toolkit](tasks/host.yml#L180) | ansible.builtin.apt | True |  |
-| [Register NVIDIA as an available runtime](tasks/host.yml#L188) | ansible.builtin.set_fact | True | host,nvidia |
-| [Import headless optimization](tasks/host.yml#L194) | ansible.builtin.import_tasks | True |  |
+| [Set utils package](tasks/host.yml#L122) | ansible.builtin.set_fact | True |  |
+| [Check broken packages](tasks/host.yml#L127) | ansible.builtin.shell | True |  |
+| [Fix broken packages](tasks/host.yml#L133) | ansible.builtin.shell | True |  |
+| [Install NVIDIA driver](tasks/host.yml#L146) | ansible.builtin.apt | True |  |
+| [Reboot system (nvidia)](tasks/host.yml#L156) | ansible.builtin.reboot | True |  |
+| [Ensure APT keyrings dir](tasks/host.yml#L165) | ansible.builtin.file | True |  |
+| [Write toolkit repo](tasks/host.yml#L174) | ansible.builtin.copy | True |  |
+| [Install toolkit](tasks/host.yml#L186) | ansible.builtin.apt | True |  |
+| [Register NVIDIA as an available runtime](tasks/host.yml#L194) | ansible.builtin.set_fact | True | host,nvidia |
+| [Import headless optimization](tasks/host.yml#L201) | ansible.builtin.import_tasks | True |  |
 
 
 ## Task Flow Graphs
@@ -275,7 +278,7 @@ classDef importRole stroke:#699ba7,stroke-width:2px;
 classDef includeVars stroke:#8e44ad,stroke-width:2px;
 classDef rescue stroke:#665352,stroke-width:2px;
 
-  Start-->|Block Start| NVIDIA_GPU_cluster_setup0_block_start_0[[nvidia gpu cluster setup]]:::block
+  Start-->|Block Start| NVIDIA_GPU_cluster_setup0_block_start_0[[nvidia gpu cluster setup<br>When: **not ansible check mode**]]:::block
   NVIDIA_GPU_cluster_setup0_block_start_0-->|Task| Check_if_Helm_is_installed0[check if helm is installed]:::task
   Check_if_Helm_is_installed0-->|Task| Warn_if_Helm_is_not_available1[warn if helm is not available<br>When: **helm binary check rc    0**]:::task
   Warn_if_Helm_is_not_available1-->|Task| Ensure_NVIDIA_Helm_repo2[ensure nvidia helm repo<br>When: **helm binary check rc    0**]:::task
@@ -286,7 +289,7 @@ classDef rescue stroke:#665352,stroke-width:2px;
   Wait_for_daemonset6-->|Task| Check_GPU_resources7[check gpu resources<br>When: **helm binary check rc    0**]:::task
   Check_GPU_resources7-->|Task| Debug_GPU_resources8[debug gpu resources<br>When: **helm binary check rc    0**]:::task
   Debug_GPU_resources8-.->|End of Block| NVIDIA_GPU_cluster_setup0_block_start_0
-  Debug_GPU_resources8-->|Rescue Start| NVIDIA_GPU_cluster_setup0_rescue_start_0[nvidia gpu cluster setup]:::rescue
+  Debug_GPU_resources8-->|Rescue Start| NVIDIA_GPU_cluster_setup0_rescue_start_0[nvidia gpu cluster setup<br>When: **not ansible check mode**]:::rescue
   NVIDIA_GPU_cluster_setup0_rescue_start_0-->|Task| Report_NVIDIA_GPU_cluster_setup_failure0[report nvidia gpu cluster setup failure]:::task
   Report_NVIDIA_GPU_cluster_setup_failure0-->|Task| Fail_NVIDIA_GPU_cluster_setup1[fail nvidia gpu cluster setup]:::task
   Fail_NVIDIA_GPU_cluster_setup1-.->|End of Rescue Block| NVIDIA_GPU_cluster_setup0_block_start_0
@@ -349,12 +352,12 @@ classDef rescue stroke:#665352,stroke-width:2px;
   Set_driver_version11-->|Task| Set_driver_fallback12[set driver fallback<br>When: **nvidia gpu driver package     auto  and  nvidia<br>gpu detected driver skipped is defined and nvidia<br>gpu detected driver skipped  or  nvidia gpu<br>detected driver stdout   length    0  and nvidia<br>gpu active   default false    bool**]:::task
   Set_driver_fallback12-->|Task| Set_manual_driver13[set manual driver<br>When: **nvidia gpu active   default false    bool and<br>nvidia gpu driver package     auto**]:::task
   Set_manual_driver13-->|Task| Blacklist_nouveau14[blacklist nouveau<br>When: **nvidia gpu active   default false    bool**]:::task
-  Blacklist_nouveau14-->|Task| Update_initramfs15[update initramfs<br>When: **nvidia gpu blacklist nouveau changed**]:::task
+  Blacklist_nouveau14-->|Task| Update_initramfs15[update initramfs<br>When: **nvidia gpu blacklist nouveau changed and not<br>ansible check mode**]:::task
   Update_initramfs15-->|Task| Set_utils_package16[set utils package<br>When: **nvidia gpu active   default false    bool**]:::task
   Set_utils_package16-->|Task| Check_broken_packages17[check broken packages<br>When: **nvidia gpu active   default false    bool**]:::task
-  Check_broken_packages17-->|Task| Fix_broken_packages18[fix broken packages<br>When: **nvidia gpu active   default false    bool and<br>nvidia gpu broken check stdout   int   0**]:::task
+  Check_broken_packages17-->|Task| Fix_broken_packages18[fix broken packages<br>When: **nvidia gpu active   default false    bool and<br>nvidia gpu broken check stdout   int   0 and not<br>ansible check mode**]:::task
   Fix_broken_packages18-->|Task| Install_NVIDIA_driver19[install nvidia driver<br>When: **nvidia gpu active   default false    bool**]:::task
-  Install_NVIDIA_driver19-->|Task| Reboot_system__nvidia_20[reboot system  nvidia <br>When: **nvidia gpu active   default false    bool and<br>nvidia gpu driver install changed or nvidia gpu<br>blacklist nouveau changed**]:::task
+  Install_NVIDIA_driver19-->|Task| Reboot_system__nvidia_20[reboot system  nvidia <br>When: **nvidia gpu active   default false    bool and<br>nvidia gpu driver install changed or nvidia gpu<br>blacklist nouveau changed and not ansible check<br>mode**]:::task
   Reboot_system__nvidia_20-->|Task| Ensure_APT_keyrings_dir21[ensure apt keyrings dir<br>When: **nvidia gpu active   default false    bool**]:::task
   Ensure_APT_keyrings_dir21-->|Task| Write_toolkit_repo22[write toolkit repo<br>When: **nvidia gpu active   default false    bool**]:::task
   Write_toolkit_repo22-->|Task| Install_toolkit23[install toolkit<br>When: **nvidia gpu active   default false    bool**]:::task
@@ -370,20 +373,20 @@ classDef rescue stroke:#665352,stroke-width:2px;
 ## Author Information
 Roura
 
-#### License
+### License
 
 MIT
 
-#### Minimum Ansible Version
+### Minimum Ansible Version
 
 2.20.0
 
-#### Platforms
+### Platforms
 
 - **Ubuntu**: ['noble']
 
 
-#### Dependencies
+### Dependencies
 
 No dependencies specified.
 <!-- DOCSIBLE END -->

@@ -1,5 +1,5 @@
 # Title: K3s Version
-# Description: K3s version to install (e.g., v1.34.3+k3s1).
+# Description: K3s version to install (e.g., v1.35.0+k3s1).
 # Type: str
 # Required: false
 k3s_server_version: "v1.35.0+k3s1"
@@ -65,4 +65,4 @@ k3s_cni_conf_dir: "/etc/cni/net.d"
 # Description: Enable containerd performance and resource optimizations.
 # Type: bool
 # Required: false
-containerd_optimized: true
+k3s_common_containerd_optimized: true

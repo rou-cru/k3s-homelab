@@ -7,66 +7,14 @@
       - tailscale_ip is match('^100\.')
     fail_msg: "ERROR: Invalid tailscale_ip ({{ tailscale_ip | default('undefined') }}). Must be 100.x.x.x"
   when: tailscale_ip is defined
-# Check if K3s uninstall script exists for cleanup operations
-- name: Check uninstall script
-  ansible.builtin.stat:
-    path: /usr/local/bin/k3s-uninstall.sh
-  register: k3s_uninstall_script
-# Uninstall existing K3s cluster if recreation is requested
-- name: Recreate cluster
-  ansible.builtin.command: /usr/local/bin/k3s-uninstall.sh
-  when:
-    - k3s_server_recreate | bool
-    - k3s_uninstall_script.stat.exists
-    - not ansible_check_mode
-  register: k3s_uninstall
-  changed_when: k3s_uninstall.rc == 0
-# Remove K3s data directories for clean installation
-- name: Cleanup directories
-  ansible.builtin.file:
-    path: "{{ item }}"
-    state: absent
-  loop:
-    - /var/lib/rancher/k3s
-    - /etc/rancher/k3s
-    - /var/lib/kubelet
-    - /var/lib/cni
-    - /etc/cni/net.d
-  when:
-    - k3s_server_recreate | bool
-    - k3s_uninstall_script.stat.exists
-# Create K3s configuration directory
-- name: Create config dir
-  ansible.builtin.file:
-    path: /etc/rancher/k3s
-    state: directory
-    mode: "0755"
 
-- name: Ensure CNI config directory exists
-  ansible.builtin.file:
-    path: "{{ k3s_cni_conf_dir }}"
-    state: directory
-    mode: "0755"
+# Import common K3s setup tasks (directories, containerd, uninstall logic)
+- name: Run K3s Common
+  ansible.builtin.import_role:
+    name: k3s_common
+  vars:
+    k3s_recreate: "{{ k3s_server_recreate }}"
 
-- name: Ensure CNI bin directory exists
-  ansible.builtin.file:
-    path: "{{ k3s_cni_bin_dir }}"
-    state: directory
-    mode: "0755"
-
-- name: Ensure K3s agent etc directory exists
-  ansible.builtin.file:
-    path: /var/lib/rancher/k3s/agent/etc/containerd
-    state: directory
-    mode: "0755"
-    recurse: true
-
-- name: Deploy containerd configuration template
-  ansible.builtin.template:
-    src: containerd-config.toml.tmpl.j2
-    dest: /var/lib/rancher/k3s/agent/etc/containerd/config.toml.tmpl
-    mode: "0644"
-  notify: Restart k3s
 # Create secure log directory for K3s components
 - name: Ensure K3s log directory exists
   ansible.builtin.file:
@@ -115,7 +63,7 @@
   ansible.builtin.file:
     path: /etc/systemd/system/k3s.service.d
     state: directory
-    mode: "0755"
+    mode: "0750"
 # Override K3s service configuration for clean startup
 - name: Create override
   ansible.builtin.copy:
@@ -124,7 +72,7 @@
       [Service]
       ExecStart=
       ExecStart=/usr/local/bin/k3s server
-    mode: "0644"
+    mode: "0640"
   notify: Restart k3s
 # Remove legacy environment file to prevent conflicts
 - name: Remove env file

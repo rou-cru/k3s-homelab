@@ -8,13 +8,11 @@ version = 2
   max_concurrent_downloads = 3
   enable_unprivileged_ports = true
   enable_unprivileged_icmp = true
-  sandbox_image = "registry.k8s.io/pause:3.10.1"
+  sandbox_image = "{{ k3s_common_containerd_sandbox_image | default('registry.k8s.io/pause:3.10.1') }}"
 {% endif %}
 
 [plugins."io.containerd.grpc.v1.cri".containerd]
-{% set _default_runtime = k3s_common_containerd_default_runtime | default(
-  ( 'nvidia' in (k3s_common_containerd_additional_runtimes | default([])) ) | ternary('nvidia', 'runc')
-) %}
+{% set _default_runtime = k3s_common_containerd_default_runtime | default('runc') %}
   default_runtime_name = "{{ _default_runtime }}"
   snapshotter = "overlayfs"
 {% if k3s_common_containerd_optimized | default(true) %}

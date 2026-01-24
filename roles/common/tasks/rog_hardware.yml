@@ -10,7 +10,7 @@
   ansible.builtin.copy:
     src: rog-server-tweaks.service
     dest: /etc/systemd/system/rog-server-tweaks.service
-    mode: "0644"
+    mode: "0640"
 - name: Enable and start RoG Tweaks service
   ansible.builtin.systemd:
     name: rog-server-tweaks

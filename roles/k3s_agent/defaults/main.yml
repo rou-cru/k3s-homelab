@@ -11,9 +11,9 @@ k3s_agent_version: "v1.35.0+k3s1"
 k3s_agent_server_url: ""
 
 # Title: Server Token
-# Description: K3s server token for node authentication (K10 format with CA hash).
+# Description: K3s server token for node authentication (set dynamically from server; K10 format with CA hash).
 # Type: str
-# Required: true
+# Required: false
 k3s_agent_token: ""
 
 # Title: Node Labels
@@ -60,6 +60,7 @@ k3s_cni_conf_dir: "/etc/cni/net.d"
 
 # Title: Kubelet Arguments
 # Description: Additional arguments to pass to kubelet (list of strings).
+# Example: ["--max-pods=110", "--eviction-hard=memory.available<500Mi"].
 # Type: list
 # Required: false
 k3s_agent_kubelet_args: []
@@ -68,10 +69,10 @@ k3s_agent_kubelet_args: []
 # Description: Enable containerd performance and resource optimizations.
 # Type: bool
 # Required: false
-containerd_optimized: true
+k3s_common_containerd_optimized: true
 
 # Title: Containerd Default Runtime
 # Description: Default runtime name for containerd (use RuntimeClass to opt-in to others).
 # Type: str
 # Required: false
-containerd_default_runtime: "runc"
+k3s_common_containerd_default_runtime: "runc"

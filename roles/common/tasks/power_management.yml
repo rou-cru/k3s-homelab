@@ -10,6 +10,7 @@
     - {key: "HandleLidSwitchExternalPower", value: "ignore"}
     - {key: "HandleLidSwitchDocked", value: "ignore"}
   notify: Restart logind
+  when: ansible_facts['virtualization_role'] != 'guest'
 - name: Mask sleep and suspend targets to prevent accidental suspension
   ansible.builtin.systemd:
     name: "{{ item }}"
@@ -21,6 +22,7 @@
     - suspend.target
     - hibernate.target
     - hybrid-sleep.target
+  when: ansible_facts['virtualization_role'] != 'guest'
 - name: Configure Power Efficiency Tuning (tmpfiles.d)
   ansible.builtin.template:
     src: energy-tuning.conf.j2

@@ -35,7 +35,29 @@ Description: Pre-flight checks to ensure minimum system requirements are met.
 
 
 
+### Defaults
 
+**These are static variables with lower priority**
+
+#### File: defaults/main.yml
+
+| Var          | Type         | Value       |Required    | Title       |
+|--------------|--------------|-------------|------------|-------------|
+| [preflight_min_ram_mb](defaults/main.yml#L8)   | int | `2048` |    false  |  Minimum RAM |
+| [preflight_min_disk_gb](defaults/main.yml#L14)   | int | `20` |    false  |  Minimum Disk Space |
+
+
+
+<details>
+<summary><b>🖇️ Full descriptions for vars in defaults/main.yml</b></summary>
+<br>
+<table>
+<th>Var</th><th>Description</th>
+<tr><td><b>preflight_min_ram_mb</b></td><td>Minimum RAM required in MB.</td></tr>
+<tr><td><b>preflight_min_disk_gb</b></td><td>Minimum Disk space on / required in GB.</td></tr>
+</table>
+<br>
+</details>
 
 
 
@@ -46,14 +68,14 @@ Description: Pre-flight checks to ensure minimum system requirements are met.
 
 #### File: tasks/main.yml
 
-| Name | Module | Has Conditions |
-| ---- | ------ | -------------- |
-| [Check connectivity](tasks/main.yml#L1) | ansible.builtin.uri | False |
-| [Fail on disconnect](tasks/main.yml#L10) | ansible.builtin.fail | True |
-| [Check disk space](tasks/main.yml#L14) | ansible.builtin.shell | False |
-| [Assert disk space](tasks/main.yml#L20) | ansible.builtin.assert | False |
-| [Assert memory](tasks/main.yml#L32) | ansible.builtin.assert | False |
-| [Assert architecture](tasks/main.yml#L37) | ansible.builtin.assert | False |
+| Name | Module | Has Conditions | Comments |
+| ---- | ------ | -------------- | -------- |
+| [Check connectivity](tasks/main.yml#L2) | ansible.builtin.uri | False | Verify network connectivity to K3s download endpoint |
+| [Fail on disconnect](tasks/main.yml#L12) | ansible.builtin.fail | True | Abort if network is unreachable |
+| [Check disk space](tasks/main.yml#L17) | ansible.builtin.shell | False | Check available disk space on root filesystem |
+| [Assert disk space](tasks/main.yml#L24) | ansible.builtin.assert | False | Validate disk space meets minimum requirements |
+| [Assert memory](tasks/main.yml#L35) | ansible.builtin.assert | False | Validate system memory meets minimum requirements |
+| [Assert architecture](tasks/main.yml#L43) | ansible.builtin.assert | False | Validate system architecture is supported |
 
 
 ## Task Flow Graphs
@@ -90,20 +112,20 @@ classDef rescue stroke:#665352,stroke-width:2px;
 ## Author Information
 Roura
 
-#### License
+### License
 
 MIT
 
-#### Minimum Ansible Version
+### Minimum Ansible Version
 
 2.20.0
 
-#### Platforms
+### Platforms
 
 - **Ubuntu**: ['noble']
 
 
-#### Dependencies
+### Dependencies
 
 No dependencies specified.
 <!-- DOCSIBLE END -->

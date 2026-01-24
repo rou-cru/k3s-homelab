@@ -1,0 +1,81 @@
+# Check uninstall scripts (handle both server and agent cases)
+- name: Check K3s uninstall script
+  ansible.builtin.stat:
+    path: /usr/local/bin/k3s-uninstall.sh
+  register: k3s_server_uninstall_script
+
+- name: Check K3s agent uninstall script
+  ansible.builtin.stat:
+    path: /usr/local/bin/k3s-agent-uninstall.sh
+  register: k3s_agent_uninstall_script
+
+# Uninstall if recreate is requested
+- name: Uninstall K3s (Server)
+  ansible.builtin.command: /usr/local/bin/k3s-uninstall.sh
+  when:
+    - k3s_recreate | bool
+    - k3s_server_uninstall_script.stat.exists
+    - not ansible_check_mode
+  changed_when: true
+
+- name: Uninstall K3s (Agent)
+  ansible.builtin.command: /usr/local/bin/k3s-agent-uninstall.sh
+  when:
+    - k3s_recreate | bool
+    - k3s_agent_uninstall_script.stat.exists
+    - not ansible_check_mode
+  changed_when: true
+
+# Cleanup directories
+- name: Cleanup K3s directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /var/lib/rancher/k3s
+    - /etc/rancher/k3s
+    - /var/lib/kubelet
+    - /var/lib/cni
+    - /etc/cni/net.d
+  when:
+    - k3s_recreate | bool
+# Create base directories
+- name: Ensure K3s config directory exists
+  ansible.builtin.file:
+    path: /etc/rancher/k3s
+    state: directory
+    mode: "0750"
+
+- name: Ensure CNI config directory exists
+  ansible.builtin.file:
+    path: "{{ k3s_cni_conf_dir }}"
+    state: directory
+    mode: "0750"
+
+- name: Ensure CNI bin directory exists
+  ansible.builtin.file:
+    path: "{{ k3s_cni_bin_dir }}"
+    state: directory
+    mode: "0750"
+
+- name: Ensure K3s agent etc directory exists (for containerd)
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/agent/etc/containerd
+    state: directory
+    mode: "0750"
+    recurse: true
+
+# Deploy Containerd Config
+- name: Deploy containerd configuration template
+  ansible.builtin.template:
+    src: containerd-config.toml.tmpl.j2
+    dest: /var/lib/rancher/k3s/agent/etc/containerd/config.toml.tmpl
+    mode: "0640"
+  # Note: Handlers are tricky with shared roles.
+  # We should define a specific handler in the parent role or use a generic one if possible.
+  # For now, we rely on the parent role to have a "Restart k3s" or "Restart k3s-agent" handler
+  # but since we don't know which one to notify, we might need a variable or condition.
+  # A safer approach is to register a change and let the parent handle it, or use a listen topic.
+
+# Common Systemd Override Directory (Structure only, not content)
+# Service names differ (k3s vs k3s-agent), so we leave the override creation to the specific roles.

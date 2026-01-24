@@ -2,22 +2,62 @@
 # Description: Enables sysctl adjustments for network performance.
 # Type: bool
 # Required: false
-common_network_optimization_enabled: true
+common_network_optimization_enabled: false
+# Title: Install NetworkManager
+# Description: Installs network-manager package.
+# Type: bool
+# Required: false
+common_install_network_manager: true
+# Title: Install ACPI daemon
+# Description: Installs acpid package.
+# Type: bool
+# Required: false
+common_install_acpid: true
+# Title: Install Cloud-Native Binaries
+# Description: Installs uv/kubectl/helm and related tooling.
+# Type: bool
+# Required: false
+common_install_cloud_binaries: true
+# Title: Install K8s Python Dependencies
+# Description: Installs python3-kubernetes and related Python modules.
+# Type: bool
+# Required: false
+common_install_k8s_python: true
+# Title: Install Debug Packages
+# Description: Installs lightweight OS debugging/incident response tools.
+# Type: bool
+# Required: false
+common_install_debug_packages: true
+# Title: Install Dev Packages
+# Description: Installs heavier developer/workstation packages.
+# Type: bool
+# Required: false
+common_install_dev_packages: true
+# Title: Install GitHub CLI Repository
+# Description: Adds the GitHub CLI apt repository and keyring.
+# Type: bool
+# Required: false
+common_install_github_cli_repo: true
+# Title: Install HWE kernel
+# Description: Installs the hardware enablement kernel package when available.
+# Type: bool
+# Required: false
+common_install_hwe_kernel: true
 # Title: RoG Server Support
 # Description: Enables ASUS RoG specific hardware tweaks (drivers, LEDs, power profiles).
 # Type: bool
 # Required: false
-common_rog_server: true
+common_rog_server: false
 # Title: Radio Block
 # Description: Soft-blocks WiFi and Bluetooth radios to save power.
 # Type: bool
 # Required: false
-common_radio_block_enabled: true
+common_radio_block_enabled: false
 # Title: Audio Optimization
 # Description: Installs alsa-utils and configures realtime limits for audio.
 # Type: bool
 # Required: false
-common_audio_optimization_enabled: true
+common_audio_optimization_enabled: false
 # Title: File Descriptors (Soft)
 # Description: Soft limit for open file descriptors (ulimit -n).
 # Type: int
@@ -92,7 +132,7 @@ common_ring_buffer_target: 4096
 # Description: Enables optimizations for crypto mining (hugepages, MSR).
 # Type: bool
 # Required: false
-common_mining_enabled: true
+common_mining_enabled: false
 # Title: Hugepages Count
 # Description: Number of hugepages to allocate if mining is enabled.
 # Type: int
@@ -135,3 +175,40 @@ common_uv_install_script_checksum: "10fb1f54d56f3eb60622006797339d4ea0bfda9b358d
 # Type: str
 # Required: false
 common_helm_install_script_checksum: "38b65f882d9cae3891755bdb03becc6a01ae6f9cb24826c191f219ddfee70a5d"
+
+# Title: Debug Packages
+# Description: Default debug tool packages for incident response.
+# Type: list
+# Required: false
+common_debug_packages:
+  - dnsutils
+  - htop
+  - iotop
+  - jq
+  - lsof
+  - net-tools
+  - ripgrep
+  - sysstat
+  - tcpdump
+  - tmux
+  - traceroute
+
+# Title: Dev Packages
+# Description: Default developer/workstation packages.
+# Note: 'gh' requires common_install_github_cli_repo: true
+# Type: list
+# Required: false
+common_dev_packages:
+  - gh
+  - imagemagick
+  - s-tui
+  - fbi
+  - nvtop
+  - tree
+  - make
+  - cmake
+  - ninja-build
+  - git
+  - timeshift
+  - xvfb
+  - sqlite3
