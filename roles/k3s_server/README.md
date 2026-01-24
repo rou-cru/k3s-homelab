@@ -29,9 +29,9 @@ and local context merging.
   - **k3s_server_version**
     - **Required**: False
     - **Type**: str
-    - **Default**: v1.34.3+k3s1
+    - **Default**: v1.35.0+k3s1
   
-    - **Description**: K3s version to install (e.g., v1.34.3+k3s1).
+    - **Description**: K3s version to install (e.g., v1.35.0+k3s1).
   
   
   
@@ -59,7 +59,7 @@ and local context merging.
   - **k3s_server_kubeconfig_mode**
     - **Required**: False
     - **Type**: str
-    - **Default**: 0644
+    - **Default**: 0600
   
     - **Description**: File permission mode for the generated kubeconfig on the server.
   
@@ -153,13 +153,16 @@ and local context merging.
 | [k3s_server_local_kubeconfig_path](defaults/main.yml#L50)   | str | `{{ lookup('env', 'HOME') }}/.kube/config` |    false  |  Local Kubeconfig Path |
 | [k3s_cni_bin_dir](defaults/main.yml#L56)   | str | `/opt/cni/bin` |    false  |  CNI Bin Directory |
 | [k3s_cni_conf_dir](defaults/main.yml#L62)   | str | `/etc/cni/net.d` |    false  |  CNI Config Directory |
-| [containerd_optimized](defaults/main.yml#L68)   | bool | `True` |    false  |  Containerd Optimizations |
+| [k3s_common_containerd_optimized](defaults/main.yml#L68)   | bool | `True` |    false  |  Containerd Optimizations |
+
+
+
 <details>
 <summary><b>🖇️ Full descriptions for vars in defaults/main.yml</b></summary>
 <br>
 <table>
 <th>Var</th><th>Description</th>
-<tr><td><b>k3s_server_version</b></td><td>K3s version to install (e.g., v1.34.3+k3s1).</td></tr>
+<tr><td><b>k3s_server_version</b></td><td>K3s version to install (e.g., v1.35.0+k3s1).</td></tr>
 <tr><td><b>k3s_server_disable_traefik</b></td><td>Disables the default Traefik ingress controller.</td></tr>
 <tr><td><b>k3s_server_disable_servicelb</b></td><td>Disables the default ServiceLB load balancer.</td></tr>
 <tr><td><b>k3s_server_kubeconfig_mode</b></td><td>File permission mode for the generated kubeconfig on the server.</td></tr>
@@ -171,7 +174,7 @@ and local context merging.
 <tr><td><b>k3s_server_local_kubeconfig_path</b></td><td>Local path where the kubeconfig should be saved.</td></tr>
 <tr><td><b>k3s_cni_bin_dir</b></td><td>Directory for CNI binaries.</td></tr>
 <tr><td><b>k3s_cni_conf_dir</b></td><td>Directory for CNI configuration.</td></tr>
-<tr><td><b>containerd_optimized</b></td><td>Enable containerd performance and resource optimizations.</td></tr>
+<tr><td><b>k3s_common_containerd_optimized</b></td><td>Enable containerd performance and resource optimizations.</td></tr>
 </table>
 <br>
 </details>
@@ -276,20 +279,20 @@ classDef rescue stroke:#665352,stroke-width:2px;
 ## Author Information
 Roura
 
-#### License
+### License
 
 MIT
 
-#### Minimum Ansible Version
+### Minimum Ansible Version
 
 2.20.0
 
-#### Platforms
+### Platforms
 
 - **Ubuntu**: ['noble']
 
 
-#### Dependencies
+### Dependencies
 
 No dependencies specified.
 <!-- DOCSIBLE END -->

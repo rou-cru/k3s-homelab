@@ -166,6 +166,8 @@
   ansible.builtin.file:
     path: /etc/apt/keyrings
     state: directory
+    owner: root
+    group: _apt
     mode: "0750"
   when: nvidia_gpu_active | default(false) | bool
 
@@ -191,7 +193,8 @@
 
 - name: Register NVIDIA as an available runtime
   ansible.builtin.set_fact:
-    containerd_additional_runtimes: "{{ (containerd_additional_runtimes | default([])) | union(['nvidia']) }}"
+    k3s_common_containerd_additional_runtimes: >-
+      {{ (k3s_common_containerd_additional_runtimes | default([])) | union(['nvidia']) }}
   when: nvidia_gpu_active | default(false) | bool
   tags: ["host", "nvidia"]
 

@@ -32,6 +32,9 @@ Description: Install cert-manager on K3s and bootstrap a self-signed CA with Clu
 | [cert_manager_ca_secret_name](defaults/main.yml#L25)   | str | `homelab-ca-secret` |    false  |  CA Secret Name |
 | [cert_manager_ca_issuer_name](defaults/main.yml#L30)   | str | `homelab-ca-issuer` |    false  |  CA Issuer Name |
 | [cert_manager_prometheus_enabled](defaults/main.yml#L35)   | bool | `False` |    false  |  Prometheus Monitoring |
+
+
+
 <details>
 <summary><b>🖇️ Full descriptions for vars in defaults/main.yml</b></summary>
 <br>
@@ -105,20 +108,20 @@ classDef rescue stroke:#665352,stroke-width:2px;
 ## Author Information
 rc
 
-#### License
+### License
 
 MIT
 
-#### Minimum Ansible Version
+### Minimum Ansible Version
 
 2.14
 
-#### Platforms
+### Platforms
 
 - **Ubuntu**: ['jammy', 'noble']
 
 
-#### Dependencies
+### Dependencies
 
 No dependencies specified.
 <!-- DOCSIBLE END -->

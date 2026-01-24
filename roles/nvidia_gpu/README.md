@@ -170,6 +170,9 @@ Supports host setup, cluster setup, and headless X11 configurations.
 | [nvidia_gpu_headless_x11_enabled](defaults/main.yml#L45)   | bool | `True` |    false  |  Headless X11 |
 | [nvidia_gpu_pci_bus_id](defaults/main.yml#L50)   | str | `1:0:0` |    false  |  PCI Bus ID |
 | [nvidia_gpu_coolbits](defaults/main.yml#L55)   | str | `28` |    false  |  Coolbits |
+
+
+
 <details>
 <summary><b>🖇️ Full descriptions for vars in defaults/main.yml</b></summary>
 <br>
@@ -251,10 +254,10 @@ Supports host setup, cluster setup, and headless X11 configurations.
 | [Install NVIDIA driver](tasks/host.yml#L146) | ansible.builtin.apt | True |  |
 | [Reboot system (nvidia)](tasks/host.yml#L156) | ansible.builtin.reboot | True |  |
 | [Ensure APT keyrings dir](tasks/host.yml#L165) | ansible.builtin.file | True |  |
-| [Write toolkit repo](tasks/host.yml#L172) | ansible.builtin.copy | True |  |
-| [Install toolkit](tasks/host.yml#L184) | ansible.builtin.apt | True |  |
-| [Register NVIDIA as an available runtime](tasks/host.yml#L192) | ansible.builtin.set_fact | True | host,nvidia |
-| [Import headless optimization](tasks/host.yml#L198) | ansible.builtin.import_tasks | True |  |
+| [Write toolkit repo](tasks/host.yml#L174) | ansible.builtin.copy | True |  |
+| [Install toolkit](tasks/host.yml#L186) | ansible.builtin.apt | True |  |
+| [Register NVIDIA as an available runtime](tasks/host.yml#L194) | ansible.builtin.set_fact | True | host,nvidia |
+| [Import headless optimization](tasks/host.yml#L201) | ansible.builtin.import_tasks | True |  |
 
 
 ## Task Flow Graphs
@@ -370,20 +373,20 @@ classDef rescue stroke:#665352,stroke-width:2px;
 ## Author Information
 Roura
 
-#### License
+### License
 
 MIT
 
-#### Minimum Ansible Version
+### Minimum Ansible Version
 
 2.20.0
 
-#### Platforms
+### Platforms
 
 - **Ubuntu**: ['noble']
 
 
-#### Dependencies
+### Dependencies
 
 No dependencies specified.
 <!-- DOCSIBLE END -->

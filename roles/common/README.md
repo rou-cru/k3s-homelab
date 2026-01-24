@@ -301,20 +301,23 @@ RoG hardware tweaks, and network optimizations.
 | [common_debug_packages.**8**](defaults/main.yml#L192)   | str | `tcpdump` |    None  |  None |
 | [common_debug_packages.**9**](defaults/main.yml#L193)   | str | `tmux` |    None  |  None |
 | [common_debug_packages.**10**](defaults/main.yml#L194)   | str | `traceroute` |    None  |  None |
-| [common_dev_packages](defaults/main.yml#L200)   | list | `[]` |    false  |  Dev Packages |
-| [common_dev_packages.**0**](defaults/main.yml#L201)   | str | `gh` |    None  |  None |
-| [common_dev_packages.**1**](defaults/main.yml#L202)   | str | `imagemagick` |    None  |  None |
-| [common_dev_packages.**2**](defaults/main.yml#L203)   | str | `s-tui` |    None  |  None |
-| [common_dev_packages.**3**](defaults/main.yml#L204)   | str | `fbi` |    None  |  None |
-| [common_dev_packages.**4**](defaults/main.yml#L205)   | str | `nvtop` |    None  |  None |
-| [common_dev_packages.**5**](defaults/main.yml#L206)   | str | `tree` |    None  |  None |
-| [common_dev_packages.**6**](defaults/main.yml#L207)   | str | `make` |    None  |  None |
-| [common_dev_packages.**7**](defaults/main.yml#L208)   | str | `cmake` |    None  |  None |
-| [common_dev_packages.**8**](defaults/main.yml#L209)   | str | `ninja-build` |    None  |  None |
-| [common_dev_packages.**9**](defaults/main.yml#L210)   | str | `git` |    None  |  None |
-| [common_dev_packages.**10**](defaults/main.yml#L211)   | str | `timeshift` |    None  |  None |
-| [common_dev_packages.**11**](defaults/main.yml#L212)   | str | `xvfb` |    None  |  None |
-| [common_dev_packages.**12**](defaults/main.yml#L213)   | str | `sqlite3` |    None  |  None |
+| [common_dev_packages](defaults/main.yml#L201)   | list | `[]` |    false  |  Dev Packages |
+| [common_dev_packages.**0**](defaults/main.yml#L202)   | str | `gh` |    None  |  None |
+| [common_dev_packages.**1**](defaults/main.yml#L203)   | str | `imagemagick` |    None  |  None |
+| [common_dev_packages.**2**](defaults/main.yml#L204)   | str | `s-tui` |    None  |  None |
+| [common_dev_packages.**3**](defaults/main.yml#L205)   | str | `fbi` |    None  |  None |
+| [common_dev_packages.**4**](defaults/main.yml#L206)   | str | `nvtop` |    None  |  None |
+| [common_dev_packages.**5**](defaults/main.yml#L207)   | str | `tree` |    None  |  None |
+| [common_dev_packages.**6**](defaults/main.yml#L208)   | str | `make` |    None  |  None |
+| [common_dev_packages.**7**](defaults/main.yml#L209)   | str | `cmake` |    None  |  None |
+| [common_dev_packages.**8**](defaults/main.yml#L210)   | str | `ninja-build` |    None  |  None |
+| [common_dev_packages.**9**](defaults/main.yml#L211)   | str | `git` |    None  |  None |
+| [common_dev_packages.**10**](defaults/main.yml#L212)   | str | `timeshift` |    None  |  None |
+| [common_dev_packages.**11**](defaults/main.yml#L213)   | str | `xvfb` |    None  |  None |
+| [common_dev_packages.**12**](defaults/main.yml#L214)   | str | `sqlite3` |    None  |  None |
+
+
+
 <details>
 <summary><b>🖇️ Full descriptions for vars in defaults/main.yml</b></summary>
 <br>
@@ -434,7 +437,7 @@ RoG hardware tweaks, and network optimizations.
 | [Install dependencies](tasks/main.yml#L45) | ansible.builtin.include_tasks | False | Install additional system dependencies |
 | [Install HWE kernel](tasks/main.yml#L48) | ansible.builtin.apt | True | Install Hardware Enablement kernel for newer hardware support |
 | [Install generic kernel](tasks/main.yml#L58) | ansible.builtin.apt | True | Fallback to generic kernel if HWE installation fails or unavailable |
-| [Register kernel change](tasks/main.yml#L65) | ansible.builtin.set_fact | False | Track if kernel was changed to trigger reboot later |
+| [Register kernel change](tasks/main.yml#L68) | ansible.builtin.set_fact | False | Track if kernel was changed to trigger reboot later |
 | [Configure power](tasks/main.yml#L75) | ansible.builtin.include_tasks | False | Configure power management settings |
 | [Apply hardware tuning](tasks/main.yml#L78) | ansible.builtin.include_tasks | False | Apply hardware-specific optimizations |
 | [System Tuning](tasks/main.yml#L81) | ansible.builtin.include_tasks | False | Apply system-level performance tuning |
@@ -556,13 +559,13 @@ classDef importRole stroke:#699ba7,stroke-width:2px;
 classDef includeVars stroke:#8e44ad,stroke-width:2px;
 classDef rescue stroke:#665352,stroke-width:2px;
 
-  Start-->|Task| Download_GitHub_CLI_keyring0[download GitHub cli keyring<br>When: **common install github cli repo   bool**]:::task
-  Download_GitHub_CLI_keyring0-->|Task| Verify_GitHub_CLI_keyring_fingerprint1[verify GitHub cli keyring fingerprint<br>When: **common install github cli repo   bool and not<br>ansible check mode**]:::task
-  Verify_GitHub_CLI_keyring_fingerprint1-->|Task| Assert_GitHub_CLI_keyring_fingerprint2[assert GitHub cli keyring fingerprint<br>When: **common install github cli repo   bool and not<br>ansible check mode and githubcli keyring<br>fingerprint is defined**]:::task
-  Assert_GitHub_CLI_keyring_fingerprint2-->|Task| Add_GitHub_CLI_repository3[add github cli repository<br>When: **common install github cli repo   bool**]:::task
+  Start-->|Task| Download_GitHub_CLI_keyring0[download GitHub CLI keyring<br>When: **common install github cli repo   bool**]:::task
+  Download_GitHub_CLI_keyring0-->|Task| Verify_GitHub_CLI_keyring_fingerprint1[verify GitHub CLI keyring fingerprint<br>When: **common install github cli repo   bool and not<br>ansible check mode**]:::task
+  Verify_GitHub_CLI_keyring_fingerprint1-->|Task| Assert_GitHub_CLI_keyring_fingerprint2[assert GitHub CLI keyring fingerprint<br>When: **common install github cli repo   bool and not<br>ansible check mode and githubcli keyring<br>fingerprint is defined**]:::task
+  Assert_GitHub_CLI_keyring_fingerprint2-->|Task| Add_GitHub_CLI_repository3[add GitHub CLI repository<br>When: **common install github cli repo   bool**]:::task
   Add_GitHub_CLI_repository3-->|Task| Install_Python_dependencies_for_K8s_Ansible_modules4[install python dependencies for k8s ansible<br>modules<br>When: **common install k8s python   bool**]:::task
-  Install_Python_dependencies_for_K8s_Ansible_modules4-->|Task| Install_debug_packages5[install debug packages<br>When: **common install debug packages   bool and common<br>debug packages   length   0**]:::task
-  Install_debug_packages5-->|Task| Install_dev_packages6[install dev packages<br>When: **common install dev packages   bool and common dev<br>packages   length   0**]:::task
+  Install_Python_dependencies_for_K8s_Ansible_modules4-->|Task| Install_debug_packages5[install debug packages<br>When: **common install debug packages   bool and common<br>debug packages   default       length   0**]:::task
+  Install_debug_packages5-->|Task| Install_dev_packages6[install dev packages<br>When: **common install dev packages   bool and common dev<br>packages   default       length   0**]:::task
   Install_dev_packages6-->End
 ```
 
@@ -634,7 +637,7 @@ classDef rescue stroke:#665352,stroke-width:2px;
   Install_NetworkManager5-->|Task| Install_ACPI_daemon6[install acpi daemon<br>When: **common install acpid   bool**]:::task
   Install_ACPI_daemon6-->|Include task| Install_dependencies_dependencies_yml_7[install dependencies<br>include_task: dependencies yml]:::includeTasks
   Install_dependencies_dependencies_yml_7-->|Task| Install_HWE_kernel8[install hwe kernel<br>When: **hwe kernel package is defined and common install<br>hwe kernel   bool**]:::task
-  Install_HWE_kernel8-->|Task| Install_generic_kernel9[install generic kernel<br>When: **common hwe kernel install is failed or hwe kernel<br>package is not defined**]:::task
+  Install_HWE_kernel8-->|Task| Install_generic_kernel9[install generic kernel<br>When: **common hwe kernel install is skipped  or  common<br>hwe kernel install is failed  or  hwe kernel<br>package is not defined**]:::task
   Install_generic_kernel9-->|Task| Register_kernel_change10[register kernel change]:::task
   Register_kernel_change10-->|Include task| Configure_power_power_management_yml_11[configure power<br>include_task: power management yml]:::includeTasks
   Configure_power_power_management_yml_11-->|Include task| Apply_hardware_tuning_hardware_tuning_yml_12[apply hardware tuning<br>include_task: hardware tuning yml]:::includeTasks
@@ -743,9 +746,9 @@ classDef rescue stroke:#665352,stroke-width:2px;
   Increase_file_max5-->|Task| Increase_inotify_watches6[increase inotify watches]:::task
   Increase_inotify_watches6-->|Task| Increase_user_watches7[increase user watches]:::task
   Increase_user_watches7-->|Task| Enable_watchdog8[enable watchdog]:::task
-  Enable_watchdog8-->|Task| Configure_hugepages9[configure hugepages<br>When: **common mining enabled   default true**]:::task
-  Configure_hugepages9-->|Task| Load_MSR_module10[load msr module<br>When: **common mining enabled   default true**]:::task
-  Load_MSR_module10-->|Task| Configure_Nvidia_modules_load11[configure nvidia modules load<br>When: **common mining enabled   default true**]:::task
+  Enable_watchdog8-->|Task| Configure_hugepages9[configure hugepages<br>When: **common mining enabled   default false**]:::task
+  Configure_hugepages9-->|Task| Load_MSR_module10[load msr module<br>When: **common mining enabled   default false**]:::task
+  Load_MSR_module10-->|Task| Configure_Nvidia_modules_load11[configure nvidia modules load<br>When: **common mining enabled   default false**]:::task
   Configure_Nvidia_modules_load11-->End
 ```
 
@@ -756,20 +759,20 @@ classDef rescue stroke:#665352,stroke-width:2px;
 ## Author Information
 Roura
 
-#### License
+### License
 
 MIT
 
-#### Minimum Ansible Version
+### Minimum Ansible Version
 
 2.20.0
 
-#### Platforms
+### Platforms
 
 - **Ubuntu**: ['noble']
 
 
-#### Dependencies
+### Dependencies
 
 No dependencies specified.
 <!-- DOCSIBLE END -->

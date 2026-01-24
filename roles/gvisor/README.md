@@ -25,12 +25,17 @@ Description: Install gVisor runsc and register a RuntimeClass for K3s server wor
 
 | Var          | Type         | Value       |Required    | Title       |
 |--------------|--------------|-------------|------------|-------------|
-| [gvisor_version](defaults/main.yml#L5)   | str | `20231204.0` |    false  |  gVisor Version |
+| [gvisor_install](defaults/main.yml#L5)   | bool | `True` |    false  |  gVisor Install |
+| [gvisor_version](defaults/main.yml#L11)   | str | `20231204.0` |    false  |  gVisor Version |
+
+
+
 <details>
 <summary><b>🖇️ Full descriptions for vars in defaults/main.yml</b></summary>
 <br>
 <table>
 <th>Var</th><th>Description</th>
+<tr><td><b>gvisor_install</b></td><td>Enable gVisor installation and RuntimeClass deployment.</td></tr>
 <tr><td><b>gvisor_version</b></td><td>Version of gVisor runtime to install.</td></tr>
 </table>
 <br>
@@ -82,8 +87,8 @@ classDef importRole stroke:#699ba7,stroke-width:2px;
 classDef includeVars stroke:#8e44ad,stroke-width:2px;
 classDef rescue stroke:#665352,stroke-width:2px;
 
-  Start-->|Task| Install_runsc_binary0[install runsc binary<br>When: **k3s server  in group names**]:::task
-  Install_runsc_binary0-->|Task| Add_gVisor_to_additional_runtimes_list1[add gvisor to additional runtimes list<br>When: **k3s server  in group names**]:::task
+  Start-->|Task| Install_runsc_binary0[install runsc binary<br>When: **k3s server  in group names and  gvisor install  <br>default true    bool**]:::task
+  Install_runsc_binary0-->|Task| Add_gVisor_to_additional_runtimes_list1[add gvisor to additional runtimes list<br>When: **k3s server  in group names and  gvisor install  <br>default true    bool**]:::task
   Add_gVisor_to_additional_runtimes_list1-->End
 ```
 
@@ -121,8 +126,8 @@ classDef importRole stroke:#699ba7,stroke-width:2px;
 classDef includeVars stroke:#8e44ad,stroke-width:2px;
 classDef rescue stroke:#665352,stroke-width:2px;
 
-  Start-->|Task| Ensure_K3s_manifests_directory_exists0[ensure k3s manifests directory exists<br>When: **k3s server  in group names**]:::task
-  Ensure_K3s_manifests_directory_exists0-->|Task| Deploy_gVisor_RuntimeClass_manifest1[deploy gvisor runtimeclass manifest<br>When: **k3s server  in group names**]:::task
+  Start-->|Task| Ensure_K3s_manifests_directory_exists0[ensure k3s manifests directory exists<br>When: **k3s server  in group names and  gvisor install  <br>default true    bool**]:::task
+  Ensure_K3s_manifests_directory_exists0-->|Task| Deploy_gVisor_RuntimeClass_manifest1[deploy gvisor runtimeclass manifest<br>When: **k3s server  in group names and  gvisor install  <br>default true    bool**]:::task
   Deploy_gVisor_RuntimeClass_manifest1-->End
 ```
 
@@ -133,20 +138,20 @@ classDef rescue stroke:#665352,stroke-width:2px;
 ## Author Information
 rc
 
-#### License
+### License
 
 MIT
 
-#### Minimum Ansible Version
+### Minimum Ansible Version
 
 2.14
 
-#### Platforms
+### Platforms
 
 - **Ubuntu**: ['jammy', 'noble']
 
 
-#### Dependencies
+### Dependencies
 
-No dependencies specified.
+- k3s_common (or k3s_server), to ensure K3s is present before RuntimeClass deploy
 <!-- DOCSIBLE END -->

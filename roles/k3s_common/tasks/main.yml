@@ -76,7 +76,6 @@
   # For now, we rely on the parent role to have a "Restart k3s" or "Restart k3s-agent" handler
   # but since we don't know which one to notify, we might need a variable or condition.
   # A safer approach is to register a change and let the parent handle it, or use a listen topic.
-  register: containerd_config_changed
 
 # Common Systemd Override Directory (Structure only, not content)
 # Service names differ (k3s vs k3s-agent), so we leave the override creation to the specific roles.

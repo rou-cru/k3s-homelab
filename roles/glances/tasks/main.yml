@@ -28,11 +28,13 @@
     path: "{{ glances_venv_path }}"
     state: directory
     mode: '0750'
+# Verify uv binary is available for venv creation.
 - name: Check uv availability
   ansible.builtin.stat:
     path: /usr/local/bin/uv
   register: glances_uv_binary
   changed_when: false
+# Fail fast when uv is missing outside check mode.
 - name: Fail when uv is missing
   ansible.builtin.fail:
     msg: "uv not found at /usr/local/bin/uv. Run the common role to install uv before glances."
@@ -61,7 +63,7 @@
   ansible.builtin.template:
     src: glances-web.service.j2
     dest: /etc/systemd/system/glances-web.service
-    mode: '0640'
+    mode: '0644'
   notify: Restart glances
 # Enable and start Glances web service
 - name: Ensure Glances service is enabled and running

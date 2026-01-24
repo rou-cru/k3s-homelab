@@ -53,7 +53,7 @@
       ansible.builtin.import_role:
         name: common
         tasks_from: network_optimization.yml
-      when: common_network_optimization_enabled | default(true)
+      when: common_network_optimization_enabled | default(false)
       tags: ["host", "os", "network"]
 
     # Phase 2: Network connectivity

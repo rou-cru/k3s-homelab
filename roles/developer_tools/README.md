@@ -62,6 +62,9 @@ Kubernetes CLIs (kubectl, helm, k9s), Python tools (uv, pipx), and AI CLIs.
 |--------------|--------------|-------------|------------|-------------|
 | [devtools_install_docker](defaults/main.yml#L5)   | bool | `False` |    false  |  Install Docker |
 | [devtools_install_vagrant](defaults/main.yml#L10)   | bool | `True` |    false  |  Install Vagrant and libvirt |
+
+
+
 <details>
 <summary><b>🖇️ Full descriptions for vars in defaults/main.yml</b></summary>
 <br>
@@ -179,20 +182,20 @@ classDef rescue stroke:#665352,stroke-width:2px;
 ## Author Information
 Roura
 
-#### License
+### License
 
 MIT
 
-#### Minimum Ansible Version
+### Minimum Ansible Version
 
 2.20.0
 
-#### Platforms
+### Platforms
 
 - **Ubuntu**: ['noble']
 
 
-#### Dependencies
+### Dependencies
 
 No dependencies specified.
 <!-- DOCSIBLE END -->

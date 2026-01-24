@@ -7,11 +7,12 @@
     owner: root
     group: root
     checksum: "sha512:https://storage.googleapis.com/gvisor/releases/release/{{ gvisor_version }}/x86_64/runsc.sha512"
-  when: "'k3s_server' in group_names"
+  when: "'k3s_server' in group_names and (gvisor_install | default(true) | bool)"
 
 # Register gVisor as an available runtime for the cluster
 - name: Add gVisor to additional runtimes list
   ansible.builtin.set_fact:
-    containerd_additional_runtimes: "{{ (containerd_additional_runtimes | default([])) | union(['runsc']) }}"
+    k3s_common_containerd_additional_runtimes: >-
+      {{ (k3s_common_containerd_additional_runtimes | default([])) | union(['runsc']) }}
   tags: always
-  when: "'k3s_server' in group_names"
+  when: "'k3s_server' in group_names and (gvisor_install | default(true) | bool)"

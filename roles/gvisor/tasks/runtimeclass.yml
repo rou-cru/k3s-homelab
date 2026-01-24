@@ -6,9 +6,7 @@
     mode: '0755'
     owner: root
     group: root
-  when:
-    - "'k3s_server' in group_names"
-    - gvisor_install | bool
+  when: "'k3s_server' in group_names and (gvisor_install | default(true) | bool)"
 
 - name: Deploy gVisor RuntimeClass manifest
   ansible.builtin.copy:
@@ -17,6 +15,4 @@
     mode: '0644'
     owner: root
     group: root
-  when:
-    - "'k3s_server' in group_names"
-    - gvisor_install | bool
+  when: "'k3s_server' in group_names and (gvisor_install | default(true) | bool)"

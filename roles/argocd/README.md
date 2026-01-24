@@ -31,6 +31,9 @@ Description: Deploy ArgoCD on K3s via Helm (expects External Secrets and an OCI 
 | [argocd_ha_enabled](defaults/main.yml#L20)   | bool | `False` |    false  |  High Availability |
 | [argocd_dex_enabled](defaults/main.yml#L25)   | bool | `False` |    false  |  Dex Integration |
 | [argocd_servicemonitor_enabled](defaults/main.yml#L30)   | bool | `True` |    false  |  ServiceMonitor |
+
+
+
 <details>
 <summary><b>🖇️ Full descriptions for vars in defaults/main.yml</b></summary>
 <br>
@@ -99,20 +102,20 @@ classDef rescue stroke:#665352,stroke-width:2px;
 ## Author Information
 rc
 
-#### License
+### License
 
 MIT
 
-#### Minimum Ansible Version
+### Minimum Ansible Version
 
 2.14
 
-#### Platforms
+### Platforms
 
 - **Ubuntu**: ['jammy', 'noble']
 
 
-#### Dependencies
+### Dependencies
 
 - **external_secrets**
   

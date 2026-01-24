@@ -85,14 +85,14 @@
     state: present
     reload: true
   # 2 MiB per page; default 1280 ~= 2.5 GiB
-  when: common_mining_enabled | default(true)
+  when: common_mining_enabled | default(false)
   tags: ["os"]
 - name: Load MSR module
   community.general.modprobe:
     name: msr
     state: present
     persistent: present
-  when: common_mining_enabled | default(true)
+  when: common_mining_enabled | default(false)
   tags: ["os"]
 - name: Configure Nvidia modules load
   ansible.builtin.copy:
@@ -102,5 +102,5 @@
       nvidia-uvm
       nvidia-modeset
     mode: "0644"
-  when: common_mining_enabled | default(true)
+  when: common_mining_enabled | default(false)
   tags: ["os", "nvidia"]

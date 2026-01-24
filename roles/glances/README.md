@@ -104,6 +104,9 @@ Description: Install and configure Glances system monitoring with web interface.
 | [glances_venv_path](defaults/main.yml#L20)   | str | `/opt/glances` |    false  |  Virtual Environment Path |
 | [glances_packages](defaults/main.yml#L26)   | list | `[]` |    false  |  Package List |
 | [glances_packages.**0**](defaults/main.yml#L32)   | str | `glances[all]` |    false  |  Glances Package |
+
+
+
 <details>
 <summary><b>🖇️ Full descriptions for vars in defaults/main.yml</b></summary>
 <br>
@@ -134,12 +137,12 @@ Description: Install and configure Glances system monitoring with web interface.
 | [Build Glances system package list](tasks/main.yml#L9) | ansible.builtin.set_fact | False | Build package list including hddtemp if available |
 | [Install system dependencies for Glances and sensors](tasks/main.yml#L19) | ansible.builtin.apt | False | Install system packages required for Glances and hardware monitoring |
 | [Create directory for Glances venv](tasks/main.yml#L26) | ansible.builtin.file | False | Create dedicated directory for Glances virtual environment |
-| [Check uv availability](tasks/main.yml#L31) | ansible.builtin.stat | False |  |
-| [Fail when uv is missing](tasks/main.yml#L36) | ansible.builtin.fail | True |  |
-| [Create Glances virtual environment (uv)](tasks/main.yml#L43) | ansible.builtin.command | True | Create Python virtual environment using uv for Glances installation |
-| [Install Glances in virtual environment](tasks/main.yml#L52) | ansible.builtin.pip | True | Install Glances with all extras in the virtual environment |
-| [Create Systemd service for Glances Web](tasks/main.yml#L60) | ansible.builtin.template | False | Deploy systemd service for Glances web interface |
-| [Ensure Glances service is enabled and running](tasks/main.yml#L67) | ansible.builtin.systemd | True | Enable and start Glances web service |
+| [Check uv availability](tasks/main.yml#L32) | ansible.builtin.stat | False | Verify uv binary is available for venv creation. |
+| [Fail when uv is missing](tasks/main.yml#L38) | ansible.builtin.fail | True | Fail fast when uv is missing outside check mode. |
+| [Create Glances virtual environment (uv)](tasks/main.yml#L45) | ansible.builtin.command | True | Create Python virtual environment using uv for Glances installation |
+| [Install Glances in virtual environment](tasks/main.yml#L54) | ansible.builtin.pip | True | Install Glances with all extras in the virtual environment |
+| [Create Systemd service for Glances Web](tasks/main.yml#L62) | ansible.builtin.template | False | Deploy systemd service for Glances web interface |
+| [Ensure Glances service is enabled and running](tasks/main.yml#L69) | ansible.builtin.systemd | True | Enable and start Glances web service |
 
 
 ## Task Flow Graphs
@@ -180,20 +183,20 @@ classDef rescue stroke:#665352,stroke-width:2px;
 ## Author Information
 Roura
 
-#### License
+### License
 
 MIT
 
-#### Minimum Ansible Version
+### Minimum Ansible Version
 
 2.20.0
 
-#### Platforms
+### Platforms
 
 - **Ubuntu**: ['noble']
 
 
-#### Dependencies
+### Dependencies
 
 No dependencies specified.
 <!-- DOCSIBLE END -->

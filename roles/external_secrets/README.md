@@ -26,6 +26,9 @@ Description: Install External Secrets Operator and configure an OCI Vault-backed
 | Var          | Type         | Value       |Required    | Title       |
 |--------------|--------------|-------------|------------|-------------|
 | [oci_config_file](defaults/main.yml#L5)   | str | `{{ playbook_dir }}/.oci` |    false  |  OCI Configuration File |
+
+
+
 <details>
 <summary><b>🖇️ Full descriptions for vars in defaults/main.yml</b></summary>
 <br>
@@ -91,20 +94,20 @@ classDef rescue stroke:#665352,stroke-width:2px;
 ## Author Information
 rc
 
-#### License
+### License
 
 MIT
 
-#### Minimum Ansible Version
+### Minimum Ansible Version
 
 2.14
 
-#### Platforms
+### Platforms
 
 - **Ubuntu**: ['jammy', 'noble']
 
 
-#### Dependencies
+### Dependencies
 
 - **cert_manager**
   

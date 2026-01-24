@@ -49,6 +49,9 @@ Description: Deploy Akash Provider stack on K3s cluster
 | [akash_inventory_operator_version](defaults/main.yml#L111)   | str | `1.0.0` |    false  |  Inventory Operator Chart Version |
 | [akash_provider_version](defaults/main.yml#L117)   | str | `6.0.0` |    false  |  Provider Chart Version |
 | [akash_gpu_enabled](defaults/main.yml#L123)   | bool | `True` |    false  |  Enable GPU Support |
+
+
+
 <details>
 <summary><b>🖇️ Full descriptions for vars in defaults/main.yml</b></summary>
 <br>
@@ -143,20 +146,20 @@ classDef rescue stroke:#665352,stroke-width:2px;
 ## Author Information
 rc
 
-#### License
+### License
 
 MIT
 
-#### Minimum Ansible Version
+### Minimum Ansible Version
 
 2.14
 
-#### Platforms
+### Platforms
 
 - **Ubuntu**: ['jammy', 'noble']
 
 
-#### Dependencies
+### Dependencies
 
 - **gvisor**
   

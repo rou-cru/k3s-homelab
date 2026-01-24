@@ -58,7 +58,7 @@
     update_cache: true
   when:
     - common_install_debug_packages | bool
-    - common_debug_packages | length > 0
+    - common_debug_packages | default([]) | length > 0
 # Install developer/workstation packages
 - name: Install dev packages
   ansible.builtin.apt:
@@ -67,4 +67,4 @@
     update_cache: true
   when:
     - common_install_dev_packages | bool
-    - common_dev_packages | length > 0
+    - common_dev_packages | default([]) | length > 0

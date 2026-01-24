@@ -1,3 +1,9 @@
+# Title: gVisor Install
+# Description: Enable gVisor installation and RuntimeClass deployment.
+# Type: bool
+# Required: false
+gvisor_install: true
+
 # Title: gVisor Version
 # Description: Version of gVisor runtime to install.
 # Type: str

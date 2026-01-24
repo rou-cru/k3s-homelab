@@ -195,6 +195,7 @@ common_debug_packages:
 
 # Title: Dev Packages
 # Description: Default developer/workstation packages.
+# Note: 'gh' requires common_install_github_cli_repo: true
 # Type: list
 # Required: false
 common_dev_packages:

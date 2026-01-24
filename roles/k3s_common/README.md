@@ -26,21 +26,26 @@ Description: Common configurations for K3s nodes (server and agent)
 | Var          | Type         | Value       |Required    | Title       |
 |--------------|--------------|-------------|------------|-------------|
 | [k3s_version](defaults/main.yml#L5)   | str | `v1.35.0+k3s1` |    false  |  K3s Version |
-| [containerd_optimized](defaults/main.yml#L10)   | bool | `True` |    false  |  Containerd Optimized |
-| [containerd_default_runtime](defaults/main.yml#L15)   | str | `runc` |    false  |  Containerd Default Runtime |
-| [containerd_additional_runtimes](defaults/main.yml#L20)   | list | `[]` |    false  |  Containerd Additional Runtimes |
-| [k3s_cni_bin_dir](defaults/main.yml#L25)   | str | `/opt/cni/bin` |    false  |  K3s CNI Binary Directory |
-| [k3s_cni_conf_dir](defaults/main.yml#L30)   | str | `/etc/cni/net.d` |    false  |  K3s CNI Configuration Directory |
-| [k3s_recreate](defaults/main.yml#L35)   | bool | `False` |    false  |  Recreate K3s |
+| [k3s_common_containerd_optimized](defaults/main.yml#L10)   | bool | `True` |    false  |  Containerd Optimized |
+| [k3s_common_containerd_default_runtime](defaults/main.yml#L15)   | str | `runc` |    false  |  Containerd Default Runtime |
+| [k3s_common_containerd_additional_runtimes](defaults/main.yml#L20)   | list | `[]` |    false  |  Containerd Additional Runtimes |
+| [k3s_common_containerd_sandbox_image](defaults/main.yml#L25)   | str | `registry.k8s.io/pause:3.10.1` |    false  |  Containerd Sandbox Image |
+| [k3s_cni_bin_dir](defaults/main.yml#L30)   | str | `/opt/cni/bin` |    false  |  K3s CNI Binary Directory |
+| [k3s_cni_conf_dir](defaults/main.yml#L35)   | str | `/etc/cni/net.d` |    false  |  K3s CNI Configuration Directory |
+| [k3s_recreate](defaults/main.yml#L40)   | bool | `False` |    false  |  Recreate K3s |
+
+
+
 <details>
 <summary><b>🖇️ Full descriptions for vars in defaults/main.yml</b></summary>
 <br>
 <table>
 <th>Var</th><th>Description</th>
 <tr><td><b>k3s_version</b></td><td>K3s version to install.</td></tr>
-<tr><td><b>containerd_optimized</b></td><td>Enable containerd optimized configuration.</td></tr>
-<tr><td><b>containerd_default_runtime</b></td><td>Default container runtime to use.</td></tr>
-<tr><td><b>containerd_additional_runtimes</b></td><td>List of additional container runtimes to register.</td></tr>
+<tr><td><b>k3s_common_containerd_optimized</b></td><td>Enable containerd optimized configuration.</td></tr>
+<tr><td><b>k3s_common_containerd_default_runtime</b></td><td>Default container runtime to use.</td></tr>
+<tr><td><b>k3s_common_containerd_additional_runtimes</b></td><td>List of additional container runtimes to register.</td></tr>
+<tr><td><b>k3s_common_containerd_sandbox_image</b></td><td>Pause container image for the CRI sandbox.</td></tr>
 <tr><td><b>k3s_cni_bin_dir</b></td><td>Path to CNI binaries.</td></tr>
 <tr><td><b>k3s_cni_conf_dir</b></td><td>Path to CNI configuration files.</td></tr>
 <tr><td><b>k3s_recreate</b></td><td>If true, uninstalls and wipes previous K3s installation before deploying.</td></tr>
@@ -109,20 +114,20 @@ classDef rescue stroke:#665352,stroke-width:2px;
 ## Author Information
 rc
 
-#### License
+### License
 
 MIT
 
-#### Minimum Ansible Version
+### Minimum Ansible Version
 
 2.14
 
-#### Platforms
+### Platforms
 
 - **Ubuntu**: ['jammy', 'noble']
 
 
-#### Dependencies
+### Dependencies
 
 No dependencies specified.
 <!-- DOCSIBLE END -->

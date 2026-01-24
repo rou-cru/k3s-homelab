@@ -30,7 +30,7 @@ Description: Install and configure K3s agent node to join existing cluster
   - **k3s_agent_version**
     - **Required**: false
     - **Type**: str
-    - **Default**: v1.34.3+k3s1
+    - **Default**: v1.35.0+k3s1
   
     - **Description**: K3s version to install (should match server version)
   
@@ -114,7 +114,7 @@ Description: Install and configure K3s agent node to join existing cluster
 |--------------|--------------|-------------|------------|-------------|
 | [k3s_agent_version](defaults/main.yml#L5)   | str | `v1.35.0+k3s1` |    false  |  K3s Agent Version |
 | [k3s_agent_server_url](defaults/main.yml#L11)   | str |  |    true  |  Server URL |
-| [k3s_agent_token](defaults/main.yml#L17)   | str |  |    true  |  Server Token |
+| [k3s_agent_token](defaults/main.yml#L17)   | str |  |    false  |  Server Token |
 | [k3s_agent_node_labels](defaults/main.yml#L23)   | list | `[]` |    false  |  Node Labels |
 | [k3s_agent_node_taints](defaults/main.yml#L29)   | list | `[]` |    false  |  Node Taints |
 | [k3s_agent_readyz_retries](defaults/main.yml#L35)   | int | `30` |    false  |  Readiness Retries |
@@ -122,9 +122,12 @@ Description: Install and configure K3s agent node to join existing cluster
 | [k3s_agent_recreate](defaults/main.yml#L47)   | bool | `False` |    false  |  Recreate Agent |
 | [k3s_cni_bin_dir](defaults/main.yml#L53)   | str | `/opt/cni/bin` |    false  |  CNI Bin Directory |
 | [k3s_cni_conf_dir](defaults/main.yml#L59)   | str | `/etc/cni/net.d` |    false  |  CNI Config Directory |
-| [k3s_agent_kubelet_args](defaults/main.yml#L65)   | list | `[]` |    false  |  Kubelet Arguments |
-| [containerd_optimized](defaults/main.yml#L71)   | bool | `True` |    false  |  Containerd Optimizations |
-| [containerd_default_runtime](defaults/main.yml#L77)   | str | `runc` |    false  |  Containerd Default Runtime |
+| [k3s_agent_kubelet_args](defaults/main.yml#L66)   | list | `[]` |    false  |  Kubelet Arguments |
+| [k3s_common_containerd_optimized](defaults/main.yml#L72)   | bool | `True` |    false  |  Containerd Optimizations |
+| [k3s_common_containerd_default_runtime](defaults/main.yml#L78)   | str | `runc` |    false  |  Containerd Default Runtime |
+
+
+
 <details>
 <summary><b>🖇️ Full descriptions for vars in defaults/main.yml</b></summary>
 <br>
@@ -132,7 +135,7 @@ Description: Install and configure K3s agent node to join existing cluster
 <th>Var</th><th>Description</th>
 <tr><td><b>k3s_agent_version</b></td><td>K3s version to install (should match server version).</td></tr>
 <tr><td><b>k3s_agent_server_url</b></td><td>K3s server URL to connect to (use Tailscale IP for security).</td></tr>
-<tr><td><b>k3s_agent_token</b></td><td>K3s server token for node authentication (K10 format with CA hash).</td></tr>
+<tr><td><b>k3s_agent_token</b></td><td>K3s server token for node authentication (set dynamically from server; K10 format with CA hash).</td></tr>
 <tr><td><b>k3s_agent_node_labels</b></td><td>Labels to apply to this node (list of "key=value" strings).</td></tr>
 <tr><td><b>k3s_agent_node_taints</b></td><td>Taints to apply to this node (list of "key=value:effect", e.g., "gpu=true:NoSchedule").</td></tr>
 <tr><td><b>k3s_agent_readyz_retries</b></td><td>Number of retries for the node readiness check.</td></tr>
@@ -141,8 +144,8 @@ Description: Install and configure K3s agent node to join existing cluster
 <tr><td><b>k3s_cni_bin_dir</b></td><td>Directory for CNI binaries.</td></tr>
 <tr><td><b>k3s_cni_conf_dir</b></td><td>Directory for CNI configuration.</td></tr>
 <tr><td><b>k3s_agent_kubelet_args</b></td><td>Additional arguments to pass to kubelet (list of strings).</td></tr>
-<tr><td><b>containerd_optimized</b></td><td>Enable containerd performance and resource optimizations.</td></tr>
-<tr><td><b>containerd_default_runtime</b></td><td>Default runtime name for containerd (use RuntimeClass to opt-in to others).</td></tr>
+<tr><td><b>k3s_common_containerd_optimized</b></td><td>Enable containerd performance and resource optimizations.</td></tr>
+<tr><td><b>k3s_common_containerd_default_runtime</b></td><td>Default runtime name for containerd (use RuntimeClass to opt-in to others).</td></tr>
 </table>
 <br>
 </details>
@@ -216,20 +219,20 @@ classDef rescue stroke:#665352,stroke-width:2px;
 ## Author Information
 rc
 
-#### License
+### License
 
 MIT
 
-#### Minimum Ansible Version
+### Minimum Ansible Version
 
 2.14
 
-#### Platforms
+### Platforms
 
 - **Ubuntu**: ['jammy', 'noble']
 
 
-#### Dependencies
+### Dependencies
 
 No dependencies specified.
 <!-- DOCSIBLE END -->

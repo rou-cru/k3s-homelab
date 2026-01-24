@@ -2,20 +2,20 @@ version = 2
 
 [plugins]
 [plugins."io.containerd.grpc.v1.cri"]
-{% if containerd_optimized | default(true) %}
+{% if k3s_common_containerd_optimized | default(true) %}
   stream_idle_timeout = "30m"
   max_container_log_line_size = 16384
   max_concurrent_downloads = 3
   enable_unprivileged_ports = true
   enable_unprivileged_icmp = true
-  sandbox_image = "registry.k8s.io/pause:3.10.1"
+  sandbox_image = "{{ k3s_common_containerd_sandbox_image | default('registry.k8s.io/pause:3.10.1') }}"
 {% endif %}
 
 [plugins."io.containerd.grpc.v1.cri".containerd]
-{% set _default_runtime = containerd_default_runtime | default('runc') %}
+{% set _default_runtime = k3s_common_containerd_default_runtime | default('runc') %}
   default_runtime_name = "{{ _default_runtime }}"
   snapshotter = "overlayfs"
-{% if containerd_optimized | default(true) %}
+{% if k3s_common_containerd_optimized | default(true) %}
   disable_snapshot_annotations = false
   discard_unpacked_layers = true
 {% endif %}
@@ -26,11 +26,11 @@ version = 2
 
 [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc.options]
   SystemdCgroup = true
-{% if containerd_optimized | default(true) %}
+{% if k3s_common_containerd_optimized | default(true) %}
   BinaryName = "/usr/bin/runc"
 {% endif %}
 
-{% if 'nvidia' in (containerd_additional_runtimes | default([])) %}
+{% if 'nvidia' in (k3s_common_containerd_additional_runtimes | default([])) %}
 [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.nvidia]
   runtime_type = "io.containerd.runc.v2"
 [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.nvidia.options]
@@ -38,7 +38,7 @@ version = 2
   SystemdCgroup = true
 {% endif %}
 
-{% if 'runsc' in (containerd_additional_runtimes | default([])) %}
+{% if 'runsc' in (k3s_common_containerd_additional_runtimes | default([])) %}
 [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runsc]
   runtime_type = "io.containerd.runsc.v1"
 {% endif %}
@@ -47,7 +47,7 @@ version = 2
   bin_dir = "{{ k3s_cni_bin_dir }}"
   conf_dir = "{{ k3s_cni_conf_dir }}"
 
-{% if containerd_optimized | default(true) %}
+{% if k3s_common_containerd_optimized | default(true) %}
 [plugins."io.containerd.grpc.v1.cri".registry]
   config_path = "/etc/containerd/certs.d"
 

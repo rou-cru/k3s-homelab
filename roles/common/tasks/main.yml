@@ -59,16 +59,16 @@
   ansible.builtin.apt:
     name: linux-generic
     state: present
-  when: common_hwe_kernel_install is failed or hwe_kernel_package is not defined
+  when: >-
+    (common_hwe_kernel_install is skipped) or
+    (common_hwe_kernel_install is failed) or
+    (hwe_kernel_package is not defined)
   register: common_generic_kernel_install
 # Track if kernel was changed to trigger reboot later
 - name: Register kernel change
   ansible.builtin.set_fact:
     common_kernel_changed: >-
-      {{
-
-
-        (common_hwe_kernel_install.changed | default(false))
+      {{ (common_hwe_kernel_install.changed | default(false))
         or (common_generic_kernel_install.changed | default(false))
       }}
 # Configure power management settings

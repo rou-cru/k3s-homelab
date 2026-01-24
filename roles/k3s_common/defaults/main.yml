@@ -7,17 +7,22 @@ k3s_version: "v1.35.0+k3s1"
 # Description: Enable containerd optimized configuration.
 # Type: bool
 # Required: false
-containerd_optimized: true
+k3s_common_containerd_optimized: true
 # Title: Containerd Default Runtime
 # Description: Default container runtime to use.
 # Type: str
 # Required: false
-containerd_default_runtime: "runc"
+k3s_common_containerd_default_runtime: "runc"
 # Title: Containerd Additional Runtimes
 # Description: List of additional container runtimes to register.
 # Type: list
 # Required: false
-containerd_additional_runtimes: []
+k3s_common_containerd_additional_runtimes: []
+# Title: Containerd Sandbox Image
+# Description: Pause container image for the CRI sandbox.
+# Type: str
+# Required: false
+k3s_common_containerd_sandbox_image: "registry.k8s.io/pause:3.10.1"
 # Title: K3s CNI Binary Directory
 # Description: Path to CNI binaries.
 # Type: str

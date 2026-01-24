@@ -36,6 +36,9 @@ Description: Deploy Longhorn distributed storage on K3s
 | [longhorn_guaranteed_engine_manager_cpu](defaults/main.yml#L55)   | int | `12` |    false  |  Guaranteed Engine Manager CPU |
 | [longhorn_guaranteed_replica_manager_cpu](defaults/main.yml#L61)   | int | `12` |    false  |  Guaranteed Replica Manager CPU |
 | [longhorn_priority_class](defaults/main.yml#L67)   | str | `priority-ops-critical` |    false  |  Priority Class |
+
+
+
 <details>
 <summary><b>🖇️ Full descriptions for vars in defaults/main.yml</b></summary>
 <br>
@@ -111,20 +114,20 @@ classDef rescue stroke:#665352,stroke-width:2px;
 ## Author Information
 rc
 
-#### License
+### License
 
 MIT
 
-#### Minimum Ansible Version
+### Minimum Ansible Version
 
 2.14
 
-#### Platforms
+### Platforms
 
 - **Ubuntu**: ['jammy', 'noble']
 
 
-#### Dependencies
+### Dependencies
 
 No dependencies specified.
 <!-- DOCSIBLE END -->

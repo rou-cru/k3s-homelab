@@ -116,6 +116,9 @@ Description: Installs and configures Cilium CNI for K3s clusters.
 | [cilium_wait_retries](defaults/main.yml#L25)   | int | `60` |    false  |  Wait Retries |
 | [cilium_wait_delay](defaults/main.yml#L30)   | int | `5` |    false  |  Wait Delay |
 | [cilium_devices](defaults/main.yml#L35)   | str | `tailscale+` |    false  |  Cilium devices |
+
+
+
 <details>
 <summary><b>🖇️ Full descriptions for vars in defaults/main.yml</b></summary>
 <br>
@@ -214,20 +217,20 @@ classDef rescue stroke:#665352,stroke-width:2px;
 ## Author Information
 Roura
 
-#### License
+### License
 
 MIT
 
-#### Minimum Ansible Version
+### Minimum Ansible Version
 
 2.20.0
 
-#### Platforms
+### Platforms
 
 - **Ubuntu**: ['noble']
 
 
-#### Dependencies
+### Dependencies
 
 No dependencies specified.
 <!-- DOCSIBLE END -->

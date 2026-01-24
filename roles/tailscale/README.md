@@ -111,6 +111,9 @@ settings like DNS acceptance and SSH access.
 | [tailscale_install_script_checksum](defaults/main.yml#L25)   | str | `7fab06250c94a527d5f74002d9fb45ac9fc702c72f7901a959571112c75048f1` |    false  |  Tailscale install script checksum |
 | [tailscale_exit_node_enabled](defaults/main.yml#L30)   | bool | `False` |    false  |  Exit Node |
 | [tailscale_advertise_routes](defaults/main.yml#L35)   | str |  |    false  |  Advertise Routes |
+
+
+
 <details>
 <summary><b>🖇️ Full descriptions for vars in defaults/main.yml</b></summary>
 <br>
@@ -200,20 +203,20 @@ classDef rescue stroke:#665352,stroke-width:2px;
 ## Author Information
 Roura
 
-#### License
+### License
 
 MIT
 
-#### Minimum Ansible Version
+### Minimum Ansible Version
 
 2.20.0
 
-#### Platforms
+### Platforms
 
 - **Ubuntu**: ['noble']
 
 
-#### Dependencies
+### Dependencies
 
 No dependencies specified.
 <!-- DOCSIBLE END -->

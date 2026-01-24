@@ -28,6 +28,9 @@ Description: Bootstrap cluster-wide CRDs (Gateway API and Prometheus Operator) f
 | [gateway_api_version](defaults/main.yml#L5)   | str | `v1.2.0` |    false  |  Gateway API Version |
 | [prometheus_operator_crds_version](defaults/main.yml#L11)   | str | `26.0.0` |    false  |  Prometheus Operator CRDs Chart Version |
 | [prometheus_operator_crds_namespace](defaults/main.yml#L17)   | str | `monitoring` |    false  |  Prometheus Operator CRDs Namespace |
+
+
+
 <details>
 <summary><b>🖇️ Full descriptions for vars in defaults/main.yml</b></summary>
 <br>
@@ -89,20 +92,20 @@ classDef rescue stroke:#665352,stroke-width:2px;
 ## Author Information
 rc
 
-#### License
+### License
 
 MIT
 
-#### Minimum Ansible Version
+### Minimum Ansible Version
 
 2.14
 
-#### Platforms
+### Platforms
 
 - **Ubuntu**: ['jammy', 'noble']
 
 
-#### Dependencies
+### Dependencies
 
 No dependencies specified.
 <!-- DOCSIBLE END -->

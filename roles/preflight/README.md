@@ -45,6 +45,9 @@ Description: Pre-flight checks to ensure minimum system requirements are met.
 |--------------|--------------|-------------|------------|-------------|
 | [preflight_min_ram_mb](defaults/main.yml#L8)   | int | `2048` |    false  |  Minimum RAM |
 | [preflight_min_disk_gb](defaults/main.yml#L14)   | int | `20` |    false  |  Minimum Disk Space |
+
+
+
 <details>
 <summary><b>🖇️ Full descriptions for vars in defaults/main.yml</b></summary>
 <br>
@@ -109,20 +112,20 @@ classDef rescue stroke:#665352,stroke-width:2px;
 ## Author Information
 Roura
 
-#### License
+### License
 
 MIT
 
-#### Minimum Ansible Version
+### Minimum Ansible Version
 
 2.20.0
 
-#### Platforms
+### Platforms
 
 - **Ubuntu**: ['noble']
 
 
-#### Dependencies
+### Dependencies
 
 No dependencies specified.
 <!-- DOCSIBLE END -->
