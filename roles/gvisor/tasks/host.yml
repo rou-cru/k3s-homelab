@@ -3,7 +3,7 @@
   ansible.builtin.get_url:
     url: "https://storage.googleapis.com/gvisor/releases/release/{{ gvisor_version }}/x86_64/runsc"
     dest: /usr/local/bin/runsc
-    mode: '0755'
+    mode: '0750'
     owner: root
     group: root
     checksum: "sha512:https://storage.googleapis.com/gvisor/releases/release/{{ gvisor_version }}/x86_64/runsc.sha512"
