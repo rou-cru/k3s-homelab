@@ -63,7 +63,7 @@
   ansible.builtin.file:
     path: /etc/systemd/system/k3s.service.d
     state: directory
-    mode: "0755"
+    mode: "0750"
 # Override K3s service configuration for clean startup
 - name: Create override
   ansible.builtin.copy:
@@ -72,7 +72,7 @@
       [Service]
       ExecStart=
       ExecStart=/usr/local/bin/k3s server
-    mode: "0644"
+    mode: "0640"
   notify: Restart k3s
 # Remove legacy environment file to prevent conflicts
 - name: Remove env file

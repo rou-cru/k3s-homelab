@@ -175,8 +175,8 @@
       ansible.builtin.copy:
         src: k8s/
         dest: "{{ k8s_manifests_dir }}/"
-        directory_mode: "0755"
-        mode: "0644"
+        directory_mode: "0750"
+        mode: "0640"
       become: false
       tags: ["apps"]
     # --- NAMESPACES ---

@@ -44,25 +44,25 @@
   ansible.builtin.file:
     path: /etc/rancher/k3s
     state: directory
-    mode: "0755"
+    mode: "0750"
 
 - name: Ensure CNI config directory exists
   ansible.builtin.file:
     path: "{{ k3s_cni_conf_dir }}"
     state: directory
-    mode: "0755"
+    mode: "0750"
 
 - name: Ensure CNI bin directory exists
   ansible.builtin.file:
     path: "{{ k3s_cni_bin_dir }}"
     state: directory
-    mode: "0755"
+    mode: "0750"
 
 - name: Ensure K3s agent etc directory exists (for containerd)
   ansible.builtin.file:
     path: /var/lib/rancher/k3s/agent/etc/containerd
     state: directory
-    mode: "0755"
+    mode: "0750"
     recurse: true
 
 # Deploy Containerd Config
@@ -70,7 +70,7 @@
   ansible.builtin.template:
     src: containerd-config.toml.tmpl.j2
     dest: /var/lib/rancher/k3s/agent/etc/containerd/config.toml.tmpl
-    mode: "0644"
+    mode: "0640"
   # Note: Handlers are tricky with shared roles.
   # We should define a specific handler in the parent role or use a generic one if possible.
   # For now, we rely on the parent role to have a "Restart k3s" or "Restart k3s-agent" handler

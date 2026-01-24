@@ -15,7 +15,7 @@
         dest: /etc/modprobe.d/blacklist-r8169.conf
         content: |
           blacklist r8169
-        mode: "0644"
+        mode: "0640"
       register: common_r8169_blacklist
     # Disable PCIe Active State Power Management for network stability
     - name: Ensure pcie_aspm=off in GRUB
@@ -63,7 +63,7 @@
   ansible.builtin.copy:
     src: network-optimization.service
     dest: /etc/systemd/system/network-optimization.service
-    mode: "0644"
+    mode: "0640"
 # Ensure systemd sees the new unit before enabling it
 - name: Reload systemd daemon for network optimization
   ansible.builtin.systemd:

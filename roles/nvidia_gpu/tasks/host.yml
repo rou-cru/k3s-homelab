@@ -108,7 +108,7 @@
     content: |
       blacklist nouveau
       options nouveau modeset=0
-    mode: "0644"
+    mode: "0640"
   when: nvidia_gpu_active | default(false) | bool
   register: nvidia_gpu_blacklist_nouveau
 
@@ -166,7 +166,7 @@
   ansible.builtin.file:
     path: /etc/apt/keyrings
     state: directory
-    mode: "0755"
+    mode: "0750"
   when: nvidia_gpu_active | default(false) | bool
 
 - name: Write toolkit repo
@@ -178,7 +178,7 @@
         ((ansible_facts['architecture'] == 'aarch64') | ternary('arm64', 'amd64')) +
         ' /'
       }}
-    mode: "0644"
+    mode: "0640"
   when: nvidia_gpu_active | default(false) | bool
 
 - name: Install toolkit
