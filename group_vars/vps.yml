@@ -49,8 +49,8 @@ tailscale_exit_node_enabled: true
 tailscale_tags: ""
 
 # K3s Agent configuration
-# Server URL pointing to master's Tailscale IP
-k3s_agent_server_url: "https://100.114.180.12:6443"
+# Server URL pointing to master's Tailscale hostname (MagicDNS)
+k3s_agent_server_url: "https://k3s-master:6443"
 
 # Kubelet resource protection for 4GB RAM VPS
 # Reserve memory for system and Kubernetes components

@@ -19,7 +19,6 @@ MASTER (site.yaml) → [completo] → VPS (site-vps.yaml)
 
 | ID | Problema | Severidad |
 |----|----------|-----------|
-| ORD-1 | IP del master hardcodeada en `group_vars/vps.yml` (100.114.180.12) | ALTA |
 | ORD-2 | Sin `wait_for` explícito en archivo de token antes de join del VPS | MEDIA |
 | ORD-3 | Riesgo de race condition si se ejecutan playbooks separados | MEDIA |
 | ORD-4 | No hay validación de que el master completó k3s_server antes de VPS | MEDIA |
@@ -73,8 +72,6 @@ MASTER (site.yaml) → [completo] → VPS (site-vps.yaml)
 
 | ID | Problema | Instancias |
 |----|----------|------------|
-| BP-1 | `shell` cuando `command` es suficiente | 4 |
-| BP-2 | `command` cuando existe módulo dedicado | 2 |
 | BP-3 | `ignore_errors: true` sin justificación | 3 |
 | BP-4 | Valores hardcodeados que deberían ser variables | 3 |
 | BP-5 | Handlers notificados pero no definidos en rol | 2 |

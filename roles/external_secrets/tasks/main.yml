@@ -1,9 +1,9 @@
 # @docsible Check Helm availability
 # @docsible Check Helm availability
 - name: Check if Helm is installed
-  ansible.builtin.command: which helm
+  ansible.builtin.stat:
+    path: /usr/local/bin/helm
   register: helm_binary_check
-  changed_when: false
   failed_when: false
 
 # @docsible Add External Secrets Helm repository
@@ -13,7 +13,7 @@
     name: external-secrets
     repo_url: https://charts.external-secrets.io
   when:
-    - helm_binary_check.rc == 0
+    - helm_binary_check.stat.exists
     - not ansible_check_mode
 
 # @docsible Deploy External Secrets Operator via Helm
@@ -75,7 +75,7 @@
         enabled: "{{ external_secrets_grafana_dashboard_enabled }}"
   become: false
   when:
-    - helm_binary_check.rc == 0
+    - helm_binary_check.stat.exists
     - not ansible_check_mode
   tags: ["cluster", "infrastructure", "external-secrets"]
 
@@ -100,7 +100,7 @@
        | default('')) | length > 0
   become: false
   when:
-    - helm_binary_check.rc == 0
+    - helm_binary_check.stat.exists
     - not ansible_check_mode
   tags: ["cluster", "infrastructure", "external-secrets"]
 
@@ -120,7 +120,7 @@
     kubeconfig: "/home/{{ ansible_user }}/.kube/config"
   become: false
   when:
-    - helm_binary_check.rc == 0
+    - helm_binary_check.stat.exists
     - not ansible_check_mode
   tags: ["cluster", "infrastructure", "external-secrets"]
 
@@ -145,7 +145,7 @@
   become: false
   no_log: true
   when:
-    - helm_binary_check.rc == 0
+    - helm_binary_check.stat.exists
     - not ansible_check_mode
   tags: ["cluster", "infrastructure", "external-secrets", "oci"]
 
@@ -180,6 +180,6 @@
   become: false
   no_log: true
   when:
-    - helm_binary_check.rc == 0
+    - helm_binary_check.stat.exists
     - not ansible_check_mode
   tags: ["cluster", "infrastructure", "external-secrets", "oci"]

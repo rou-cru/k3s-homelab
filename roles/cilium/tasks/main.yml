@@ -4,14 +4,14 @@
     state: file
     suffix: "-cilium-values.yaml"
   register: cilium_values_tmp
-  check_mode: no
+  check_mode: false
   when: not ansible_check_mode
 # Add Cilium Helm repository for CNI installation
 - name: Ensure Cilium Helm repo
-  ansible.builtin.command: helm repo add cilium https://helm.cilium.io/
+  kubernetes.core.helm_repository:
+    name: cilium
+    repo_url: https://helm.cilium.io/
   register: cilium_repo_add
-  changed_when: "'has been added' in cilium_repo_add.stdout"
-  failed_when: cilium_repo_add.rc != 0 and 'exists' not in cilium_repo_add.stderr
   when: not ansible_check_mode
 # Generate Cilium configuration from Jinja2 template
 - name: Template Cilium values file
@@ -19,7 +19,7 @@
     src: cilium-values.yaml.j2
     dest: "{{ cilium_values_tmp.path }}"
     mode: "0600"
-  check_mode: no
+  check_mode: false
   when: not ansible_check_mode
 # Deploy Cilium CNI using Helm with custom configuration
 - name: Install Cilium via Helm
