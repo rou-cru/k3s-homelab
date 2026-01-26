@@ -16,5 +16,4 @@ galaxy_info:
     - k3s
     - external-secrets
 
-dependencies:
-  - role: cert_manager
+dependencies: []

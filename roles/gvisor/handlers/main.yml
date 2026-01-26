@@ -1,4 +1,4 @@
-- name: Restart k3s
+- name: Restart k3s gvisor
   ansible.builtin.systemd:
     name: k3s
     state: restarted

@@ -43,8 +43,8 @@
     kubeconfig: "{{ k8s_kubeconfig }}"
   register: cilium_ds_check
   until: cilium_ds_check.resources | length > 0
-  retries: "{{ cilium_wait_retries | default(60) }}"
-  delay: "{{ cilium_wait_delay | default(5) }}"
+  retries: "{{ global_wait_retries }}"
+  delay: "{{ global_wait_delay }}"
   when: not ansible_check_mode
 
 # Wait for cilium pods
@@ -59,8 +59,8 @@
     cilium_ds.resources | length > 0 and
     cilium_ds.resources[0].status.numberReady == cilium_ds.resources[0].status.desiredNumberScheduled and
     cilium_ds.resources[0].status.updatedNumberScheduled == cilium_ds.resources[0].status.desiredNumberScheduled
-  retries: "{{ (cilium_rollout_timeout | int / 5) | int }}"
-  delay: 5
+  retries: "{{ global_wait_retries }}"
+  delay: "{{ global_wait_delay }}"
   when: not ansible_check_mode
 
 # Deploy General Cluster Gateway

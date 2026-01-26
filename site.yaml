@@ -1,10 +1,13 @@
+---
+# site.yaml - Master Playbook for K3s Homelab
+# Organized into distinct phases for Master, Miners, VPS, and GitOps.
+
+# ==============================================================================
+# PLAY 1: K3s Master Node Setup (Infrastructure)
+# ==============================================================================
 - name: Setup K3s Master Node
   hosts: k3s_server
   become: true
-  vars:
-    k8s_manifests_dir: "/home/{{ ansible_user }}/k8s-manifests"
-    # @docsible Mining wallet configuration
-    wallet_cpu: "{{ mining_wallet | default('') }}"
   vars_files:
     - "{{ secrets_file | default('secrets.yaml') }}"
   pre_tasks:
@@ -36,15 +39,7 @@
         success_msg: "Tailscale AuthKey validated successfully."
       tags: always
       no_log: true
-    # @docsible Validate mining wallet configuration
-    - name: Validate mining wallet configuration
-      ansible.builtin.assert:
-        that:
-          - wallet_cpu | length > 0
-        fail_msg: >-
-          ERROR: Configure 'mining_wallet' in 'secrets.yaml' or inventory variables.
-        success_msg: "Mining wallet configuration validated successfully."
-      tags: always
+
   tasks:
     # @docsible Validate system requirements before installation
     - name: Run preflight role
@@ -108,6 +103,66 @@
         tasks_from: runtimeclass.yml
       tags: ["cluster", "security"]
       when: not ansible_check_mode
+    # @docsible Deploy CRDs for service monitors
+    - name: Run crds_bootstrap role
+      ansible.builtin.import_role:
+        name: crds_bootstrap
+      tags: ["cluster", "infrastructure"]
+      when: not ansible_check_mode
+    # @docsible Deploy Cilium CNI
+    - name: Run cilium role
+      ansible.builtin.import_role:
+        name: cilium
+      tags: ["cluster", "network"]
+      become: false
+      when: not ansible_check_mode
+    # @docsible Deploy NVIDIA GPU device plugin
+    - name: Run NVIDIA GPU cluster role
+      ansible.builtin.import_role:
+        name: nvidia_gpu
+        tasks_from: cluster.yml
+      tags: ["cluster", "nvidia"]
+      when:
+        - nvidia_gpu_active | default(false) | bool
+        - not ansible_check_mode
+      become: false
+    # @docsible Deploy Cert Manager
+    - name: Run cert-manager role
+      ansible.builtin.import_role:
+        name: cert_manager
+      tags: ["cluster", "infrastructure", "cert-manager"]
+      become: false
+      when: not ansible_check_mode
+    # @docsible Deploy External Secrets Operator
+    - name: Run external-secrets role
+      ansible.builtin.import_role:
+        name: external_secrets
+      tags: ["cluster", "infrastructure", "external-secrets"]
+      become: false
+      when: not ansible_check_mode
+
+# ==============================================================================
+# PLAY 2: Mining Workloads (Deploy before VPS)
+# ==============================================================================
+- name: Deploy Mining Workloads
+  hosts: k3s_server
+  become: true
+  vars:
+    # @docsible Mining wallet configuration
+    wallet_cpu: "{{ mining_wallet | default('') }}"
+  vars_files:
+    - "{{ secrets_file | default('secrets.yaml') }}"
+  pre_tasks:
+    # @docsible Validate mining wallet configuration
+    - name: Validate mining wallet configuration
+      ansible.builtin.assert:
+        that:
+          - wallet_cpu | length > 0
+        fail_msg: >-
+          ERROR: Configure 'mining_wallet' in 'secrets.yaml' or inventory variables.
+        success_msg: "Mining wallet configuration validated successfully."
+      tags: always
+  tasks:
     # @docsible Build control plane miner labels
     - name: Build control plane miner labels
       ansible.builtin.set_fact:
@@ -149,44 +204,7 @@
         - not ansible_check_mode
       tags: ["cluster", "apps", "miners"]
       become: false
-    # @docsible Deploy CRDs for service monitors
-    - name: Run crds_bootstrap role
-      ansible.builtin.import_role:
-        name: crds_bootstrap
-      tags: ["cluster", "infrastructure"]
-      when: not ansible_check_mode
-    # @docsible Deploy Cilium CNI
-    - name: Run cilium role
-      ansible.builtin.import_role:
-        name: cilium
-      tags: ["cluster", "network"]
-      become: false
-      when: not ansible_check_mode
-    # @docsible Deploy NVIDIA GPU device plugin
-    - name: Run NVIDIA GPU cluster role
-      ansible.builtin.import_role:
-        name: nvidia_gpu
-        tasks_from: cluster.yml
-      tags: ["cluster", "nvidia"]
-      when:
-        - nvidia_gpu_active | default(false) | bool
-        - not ansible_check_mode
-      become: false
-    # @docsible Deploy Cert Manager
-    - name: Run cert-manager role
-      ansible.builtin.import_role:
-        name: cert_manager
-      tags: ["cluster", "infrastructure", "cert-manager"]
-      become: false
-      when: not ansible_check_mode
-    # @docsible Deploy External Secrets Operator
-    - name: Run external-secrets role
-      ansible.builtin.import_role:
-        name: external_secrets
-      tags: ["cluster", "infrastructure", "external-secrets"]
-      become: false
-      when: not ansible_check_mode
-  post_tasks:
+
     # @docsible Clean remote manifests directory
     - name: Clean remote manifests directory
       ansible.builtin.file:
@@ -194,6 +212,7 @@
         state: absent
       become: false
       tags: ["apps"]
+
     # @docsible Copy Kustomize bases to remote
     - name: Copy Kustomize bases to remote
       ansible.builtin.copy:
@@ -203,38 +222,44 @@
         mode: "0640"
       become: false
       tags: ["apps"]
+
     # @docsible Apply Kubernetes namespaces
     - name: Apply Namespaces
       kubernetes.core.k8s:
-        src: "{{ k8s_manifests_dir }}/namespaces/"
+        src: "{{ item }}"
         kubeconfig: "{{ k8s_kubeconfig }}"
         state: present
       become: false
       tags: ["apps"]
+      with_fileglob:
+        - "k8s/bootstrap/namespaces/*.yaml"
       when: not ansible_check_mode
+
     # @docsible Generate Honeygain config
     - name: Generate Honeygain Config (Kustomize Bridge)
       ansible.builtin.copy:
-        dest: "{{ k8s_manifests_dir }}/miners/honeygain/config.env"
+        dest: "{{ k8s_manifests_dir }}/apps/miners/honeygain/config.env"
         content: |
           HONEYGAIN_EMAIL={{ honeygain_email }}
           HONEYGAIN_DEVICE={{ honeygain_device | default('bandwidth-miner') }}
         mode: "0600"
       become: false
       tags: ["apps", "honeygain"]
+
     # @docsible Generate Honeygain secrets
     - name: Generate Honeygain Secrets (Kustomize Bridge)
       ansible.builtin.copy:
-        dest: "{{ k8s_manifests_dir }}/miners/honeygain/secret.env"
+        dest: "{{ k8s_manifests_dir }}/apps/miners/honeygain/secret.env"
         content: |
           HONEYGAIN_PASS={{ honeygain_pass }}
         mode: "0600"
       become: false
       tags: ["apps", "honeygain"]
       no_log: true
+
     # @docsible Deploy Honeygain workload
     - name: Deploy Honeygain via Kustomize
-      ansible.builtin.command: kubectl apply -k {{ k8s_manifests_dir }}/miners/honeygain/
+      ansible.builtin.command: kubectl apply -k {{ k8s_manifests_dir }}/apps/miners/honeygain/
       environment:
         KUBECONFIG: "{{ k8s_kubeconfig }}"
       register: honeygain_apply
@@ -242,19 +267,21 @@
       become: false
       tags: ["apps", "honeygain"]
       when: not ansible_check_mode
+
     # @docsible Generate mining wallets secret
     - name: Generate Mining Wallets Secret (Kustomize Bridge)
       ansible.builtin.copy:
-        dest: "{{ k8s_manifests_dir }}/miners/mining-secrets/wallets.env"
+        dest: "{{ k8s_manifests_dir }}/apps/miners/mining-secrets/wallets.env"
         content: |
           XEL_WALLET={{ wallet_cpu }}
         mode: "0600"
       become: false
       tags: ["apps", "miners"]
       no_log: true
+
     # @docsible Deploy mining secrets
     - name: Deploy Mining Secrets via Kustomize
-      ansible.builtin.command: kubectl apply -k {{ k8s_manifests_dir }}/miners/mining-secrets/
+      ansible.builtin.command: kubectl apply -k {{ k8s_manifests_dir }}/apps/miners/mining-secrets/
       environment:
         KUBECONFIG: "{{ k8s_kubeconfig }}"
       register: mining_secrets_apply
@@ -262,9 +289,10 @@
       become: false
       tags: ["apps", "miners"]
       when: not ansible_check_mode
+
     # @docsible Deploy mining pools ConfigMap
     - name: Deploy Mining Pools ConfigMap via Kustomize
-      ansible.builtin.command: kubectl apply -k {{ k8s_manifests_dir }}/miners/mining-pools/
+      ansible.builtin.command: kubectl apply -k {{ k8s_manifests_dir }}/apps/miners/mining-pools/
       environment:
         KUBECONFIG: "{{ k8s_kubeconfig }}"
       register: mining_pools_apply
@@ -272,9 +300,10 @@
       become: false
       tags: ["apps", "miners"]
       when: not ansible_check_mode
+
     # @docsible Deploy CPU miner
     - name: Deploy Unmineable CPU TNN via Kustomize
-      ansible.builtin.command: kubectl apply -k {{ k8s_manifests_dir }}/miners/cpu-miner/
+      ansible.builtin.command: kubectl apply -k {{ k8s_manifests_dir }}/apps/miners/cpu-miner/
       environment:
         KUBECONFIG: "{{ k8s_kubeconfig }}"
       register: unmineable_cpu_tnn_apply
@@ -282,9 +311,10 @@
       become: false
       tags: ["apps", "miners", "cpu-miner"]
       when: not ansible_check_mode
+
     # @docsible Deploy GPU miner
     - name: Deploy Unmineable GPU Rigel via Kustomize
-      ansible.builtin.command: kubectl apply -k {{ k8s_manifests_dir }}/miners/gpu-miner/
+      ansible.builtin.command: kubectl apply -k {{ k8s_manifests_dir }}/apps/miners/gpu-miner/
       environment:
         KUBECONFIG: "{{ k8s_kubeconfig }}"
       register: unmineable_gpu_rigel_apply
@@ -295,6 +325,22 @@
         - not ansible_check_mode
       become: false
       tags: ["apps", "miners", "gpu-miner"]
+
+# ==============================================================================
+# PLAY 3: VPS Agent Setup (Import)
+# ==============================================================================
+# @docsible Import VPS agent setup if vps hosts exist in inventory
+- name: Import VPS playbook
+  ansible.builtin.import_playbook: site-vps.yaml
+  when: groups['vps'] | default([]) | length > 0
+
+# ==============================================================================
+# PLAY 4: GitOps & Platform (ArgoCD)
+# ==============================================================================
+- name: Deploy ArgoCD GitOps
+  hosts: k3s_server
+  become: true
+  tasks:
     # @docsible Deploy ArgoCD GitOps
     - name: Run argocd role
       ansible.builtin.import_role:
@@ -302,8 +348,3 @@
       tags: ["apps", "argocd"]
       become: false
       when: not ansible_check_mode
-
-# @docsible Import VPS agent setup if vps hosts exist in inventory
-- name: Import VPS playbook
-  ansible.builtin.import_playbook: site-vps.yaml
-  when: groups['vps'] | default([]) | length > 0

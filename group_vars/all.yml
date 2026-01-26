@@ -1,8 +1,13 @@
 # Global Kubernetes Configuration
 # Standard location for Kubeconfig across all nodes and users
 k8s_kubeconfig: "/home/{{ ansible_user }}/.kube/config"
+k8s_manifests_dir: "/home/{{ ansible_user }}/k8s-manifests"
 
 ansible_become: true
 
 # SSH pipelining enabled for better performance
 ansible_ssh_pipelining: true
+
+# Standard Wait/Retry Settings
+global_wait_retries: 60
+global_wait_delay: 10
