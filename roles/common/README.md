@@ -14,7 +14,7 @@ Description: Common system configurations and optimizations for K3s homelab.
 
 
 <details>
-<summary><b>🧩 Argument Specifications in meta/argument_specs</b></summary>
+<summary><b> Argument Specifications in meta/argument_specs</b></summary>
 
 #### Key: main
 
@@ -297,7 +297,7 @@ RoG hardware tweaks, and network optimizations.
 
 
 <details>
-<summary><b>🖇️ Full descriptions for vars in defaults/main.yml</b></summary>
+<summary><b>Full descriptions for vars in defaults/main.yml</b></summary>
 <br>
 <table>
 <th>Var</th><th>Description</th>
@@ -341,8 +341,6 @@ RoG hardware tweaks, and network optimizations.
 </table>
 <br>
 </details>
-
-
 
 
 

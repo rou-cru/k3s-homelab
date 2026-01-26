@@ -53,7 +53,7 @@ Description: Deploy Akash Provider stack on K3s cluster
 
 
 <details>
-<summary><b>🖇️ Full descriptions for vars in defaults/main.yml</b></summary>
+<summary><b>Full descriptions for vars in defaults/main.yml</b></summary>
 <br>
 <table>
 <th>Var</th><th>Description</th>
@@ -84,8 +84,6 @@ Description: Deploy Akash Provider stack on K3s cluster
 </table>
 <br>
 </details>
-
-
 
 
 

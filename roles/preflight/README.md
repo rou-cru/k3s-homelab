@@ -14,7 +14,7 @@ Description: Pre-flight checks to ensure minimum system requirements are met.
 
 
 <details>
-<summary><b>🧩 Argument Specifications in meta/argument_specs</b></summary>
+<summary><b> Argument Specifications in meta/argument_specs</b></summary>
 
 #### Key: main
 
@@ -49,7 +49,7 @@ Description: Pre-flight checks to ensure minimum system requirements are met.
 
 
 <details>
-<summary><b>🖇️ Full descriptions for vars in defaults/main.yml</b></summary>
+<summary><b>Full descriptions for vars in defaults/main.yml</b></summary>
 <br>
 <table>
 <th>Var</th><th>Description</th>
@@ -58,8 +58,6 @@ Description: Pre-flight checks to ensure minimum system requirements are met.
 </table>
 <br>
 </details>
-
-
 
 
 

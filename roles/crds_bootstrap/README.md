@@ -32,7 +32,7 @@ Description: Bootstrap cluster-wide CRDs (Gateway API and Prometheus Operator) f
 
 
 <details>
-<summary><b>🖇️ Full descriptions for vars in defaults/main.yml</b></summary>
+<summary><b>Full descriptions for vars in defaults/main.yml</b></summary>
 <br>
 <table>
 <th>Var</th><th>Description</th>
@@ -42,8 +42,6 @@ Description: Bootstrap cluster-wide CRDs (Gateway API and Prometheus Operator) f
 </table>
 <br>
 </details>
-
-
 
 
 

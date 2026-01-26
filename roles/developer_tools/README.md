@@ -14,7 +14,7 @@ Description: Installs development tools and useful CLIs for K3s environments.
 
 
 <details>
-<summary><b>🧩 Argument Specifications in meta/argument_specs</b></summary>
+<summary><b> Argument Specifications in meta/argument_specs</b></summary>
 
 #### Key: main
 
@@ -67,7 +67,7 @@ Kubernetes CLIs (kubectl, helm, k9s), Python tools (uv, pipx), and AI CLIs.
 
 
 <details>
-<summary><b>🖇️ Full descriptions for vars in defaults/main.yml</b></summary>
+<summary><b>Full descriptions for vars in defaults/main.yml</b></summary>
 <br>
 <table>
 <th>Var</th><th>Description</th>
@@ -77,8 +77,6 @@ Kubernetes CLIs (kubectl, helm, k9s), Python tools (uv, pipx), and AI CLIs.
 </table>
 <br>
 </details>
-
-
 
 
 

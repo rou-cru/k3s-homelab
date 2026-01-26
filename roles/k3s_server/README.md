@@ -14,7 +14,7 @@ Description: Installs and configures K3s Kubernetes server for homelab usage.
 
 
 <details>
-<summary><b>🧩 Argument Specifications in meta/argument_specs</b></summary>
+<summary><b> Argument Specifications in meta/argument_specs</b></summary>
 
 #### Key: main
 
@@ -159,7 +159,7 @@ and local context merging.
 
 
 <details>
-<summary><b>🖇️ Full descriptions for vars in defaults/main.yml</b></summary>
+<summary><b>Full descriptions for vars in defaults/main.yml</b></summary>
 <br>
 <table>
 <th>Var</th><th>Description</th>
@@ -180,8 +180,6 @@ and local context merging.
 </table>
 <br>
 </details>
-
-
 
 
 

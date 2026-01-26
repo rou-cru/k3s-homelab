@@ -36,7 +36,7 @@ Description: Install cert-manager on K3s and bootstrap a self-signed CA with Clu
 
 
 <details>
-<summary><b>🖇️ Full descriptions for vars in defaults/main.yml</b></summary>
+<summary><b>Full descriptions for vars in defaults/main.yml</b></summary>
 <br>
 <table>
 <th>Var</th><th>Description</th>
@@ -50,8 +50,6 @@ Description: Install cert-manager on K3s and bootstrap a self-signed CA with Clu
 </table>
 <br>
 </details>
-
-
 
 
 

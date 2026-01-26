@@ -14,11 +14,11 @@ Description: Install and configure Glances system monitoring with web interface.
 
 
 <details>
-<summary><b>🧩 Argument Specifications in meta/argument_specs</b></summary>
+<summary><b> Argument Specifications in meta/argument_specs</b></summary>
 
 #### Key: main
 
-**Description**: 
+**Description**:
 - Installs Glances in a Python virtual environment
 - Configures systemd service for web interface
 
@@ -108,7 +108,7 @@ Description: Install and configure Glances system monitoring with web interface.
 
 
 <details>
-<summary><b>🖇️ Full descriptions for vars in defaults/main.yml</b></summary>
+<summary><b>Full descriptions for vars in defaults/main.yml</b></summary>
 <br>
 <table>
 <th>Var</th><th>Description</th>
@@ -121,8 +121,6 @@ Description: Install and configure Glances system monitoring with web interface.
 </table>
 <br>
 </details>
-
-
 
 
 

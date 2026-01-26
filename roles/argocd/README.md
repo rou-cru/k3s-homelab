@@ -35,7 +35,7 @@ Description: Deploy ArgoCD on K3s via Helm (expects External Secrets and an OCI 
 
 
 <details>
-<summary><b>🖇️ Full descriptions for vars in defaults/main.yml</b></summary>
+<summary><b>Full descriptions for vars in defaults/main.yml</b></summary>
 <br>
 <table>
 <th>Var</th><th>Description</th>
@@ -48,8 +48,6 @@ Description: Deploy ArgoCD on K3s via Helm (expects External Secrets and an OCI 
 </table>
 <br>
 </details>
-
-
 
 
 

@@ -31,7 +31,7 @@ Description: Install gVisor runsc and register a RuntimeClass for K3s server wor
 
 
 <details>
-<summary><b>🖇️ Full descriptions for vars in defaults/main.yml</b></summary>
+<summary><b>Full descriptions for vars in defaults/main.yml</b></summary>
 <br>
 <table>
 <th>Var</th><th>Description</th>
@@ -40,8 +40,6 @@ Description: Install gVisor runsc and register a RuntimeClass for K3s server wor
 </table>
 <br>
 </details>
-
-
 
 
 

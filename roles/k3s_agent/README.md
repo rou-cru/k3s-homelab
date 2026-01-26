@@ -14,11 +14,11 @@ Description: Install and configure K3s agent node to join existing cluster
 
 
 <details>
-<summary><b>🧩 Argument Specifications in meta/argument_specs</b></summary>
+<summary><b> Argument Specifications in meta/argument_specs</b></summary>
 
 #### Key: main
 
-**Description**: 
+**Description**:
 - Installs K3s in agent mode and joins an existing cluster
 - Configures Tailscale-based secure communication
 - Supports custom node labels and taints
@@ -129,7 +129,7 @@ Description: Install and configure K3s agent node to join existing cluster
 
 
 <details>
-<summary><b>🖇️ Full descriptions for vars in defaults/main.yml</b></summary>
+<summary><b>Full descriptions for vars in defaults/main.yml</b></summary>
 <br>
 <table>
 <th>Var</th><th>Description</th>
@@ -149,8 +149,6 @@ Description: Install and configure K3s agent node to join existing cluster
 </table>
 <br>
 </details>
-
-
 
 
 

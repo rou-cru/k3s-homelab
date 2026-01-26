@@ -14,7 +14,7 @@ Description: Installs and configures Tailscale VPN client.
 
 
 <details>
-<summary><b>🧩 Argument Specifications in meta/argument_specs</b></summary>
+<summary><b> Argument Specifications in meta/argument_specs</b></summary>
 
 #### Key: main
 
@@ -115,7 +115,7 @@ settings like DNS acceptance and SSH access.
 
 
 <details>
-<summary><b>🖇️ Full descriptions for vars in defaults/main.yml</b></summary>
+<summary><b>Full descriptions for vars in defaults/main.yml</b></summary>
 <br>
 <table>
 <th>Var</th><th>Description</th>
@@ -129,8 +129,6 @@ settings like DNS acceptance and SSH access.
 </table>
 <br>
 </details>
-
-
 
 
 

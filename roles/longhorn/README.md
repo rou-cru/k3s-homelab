@@ -40,7 +40,7 @@ Description: Deploy Longhorn distributed storage on K3s
 
 
 <details>
-<summary><b>🖇️ Full descriptions for vars in defaults/main.yml</b></summary>
+<summary><b>Full descriptions for vars in defaults/main.yml</b></summary>
 <br>
 <table>
 <th>Var</th><th>Description</th>
@@ -58,8 +58,6 @@ Description: Deploy Longhorn distributed storage on K3s
 </table>
 <br>
 </details>
-
-
 
 
 

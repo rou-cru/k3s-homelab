@@ -14,7 +14,7 @@ Description: Configures NVIDIA GPUs for K3s, including drivers, container toolki
 
 
 <details>
-<summary><b>🧩 Argument Specifications in meta/argument_specs</b></summary>
+<summary><b> Argument Specifications in meta/argument_specs</b></summary>
 
 #### Key: main
 
@@ -174,7 +174,7 @@ Supports host setup, cluster setup, and headless X11 configurations.
 
 
 <details>
-<summary><b>🖇️ Full descriptions for vars in defaults/main.yml</b></summary>
+<summary><b>Full descriptions for vars in defaults/main.yml</b></summary>
 <br>
 <table>
 <th>Var</th><th>Description</th>
@@ -192,8 +192,6 @@ Supports host setup, cluster setup, and headless X11 configurations.
 </table>
 <br>
 </details>
-
-
 
 
 

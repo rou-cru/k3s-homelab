@@ -34,7 +34,7 @@ Description: Install External Secrets Operator and configure an OCI Vault-backed
 
 
 <details>
-<summary><b>🖇️ Full descriptions for vars in defaults/main.yml</b></summary>
+<summary><b>Full descriptions for vars in defaults/main.yml</b></summary>
 <br>
 <table>
 <th>Var</th><th>Description</th>
@@ -46,8 +46,6 @@ Description: Install External Secrets Operator and configure an OCI Vault-backed
 </table>
 <br>
 </details>
-
-
 
 
 
