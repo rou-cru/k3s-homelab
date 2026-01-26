@@ -120,17 +120,30 @@
           }}
       tags: ["cluster", "apps", "miners"]
     # @docsible Label control plane for mining
-    - name: Label control plane for mining workloads
-      ansible.builtin.shell: |
-        set -euo pipefail
-        NODE_NAME="$(kubectl get nodes \
-          -l kubernetes.io/hostname={{ ansible_facts['hostname'] }} \
-          -o jsonpath='{.items[0].metadata.name}')"
-        kubectl label node "${NODE_NAME}" {{ miner_control_plane_labels | join(' ') }} --overwrite
-      args:
-        executable: /bin/bash
-      environment:
-        KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
+    - name: Get control plane nodes for mining labeling
+      kubernetes.core.k8s_info:
+        kubeconfig: "{{ k8s_kubeconfig }}"
+        kind: Node
+        label_selectors:
+          - node-role.kubernetes.io/control-plane
+      register: control_plane_nodes
+      when:
+        - miner_control_plane_labels | length > 0
+        - not ansible_check_mode
+      tags: ["cluster", "apps", "miners"]
+      become: false
+
+    - name: Label control plane nodes for mining workloads
+      kubernetes.core.k8s:
+        kubeconfig: "{{ k8s_kubeconfig }}"
+        kind: Node
+        name: "{{ item.metadata.name }}"
+        definition:
+          metadata:
+            labels: "{{ dict(miner_control_plane_labels | map('split', '=') | map('list')) }}"
+      loop: "{{ control_plane_nodes.resources | default([]) }}"
+      loop_control:
+        label: "{{ item.metadata.name }}"
       when:
         - miner_control_plane_labels | length > 0
         - not ansible_check_mode
@@ -192,11 +205,10 @@
       tags: ["apps"]
     # @docsible Apply Kubernetes namespaces
     - name: Apply Namespaces
-      ansible.builtin.command: kubectl apply -f {{ k8s_manifests_dir }}/namespaces/
-      environment:
-        KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
-      register: namespaces_apply
-      changed_when: "'configured' in namespaces_apply.stdout or 'created' in namespaces_apply.stdout"
+      kubernetes.core.k8s:
+        src: "{{ k8s_manifests_dir }}/namespaces/"
+        kubeconfig: "{{ k8s_kubeconfig }}"
+        state: present
       become: false
       tags: ["apps"]
       when: not ansible_check_mode
@@ -224,7 +236,7 @@
     - name: Deploy Honeygain via Kustomize
       ansible.builtin.command: kubectl apply -k {{ k8s_manifests_dir }}/miners/honeygain/
       environment:
-        KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
+        KUBECONFIG: "{{ k8s_kubeconfig }}"
       register: honeygain_apply
       changed_when: "'configured' in honeygain_apply.stdout or 'created' in honeygain_apply.stdout"
       become: false
@@ -244,7 +256,7 @@
     - name: Deploy Mining Secrets via Kustomize
       ansible.builtin.command: kubectl apply -k {{ k8s_manifests_dir }}/miners/mining-secrets/
       environment:
-        KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
+        KUBECONFIG: "{{ k8s_kubeconfig }}"
       register: mining_secrets_apply
       changed_when: "'configured' in mining_secrets_apply.stdout or 'created' in mining_secrets_apply.stdout"
       become: false
@@ -254,7 +266,7 @@
     - name: Deploy Mining Pools ConfigMap via Kustomize
       ansible.builtin.command: kubectl apply -k {{ k8s_manifests_dir }}/miners/mining-pools/
       environment:
-        KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
+        KUBECONFIG: "{{ k8s_kubeconfig }}"
       register: mining_pools_apply
       changed_when: "'configured' in mining_pools_apply.stdout or 'created' in mining_pools_apply.stdout"
       become: false
@@ -264,7 +276,7 @@
     - name: Deploy Unmineable CPU TNN via Kustomize
       ansible.builtin.command: kubectl apply -k {{ k8s_manifests_dir }}/miners/cpu-miner/
       environment:
-        KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
+        KUBECONFIG: "{{ k8s_kubeconfig }}"
       register: unmineable_cpu_tnn_apply
       changed_when: "'configured' in unmineable_cpu_tnn_apply.stdout or 'created' in unmineable_cpu_tnn_apply.stdout"
       become: false
@@ -274,7 +286,7 @@
     - name: Deploy Unmineable GPU Rigel via Kustomize
       ansible.builtin.command: kubectl apply -k {{ k8s_manifests_dir }}/miners/gpu-miner/
       environment:
-        KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
+        KUBECONFIG: "{{ k8s_kubeconfig }}"
       register: unmineable_gpu_rigel_apply
       changed_when: >-
         'configured' in unmineable_gpu_rigel_apply.stdout or 'created' in unmineable_gpu_rigel_apply.stdout

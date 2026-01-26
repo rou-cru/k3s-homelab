@@ -9,12 +9,12 @@
     update_cache: true
     cache_valid_time: 3600
 
-# @docsible Install hddtemp on physical hardware
-- name: Install hddtemp
+# @docsible Install smartmontools on physical hardware (replacement for hddtemp)
+- name: Install smartmontools
   ansible.builtin.apt:
-    name: hddtemp
+    name: smartmontools
     state: present
-  when: ansible_virtualization_role | default('guest') != 'guest'
+  when: ansible_facts['virtualization_role'] | default('guest') != 'guest'
 # @docsible Create Glances venv directory
 - name: Create directory for Glances venv
   ansible.builtin.file:

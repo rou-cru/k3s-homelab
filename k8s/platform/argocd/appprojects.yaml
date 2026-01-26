@@ -16,11 +16,11 @@ spec:
     - '*'  # Allow any repository (in production, restrict to specific repos)
   destinations:
     - namespace: kube-system
-      server: https://kubernetes.default.svc
+      name: in-cluster
     - namespace: cert-manager
-      server: https://kubernetes.default.svc
+      name: in-cluster
     - namespace: external-secrets
-      server: https://kubernetes.default.svc
+      name: in-cluster
   clusterResourceWhitelist:
     - group: '*'
       kind: '*'  # Infrastructure needs broad access for CNI, storage, etc.
@@ -41,7 +41,7 @@ spec:
     - '*'
   destinations:
     - namespace: observability
-      server: https://kubernetes.default.svc
+      name: in-cluster
   clusterResourceWhitelist:
     - group: monitoring.coreos.com
       kind: '*'  # CRDs for Prometheus Operator
@@ -64,9 +64,9 @@ spec:
     - '*'
   destinations:
     - namespace: security
-      server: https://kubernetes.default.svc
+      name: in-cluster
     - namespace: kyverno
-      server: https://kubernetes.default.svc
+      name: in-cluster
   clusterResourceWhitelist:
     - group: kyverno.io
       kind: '*'  # ClusterPolicies are cluster-scoped
@@ -91,9 +91,9 @@ spec:
     - '*'
   destinations:
     - namespace: workloads
-      server: https://kubernetes.default.svc
+      name: in-cluster
     - namespace: miners
-      server: https://kubernetes.default.svc
+      name: in-cluster
   clusterResourceWhitelist:
     - group: ''
       kind: Namespace  # Can create workload namespaces only
@@ -114,7 +114,7 @@ spec:
     - '*'
   destinations:
     - namespace: akash-services
-      server: https://kubernetes.default.svc
+      name: in-cluster
   clusterResourceWhitelist:
     - group: ''
       kind: Namespace  # Creates akash-services namespace only
@@ -135,7 +135,7 @@ spec:
     - '*'
   destinations:
     - namespace: longhorn-system
-      server: https://kubernetes.default.svc
+      name: in-cluster
   clusterResourceWhitelist:
     - group: longhorn.io
       kind: '*'  # Longhorn volumes, replicas, settings (cluster-scoped)

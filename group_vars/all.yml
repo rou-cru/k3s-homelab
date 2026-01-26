@@ -1,0 +1,3 @@
+# Global Kubernetes Configuration
+# Standard location for Kubeconfig across all nodes and users
+k8s_kubeconfig: "/home/{{ ansible_user }}/.kube/config"

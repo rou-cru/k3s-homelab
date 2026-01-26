@@ -214,14 +214,14 @@ and local context merging.
 | [Write server config](tasks/main.yml#L138) | ansible.builtin.copy | True | Store Tailscale-enabled kubeconfig for server access |
 | [Create user kube dir](tasks/main.yml#L147) | ansible.builtin.file | True | Create secure kubeconfig directory for ansible user |
 | [Write user config](tasks/main.yml#L156) | ansible.builtin.copy | True | Deploy Tailscale-enabled kubeconfig for ansible user |
-| [Wait for apiserver](tasks/main.yml#L165) | ansible.builtin.command | True | Verify Kubernetes API server is ready before proceeding |
-| [Remove Traefik](tasks/main.yml#L177) | ansible.builtin.command | True | Remove default Traefik ingress controller if disabled |
-| [Copy local config](tasks/main.yml#L190) | block | True | Copy kubeconfig to local machine for remote cluster management |
-| [Create local dir](tasks/main.yml#L199) | ansible.builtin.file | False | Create local directory for kubeconfig storage |
-| [Fetch config](tasks/main.yml#L205) | ansible.builtin.slurp | False | Retrieve Tailscale-enabled kubeconfig from server |
-| [Parse config](tasks/main.yml#L212) | ansible.builtin.set_fact | False | Customize kubeconfig with unique context names for multi-cluster support |
-| [Write local config](tasks/main.yml#L222) | ansible.builtin.copy | False | Save customized kubeconfig to local file |
-| [Show config info](tasks/main.yml#L228) | ansible.builtin.debug | False | Display success message with kubeconfig location |
+| [Wait for apiserver](tasks/main.yml#L165) | kubernetes.core.k8s_info | True | Verify Kubernetes API server is ready before proceeding |
+| [Remove Traefik](tasks/main.yml#L178) | kubernetes.core.k8s | True | Remove default Traefik ingress controller if disabled |
+| [Copy local config](tasks/main.yml#L194) | block | True | Copy kubeconfig to local machine for remote cluster management |
+| [Create local dir](tasks/main.yml#L203) | ansible.builtin.file | False | Create local directory for kubeconfig storage |
+| [Fetch config](tasks/main.yml#L209) | ansible.builtin.slurp | False | Retrieve Tailscale-enabled kubeconfig from server |
+| [Parse config](tasks/main.yml#L216) | ansible.builtin.set_fact | False | Customize kubeconfig with unique context names for multi-cluster support |
+| [Write local config](tasks/main.yml#L226) | ansible.builtin.copy | False | Save customized kubeconfig to local file |
+| [Show config info](tasks/main.yml#L232) | ansible.builtin.debug | False | Display success message with kubeconfig location |
 
 
 ## Task Flow Graphs

@@ -211,9 +211,10 @@ Supports host setup, cluster setup, and headless X11 configurations.
 | [Create temp values](tasks/cluster.yml#L21) | ansible.builtin.tempfile | True |  |
 | [Copy values](tasks/cluster.yml#L28) | ansible.builtin.copy | True |  |
 | [Install device plugin](tasks/cluster.yml#L35) | kubernetes.core.helm | True |  |
-| [Wait for daemonset](tasks/cluster.yml#L47) | ansible.builtin.command | True |  |
-| [Check GPU resources](tasks/cluster.yml#L56) | ansible.builtin.shell | True |  |
-| [Debug GPU resources](tasks/cluster.yml#L66) | ansible.builtin.debug | True |  |
+| [Wait for daemonset](tasks/cluster.yml#L47) | kubernetes.core.k8s_info | True |  |
+| [Check GPU resources](tasks/cluster.yml#L61) | kubernetes.core.k8s_info | True |  |
+| [Extract GPU capacities from nodes](tasks/cluster.yml#L69) | ansible.builtin.set_fact | True |  |
+| [Debug GPU resources](tasks/cluster.yml#L78) | ansible.builtin.debug | True |  |
 
 #### File: tasks/headless_optimization.yml
 
@@ -287,9 +288,10 @@ classDef rescue stroke:#665352,stroke-width:2px;
   Copy_values4-->|Task| Install_device_plugin5[install device plugin<br>When: **helm binary check rc    0**]:::task
   Install_device_plugin5-->|Task| Wait_for_daemonset6[wait for daemonset<br>When: **helm binary check rc    0**]:::task
   Wait_for_daemonset6-->|Task| Check_GPU_resources7[check gpu resources<br>When: **helm binary check rc    0**]:::task
-  Check_GPU_resources7-->|Task| Debug_GPU_resources8[debug gpu resources<br>When: **helm binary check rc    0**]:::task
-  Debug_GPU_resources8-.->|End of Block| NVIDIA_GPU_cluster_setup0_block_start_0
-  Debug_GPU_resources8-->|Rescue Start| NVIDIA_GPU_cluster_setup0_rescue_start_0[nvidia gpu cluster setup<br>When: **not ansible check mode**]:::rescue
+  Check_GPU_resources7-->|Task| Extract_GPU_capacities_from_nodes8[extract gpu capacities from nodes<br>When: **helm binary check rc    0**]:::task
+  Extract_GPU_capacities_from_nodes8-->|Task| Debug_GPU_resources9[debug gpu resources<br>When: **helm binary check rc    0**]:::task
+  Debug_GPU_resources9-.->|End of Block| NVIDIA_GPU_cluster_setup0_block_start_0
+  Debug_GPU_resources9-->|Rescue Start| NVIDIA_GPU_cluster_setup0_rescue_start_0[nvidia gpu cluster setup<br>When: **not ansible check mode**]:::rescue
   NVIDIA_GPU_cluster_setup0_rescue_start_0-->|Task| Report_NVIDIA_GPU_cluster_setup_failure0[report nvidia gpu cluster setup failure]:::task
   Report_NVIDIA_GPU_cluster_setup_failure0-->|Task| Fail_NVIDIA_GPU_cluster_setup1[fail nvidia gpu cluster setup]:::task
   Fail_NVIDIA_GPU_cluster_setup1-.->|End of Rescue Block| NVIDIA_GPU_cluster_setup0_block_start_0

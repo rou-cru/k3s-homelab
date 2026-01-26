@@ -31,29 +31,36 @@
     values_files:
       - "{{ cilium_values_tmp.path }}"
     chart_version: "{{ cilium_version }}"
-    kubeconfig: "/home/{{ ansible_user }}/.kube/config"
+    kubeconfig: "{{ k8s_kubeconfig }}"
     update_repo_cache: true # Ensure latest chart information
   when: not ansible_check_mode
 # Verify Cilium DaemonSet creation before proceeding
 - name: Wait for Cilium DaemonSet to be created
-  ansible.builtin.command: kubectl -n {{ cilium_namespace }} get ds cilium
+  kubernetes.core.k8s_info:
+    kind: DaemonSet
+    name: cilium
+    namespace: "{{ cilium_namespace }}"
+    kubeconfig: "{{ k8s_kubeconfig }}"
   register: cilium_ds_check
-  until: cilium_ds_check.rc == 0
+  until: cilium_ds_check.resources | length > 0
   retries: "{{ cilium_wait_retries | default(60) }}"
   delay: "{{ cilium_wait_delay | default(5) }}"
-  changed_when: false
-  environment:
-    KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
   when: not ansible_check_mode
+
 # Wait for cilium pods
 - name: Wait for cilium pods
-  ansible.builtin.command: >-
-    kubectl -n {{ cilium_namespace }} rollout status ds/cilium --timeout="{{ cilium_rollout_timeout }}s"
-  register: cilium_rollout
-  changed_when: false
-  failed_when: cilium_rollout.rc != 0
-  environment:
-    KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
+  kubernetes.core.k8s_info:
+    kind: DaemonSet
+    name: cilium
+    namespace: "{{ cilium_namespace }}"
+    kubeconfig: "{{ k8s_kubeconfig }}"
+  register: cilium_ds
+  until: >-
+    cilium_ds.resources | length > 0 and
+    cilium_ds.resources[0].status.numberReady == cilium_ds.resources[0].status.desiredNumberScheduled and
+    cilium_ds.resources[0].status.updatedNumberScheduled == cilium_ds.resources[0].status.desiredNumberScheduled
+  retries: "{{ (cilium_rollout_timeout | int / 5) | int }}"
+  delay: 5
   when: not ansible_check_mode
 
 # Deploy General Cluster Gateway

@@ -20,7 +20,7 @@
     update_repo_cache: true
     create_namespace: true
     chart_version: "{{ cert_manager_chart_version | default(omit, true) }}"
-    kubeconfig: "/home/{{ ansible_user }}/.kube/config"
+    kubeconfig: "{{ k8s_kubeconfig }}"
     values:
       crds:
         enabled: true
@@ -86,7 +86,7 @@
       type: Available
       status: "True"
     wait_timeout: 300
-    kubeconfig: "/home/{{ ansible_user }}/.kube/config"
+    kubeconfig: "{{ k8s_kubeconfig }}"
   become: false
   when:
     - helm_binary_check.rc == 0
@@ -103,7 +103,7 @@
         name: "{{ cert_manager_selfsigned_issuer_name }}"
       spec:
         selfSigned: {}
-    kubeconfig: "/home/{{ ansible_user }}/.kube/config"
+    kubeconfig: "{{ k8s_kubeconfig }}"
   become: false
   when:
     - helm_binary_check.rc == 0
@@ -130,7 +130,7 @@
         issuerRef:
           name: "{{ cert_manager_selfsigned_issuer_name }}"
           kind: ClusterIssuer
-    kubeconfig: "/home/{{ ansible_user }}/.kube/config"
+    kubeconfig: "{{ k8s_kubeconfig }}"
   become: false
   when:
     - helm_binary_check.rc == 0
@@ -143,7 +143,7 @@
     kind: Secret
     name: "{{ cert_manager_ca_secret_name }}"
     namespace: "{{ cert_manager_namespace }}"
-    kubeconfig: "/home/{{ ansible_user }}/.kube/config"
+    kubeconfig: "{{ k8s_kubeconfig }}"
   register: cert_manager_ca_secret
   retries: 30
   delay: 5
@@ -166,7 +166,7 @@
       spec:
         ca:
           secretName: "{{ cert_manager_ca_secret_name }}"
-    kubeconfig: "/home/{{ ansible_user }}/.kube/config"
+    kubeconfig: "{{ k8s_kubeconfig }}"
   become: false
   when:
     - helm_binary_check.rc == 0

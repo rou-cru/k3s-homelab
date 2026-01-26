@@ -60,8 +60,9 @@ Kubernetes CLIs (kubectl, helm, k9s), Python tools (uv, pipx), and AI CLIs.
 
 | Var          | Type         | Value       |Required    | Title       |
 |--------------|--------------|-------------|------------|-------------|
-| [devtools_install_docker](defaults/main.yml#L5)   | bool | `False` |    false  |  Install Docker |
-| [devtools_install_vagrant](defaults/main.yml#L10)   | bool | `True` |    false  |  Install Vagrant and libvirt |
+| [devtools_nvm_version](defaults/main.yml#L5)   | str | `v0.39.7` |    false  |  NVM Version |
+| [devtools_install_docker](defaults/main.yml#L10)   | bool | `False` |    false  |  Install Docker |
+| [devtools_install_vagrant](defaults/main.yml#L15)   | bool | `True` |    false  |  Install Vagrant and libvirt |
 
 
 
@@ -70,6 +71,7 @@ Kubernetes CLIs (kubectl, helm, k9s), Python tools (uv, pipx), and AI CLIs.
 <br>
 <table>
 <th>Var</th><th>Description</th>
+<tr><td><b>devtools_nvm_version</b></td><td>Version of NVM (Node Version Manager) to install.</td></tr>
 <tr><td><b>devtools_install_docker</b></td><td>Installs Docker CLI (not recommended for K3s nodes which use containerd).</td></tr>
 <tr><td><b>devtools_install_vagrant</b></td><td>Installs Vagrant with libvirt provider for Molecule testing and VM management.</td></tr>
 </table>
@@ -95,26 +97,26 @@ Development environments |
 | [Install Devbox](tasks/main.yml#L48) | ansible.builtin.shell | True |  |
 | [Install nvitop](tasks/main.yml#L55) | ansible.builtin.command | True | Python CLI tools (pipx/uv) |
 | [Install Kimi](tasks/main.yml#L64) | ansible.builtin.command | True |  |
-| [Install AI tools](tasks/main.yml#L73) | ansible.builtin.shell | True | AI CLI tools (npm) |
-| [Install Docker](tasks/main.yml#L89) | block | True | Docker (optional, disabled by default) |
-| [Add Docker key](tasks/main.yml#L94) | ansible.builtin.shell | False |  |
-| [Add Docker repo](tasks/main.yml#L101) | ansible.builtin.apt_repository | False |  |
-| [Install Docker CLI](tasks/main.yml#L117) | ansible.builtin.apt | False |  |
-| [Show Docker warning](tasks/main.yml#L125) | ansible.builtin.debug | False |  |
-| [Install Vagrant and libvirt](tasks/main.yml#L137) | block | True | Vagrant + libvirt (for Molecule testing) |
-| [Set HashiCorp repo release](tasks/main.yml#L142) | ansible.builtin.set_fact | False |  |
-| [Set HashiCorp repo architecture](tasks/main.yml#L146) | ansible.builtin.set_fact | False |  |
-| [Validate HashiCorp repo architecture](tasks/main.yml#L156) | ansible.builtin.assert | False |  |
-| [Ensure APT keyrings dir (HashiCorp)](tasks/main.yml#L161) | ansible.builtin.file | True |  |
-| [Install HashiCorp keyring](tasks/main.yml#L167) | ansible.builtin.shell | True |  |
-| [Add HashiCorp APT repo](tasks/main.yml#L176) | ansible.builtin.apt_repository | True |  |
-| [Install libvirt and dependencies](tasks/main.yml#L191) | ansible.builtin.apt | False |  |
-| [Ensure libvirtd service is enabled and started](tasks/main.yml#L210) | ansible.builtin.systemd | False |  |
-| [Add ansible_user to libvirt group](tasks/main.yml#L215) | ansible.builtin.user | False |  |
-| [Add root to libvirt group](tasks/main.yml#L220) | ansible.builtin.user | False |  |
-| [Check installed Vagrant plugins](tasks/main.yml#L225) | ansible.builtin.command | False |  |
-| [Install vagrant-libvirt plugin](tasks/main.yml#L230) | ansible.builtin.command | True |  |
-| [Show Vagrant installation success](tasks/main.yml#L238) | ansible.builtin.debug | False |  |
+| [Install AI tools](tasks/main.yml#L72) | ansible.builtin.shell | True | AI CLI tools (npm) |
+| [Install Docker](tasks/main.yml#L87) | block | True | Docker (optional, disabled by default) |
+| [Add Docker key](tasks/main.yml#L92) | ansible.builtin.shell | False |  |
+| [Add Docker repo](tasks/main.yml#L99) | ansible.builtin.apt_repository | False |  |
+| [Install Docker CLI](tasks/main.yml#L115) | ansible.builtin.apt | False |  |
+| [Show Docker warning](tasks/main.yml#L123) | ansible.builtin.debug | False |  |
+| [Install Vagrant and libvirt](tasks/main.yml#L135) | block | True | Vagrant + libvirt (for Molecule testing) |
+| [Set HashiCorp repo release](tasks/main.yml#L140) | ansible.builtin.set_fact | False |  |
+| [Set HashiCorp repo architecture](tasks/main.yml#L144) | ansible.builtin.set_fact | False |  |
+| [Validate HashiCorp repo architecture](tasks/main.yml#L154) | ansible.builtin.assert | False |  |
+| [Ensure APT keyrings dir (HashiCorp)](tasks/main.yml#L159) | ansible.builtin.file | True |  |
+| [Install HashiCorp keyring](tasks/main.yml#L165) | ansible.builtin.shell | True |  |
+| [Add HashiCorp APT repo](tasks/main.yml#L174) | ansible.builtin.apt_repository | True |  |
+| [Install libvirt and dependencies](tasks/main.yml#L189) | ansible.builtin.apt | False |  |
+| [Ensure libvirtd service is enabled and started](tasks/main.yml#L208) | ansible.builtin.systemd | False |  |
+| [Add ansible_user to libvirt group](tasks/main.yml#L213) | ansible.builtin.user | False |  |
+| [Add root to libvirt group](tasks/main.yml#L218) | ansible.builtin.user | False |  |
+| [Check installed Vagrant plugins](tasks/main.yml#L223) | ansible.builtin.command | False |  |
+| [Install vagrant-libvirt plugin](tasks/main.yml#L227) | ansible.builtin.command | True |  |
+| [Show Vagrant installation success](tasks/main.yml#L235) | ansible.builtin.debug | False |  |
 
 
 ## Task Flow Graphs

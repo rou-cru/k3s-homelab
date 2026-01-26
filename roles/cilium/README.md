@@ -153,13 +153,13 @@ Description: Installs and configures Cilium CNI for K3s clusters.
 | Name | Module | Has Conditions | Tags | Comments |
 | ---- | ------ | -------------- | -----| -------- |
 | [Create temporary values file](tasks/main.yml#L2) | ansible.builtin.tempfile | True |  | Create temporary file for Cilium Helm values configuration |
-| [Ensure Cilium Helm repo](tasks/main.yml#L10) | ansible.builtin.command | True |  | Add Cilium Helm repository for CNI installation |
+| [Ensure Cilium Helm repo](tasks/main.yml#L10) | kubernetes.core.helm_repository | True |  | Add Cilium Helm repository for CNI installation |
 | [Template Cilium values file](tasks/main.yml#L17) | ansible.builtin.template | True |  | Generate Cilium configuration from Jinja2 template |
 | [Install Cilium via Helm](tasks/main.yml#L25) | kubernetes.core.helm | True |  | Deploy Cilium CNI using Helm with custom configuration |
-| [Wait for Cilium DaemonSet to be created](tasks/main.yml#L38) | ansible.builtin.command | True |  | Verify Cilium DaemonSet creation before proceeding |
-| [Wait for cilium pods](tasks/main.yml#L49) | ansible.builtin.command | True |  | Wait for cilium pods |
-| [Deploy Cluster Gateway](tasks/main.yml#L60) | ansible.builtin.import_tasks | True | cluster,network,gateway | Deploy General Cluster Gateway |
-| [Remove temporary values file](tasks/main.yml#L67) | ansible.builtin.file | True |  | Clean up temporary configuration file |
+| [Wait for Cilium DaemonSet to be created](tasks/main.yml#L38) | kubernetes.core.k8s_info | True |  | Verify Cilium DaemonSet creation before proceeding |
+| [Wait for cilium pods](tasks/main.yml#L51) | kubernetes.core.k8s_info | True |  | Wait for cilium pods |
+| [Deploy Cluster Gateway](tasks/main.yml#L67) | ansible.builtin.import_tasks | True | cluster,network,gateway | Deploy General Cluster Gateway |
+| [Remove temporary values file](tasks/main.yml#L74) | ansible.builtin.file | True |  | Clean up temporary configuration file |
 
 
 ## Task Flow Graphs

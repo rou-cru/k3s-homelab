@@ -23,7 +23,7 @@
     update_repo_cache: true
     create_namespace: true
     chart_version: "{{ argocd_chart_version | default(omit, true) }}"
-    kubeconfig: "/home/{{ ansible_user }}/.kube/config"
+    kubeconfig: "{{ k8s_kubeconfig }}"
     values:
       crds:
         install: "{{ argocd_install_crds }}"
@@ -161,7 +161,7 @@
           - secretKey: admin.password
             remoteRef:
               key: argocd-admin-pass
-    kubeconfig: "/home/{{ ansible_user }}/.kube/config"
+    kubeconfig: "{{ k8s_kubeconfig }}"
   register: argocd_es_created
   retries: 12
   delay: 5
@@ -179,7 +179,7 @@
     kind: Secret
     name: argocd-secret
     namespace: "{{ argocd_namespace }}"
-    kubeconfig: "/home/{{ ansible_user }}/.kube/config"
+    kubeconfig: "{{ k8s_kubeconfig }}"
   register: argocd_secret_check
   retries: 12
   delay: 5
@@ -205,7 +205,7 @@
         namespace: "{{ argocd_namespace }}"
         annotations:
           kubectl.kubernetes.io/restartedAt: "{{ ansible_facts['date_time']['iso8601'] }}"
-    kubeconfig: "/home/{{ ansible_user }}/.kube/config"
+    kubeconfig: "{{ k8s_kubeconfig }}"
   when:
     - helm_binary_check.rc == 0
     - argocd_es_created.changed

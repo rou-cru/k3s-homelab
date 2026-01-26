@@ -69,7 +69,7 @@
   ansible.builtin.systemd:
     daemon_reload: true
   when:
-    - ansible_service_mgr == 'systemd'
+    - ansible_facts['service_mgr'] == 'systemd'
     - not ansible_check_mode
 # Enable and start network optimization service
 - name: Start optimization service
@@ -78,5 +78,5 @@
     enabled: true
     state: started
   when:
-    - ansible_service_mgr == 'systemd'
+    - ansible_facts['service_mgr'] == 'systemd'
     - not ansible_check_mode

@@ -133,16 +133,15 @@ Description: Install and configure Glances system monitoring with web interface.
 
 | Name | Module | Has Conditions | Comments |
 | ---- | ------ | -------------- | -------- |
-| [Check hddtemp availability](tasks/main.yml#L2) | ansible.builtin.command | False | @docsible Check hddtemp availability |
-| [Build Glances system package list](tasks/main.yml#L9) | ansible.builtin.set_fact | False | @docsible Build system package list |
-| [Install system dependencies for Glances and sensors](tasks/main.yml#L19) | ansible.builtin.apt | False | @docsible Install system dependencies |
-| [Create directory for Glances venv](tasks/main.yml#L26) | ansible.builtin.file | False | @docsible Create Glances venv directory |
-| [Check uv availability](tasks/main.yml#L32) | ansible.builtin.stat | False | @docsible Check uv availability |
-| [Fail when uv is missing](tasks/main.yml#L38) | ansible.builtin.fail | True | @docsible Validate uv installation |
-| [Create Glances virtual environment (uv)](tasks/main.yml#L45) | ansible.builtin.command | True | @docsible Create Python virtual environment with uv |
-| [Install Glances in virtual environment](tasks/main.yml#L54) | ansible.builtin.pip | True | @docsible Install Glances in virtual environment |
-| [Create Systemd service for Glances Web](tasks/main.yml#L62) | ansible.builtin.template | False | @docsible Create systemd service for Glances Web |
-| [Ensure Glances service is enabled and running](tasks/main.yml#L69) | ansible.builtin.systemd | True | @docsible Enable and start Glances service |
+| [Install core system dependencies for Glances](tasks/main.yml#L2) | ansible.builtin.apt | False | @docsible Install core system dependencies |
+| [Install smartmontools](tasks/main.yml#L13) | ansible.builtin.apt | True | @docsible Install smartmontools on physical hardware (replacement for hddtemp) |
+| [Create directory for Glances venv](tasks/main.yml#L19) | ansible.builtin.file | False | @docsible Create Glances venv directory |
+| [Check uv availability](tasks/main.yml#L25) | ansible.builtin.stat | False | @docsible Check uv availability |
+| [Fail when uv is missing](tasks/main.yml#L31) | ansible.builtin.fail | True | @docsible Validate uv installation |
+| [Create Glances virtual environment (uv)](tasks/main.yml#L38) | ansible.builtin.command | True | @docsible Create Python virtual environment with uv |
+| [Install Glances in virtual environment](tasks/main.yml#L47) | ansible.builtin.pip | True | @docsible Install Glances in virtual environment |
+| [Create Systemd service for Glances Web](tasks/main.yml#L55) | ansible.builtin.template | False | @docsible Create systemd service for Glances Web |
+| [Ensure Glances service is enabled and running](tasks/main.yml#L62) | ansible.builtin.systemd | True | @docsible Enable and start Glances service |
 
 
 ## Task Flow Graphs
@@ -163,17 +162,16 @@ classDef importRole stroke:#699ba7,stroke-width:2px;
 classDef includeVars stroke:#8e44ad,stroke-width:2px;
 classDef rescue stroke:#665352,stroke-width:2px;
 
-  Start-->|Task| Check_hddtemp_availability0[check hddtemp availability]:::task
-  Check_hddtemp_availability0-->|Task| Build_Glances_system_package_list1[build glances system package list]:::task
-  Build_Glances_system_package_list1-->|Task| Install_system_dependencies_for_Glances_and_sensors2[install system dependencies for glances and<br>sensors]:::task
-  Install_system_dependencies_for_Glances_and_sensors2-->|Task| Create_directory_for_Glances_venv3[create directory for glances venv]:::task
-  Create_directory_for_Glances_venv3-->|Task| Check_uv_availability4[check uv availability]:::task
-  Check_uv_availability4-->|Task| Fail_when_uv_is_missing5[fail when uv is missing<br>When: **not ansible check mode and not glances uv binary<br>stat exists**]:::task
-  Fail_when_uv_is_missing5-->|Task| Create_Glances_virtual_environment__uv_6[create glances virtual environment  uv <br>When: **not ansible check mode**]:::task
-  Create_Glances_virtual_environment__uv_6-->|Task| Install_Glances_in_virtual_environment7[install glances in virtual environment<br>When: **not ansible check mode**]:::task
-  Install_Glances_in_virtual_environment7-->|Task| Create_Systemd_service_for_Glances_Web8[create systemd service for glances web]:::task
-  Create_Systemd_service_for_Glances_Web8-->|Task| Ensure_Glances_service_is_enabled_and_running9[ensure glances service is enabled and running<br>When: **not ansible check mode**]:::task
-  Ensure_Glances_service_is_enabled_and_running9-->End
+  Start-->|Task| Install_core_system_dependencies_for_Glances0[install core system dependencies for glances]:::task
+  Install_core_system_dependencies_for_Glances0-->|Task| Install_smartmontools1[install smartmontools<br>When: **ansible facts  virtualization role     default <br>guest       guest**]:::task
+  Install_smartmontools1-->|Task| Create_directory_for_Glances_venv2[create directory for glances venv]:::task
+  Create_directory_for_Glances_venv2-->|Task| Check_uv_availability3[check uv availability]:::task
+  Check_uv_availability3-->|Task| Fail_when_uv_is_missing4[fail when uv is missing<br>When: **not ansible check mode and not glances uv binary<br>stat exists**]:::task
+  Fail_when_uv_is_missing4-->|Task| Create_Glances_virtual_environment__uv_5[create glances virtual environment  uv <br>When: **not ansible check mode**]:::task
+  Create_Glances_virtual_environment__uv_5-->|Task| Install_Glances_in_virtual_environment6[install glances in virtual environment<br>When: **not ansible check mode**]:::task
+  Install_Glances_in_virtual_environment6-->|Task| Create_Systemd_service_for_Glances_Web7[create systemd service for glances web]:::task
+  Create_Systemd_service_for_Glances_Web7-->|Task| Ensure_Glances_service_is_enabled_and_running8[ensure glances service is enabled and running<br>When: **not ansible check mode**]:::task
+  Ensure_Glances_service_is_enabled_and_running8-->End
 ```
 
 

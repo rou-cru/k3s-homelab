@@ -27,5 +27,5 @@
                 from: All
           # Note: TLS Termination will be handled here,
           # but requires a certificateRef which we will add later with cert-manager
-    kubeconfig: "/home/{{ ansible_user }}/.kube/config"
+    kubeconfig: "{{ k8s_kubeconfig }}"
   when: not ansible_check_mode

@@ -171,10 +171,10 @@ Description: Install and configure K3s agent node to join existing cluster
 | [Reload systemd](tasks/main.yml#L73) | ansible.builtin.systemd | False | Reload systemd configuration after service changes |
 | [Start K3s agent](tasks/main.yml#L78) | ansible.builtin.systemd | True | Enable and start K3s agent service |
 | [Flush handlers](tasks/main.yml#L86) | ansible.builtin.meta | False | Apply pending service restarts before continuing |
-| [Wait for node to be ready](tasks/main.yml#L90) | ansible.builtin.shell | True | Wait for node to appear and become ready on the cluster |
-| [Apply node labels](tasks/main.yml#L107) | ansible.builtin.command | True | Apply node labels if specified |
-| [Apply node taints](tasks/main.yml#L120) | ansible.builtin.command | True | Apply node taints if specified |
-| [Show agent join status](tasks/main.yml#L133) | ansible.builtin.debug | False | Display success message |
+| [Wait for node to be ready](tasks/main.yml#L90) | kubernetes.core.k8s_info | True | Wait for node to appear and become ready on the cluster |
+| [Apply node labels](tasks/main.yml#L108) | kubernetes.core.k8s | True | Apply node labels if specified |
+| [Apply node taints](tasks/main.yml#L122) | kubernetes.core.k8s_taint | True | Apply node taints if specified |
+| [Show agent join status](tasks/main.yml#L138) | ansible.builtin.debug | False | Display success message |
 
 
 ## Task Flow Graphs

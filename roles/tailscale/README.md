@@ -157,9 +157,9 @@ Updates subnet routes without requiring reconnect |
 | [Wait for IP](tasks/main.yml#L88) | ansible.builtin.shell | True | Wait for Tailscale to assign valid 100.x.x.x IP address |
 | [Set IP fact](tasks/main.yml#L106) | ansible.builtin.set_fact | True | Store Tailscale IP address as ansible fact for other roles |
 | [Validate connectivity](tasks/main.yml#L112) | ansible.builtin.wait_for | True | Test SSH connectivity through Tailscale network |
-| [Warn connectivity](tasks/main.yml#L122) | ansible.builtin.debug | True | Display warning if Tailscale connectivity test fails
+| [Warn connectivity](tasks/main.yml#L121) | ansible.builtin.debug | True | Display warning if Tailscale connectivity test fails
 Non-blocking warning - connectivity may work even if initial test fails |
-| [Exit node approval reminder](tasks/main.yml#L127) | ansible.builtin.debug | True | Remind user to approve exit node in admin console |
+| [Exit node approval reminder](tasks/main.yml#L126) | ansible.builtin.debug | True | Remind user to approve exit node in admin console |
 
 
 ## Task Flow Graphs

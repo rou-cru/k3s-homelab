@@ -58,7 +58,7 @@ Description: Install External Secrets Operator and configure an OCI Vault-backed
 
 | Name | Module | Has Conditions | Tags | Comments |
 | ---- | ------ | -------------- | -----| -------- |
-| [Check if Helm is installed](tasks/main.yml#L3) | ansible.builtin.command | False |  | @docsible Check Helm availability
+| [Check if Helm is installed](tasks/main.yml#L3) | ansible.builtin.stat | False |  | @docsible Check Helm availability
 @docsible Check Helm availability |
 | [Ensure External Secrets Helm repo](tasks/main.yml#L11) | kubernetes.core.helm_repository | True |  | @docsible Add External Secrets Helm repository
 @docsible Add External Secrets Helm repository |
@@ -92,12 +92,12 @@ classDef includeVars stroke:#8e44ad,stroke-width:2px;
 classDef rescue stroke:#665352,stroke-width:2px;
 
   Start-->|Task| Check_if_Helm_is_installed0[check if helm is installed]:::task
-  Check_if_Helm_is_installed0-->|Task| Ensure_External_Secrets_Helm_repo1[ensure external secrets helm repo<br>When: **helm binary check rc    0 and not ansible check<br>mode**]:::task
-  Ensure_External_Secrets_Helm_repo1-->|Task| Deploy_External_Secrets_Operator2[deploy external secrets operator<br>When: **helm binary check rc    0 and not ansible check<br>mode**]:::task
-  Deploy_External_Secrets_Operator2-->|Task| Wait_for_external_secrets_webhook_CA_bundle3[wait for external secrets webhook ca bundle<br>When: **helm binary check rc    0 and not ansible check<br>mode**]:::task
-  Wait_for_external_secrets_webhook_CA_bundle3-->|Task| Wait_for_external_secrets_webhook_to_be_ready4[wait for external secrets webhook to be ready<br>When: **helm binary check rc    0 and not ansible check<br>mode**]:::task
-  Wait_for_external_secrets_webhook_to_be_ready4-->|Task| Create_OCI_Auth_Secret5[create oci auth secret<br>When: **helm binary check rc    0 and not ansible check<br>mode**]:::task
-  Create_OCI_Auth_Secret5-->|Task| Create_OCI_ClusterSecretStore6[create oci clustersecretstore<br>When: **helm binary check rc    0 and not ansible check<br>mode**]:::task
+  Check_if_Helm_is_installed0-->|Task| Ensure_External_Secrets_Helm_repo1[ensure external secrets helm repo<br>When: **helm binary check stat exists and not ansible<br>check mode**]:::task
+  Ensure_External_Secrets_Helm_repo1-->|Task| Deploy_External_Secrets_Operator2[deploy external secrets operator<br>When: **helm binary check stat exists and not ansible<br>check mode**]:::task
+  Deploy_External_Secrets_Operator2-->|Task| Wait_for_external_secrets_webhook_CA_bundle3[wait for external secrets webhook ca bundle<br>When: **helm binary check stat exists and not ansible<br>check mode**]:::task
+  Wait_for_external_secrets_webhook_CA_bundle3-->|Task| Wait_for_external_secrets_webhook_to_be_ready4[wait for external secrets webhook to be ready<br>When: **helm binary check stat exists and not ansible<br>check mode**]:::task
+  Wait_for_external_secrets_webhook_to_be_ready4-->|Task| Create_OCI_Auth_Secret5[create oci auth secret<br>When: **helm binary check stat exists and not ansible<br>check mode**]:::task
+  Create_OCI_Auth_Secret5-->|Task| Create_OCI_ClusterSecretStore6[create oci clustersecretstore<br>When: **helm binary check stat exists and not ansible<br>check mode**]:::task
   Create_OCI_ClusterSecretStore6-->End
 ```
 

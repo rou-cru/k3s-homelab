@@ -26,7 +26,7 @@
     update_repo_cache: true
     create_namespace: true
     chart_version: "{{ external_secrets_chart_version | default(omit, true) }}"
-    kubeconfig: "/home/{{ ansible_user }}/.kube/config"
+    kubeconfig: "{{ k8s_kubeconfig }}"
     values:
       installCRDs: true
 
@@ -86,7 +86,7 @@
     api_version: admissionregistration.k8s.io/v1
     kind: ValidatingWebhookConfiguration
     name: secretstore-validate
-    kubeconfig: "/home/{{ ansible_user }}/.kube/config"
+    kubeconfig: "{{ k8s_kubeconfig }}"
   register: es_webhook_config
   retries: 30
   delay: 5
@@ -117,7 +117,7 @@
       type: Available
       status: "True"
     wait_timeout: 300
-    kubeconfig: "/home/{{ ansible_user }}/.kube/config"
+    kubeconfig: "{{ k8s_kubeconfig }}"
   become: false
   when:
     - helm_binary_check.stat.exists
@@ -141,7 +141,7 @@
       stringData:
         privateKey: "{{ lookup('file', lookup('ini', 'key_file', section='DEFAULT', file=oci_config_file)) }}"
         fingerprint: "{{ lookup('ini', 'fingerprint', section='DEFAULT', file=oci_config_file) }}"
-    kubeconfig: "/home/{{ ansible_user }}/.kube/config"
+    kubeconfig: "{{ k8s_kubeconfig }}"
   become: false
   no_log: true
   when:
@@ -176,7 +176,7 @@
                   name: oracle-secret
                   key: fingerprint
                   namespace: "{{ external_secrets_namespace }}"
-    kubeconfig: "/home/{{ ansible_user }}/.kube/config"
+    kubeconfig: "{{ k8s_kubeconfig }}"
   become: false
   no_log: true
   when:

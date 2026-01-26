@@ -70,12 +70,13 @@ Description: Pre-flight checks to ensure minimum system requirements are met.
 
 | Name | Module | Has Conditions | Comments |
 | ---- | ------ | -------------- | -------- |
-| [Check connectivity](tasks/main.yml#L2) | ansible.builtin.uri | False | Verify network connectivity to K3s download endpoint |
-| [Fail on disconnect](tasks/main.yml#L12) | ansible.builtin.fail | True | Abort if network is unreachable |
-| [Check disk space](tasks/main.yml#L17) | ansible.builtin.shell | False | Check available disk space on root filesystem |
-| [Assert disk space](tasks/main.yml#L24) | ansible.builtin.assert | False | Validate disk space meets minimum requirements |
-| [Assert memory](tasks/main.yml#L35) | ansible.builtin.assert | False | Validate system memory meets minimum requirements |
-| [Assert architecture](tasks/main.yml#L43) | ansible.builtin.assert | False | Validate system architecture is supported |
+| [Set system hostname](tasks/main.yml#L2) | ansible.builtin.hostname | True | Verify network connectivity to K3s download endpoint |
+| [Check connectivity](tasks/main.yml#L7) | ansible.builtin.uri | False |  |
+| [Fail on disconnect](tasks/main.yml#L17) | ansible.builtin.fail | True | Abort if network is unreachable |
+| [Check disk space](tasks/main.yml#L22) | ansible.builtin.shell | False | Check available disk space on root filesystem |
+| [Assert disk space](tasks/main.yml#L29) | ansible.builtin.assert | False | Validate disk space meets minimum requirements |
+| [Assert memory](tasks/main.yml#L40) | ansible.builtin.assert | False | Validate system memory meets minimum requirements |
+| [Assert architecture](tasks/main.yml#L48) | ansible.builtin.assert | False | Validate system architecture is supported |
 
 
 ## Task Flow Graphs
@@ -96,13 +97,14 @@ classDef importRole stroke:#699ba7,stroke-width:2px;
 classDef includeVars stroke:#8e44ad,stroke-width:2px;
 classDef rescue stroke:#665352,stroke-width:2px;
 
-  Start-->|Task| Check_connectivity0[check connectivity]:::task
-  Check_connectivity0-->|Task| Fail_on_disconnect1[fail on disconnect<br>When: **preflight network check status is not defined or<br>preflight network check status    200**]:::task
-  Fail_on_disconnect1-->|Task| Check_disk_space2[check disk space]:::task
-  Check_disk_space2-->|Task| Assert_disk_space3[assert disk space]:::task
-  Assert_disk_space3-->|Task| Assert_memory4[assert memory]:::task
-  Assert_memory4-->|Task| Assert_architecture5[assert architecture]:::task
-  Assert_architecture5-->End
+  Start-->|Task| Set_system_hostname0[set system hostname<br>When: **not ansible check mode**]:::task
+  Set_system_hostname0-->|Task| Check_connectivity1[check connectivity]:::task
+  Check_connectivity1-->|Task| Fail_on_disconnect2[fail on disconnect<br>When: **preflight network check status is not defined or<br>preflight network check status    200**]:::task
+  Fail_on_disconnect2-->|Task| Check_disk_space3[check disk space]:::task
+  Check_disk_space3-->|Task| Assert_disk_space4[assert disk space]:::task
+  Assert_disk_space4-->|Task| Assert_memory5[assert memory]:::task
+  Assert_memory5-->|Task| Assert_architecture6[assert architecture]:::task
+  Assert_architecture6-->End
 ```
 
 

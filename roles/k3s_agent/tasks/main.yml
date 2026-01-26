@@ -88,46 +88,51 @@
 
 # Wait for node to appear and become ready on the cluster
 - name: Wait for node to be ready
-  ansible.builtin.shell: |
-    set -o pipefail
-    kubectl get node {{ ansible_facts['hostname'] }} -o jsonpath='{.status.conditions[?(@.type=="Ready")].status}'
-  args:
-    executable: /bin/bash
-  environment:
-    KUBECONFIG: "{{ k3s_agent_kubeconfig_path | default('/etc/rancher/k3s/k3s.yaml') }}"
+  kubernetes.core.k8s_info:
+    kind: Node
+    name: "{{ ansible_facts['hostname'] }}"
+    kubeconfig: "{{ k8s_kubeconfig }}"
   delegate_to: "{{ groups['k3s_server'][0] }}"
-  register: node_ready
+  register: node_info
+  until: >-
+    node_info.resources | length > 0 and
+    (node_info.resources[0].status.conditions |
+     selectattr('type', 'equalto', 'Ready') |
+     map(attribute='status') |
+     first) == 'True'
   retries: "{{ k3s_agent_readyz_retries }}"
   delay: "{{ k3s_agent_readyz_delay }}"
-  until: node_ready.stdout == "True"
-  changed_when: false
   when: not ansible_check_mode
 
 # Apply node labels if specified
 - name: Apply node labels
-  ansible.builtin.command: >
-    kubectl label node {{ ansible_facts['hostname'] }} {{ item }} --overwrite
-  environment:
-    KUBECONFIG: "{{ k3s_agent_kubeconfig_path | default('/etc/rancher/k3s/k3s.yaml') }}"
+  kubernetes.core.k8s:
+    kind: Node
+    name: "{{ ansible_facts['hostname'] }}"
+    kubeconfig: "{{ k8s_kubeconfig }}"
+    definition:
+      metadata:
+        labels: "{{ dict(k3s_agent_node_labels | map('split', '=') | map('list')) }}"
   delegate_to: "{{ groups['k3s_server'][0] }}"
-  loop: "{{ k3s_agent_node_labels }}"
   when:
     - k3s_agent_node_labels | length > 0
     - not ansible_check_mode
-  changed_when: true
 
 # Apply node taints if specified
 - name: Apply node taints
-  ansible.builtin.command: >
-    kubectl taint node {{ ansible_facts['hostname'] }} {{ item }} --overwrite
-  environment:
-    KUBECONFIG: "{{ k3s_agent_kubeconfig_path | default('/etc/rancher/k3s/k3s.yaml') }}"
+  kubernetes.core.k8s_taint:
+    name: "{{ ansible_facts['hostname'] }}"
+    kubeconfig: "{{ k8s_kubeconfig }}"
+    taints:
+      - key: "{{ item.split(':')[0].split('=')[0] }}"
+        value: "{{ item.split(':')[0].split('=')[1] | default(omit) }}"
+        effect: "{{ item.split(':')[1] }}"
+    state: present
   delegate_to: "{{ groups['k3s_server'][0] }}"
   loop: "{{ k3s_agent_node_taints }}"
   when:
     - k3s_agent_node_taints | length > 0
     - not ansible_check_mode
-  changed_when: true
 
 # Display success message
 - name: Show agent join status

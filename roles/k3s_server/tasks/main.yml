@@ -146,7 +146,7 @@
 # Create secure kubeconfig directory for ansible user
 - name: Create user kube dir
   ansible.builtin.file:
-    path: "/home/{{ ansible_user }}/.kube"
+    path: "{{ k8s_kubeconfig | dirname }}"
     state: directory
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
@@ -156,36 +156,40 @@
 - name: Write user config
   ansible.builtin.copy:
     content: "{{ k3s_kubeconfig_canonical }}"
-    dest: "/home/{{ ansible_user }}/.kube/config"
+    dest: "{{ k8s_kubeconfig }}"
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
     mode: "0600"
   when: not ansible_check_mode
 # Verify Kubernetes API server is ready before proceeding
 - name: Wait for apiserver
-  ansible.builtin.command: kubectl api-resources
+  kubernetes.core.k8s_info:
+    kind: Namespace
+    name: kube-system
+    kubeconfig: "{{ k8s_kubeconfig }}"
   register: k3s_server_readyz
   retries: "{{ k3s_server_readyz_retries }}"
   delay: "{{ k3s_server_readyz_delay }}"
-  until: k3s_server_readyz.rc == 0
-  changed_when: false
+  until: k3s_server_readyz.resources | length > 0
   when: not ansible_check_mode
   become: false
-  environment:
-    KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
+
 # Remove default Traefik ingress controller if disabled
 - name: Remove Traefik
-  ansible.builtin.command: >
-    kubectl -n kube-system delete helmchart traefik traefik-crd --ignore-not-found
-
-  register: k3s_traefik_cleanup
-  changed_when: "'deleted' in k3s_traefik_cleanup.stdout"
+  kubernetes.core.k8s:
+    api_version: helm.cattle.io/v1
+    kind: HelmChart
+    name: "{{ item }}"
+    namespace: kube-system
+    state: absent
+    kubeconfig: "{{ k8s_kubeconfig }}"
+  loop:
+    - traefik
+    - traefik-crd
   when:
     - not ansible_check_mode
     - k3s_server_disable_traefik | bool
   become: false
-  environment:
-    KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
 # Copy kubeconfig to local machine for remote cluster management
 - name: Copy local config
   when:

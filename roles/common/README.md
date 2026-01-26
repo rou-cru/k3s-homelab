@@ -25,20 +25,10 @@ RoG hardware tweaks, and network optimizations.
 **Options**:
 
 
-  - **common_network_optimization_enabled**
-    - **Required**: False
-    - **Type**: bool
-    - **Default**: True
-  
-    - **Description**: Enables sysctl adjustments for network performance.
-  
-  
-  
-
   - **common_rog_server**
     - **Required**: False
     - **Type**: bool
-    - **Default**: True
+    - **Default**: False
   
     - **Description**: Enables ASUS RoG specific hardware tweaks (drivers, LEDs, power profiles).
   
@@ -48,7 +38,7 @@ RoG hardware tweaks, and network optimizations.
   - **common_radio_block_enabled**
     - **Required**: False
     - **Type**: bool
-    - **Default**: True
+    - **Default**: False
   
     - **Description**: Soft-blocks WiFi and Bluetooth radios to save power.
   
@@ -58,7 +48,7 @@ RoG hardware tweaks, and network optimizations.
   - **common_audio_optimization_enabled**
     - **Required**: False
     - **Type**: bool
-    - **Default**: True
+    - **Default**: False
   
     - **Description**: Installs alsa-utils and configures realtime limits for audio.
   
@@ -145,20 +135,10 @@ RoG hardware tweaks, and network optimizations.
   
   
 
-  - **common_ring_buffer_target**
-    - **Required**: False
-    - **Type**: int
-    - **Default**: 4096
-  
-    - **Description**: Target size for network ring buffers.
-  
-  
-  
-
   - **common_mining_enabled**
     - **Required**: False
     - **Type**: bool
-    - **Default**: True
+    - **Default**: False
   
     - **Description**: Enables optimizations for crypto mining (hugepages, MSR).
   
@@ -252,69 +232,67 @@ RoG hardware tweaks, and network optimizations.
 
 | Var          | Type         | Value       |Required    | Title       |
 |--------------|--------------|-------------|------------|-------------|
-| [common_network_optimization_enabled](defaults/main.yml#L5)   | bool | `False` |    false  |  Network Optimization |
-| [common_install_network_manager](defaults/main.yml#L10)   | bool | `True` |    false  |  Install NetworkManager |
-| [common_install_acpid](defaults/main.yml#L15)   | bool | `True` |    false  |  Install ACPI daemon |
-| [common_install_cloud_binaries](defaults/main.yml#L20)   | bool | `True` |    false  |  Install Cloud-Native Binaries |
-| [common_install_k8s_python](defaults/main.yml#L25)   | bool | `True` |    false  |  Install K8s Python Dependencies |
-| [common_install_debug_packages](defaults/main.yml#L30)   | bool | `True` |    false  |  Install Debug Packages |
-| [common_install_dev_packages](defaults/main.yml#L35)   | bool | `True` |    false  |  Install Dev Packages |
-| [common_install_github_cli_repo](defaults/main.yml#L40)   | bool | `True` |    false  |  Install GitHub CLI Repository |
-| [common_install_hwe_kernel](defaults/main.yml#L45)   | bool | `True` |    false  |  Install HWE kernel |
-| [common_rog_server](defaults/main.yml#L50)   | bool | `False` |    false  |  RoG Server Support |
-| [common_radio_block_enabled](defaults/main.yml#L55)   | bool | `False` |    false  |  Radio Block |
-| [common_audio_optimization_enabled](defaults/main.yml#L60)   | bool | `False` |    false  |  Audio Optimization |
-| [common_file_descriptors_soft](defaults/main.yml#L65)   | int | `100000` |    false  |  File Descriptors (Soft) |
-| [common_file_descriptors_hard](defaults/main.yml#L70)   | int | `100000` |    false  |  File Descriptors (Hard) |
-| [common_fs_file_max](defaults/main.yml#L75)   | int | `2097152` |    false  |  System File Max |
-| [common_inotify_max_instances](defaults/main.yml#L80)   | int | `8192` |    false  |  Inotify Instances |
-| [common_inotify_max_watches](defaults/main.yml#L85)   | int | `524288` |    false  |  Inotify Watches |
-| [common_power_efficiency_tuning_enabled](defaults/main.yml#L90)   | bool | `False` |    false  |  Power Efficiency Tuning |
-| [common_intel_rapl_pl1_limit_microwatts](defaults/main.yml#L95)   | int | `100000000` |    false  |  Intel RAPL PL1 Limit (Microwatts) |
-| [common_intel_rapl_pl2_limit_microwatts](defaults/main.yml#L100)   | int | `140000000` |    false  |  Intel RAPL PL2 Limit (Microwatts) |
-| [common_intel_pstate_max_perf_pct](defaults/main.yml#L105)   | int | `80` |    false  |  Intel P-State Max Performance Percent |
-| [common_intel_pstate_no_turbo](defaults/main.yml#L110)   | int | `1` |    false  |  Intel P-State Disable Turbo |
-| [common_watchdog_timeout_sec](defaults/main.yml#L115)   | int | `120` |    false  |  Watchdog Timeout |
-| [common_battery_charge_threshold](defaults/main.yml#L120)   | int | `80` |    false  |  Battery Charge Threshold |
-| [common_thermal_policy](defaults/main.yml#L125)   | int | `1` |    false  |  Thermal Policy |
-| [common_ring_buffer_target](defaults/main.yml#L130)   | int | `4096` |    false  |  Ring Buffer Target |
-| [common_mining_enabled](defaults/main.yml#L135)   | bool | `False` |    false  |  Mining Optimization |
-| [common_hugepages_count](defaults/main.yml#L140)   | int | `1280` |    false  |  Hugepages Count |
-| [common_helm_repositories](defaults/main.yml#L145)   | list | `[]` |    false  |  Helm Repositories |
-| [common_helm_repositories.**0**](defaults/main.yml#L151)   | dict | `{}` |    false  |  Helm Repository |
-| [common_helm_repositories.0.**name**](defaults/main.yml#L151)   | str | `cilium` |    false  |  Helm Repository |
-| [common_helm_repositories.0.**repo_url**](defaults/main.yml#L156)   | str | `https://helm.cilium.io/` |    false  |  Helm Repository URL |
-| [common_helm_repositories.**1**](defaults/main.yml#L162)   | dict | `{}` |    false  |  Helm Repository |
-| [common_helm_repositories.1.**name**](defaults/main.yml#L162)   | str | `nvdp` |    false  |  Helm Repository |
-| [common_helm_repositories.1.**repo_url**](defaults/main.yml#L167)   | str | `https://nvidia.github.io/k8s-device-plugin` |    false  |  Helm Repository URL |
-| [common_uv_install_script_checksum](defaults/main.yml#L172)   | str | `10fb1f54d56f3eb60622006797339d4ea0bfda9b358d07db635f73cf89f7094c` |    false  |  UV install script checksum |
-| [common_helm_install_script_checksum](defaults/main.yml#L177)   | str | `38b65f882d9cae3891755bdb03becc6a01ae6f9cb24826c191f219ddfee70a5d` |    false  |  Helm install script checksum |
-| [common_debug_packages](defaults/main.yml#L183)   | list | `[]` |    false  |  Debug Packages |
-| [common_debug_packages.**0**](defaults/main.yml#L184)   | str | `dnsutils` |    None  |  None |
-| [common_debug_packages.**1**](defaults/main.yml#L185)   | str | `htop` |    None  |  None |
-| [common_debug_packages.**2**](defaults/main.yml#L186)   | str | `iotop` |    None  |  None |
-| [common_debug_packages.**3**](defaults/main.yml#L187)   | str | `jq` |    None  |  None |
-| [common_debug_packages.**4**](defaults/main.yml#L188)   | str | `lsof` |    None  |  None |
-| [common_debug_packages.**5**](defaults/main.yml#L189)   | str | `net-tools` |    None  |  None |
-| [common_debug_packages.**6**](defaults/main.yml#L190)   | str | `ripgrep` |    None  |  None |
-| [common_debug_packages.**7**](defaults/main.yml#L191)   | str | `sysstat` |    None  |  None |
-| [common_debug_packages.**8**](defaults/main.yml#L192)   | str | `tcpdump` |    None  |  None |
-| [common_debug_packages.**9**](defaults/main.yml#L193)   | str | `tmux` |    None  |  None |
-| [common_debug_packages.**10**](defaults/main.yml#L194)   | str | `traceroute` |    None  |  None |
-| [common_dev_packages](defaults/main.yml#L201)   | list | `[]` |    false  |  Dev Packages |
-| [common_dev_packages.**0**](defaults/main.yml#L202)   | str | `gh` |    None  |  None |
-| [common_dev_packages.**1**](defaults/main.yml#L203)   | str | `imagemagick` |    None  |  None |
-| [common_dev_packages.**2**](defaults/main.yml#L204)   | str | `s-tui` |    None  |  None |
-| [common_dev_packages.**3**](defaults/main.yml#L205)   | str | `fbi` |    None  |  None |
-| [common_dev_packages.**4**](defaults/main.yml#L206)   | str | `nvtop` |    None  |  None |
-| [common_dev_packages.**5**](defaults/main.yml#L207)   | str | `tree` |    None  |  None |
-| [common_dev_packages.**6**](defaults/main.yml#L208)   | str | `make` |    None  |  None |
-| [common_dev_packages.**7**](defaults/main.yml#L209)   | str | `cmake` |    None  |  None |
-| [common_dev_packages.**8**](defaults/main.yml#L210)   | str | `ninja-build` |    None  |  None |
-| [common_dev_packages.**9**](defaults/main.yml#L211)   | str | `git` |    None  |  None |
-| [common_dev_packages.**10**](defaults/main.yml#L212)   | str | `timeshift` |    None  |  None |
-| [common_dev_packages.**11**](defaults/main.yml#L213)   | str | `xvfb` |    None  |  None |
-| [common_dev_packages.**12**](defaults/main.yml#L214)   | str | `sqlite3` |    None  |  None |
+| [common_install_network_manager](defaults/main.yml#L5)   | bool | `True` |    false  |  Install NetworkManager |
+| [common_install_acpid](defaults/main.yml#L10)   | bool | `True` |    false  |  Install ACPI daemon |
+| [common_install_cloud_binaries](defaults/main.yml#L15)   | bool | `True` |    false  |  Install Cloud-Native Binaries |
+| [common_install_k8s_python](defaults/main.yml#L20)   | bool | `True` |    false  |  Install K8s Python Dependencies |
+| [common_install_debug_packages](defaults/main.yml#L25)   | bool | `True` |    false  |  Install Debug Packages |
+| [common_install_dev_packages](defaults/main.yml#L30)   | bool | `True` |    false  |  Install Dev Packages |
+| [common_install_github_cli_repo](defaults/main.yml#L35)   | bool | `True` |    false  |  Install GitHub CLI Repository |
+| [common_install_hwe_kernel](defaults/main.yml#L40)   | bool | `True` |    false  |  Install HWE kernel |
+| [common_rog_server](defaults/main.yml#L45)   | bool | `False` |    false  |  RoG Server Support |
+| [common_radio_block_enabled](defaults/main.yml#L50)   | bool | `False` |    false  |  Radio Block |
+| [common_audio_optimization_enabled](defaults/main.yml#L55)   | bool | `False` |    false  |  Audio Optimization |
+| [common_file_descriptors_soft](defaults/main.yml#L60)   | int | `100000` |    false  |  File Descriptors (Soft) |
+| [common_file_descriptors_hard](defaults/main.yml#L65)   | int | `100000` |    false  |  File Descriptors (Hard) |
+| [common_fs_file_max](defaults/main.yml#L70)   | int | `2097152` |    false  |  System File Max |
+| [common_inotify_max_instances](defaults/main.yml#L75)   | int | `8192` |    false  |  Inotify Instances |
+| [common_inotify_max_watches](defaults/main.yml#L80)   | int | `524288` |    false  |  Inotify Watches |
+| [common_power_efficiency_tuning_enabled](defaults/main.yml#L85)   | bool | `False` |    false  |  Power Efficiency Tuning |
+| [common_intel_rapl_pl1_limit_microwatts](defaults/main.yml#L90)   | int | `100000000` |    false  |  Intel RAPL PL1 Limit (Microwatts) |
+| [common_intel_rapl_pl2_limit_microwatts](defaults/main.yml#L95)   | int | `140000000` |    false  |  Intel RAPL PL2 Limit (Microwatts) |
+| [common_intel_pstate_max_perf_pct](defaults/main.yml#L100)   | int | `80` |    false  |  Intel P-State Max Performance Percent |
+| [common_intel_pstate_no_turbo](defaults/main.yml#L105)   | int | `1` |    false  |  Intel P-State Disable Turbo |
+| [common_watchdog_timeout_sec](defaults/main.yml#L110)   | int | `120` |    false  |  Watchdog Timeout |
+| [common_battery_charge_threshold](defaults/main.yml#L115)   | int | `80` |    false  |  Battery Charge Threshold |
+| [common_thermal_policy](defaults/main.yml#L120)   | int | `1` |    false  |  Thermal Policy |
+| [common_mining_enabled](defaults/main.yml#L125)   | bool | `False` |    false  |  Mining Optimization |
+| [common_hugepages_count](defaults/main.yml#L130)   | int | `1280` |    false  |  Hugepages Count |
+| [common_helm_repositories](defaults/main.yml#L135)   | list | `[]` |    false  |  Helm Repositories |
+| [common_helm_repositories.**0**](defaults/main.yml#L141)   | dict | `{}` |    false  |  Helm Repository |
+| [common_helm_repositories.0.**name**](defaults/main.yml#L141)   | str | `cilium` |    false  |  Helm Repository |
+| [common_helm_repositories.0.**repo_url**](defaults/main.yml#L146)   | str | `https://helm.cilium.io/` |    false  |  Helm Repository URL |
+| [common_helm_repositories.**1**](defaults/main.yml#L152)   | dict | `{}` |    false  |  Helm Repository |
+| [common_helm_repositories.1.**name**](defaults/main.yml#L152)   | str | `nvdp` |    false  |  Helm Repository |
+| [common_helm_repositories.1.**repo_url**](defaults/main.yml#L157)   | str | `https://nvidia.github.io/k8s-device-plugin` |    false  |  Helm Repository URL |
+| [common_uv_install_script_checksum](defaults/main.yml#L162)   | str | `10fb1f54d56f3eb60622006797339d4ea0bfda9b358d07db635f73cf89f7094c` |    false  |  UV install script checksum |
+| [common_helm_install_script_checksum](defaults/main.yml#L167)   | str | `38b65f882d9cae3891755bdb03becc6a01ae6f9cb24826c191f219ddfee70a5d` |    false  |  Helm install script checksum |
+| [common_debug_packages](defaults/main.yml#L173)   | list | `[]` |    false  |  Debug Packages |
+| [common_debug_packages.**0**](defaults/main.yml#L174)   | str | `dnsutils` |    None  |  None |
+| [common_debug_packages.**1**](defaults/main.yml#L175)   | str | `htop` |    None  |  None |
+| [common_debug_packages.**2**](defaults/main.yml#L176)   | str | `iotop` |    None  |  None |
+| [common_debug_packages.**3**](defaults/main.yml#L177)   | str | `jq` |    None  |  None |
+| [common_debug_packages.**4**](defaults/main.yml#L178)   | str | `lsof` |    None  |  None |
+| [common_debug_packages.**5**](defaults/main.yml#L179)   | str | `net-tools` |    None  |  None |
+| [common_debug_packages.**6**](defaults/main.yml#L180)   | str | `ripgrep` |    None  |  None |
+| [common_debug_packages.**7**](defaults/main.yml#L181)   | str | `sysstat` |    None  |  None |
+| [common_debug_packages.**8**](defaults/main.yml#L182)   | str | `tcpdump` |    None  |  None |
+| [common_debug_packages.**9**](defaults/main.yml#L183)   | str | `tmux` |    None  |  None |
+| [common_debug_packages.**10**](defaults/main.yml#L184)   | str | `traceroute` |    None  |  None |
+| [common_dev_packages](defaults/main.yml#L191)   | list | `[]` |    false  |  Dev Packages |
+| [common_dev_packages.**0**](defaults/main.yml#L192)   | str | `gh` |    None  |  None |
+| [common_dev_packages.**1**](defaults/main.yml#L193)   | str | `imagemagick` |    None  |  None |
+| [common_dev_packages.**2**](defaults/main.yml#L194)   | str | `s-tui` |    None  |  None |
+| [common_dev_packages.**3**](defaults/main.yml#L195)   | str | `fbi` |    None  |  None |
+| [common_dev_packages.**4**](defaults/main.yml#L196)   | str | `nvtop` |    None  |  None |
+| [common_dev_packages.**5**](defaults/main.yml#L197)   | str | `tree` |    None  |  None |
+| [common_dev_packages.**6**](defaults/main.yml#L198)   | str | `make` |    None  |  None |
+| [common_dev_packages.**7**](defaults/main.yml#L199)   | str | `cmake` |    None  |  None |
+| [common_dev_packages.**8**](defaults/main.yml#L200)   | str | `ninja-build` |    None  |  None |
+| [common_dev_packages.**9**](defaults/main.yml#L201)   | str | `git` |    None  |  None |
+| [common_dev_packages.**10**](defaults/main.yml#L202)   | str | `timeshift` |    None  |  None |
+| [common_dev_packages.**11**](defaults/main.yml#L203)   | str | `xvfb` |    None  |  None |
+| [common_dev_packages.**12**](defaults/main.yml#L204)   | str | `sqlite3` |    None  |  None |
 
 
 
@@ -323,7 +301,6 @@ RoG hardware tweaks, and network optimizations.
 <br>
 <table>
 <th>Var</th><th>Description</th>
-<tr><td><b>common_network_optimization_enabled</b></td><td>Enables sysctl adjustments for network performance.</td></tr>
 <tr><td><b>common_install_network_manager</b></td><td>Installs network-manager package.</td></tr>
 <tr><td><b>common_install_acpid</b></td><td>Installs acpid package.</td></tr>
 <tr><td><b>common_install_cloud_binaries</b></td><td>Installs uv/kubectl/helm and related tooling.</td></tr>
@@ -348,7 +325,6 @@ RoG hardware tweaks, and network optimizations.
 <tr><td><b>common_watchdog_timeout_sec</b></td><td>Hardware watchdog timeout in seconds (RuntimeWatchdogSec).</td></tr>
 <tr><td><b>common_battery_charge_threshold</b></td><td>Battery charge limit percentage for RoG laptops.</td></tr>
 <tr><td><b>common_thermal_policy</b></td><td>RoG thermal policy ID (0=balanced, 1=turbo, 2=silent - check specific model).</td></tr>
-<tr><td><b>common_ring_buffer_target</b></td><td>Target size for network ring buffers.</td></tr>
 <tr><td><b>common_mining_enabled</b></td><td>Enables optimizations for crypto mining (hugepages, MSR).</td></tr>
 <tr><td><b>common_hugepages_count</b></td><td>Number of hugepages to allocate if mining is enabled.</td></tr>
 <tr><td><b>common_helm_repositories</b></td><td>List of Helm repositories to add; each item is {name, repo_url}.</td></tr>
@@ -415,13 +391,9 @@ RoG hardware tweaks, and network optimizations.
 | [Block wireless radios](tasks/hardware_tuning.yml#L28) | ansible.builtin.command | True | Disable WiFi and Bluetooth radios to reduce power consumption and interference |
 | [Optimize audio limits](tasks/hardware_tuning.yml#L40) | community.general.pam_limits | True | Configure PAM limits for real-time audio processing and unlimited memory locking |
 | [Enable fstrim](tasks/hardware_tuning.yml#L51) | ansible.builtin.systemd | False | Enable automatic SSD trimming for optimal storage performance and longevity |
-
-#### File: tasks/helm_setup.yml
-
-| Name | Module | Has Conditions |
-| ---- | ------ | -------------- |
-| [Ensure Helm config directory exists](tasks/helm_setup.yml#L1) | ansible.builtin.file | False |
-| [Add Helm Repositories](tasks/helm_setup.yml#L7) | kubernetes.core.helm_repository | False |
+| [Deploy RoG Hardware Tweaks Script](tasks/hardware_tuning.yml#L59) | ansible.builtin.template | True | ASUS RoG specific hardware configuration |
+| [Deploy systemd service for RoG Tweaks](tasks/hardware_tuning.yml#L68) | ansible.builtin.copy | True |  |
+| [Enable and start RoG Tweaks service](tasks/hardware_tuning.yml#L77) | ansible.builtin.systemd | True |  |
 
 #### File: tasks/main.yml
 
@@ -442,6 +414,8 @@ RoG hardware tweaks, and network optimizations.
 | [Apply hardware tuning](tasks/main.yml#L78) | ansible.builtin.include_tasks | False | Apply hardware-specific optimizations |
 | [System Tuning](tasks/main.yml#L81) | ansible.builtin.include_tasks | False | Apply system-level performance tuning |
 | [Install Cloud-Native Binaries](tasks/main.yml#L84) | ansible.builtin.include_tasks | False | Install Kubernetes and container tools |
+| [Ensure Helm config directory exists](tasks/main.yml#L88) | ansible.builtin.file | True | Configure Helm repositories (inline from helm_setup.yml) |
+| [Add Helm Repositories](tasks/main.yml#L96) | kubernetes.core.helm_repository | True |  |
 
 #### File: tasks/network_optimization.yml
 
@@ -467,16 +441,6 @@ Optimize Realtek network drivers for ASUS RoG hardware |
 | [Configure logind to ignore Lid Switch](tasks/power_management.yml#L2) | ansible.builtin.lineinfile | True | Power management: disable suspension and lid switch handling |
 | [Mask sleep and suspend targets to prevent accidental suspension](tasks/power_management.yml#L14) | ansible.builtin.systemd | True |  |
 | [Configure Power Efficiency Tuning (tmpfiles.d)](tasks/power_management.yml#L26) | ansible.builtin.template | True |  |
-
-#### File: tasks/rog_hardware.yml
-
-| Name | Module | Has Conditions | Comments |
-| ---- | ------ | -------------- | -------- |
-| [Deploy RoG Hardware Tweaks Script](tasks/rog_hardware.yml#L4) | ansible.builtin.template | False | ASUS RoG specific hardware configuration
-ASUSCTL - ASUS specific hardware control (optional, disabled by default)
-ROG HARDWARE TWEAKS - Low-level optimizations (always enabled) |
-| [Deploy systemd service for RoG Tweaks](tasks/rog_hardware.yml#L9) | ansible.builtin.copy | False |  |
-| [Enable and start RoG Tweaks service](tasks/rog_hardware.yml#L14) | ansible.builtin.systemd | False |  |
 
 #### File: tasks/system_tuning.yml
 
@@ -590,27 +554,10 @@ classDef rescue stroke:#665352,stroke-width:2px;
   Start_irqbalance2-->|Task| Block_wireless_radios3[block wireless radios<br>When: **common radio block enabled   bool and ansible<br>facts  virtualization role       guest  and not<br>ansible check mode**]:::task
   Block_wireless_radios3-->|Task| Optimize_audio_limits4[optimize audio limits<br>When: **common audio optimization enabled   bool**]:::task
   Optimize_audio_limits4-->|Task| Enable_fstrim5[enable fstrim]:::task
-  Enable_fstrim5-->End
-```
-
-
-### Graph for helm_setup.yml
-
-```mermaid
-flowchart TD
-Start
-classDef block stroke:#3498db,stroke-width:2px;
-classDef task stroke:#4b76bb,stroke-width:2px;
-classDef includeTasks stroke:#16a085,stroke-width:2px;
-classDef importTasks stroke:#34495e,stroke-width:2px;
-classDef includeRole stroke:#2980b9,stroke-width:2px;
-classDef importRole stroke:#699ba7,stroke-width:2px;
-classDef includeVars stroke:#8e44ad,stroke-width:2px;
-classDef rescue stroke:#665352,stroke-width:2px;
-
-  Start-->|Task| Ensure_Helm_config_directory_exists0[ensure helm config directory exists]:::task
-  Ensure_Helm_config_directory_exists0-->|Task| Add_Helm_Repositories1[add helm repositories]:::task
-  Add_Helm_Repositories1-->End
+  Enable_fstrim5-->|Task| Deploy_RoG_Hardware_Tweaks_Script6[deploy rog hardware tweaks script<br>When: **common rog server   bool and ansible facts <br>virtualization role     default  guest       guest<br>**]:::task
+  Deploy_RoG_Hardware_Tweaks_Script6-->|Task| Deploy_systemd_service_for_RoG_Tweaks7[deploy systemd service for rog tweaks<br>When: **common rog server   bool and ansible facts <br>virtualization role     default  guest       guest<br>**]:::task
+  Deploy_systemd_service_for_RoG_Tweaks7-->|Task| Enable_and_start_RoG_Tweaks_service8[enable and start rog tweaks service<br>When: **common rog server   bool and ansible facts <br>virtualization role     default  guest       guest<br>**]:::task
+  Enable_and_start_RoG_Tweaks_service8-->End
 ```
 
 
@@ -643,7 +590,9 @@ classDef rescue stroke:#665352,stroke-width:2px;
   Configure_power_power_management_yml_11-->|Include task| Apply_hardware_tuning_hardware_tuning_yml_12[apply hardware tuning<br>include_task: hardware tuning yml]:::includeTasks
   Apply_hardware_tuning_hardware_tuning_yml_12-->|Include task| System_Tuning_system_tuning_yml_13[system tuning<br>include_task: system tuning yml]:::includeTasks
   System_Tuning_system_tuning_yml_13-->|Include task| Install_Cloud_Native_Binaries_binaries_yml_14[install cloud native binaries<br>include_task: binaries yml]:::includeTasks
-  Install_Cloud_Native_Binaries_binaries_yml_14-->End
+  Install_Cloud_Native_Binaries_binaries_yml_14-->|Task| Ensure_Helm_config_directory_exists15[ensure helm config directory exists<br>When: **common install cloud binaries   bool**]:::task
+  Ensure_Helm_config_directory_exists15-->|Task| Add_Helm_Repositories16[add helm repositories<br>When: **common install cloud binaries   bool**]:::task
+  Add_Helm_Repositories16-->End
 ```
 
 
@@ -699,27 +648,6 @@ classDef rescue stroke:#665352,stroke-width:2px;
   Configure_logind_to_ignore_Lid_Switch0-->|Task| Mask_sleep_and_suspend_targets_to_prevent_accidental_suspension1[mask sleep and suspend targets to prevent<br>accidental suspension<br>When: **ansible facts  virtualization role       guest**]:::task
   Mask_sleep_and_suspend_targets_to_prevent_accidental_suspension1-->|Task| Configure_Power_Efficiency_Tuning__tmpfiles_d_2[configure power efficiency tuning  tmpfiles d <br>When: **common power efficiency tuning enabled   bool and<br>ansible facts  processor vendor   is defined and<br>ansible facts  processor vendor       genuineintel<br>**]:::task
   Configure_Power_Efficiency_Tuning__tmpfiles_d_2-->End
-```
-
-
-### Graph for rog_hardware.yml
-
-```mermaid
-flowchart TD
-Start
-classDef block stroke:#3498db,stroke-width:2px;
-classDef task stroke:#4b76bb,stroke-width:2px;
-classDef includeTasks stroke:#16a085,stroke-width:2px;
-classDef importTasks stroke:#34495e,stroke-width:2px;
-classDef includeRole stroke:#2980b9,stroke-width:2px;
-classDef importRole stroke:#699ba7,stroke-width:2px;
-classDef includeVars stroke:#8e44ad,stroke-width:2px;
-classDef rescue stroke:#665352,stroke-width:2px;
-
-  Start-->|Task| Deploy_RoG_Hardware_Tweaks_Script0[deploy rog hardware tweaks script]:::task
-  Deploy_RoG_Hardware_Tweaks_Script0-->|Task| Deploy_systemd_service_for_RoG_Tweaks1[deploy systemd service for rog tweaks]:::task
-  Deploy_systemd_service_for_RoG_Tweaks1-->|Task| Enable_and_start_RoG_Tweaks_service2[enable and start rog tweaks service]:::task
-  Enable_and_start_RoG_Tweaks_service2-->End
 ```
 
 
