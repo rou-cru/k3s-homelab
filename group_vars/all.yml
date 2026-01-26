@@ -1,3 +1,8 @@
 # Global Kubernetes Configuration
 # Standard location for Kubeconfig across all nodes and users
 k8s_kubeconfig: "/home/{{ ansible_user }}/.kube/config"
+
+ansible_become: true
+
+# SSH pipelining enabled for better performance
+ansible_ssh_pipelining: true

@@ -1,11 +1,9 @@
 # group_vars/vps.yml - Configuration overrides for VPS nodes
-# These settings disable hardware-specific features not applicable to virtual machines
 
 # Connection & Privilege settings
-# ansible_user defined in host_vars/k3s-vps.yml (rc with SSH key)
-ansible_become: true
-# SSH pipelining enabled for better performance
-ansible_ssh_pipelining: true
+# User rc with SSH key authentication
+ansible_user: rc
+
 
 # Common role overrides
 # Disable mining optimizations (hugepages, MSR module)

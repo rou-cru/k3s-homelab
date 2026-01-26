@@ -2,7 +2,7 @@
 # These nodes are physical machines managed by a non-root user (rc), requiring sudo.
 
 # Privilege Escalation
-ansible_become: true
+
 ansible_user: rc
 
 # Hardware & Performance Optimizations (Physical Server)
@@ -23,4 +23,4 @@ common_install_k8s_ansible_deps: true
 
 # Cluster Lifecycle
 # Avoid full rebuilds unless explicitly requested
-k3s_server_recreate: false
+k3s_server_recreate: true

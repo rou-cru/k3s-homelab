@@ -1,2 +1,0 @@
-# User rc with SSH key authentication (no password needed)
-ansible_user: rc

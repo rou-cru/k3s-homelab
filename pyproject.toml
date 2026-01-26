@@ -1,6 +1,6 @@
 [project]
-name = "k3s-homelab"
-description = "Proyecto de homelab con K3s y Ansible"
+name = "k3s-lab"
+description = "Proyecto de K3s con Ansible"
 version = "0.1.0"
 
 dependencies = [
@@ -9,7 +9,6 @@ dependencies = [
   "molecule-plugins[vagrant]>=23.5.0",
   "python-vagrant>=1.0.0",
   "pytest-testinfra>=10.0.0",
-  # kubernetes.core collection dependencies
   "kubernetes>=24.2.0",
   "PyYAML>=3.11",
   "jsonpatch",
