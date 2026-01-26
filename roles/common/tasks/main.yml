@@ -53,7 +53,7 @@
     - hwe_kernel_package is defined
     - common_install_hwe_kernel | bool
   register: common_hwe_kernel_install
-  ignore_errors: true
+  failed_when: false
 # Fallback to generic kernel if HWE installation fails or unavailable
 - name: Install generic kernel
   ansible.builtin.apt:
@@ -83,3 +83,20 @@
 # Install Kubernetes and container tools
 - name: Install Cloud-Native Binaries
   ansible.builtin.include_tasks: binaries.yml
+
+# Configure Helm repositories (inline from helm_setup.yml)
+- name: Ensure Helm config directory exists
+  ansible.builtin.file:
+    path: "/home/{{ ansible_user }}/.config/helm"
+    state: directory
+    mode: '0755'
+  become: false
+  when: common_install_cloud_binaries | bool
+
+- name: Add Helm Repositories
+  kubernetes.core.helm_repository:
+    name: "{{ item.name }}"
+    repo_url: "{{ item.repo_url }}"
+  loop: "{{ common_helm_repositories }}"
+  become: false
+  when: common_install_cloud_binaries | bool

@@ -54,18 +54,25 @@
       when: helm_binary_check.rc == 0
 
     - name: Check GPU resources
-      ansible.builtin.shell: >-
-        kubectl get nodes -o json | jq -r '.items[].status.capacity["nvidia.com/gpu"]'
-      register: gpu_resources_check
-      changed_when: false
-      failed_when: gpu_resources_check.rc != 0 and 'not found' not in gpu_resources_check.stderr
-      environment:
-        KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
+      kubernetes.core.k8s_info:
+        api_version: v1
+        kind: Node
+        kubeconfig: "/home/{{ ansible_user }}/.kube/config"
+      register: gpu_nodes_info
+      when: helm_binary_check.rc == 0
+
+    - name: Extract GPU capacities from nodes
+      ansible.builtin.set_fact:
+        gpu_resources: >-
+          {{ gpu_nodes_info.resources | default([])
+             | map(attribute='status.capacity', default={})
+             | map(attribute='nvidia.com/gpu', default='0')
+             | list }}
       when: helm_binary_check.rc == 0
 
     - name: Debug GPU resources
       ansible.builtin.debug:
-        msg: "✅ GPU resources detected: {{ gpu_resources_check.stdout_lines | join(', ') }}"
+        msg: "✅ GPU resources detected: {{ gpu_resources | join(', ') }}"
         verbosity: 1
       when: helm_binary_check.rc == 0
   when: not ansible_check_mode

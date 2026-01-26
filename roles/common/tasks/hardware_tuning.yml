@@ -54,3 +54,33 @@
     enabled: true
     state: started
   ignore_errors: "{{ ansible_check_mode }}"
+
+# ASUS RoG specific hardware configuration
+- name: Deploy RoG Hardware Tweaks Script
+  ansible.builtin.template:
+    src: apply-rog-tweaks.sh.j2
+    dest: /usr/local/bin/apply-rog-tweaks.sh
+    mode: "0755"
+  when:
+    - common_rog_server | bool
+    - ansible_facts['virtualization_role'] | default('guest') != 'guest'
+
+- name: Deploy systemd service for RoG Tweaks
+  ansible.builtin.copy:
+    src: rog-server-tweaks.service
+    dest: /etc/systemd/system/rog-server-tweaks.service
+    mode: "0640"
+  when:
+    - common_rog_server | bool
+    - ansible_facts['virtualization_role'] | default('guest') != 'guest'
+
+- name: Enable and start RoG Tweaks service
+  ansible.builtin.systemd:
+    name: rog-server-tweaks
+    enabled: true
+    state: started
+    daemon_reload: true
+  ignore_errors: "{{ ansible_check_mode }}"
+  when:
+    - common_rog_server | bool
+    - ansible_facts['virtualization_role'] | default('guest') != 'guest'

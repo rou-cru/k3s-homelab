@@ -114,7 +114,6 @@
     host: "{{ tailscale_ip }}"
     port: 22
     timeout: 10
-  ignore_errors: true
   register: tailscale_connectivity_check
   when: tailscale_ip is defined and tailscale_ip | length > 0
 # Display warning if Tailscale connectivity test fails

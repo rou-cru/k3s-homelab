@@ -1,27 +1,20 @@
-# @docsible Check hddtemp availability
-- name: Check hddtemp availability
-  ansible.builtin.command: apt-cache show hddtemp
-  register: glances_hddtemp_available
-  changed_when: false
-  failed_when: false
-  check_mode: no
-# @docsible Build system package list
-- name: Build Glances system package list
-  ansible.builtin.set_fact:
-    glances_system_packages: >-
-      {{
-
-
-        ['python3-venv', 'python3-pip', 'lm-sensors']
-        + (['hddtemp'] if glances_hddtemp_available.stdout | length > 0 else [])
-      }}
-# @docsible Install system dependencies
-- name: Install system dependencies for Glances and sensors
+# @docsible Install core system dependencies
+- name: Install core system dependencies for Glances
   ansible.builtin.apt:
-    name: "{{ glances_system_packages }}"
+    name:
+      - python3-venv
+      - python3-pip
+      - lm-sensors
     state: present
     update_cache: true
     cache_valid_time: 3600
+
+# @docsible Install hddtemp on physical hardware
+- name: Install hddtemp
+  ansible.builtin.apt:
+    name: hddtemp
+    state: present
+  when: ansible_virtualization_role | default('guest') != 'guest'
 # @docsible Create Glances venv directory
 - name: Create directory for Glances venv
   ansible.builtin.file:

@@ -136,13 +136,6 @@
         - not ansible_check_mode
       tags: ["cluster", "apps", "miners"]
       become: false
-    # @docsible Prepare Helm
-    - name: Setup Helm Repos
-      ansible.builtin.import_role:
-        name: common
-        tasks_from: helm_setup.yml
-      tags: ["cluster", "infrastructure"]
-      when: not ansible_check_mode
     # @docsible Deploy CRDs for service monitors
     - name: Run crds_bootstrap role
       ansible.builtin.import_role:

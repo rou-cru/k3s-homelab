@@ -20,7 +20,7 @@
 - name: Install NVM
   ansible.builtin.shell: |
     set -euo pipefail
-    curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+    curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/{{ devtools_nvm_version }}/install.sh | bash
   args:
     creates: /root/.nvm/nvm.sh
     executable: /bin/bash
@@ -67,7 +67,6 @@
     creates: /root/.local/bin/kimi
   environment:
     PATH: "/root/.cargo/bin:{{ ansible_facts['env']['PATH'] }}"
-  ignore_errors: true
   when: not ansible_check_mode
 # AI CLI tools (npm)
 - name: Install AI tools
@@ -83,7 +82,6 @@
     - "@google/gemini-cli"
     - "@qwen-code/qwen-code"
     - "@openai/codex"
-  ignore_errors: true
   when: not ansible_check_mode
 # Docker (optional, disabled by default)
 - name: Install Docker
@@ -226,7 +224,6 @@
       ansible.builtin.command: vagrant plugin list
       register: vagrant_plugin_list
       changed_when: false
-      ignore_errors: true
     - name: Install vagrant-libvirt plugin
       ansible.builtin.command: vagrant plugin install vagrant-libvirt
       register: vagrant_plugin_result

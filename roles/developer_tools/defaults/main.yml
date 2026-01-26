@@ -1,3 +1,8 @@
+# Title: NVM Version
+# Description: Version of NVM (Node Version Manager) to install.
+# Type: str
+# Required: false
+devtools_nvm_version: "v0.39.7"
 # Title: Install Docker
 # Description: Installs Docker CLI (not recommended for K3s nodes which use containerd).
 # Type: bool

@@ -46,7 +46,7 @@
     - name: Check current kubectl version
       ansible.builtin.command: kubectl version --client
       register: kubectl_current_version
-      ignore_errors: true
+      failed_when: false
       changed_when: false
     - name: Download and install kubectl
       ansible.builtin.get_url:

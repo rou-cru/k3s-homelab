@@ -1,8 +1,3 @@
-# Title: Network Optimization
-# Description: Enables sysctl adjustments for network performance.
-# Type: bool
-# Required: false
-common_network_optimization_enabled: false
 # Title: Install NetworkManager
 # Description: Installs network-manager package.
 # Type: bool
@@ -123,11 +118,6 @@ common_battery_charge_threshold: 80
 # Type: int
 # Required: false
 common_thermal_policy: 1
-# Title: Ring Buffer Target
-# Description: Target size for network ring buffers.
-# Type: int
-# Required: false
-common_ring_buffer_target: 4096
 # Title: Mining Optimization
 # Description: Enables optimizations for crypto mining (hugepages, MSR).
 # Type: bool
