@@ -47,7 +47,7 @@
   ansible.builtin.shell: |
     tailscale up \
       --authkey="${TSKEY}" \
-      --hostname="{{ tailscale_hostname_prefix }}-{{ inventory_hostname }}" \
+      --hostname="{{ inventory_hostname }}" \
       {% if tailscale_tags | length > 0 %}--advertise-tags="{{ tailscale_tags }}" {% endif %}
       --accept-dns="{{ tailscale_accept_dns }}" \
       {% if tailscale_ssh | bool %}--ssh {% endif %}
