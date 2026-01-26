@@ -108,7 +108,7 @@ settings like DNS acceptance and SSH access.
 | [tailscale_tags](defaults/main.yml#L10)   | str |  |    false  |  ACL Tags |
 | [tailscale_accept_dns](defaults/main.yml#L15)   | str | `true` |    false  |  Accept DNS |
 | [tailscale_ssh](defaults/main.yml#L20)   | str | `true` |    false  |  Enable SSH |
-| [tailscale_install_script_checksum](defaults/main.yml#L25)   | str | `7fab06250c94a527d5f74002d9fb45ac9fc702c72f7901a959571112c75048f1` |    false  |  Tailscale install script checksum |
+| [tailscale_install_script_checksum](defaults/main.yml#L25)   | str | `39e5b9185e9329955b324a48c13d4863c3a93f814260336cf0d4ad92a0aac3d3` |    false  |  Tailscale install script checksum |
 | [tailscale_exit_node_enabled](defaults/main.yml#L30)   | bool | `False` |    false  |  Exit Node |
 | [tailscale_advertise_routes](defaults/main.yml#L35)   | str |  |    false  |  Advertise Routes |
 

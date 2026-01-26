@@ -133,16 +133,16 @@ Description: Install and configure Glances system monitoring with web interface.
 
 | Name | Module | Has Conditions | Comments |
 | ---- | ------ | -------------- | -------- |
-| [Check hddtemp availability](tasks/main.yml#L2) | ansible.builtin.command | False | Check if hddtemp package is available for disk temperature monitoring |
-| [Build Glances system package list](tasks/main.yml#L9) | ansible.builtin.set_fact | False | Build package list including hddtemp if available |
-| [Install system dependencies for Glances and sensors](tasks/main.yml#L19) | ansible.builtin.apt | False | Install system packages required for Glances and hardware monitoring |
-| [Create directory for Glances venv](tasks/main.yml#L26) | ansible.builtin.file | False | Create dedicated directory for Glances virtual environment |
-| [Check uv availability](tasks/main.yml#L32) | ansible.builtin.stat | False | Verify uv binary is available for venv creation. |
-| [Fail when uv is missing](tasks/main.yml#L38) | ansible.builtin.fail | True | Fail fast when uv is missing outside check mode. |
-| [Create Glances virtual environment (uv)](tasks/main.yml#L45) | ansible.builtin.command | True | Create Python virtual environment using uv for Glances installation |
-| [Install Glances in virtual environment](tasks/main.yml#L54) | ansible.builtin.pip | True | Install Glances with all extras in the virtual environment |
-| [Create Systemd service for Glances Web](tasks/main.yml#L62) | ansible.builtin.template | False | Deploy systemd service for Glances web interface |
-| [Ensure Glances service is enabled and running](tasks/main.yml#L69) | ansible.builtin.systemd | True | Enable and start Glances web service |
+| [Check hddtemp availability](tasks/main.yml#L2) | ansible.builtin.command | False | @docsible Check hddtemp availability |
+| [Build Glances system package list](tasks/main.yml#L9) | ansible.builtin.set_fact | False | @docsible Build system package list |
+| [Install system dependencies for Glances and sensors](tasks/main.yml#L19) | ansible.builtin.apt | False | @docsible Install system dependencies |
+| [Create directory for Glances venv](tasks/main.yml#L26) | ansible.builtin.file | False | @docsible Create Glances venv directory |
+| [Check uv availability](tasks/main.yml#L32) | ansible.builtin.stat | False | @docsible Check uv availability |
+| [Fail when uv is missing](tasks/main.yml#L38) | ansible.builtin.fail | True | @docsible Validate uv installation |
+| [Create Glances virtual environment (uv)](tasks/main.yml#L45) | ansible.builtin.command | True | @docsible Create Python virtual environment with uv |
+| [Install Glances in virtual environment](tasks/main.yml#L54) | ansible.builtin.pip | True | @docsible Install Glances in virtual environment |
+| [Create Systemd service for Glances Web](tasks/main.yml#L62) | ansible.builtin.template | False | @docsible Create systemd service for Glances Web |
+| [Ensure Glances service is enabled and running](tasks/main.yml#L69) | ansible.builtin.systemd | True | @docsible Enable and start Glances service |
 
 
 ## Task Flow Graphs

@@ -16,3 +16,7 @@ common_radio_block_enabled: true
 common_audio_optimization_enabled: true
 # Enable Mining Optimizations (Hugepages, MSR)
 common_mining_enabled: true
+
+# Cluster Lifecycle
+# Avoid full rebuilds unless explicitly requested
+k3s_server_recreate: false

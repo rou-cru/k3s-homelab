@@ -26,6 +26,10 @@ Description: Install External Secrets Operator and configure an OCI Vault-backed
 | Var          | Type         | Value       |Required    | Title       |
 |--------------|--------------|-------------|------------|-------------|
 | [oci_config_file](defaults/main.yml#L5)   | str | `{{ playbook_dir }}/.oci` |    false  |  OCI Configuration File |
+| [external_secrets_namespace](defaults/main.yml#L10)   | str | `external-secrets` |    false  |  External Secrets Namespace |
+| [external_secrets_servicemonitor_enabled](defaults/main.yml#L15)   | bool | `False` |    false  |  External Secrets ServiceMonitor |
+| [external_secrets_grafana_dashboard_enabled](defaults/main.yml#L20)   | bool | `False` |    false  |  External Secrets Grafana Dashboard |
+| [external_secrets_webhook_issuer_name](defaults/main.yml#L25)   | str | `homelab-ca-issuer` |    false  |  External Secrets Webhook Issuer Name |
 
 
 
@@ -35,6 +39,10 @@ Description: Install External Secrets Operator and configure an OCI Vault-backed
 <table>
 <th>Var</th><th>Description</th>
 <tr><td><b>oci_config_file</b></td><td>Path to Oracle Cloud Infrastructure configuration file.</td></tr>
+<tr><td><b>external_secrets_namespace</b></td><td>Namespace to install External Secrets Operator into.</td></tr>
+<tr><td><b>external_secrets_servicemonitor_enabled</b></td><td>Enable ServiceMonitor resources for External Secrets.</td></tr>
+<tr><td><b>external_secrets_grafana_dashboard_enabled</b></td><td>Enable bundled Grafana dashboard resources.</td></tr>
+<tr><td><b>external_secrets_webhook_issuer_name</b></td><td>ClusterIssuer name for the webhook certificate.</td></tr>
 </table>
 <br>
 </details>
@@ -48,15 +56,21 @@ Description: Install External Secrets Operator and configure an OCI Vault-backed
 
 #### File: tasks/main.yml
 
-| Name | Module | Has Conditions | Tags |
-| ---- | ------ | -------------- | -----|
-| [Check if Helm is installed](tasks/main.yml#L1) | ansible.builtin.command | False |  |
-| [Ensure External Secrets Helm repo](tasks/main.yml#L7) | kubernetes.core.helm_repository | True |  |
-| [Deploy External Secrets Operator](tasks/main.yml#L15) | kubernetes.core.helm | True | cluster,infrastructure,external-secrets |
-| [Wait for external-secrets webhook CA bundle](tasks/main.yml#L74) | kubernetes.core.k8s_info | True | cluster,infrastructure,external-secrets |
-| [Wait for external-secrets webhook to be ready](tasks/main.yml#L97) | kubernetes.core.k8s | True | cluster,infrastructure,external-secrets |
-| [Create OCI Auth Secret](tasks/main.yml#L115) | kubernetes.core.k8s | True | cluster,infrastructure,external-secrets,oci |
-| [Create OCI ClusterSecretStore](tasks/main.yml#L138) | kubernetes.core.k8s | True | cluster,infrastructure,external-secrets,oci |
+| Name | Module | Has Conditions | Tags | Comments |
+| ---- | ------ | -------------- | -----| -------- |
+| [Check if Helm is installed](tasks/main.yml#L3) | ansible.builtin.command | False |  | @docsible Check Helm availability
+@docsible Check Helm availability |
+| [Ensure External Secrets Helm repo](tasks/main.yml#L11) | kubernetes.core.helm_repository | True |  | @docsible Add External Secrets Helm repository
+@docsible Add External Secrets Helm repository |
+| [Deploy External Secrets Operator](tasks/main.yml#L21) | kubernetes.core.helm | True | cluster,infrastructure,external-secrets | @docsible Deploy External Secrets Operator via Helm
+@docsible Deploy External Secrets Operator via Helm |
+| [Wait for external-secrets webhook CA bundle](tasks/main.yml#L84) | kubernetes.core.k8s_info | True | cluster,infrastructure,external-secrets | @docsible Wait for webhook CA bundle population
+@docsible Wait for webhook CA bundle population |
+| [Wait for external-secrets webhook to be ready](tasks/main.yml#L109) | kubernetes.core.k8s | True | cluster,infrastructure,external-secrets | @docsible Wait for webhook deployment readiness
+@docsible Wait for webhook deployment readiness |
+| [Create OCI Auth Secret](tasks/main.yml#L129) | kubernetes.core.k8s | True | cluster,infrastructure,external-secrets,oci | @docsible Create OCI authentication secret
+@docsible Create OCI authentication secret |
+| [Create OCI ClusterSecretStore](tasks/main.yml#L153) | kubernetes.core.k8s | True | cluster,infrastructure,external-secrets,oci | @docsible Create OCI ClusterSecretStore |
 
 
 ## Task Flow Graphs

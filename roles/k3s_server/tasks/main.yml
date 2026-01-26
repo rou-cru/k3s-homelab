@@ -15,6 +15,26 @@
   vars:
     k3s_recreate: "{{ k3s_server_recreate }}"
 
+# Detect available container runtimes
+- name: Check for runsc runtime
+  ansible.builtin.stat:
+    path: /usr/local/bin/runsc
+  register: k3s_runsc_stat
+
+- name: Check for NVIDIA container runtime
+  ansible.builtin.stat:
+    path: /usr/bin/nvidia-container-runtime
+  register: k3s_nvidia_runtime_stat
+
+- name: Build containerd runtime list
+  ansible.builtin.set_fact:
+    k3s_common_containerd_additional_runtimes: >-
+      {{
+        []
+        + (['runsc'] if k3s_runsc_stat.stat.exists else [])
+        + (['nvidia'] if k3s_nvidia_runtime_stat.stat.exists else [])
+      }}
+
 # Create secure log directory for K3s components
 - name: Ensure K3s log directory exists
   ansible.builtin.file:

@@ -46,7 +46,7 @@ devtools_enabled: false
 # Tailscale configuration for VPS
 # Enable exit node functionality for Egress Gateway
 tailscale_exit_node_enabled: true
-tailscale_tags: "tag:k3s,tag:vps"
+tailscale_tags: ""
 
 # K3s Agent configuration
 # Server URL pointing to master's Tailscale IP

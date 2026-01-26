@@ -151,9 +151,10 @@ and local context merging.
 | [k3s_server_recreate](defaults/main.yml#L40)   | bool | `True` |    false  |  Recreate Cluster |
 | [k3s_server_copy_kubeconfig_local](defaults/main.yml#L45)   | bool | `True` |    false  |  Copy Kubeconfig Local |
 | [k3s_server_local_kubeconfig_path](defaults/main.yml#L50)   | str | `{{ lookup('env', 'HOME') }}/.kube/config` |    false  |  Local Kubeconfig Path |
-| [k3s_cni_bin_dir](defaults/main.yml#L56)   | str | `/opt/cni/bin` |    false  |  CNI Bin Directory |
-| [k3s_cni_conf_dir](defaults/main.yml#L62)   | str | `/etc/cni/net.d` |    false  |  CNI Config Directory |
-| [k3s_common_containerd_optimized](defaults/main.yml#L68)   | bool | `True` |    false  |  Containerd Optimizations |
+| [k3s_server_context_name](defaults/main.yml#L55)   | str | `{{ inventory_hostname }}` |    false  |  Kubeconfig Context Name |
+| [k3s_cni_bin_dir](defaults/main.yml#L61)   | str | `/opt/cni/bin` |    false  |  CNI Bin Directory |
+| [k3s_cni_conf_dir](defaults/main.yml#L67)   | str | `/etc/cni/net.d` |    false  |  CNI Config Directory |
+| [k3s_common_containerd_optimized](defaults/main.yml#L73)   | bool | `True` |    false  |  Containerd Optimizations |
 
 
 
@@ -172,6 +173,7 @@ and local context merging.
 <tr><td><b>k3s_server_recreate</b></td><td>If true, uninstalls and wipes previous K3s installation before deploying.</td></tr>
 <tr><td><b>k3s_server_copy_kubeconfig_local</b></td><td>If true, copies the generated kubeconfig to the Ansible controller.</td></tr>
 <tr><td><b>k3s_server_local_kubeconfig_path</b></td><td>Local path where the kubeconfig should be saved.</td></tr>
+<tr><td><b>k3s_server_context_name</b></td><td>Context name to use in the local kubeconfig.</td></tr>
 <tr><td><b>k3s_cni_bin_dir</b></td><td>Directory for CNI binaries.</td></tr>
 <tr><td><b>k3s_cni_conf_dir</b></td><td>Directory for CNI configuration.</td></tr>
 <tr><td><b>k3s_common_containerd_optimized</b></td><td>Enable containerd performance and resource optimizations.</td></tr>
@@ -192,31 +194,34 @@ and local context merging.
 | ---- | ------ | -------------- | -------- |
 | [Validate IP](tasks/main.yml#L2) | ansible.builtin.assert | True | Validate Tailscale IP address format for secure cluster communication |
 | [Run K3s Common](tasks/main.yml#L12) | ansible.builtin.import_role | False | Import common K3s setup tasks (directories, containerd, uninstall logic) |
-| [Ensure K3s log directory exists](tasks/main.yml#L19) | ansible.builtin.file | False | Create secure log directory for K3s components |
-| [Ensure K3s audit log file exists with restrictive permissions](tasks/main.yml#L27) | ansible.builtin.file | False | Create audit log file with strict permissions for security |
-| [Deploy K3s audit policy](tasks/main.yml#L36) | ansible.builtin.template | False | Deploy Kubernetes audit policy for API security monitoring |
-| [Deploy config](tasks/main.yml#L43) | ansible.builtin.template | True | Deploy K3s server configuration with security hardening |
-| [Install K3s](tasks/main.yml#L51) | ansible.builtin.shell | True | Download and install K3s with specified version |
-| [Create override dir](tasks/main.yml#L62) | ansible.builtin.file | False | Create systemd override directory for K3s service customization |
-| [Create override](tasks/main.yml#L68) | ansible.builtin.copy | False | Override K3s service configuration for clean startup |
-| [Remove env file](tasks/main.yml#L78) | ansible.builtin.file | False | Remove legacy environment file to prevent conflicts |
-| [Reload systemd (k3s)](tasks/main.yml#L84) | ansible.builtin.systemd | False | Reload systemd configuration after service changes |
-| [Start K3s](tasks/main.yml#L88) | ansible.builtin.systemd | True | Enable and start K3s service |
-| [Flush handlers](tasks/main.yml#L95) | ansible.builtin.meta | False | Apply pending service restarts before continuing |
-| [Wait for kubeconfig](tasks/main.yml#L98) | ansible.builtin.wait_for | True | Wait for K3s to generate admin kubeconfig file |
-| [Read kubeconfig](tasks/main.yml#L104) | ansible.builtin.slurp | True | Read K3s admin kubeconfig for Tailscale integration |
-| [Build canonical config](tasks/main.yml#L111) | ansible.builtin.set_fact | True | Replace localhost with Tailscale IP for remote cluster access |
-| [Write server config](tasks/main.yml#L118) | ansible.builtin.copy | True | Store Tailscale-enabled kubeconfig for server access |
-| [Create user kube dir](tasks/main.yml#L127) | ansible.builtin.file | True | Create secure kubeconfig directory for ansible user |
-| [Write user config](tasks/main.yml#L136) | ansible.builtin.copy | True | Deploy Tailscale-enabled kubeconfig for ansible user |
-| [Wait for apiserver](tasks/main.yml#L145) | ansible.builtin.command | True | Verify Kubernetes API server is ready before proceeding |
-| [Remove Traefik](tasks/main.yml#L157) | ansible.builtin.command | True | Remove default Traefik ingress controller if disabled |
-| [Copy local config](tasks/main.yml#L170) | block | True | Copy kubeconfig to local machine for remote cluster management |
-| [Create local dir](tasks/main.yml#L179) | ansible.builtin.file | False | Create local directory for kubeconfig storage |
-| [Fetch config](tasks/main.yml#L185) | ansible.builtin.slurp | False | Retrieve Tailscale-enabled kubeconfig from server |
-| [Parse config](tasks/main.yml#L192) | ansible.builtin.set_fact | False | Customize kubeconfig with unique context names for multi-cluster support |
-| [Write local config](tasks/main.yml#L202) | ansible.builtin.copy | False | Save customized kubeconfig to local file |
-| [Show config info](tasks/main.yml#L208) | ansible.builtin.debug | False | Display success message with kubeconfig location |
+| [Check for runsc runtime](tasks/main.yml#L19) | ansible.builtin.stat | False | Detect available container runtimes |
+| [Check for NVIDIA container runtime](tasks/main.yml#L24) | ansible.builtin.stat | False |  |
+| [Build containerd runtime list](tasks/main.yml#L29) | ansible.builtin.set_fact | False |  |
+| [Ensure K3s log directory exists](tasks/main.yml#L39) | ansible.builtin.file | False | Create secure log directory for K3s components |
+| [Ensure K3s audit log file exists with restrictive permissions](tasks/main.yml#L47) | ansible.builtin.file | False | Create audit log file with strict permissions for security |
+| [Deploy K3s audit policy](tasks/main.yml#L56) | ansible.builtin.template | False | Deploy Kubernetes audit policy for API security monitoring |
+| [Deploy config](tasks/main.yml#L63) | ansible.builtin.template | True | Deploy K3s server configuration with security hardening |
+| [Install K3s](tasks/main.yml#L71) | ansible.builtin.shell | True | Download and install K3s with specified version |
+| [Create override dir](tasks/main.yml#L82) | ansible.builtin.file | False | Create systemd override directory for K3s service customization |
+| [Create override](tasks/main.yml#L88) | ansible.builtin.copy | False | Override K3s service configuration for clean startup |
+| [Remove env file](tasks/main.yml#L98) | ansible.builtin.file | False | Remove legacy environment file to prevent conflicts |
+| [Reload systemd (k3s)](tasks/main.yml#L104) | ansible.builtin.systemd | False | Reload systemd configuration after service changes |
+| [Start K3s](tasks/main.yml#L108) | ansible.builtin.systemd | True | Enable and start K3s service |
+| [Flush handlers](tasks/main.yml#L115) | ansible.builtin.meta | False | Apply pending service restarts before continuing |
+| [Wait for kubeconfig](tasks/main.yml#L118) | ansible.builtin.wait_for | True | Wait for K3s to generate admin kubeconfig file |
+| [Read kubeconfig](tasks/main.yml#L124) | ansible.builtin.slurp | True | Read K3s admin kubeconfig for Tailscale integration |
+| [Build canonical config](tasks/main.yml#L131) | ansible.builtin.set_fact | True | Replace localhost with Tailscale IP for remote cluster access |
+| [Write server config](tasks/main.yml#L138) | ansible.builtin.copy | True | Store Tailscale-enabled kubeconfig for server access |
+| [Create user kube dir](tasks/main.yml#L147) | ansible.builtin.file | True | Create secure kubeconfig directory for ansible user |
+| [Write user config](tasks/main.yml#L156) | ansible.builtin.copy | True | Deploy Tailscale-enabled kubeconfig for ansible user |
+| [Wait for apiserver](tasks/main.yml#L165) | ansible.builtin.command | True | Verify Kubernetes API server is ready before proceeding |
+| [Remove Traefik](tasks/main.yml#L177) | ansible.builtin.command | True | Remove default Traefik ingress controller if disabled |
+| [Copy local config](tasks/main.yml#L190) | block | True | Copy kubeconfig to local machine for remote cluster management |
+| [Create local dir](tasks/main.yml#L199) | ansible.builtin.file | False | Create local directory for kubeconfig storage |
+| [Fetch config](tasks/main.yml#L205) | ansible.builtin.slurp | False | Retrieve Tailscale-enabled kubeconfig from server |
+| [Parse config](tasks/main.yml#L212) | ansible.builtin.set_fact | False | Customize kubeconfig with unique context names for multi-cluster support |
+| [Write local config](tasks/main.yml#L222) | ansible.builtin.copy | False | Save customized kubeconfig to local file |
+| [Show config info](tasks/main.yml#L228) | ansible.builtin.debug | False | Display success message with kubeconfig location |
 
 
 ## Task Flow Graphs
@@ -239,36 +244,39 @@ classDef rescue stroke:#665352,stroke-width:2px;
 
   Start-->|Task| Validate_IP0[validate ip<br>When: **tailscale ip is defined**]:::task
   Validate_IP0-->|Import role| Run_K3s_Common_k3s_common_1([run k3s common<br>import_role: k3s common]):::importRole
-  Run_K3s_Common_k3s_common_1-->|Task| Ensure_K3s_log_directory_exists2[ensure k3s log directory exists]:::task
-  Ensure_K3s_log_directory_exists2-->|Task| Ensure_K3s_audit_log_file_exists_with_restrictive_permissions3[ensure k3s audit log file exists with restrictive<br>permissions]:::task
-  Ensure_K3s_audit_log_file_exists_with_restrictive_permissions3-->|Task| Deploy_K3s_audit_policy4[deploy k3s audit policy]:::task
-  Deploy_K3s_audit_policy4-->|Task| Deploy_config5[deploy config<br>When: **not ansible check mode**]:::task
-  Deploy_config5-->|Task| Install_K3s6[install k3s<br>When: **not ansible check mode**]:::task
-  Install_K3s6-->|Task| Create_override_dir7[create override dir]:::task
-  Create_override_dir7-->|Task| Create_override8[create override]:::task
-  Create_override8-->|Task| Remove_env_file9[remove env file]:::task
-  Remove_env_file9-->|Task| Reload_systemd__k3s_10[reload systemd  k3s ]:::task
-  Reload_systemd__k3s_10-->|Task| Start_K3s11[start k3s<br>When: **not ansible check mode**]:::task
-  Start_K3s11-->|Task| Flush_handlers12[flush handlers]:::task
-  Flush_handlers12-->|Task| Wait_for_kubeconfig13[wait for kubeconfig<br>When: **not ansible check mode**]:::task
-  Wait_for_kubeconfig13-->|Task| Read_kubeconfig14[read kubeconfig<br>When: **not ansible check mode**]:::task
-  Read_kubeconfig14-->|Task| Build_canonical_config15[build canonical config<br>When: **not ansible check mode**]:::task
-  Build_canonical_config15-->|Task| Write_server_config16[write server config<br>When: **not ansible check mode**]:::task
-  Write_server_config16-->|Task| Create_user_kube_dir17[create user kube dir<br>When: **not ansible check mode**]:::task
-  Create_user_kube_dir17-->|Task| Write_user_config18[write user config<br>When: **not ansible check mode**]:::task
-  Write_user_config18-->|Task| Wait_for_apiserver19[wait for apiserver<br>When: **not ansible check mode**]:::task
-  Wait_for_apiserver19-->|Task| Remove_Traefik20[remove traefik<br>When: **not ansible check mode and k3s server disable<br>traefik   bool**]:::task
-  Remove_Traefik20-->|Block Start| Copy_local_config21_block_start_0[[copy local config<br>When: **k3s server copy kubeconfig local   default true   <br>bool and not ansible check mode**]]:::block
-  Copy_local_config21_block_start_0-->|Task| Create_local_dir0[create local dir]:::task
+  Run_K3s_Common_k3s_common_1-->|Task| Check_for_runsc_runtime2[check for runsc runtime]:::task
+  Check_for_runsc_runtime2-->|Task| Check_for_NVIDIA_container_runtime3[check for nvidia container runtime]:::task
+  Check_for_NVIDIA_container_runtime3-->|Task| Build_containerd_runtime_list4[build containerd runtime list]:::task
+  Build_containerd_runtime_list4-->|Task| Ensure_K3s_log_directory_exists5[ensure k3s log directory exists]:::task
+  Ensure_K3s_log_directory_exists5-->|Task| Ensure_K3s_audit_log_file_exists_with_restrictive_permissions6[ensure k3s audit log file exists with restrictive<br>permissions]:::task
+  Ensure_K3s_audit_log_file_exists_with_restrictive_permissions6-->|Task| Deploy_K3s_audit_policy7[deploy k3s audit policy]:::task
+  Deploy_K3s_audit_policy7-->|Task| Deploy_config8[deploy config<br>When: **not ansible check mode**]:::task
+  Deploy_config8-->|Task| Install_K3s9[install k3s<br>When: **not ansible check mode**]:::task
+  Install_K3s9-->|Task| Create_override_dir10[create override dir]:::task
+  Create_override_dir10-->|Task| Create_override11[create override]:::task
+  Create_override11-->|Task| Remove_env_file12[remove env file]:::task
+  Remove_env_file12-->|Task| Reload_systemd__k3s_13[reload systemd  k3s ]:::task
+  Reload_systemd__k3s_13-->|Task| Start_K3s14[start k3s<br>When: **not ansible check mode**]:::task
+  Start_K3s14-->|Task| Flush_handlers15[flush handlers]:::task
+  Flush_handlers15-->|Task| Wait_for_kubeconfig16[wait for kubeconfig<br>When: **not ansible check mode**]:::task
+  Wait_for_kubeconfig16-->|Task| Read_kubeconfig17[read kubeconfig<br>When: **not ansible check mode**]:::task
+  Read_kubeconfig17-->|Task| Build_canonical_config18[build canonical config<br>When: **not ansible check mode**]:::task
+  Build_canonical_config18-->|Task| Write_server_config19[write server config<br>When: **not ansible check mode**]:::task
+  Write_server_config19-->|Task| Create_user_kube_dir20[create user kube dir<br>When: **not ansible check mode**]:::task
+  Create_user_kube_dir20-->|Task| Write_user_config21[write user config<br>When: **not ansible check mode**]:::task
+  Write_user_config21-->|Task| Wait_for_apiserver22[wait for apiserver<br>When: **not ansible check mode**]:::task
+  Wait_for_apiserver22-->|Task| Remove_Traefik23[remove traefik<br>When: **not ansible check mode and k3s server disable<br>traefik   bool**]:::task
+  Remove_Traefik23-->|Block Start| Copy_local_config24_block_start_0[[copy local config<br>When: **k3s server copy kubeconfig local   default true   <br>bool and not ansible check mode**]]:::block
+  Copy_local_config24_block_start_0-->|Task| Create_local_dir0[create local dir]:::task
   Create_local_dir0-->|Task| Fetch_config1[fetch config]:::task
   Fetch_config1-->|Task| Parse_config2[parse config]:::task
   Parse_config2-->|Task| Write_local_config3[write local config]:::task
   Write_local_config3-->|Task| Show_config_info4[show config info]:::task
-  Show_config_info4-.->|End of Block| Copy_local_config21_block_start_0
-  Show_config_info4-->|Rescue Start| Copy_local_config21_rescue_start_0[copy local config<br>When: **k3s server copy kubeconfig local   default true   <br>bool and not ansible check mode**]:::rescue
-  Copy_local_config21_rescue_start_0-->|Task| Report_kubeconfig_copy_failure0[report kubeconfig copy failure]:::task
+  Show_config_info4-.->|End of Block| Copy_local_config24_block_start_0
+  Show_config_info4-->|Rescue Start| Copy_local_config24_rescue_start_0[copy local config<br>When: **k3s server copy kubeconfig local   default true   <br>bool and not ansible check mode**]:::rescue
+  Copy_local_config24_rescue_start_0-->|Task| Report_kubeconfig_copy_failure0[report kubeconfig copy failure]:::task
   Report_kubeconfig_copy_failure0-->|Task| Fail_kubeconfig_copy1[fail kubeconfig copy]:::task
-  Fail_kubeconfig_copy1-.->|End of Rescue Block| Copy_local_config21_block_start_0
+  Fail_kubeconfig_copy1-.->|End of Rescue Block| Copy_local_config24_block_start_0
   Fail_kubeconfig_copy1-->End
 ```
 

@@ -1,9 +1,13 @@
+# @docsible Check Helm availability
+# @docsible Check Helm availability
 - name: Check if Helm is installed
   ansible.builtin.command: which helm
   register: helm_binary_check
   changed_when: false
   failed_when: false
 
+# @docsible Add External Secrets Helm repository
+# @docsible Add External Secrets Helm repository
 - name: Ensure External Secrets Helm repo
   kubernetes.core.helm_repository:
     name: external-secrets
@@ -12,6 +16,8 @@
     - helm_binary_check.rc == 0
     - not ansible_check_mode
 
+# @docsible Deploy External Secrets Operator via Helm
+# @docsible Deploy External Secrets Operator via Helm
 - name: Deploy External Secrets Operator
   kubernetes.core.helm:
     name: external-secrets
@@ -31,9 +37,11 @@
       resources:
         requests:
           cpu: 10m
-          memory: 32Mi
-        limits:
           memory: 64Mi
+        limits:
+          memory: 256Mi
+      securityContext:
+        readOnlyRootFilesystem: false
 
       log:
         level: warning
@@ -71,6 +79,8 @@
     - not ansible_check_mode
   tags: ["cluster", "infrastructure", "external-secrets"]
 
+# @docsible Wait for webhook CA bundle population
+# @docsible Wait for webhook CA bundle population
 - name: Wait for external-secrets webhook CA bundle
   kubernetes.core.k8s_info:
     api_version: admissionregistration.k8s.io/v1
@@ -94,6 +104,8 @@
     - not ansible_check_mode
   tags: ["cluster", "infrastructure", "external-secrets"]
 
+# @docsible Wait for webhook deployment readiness
+# @docsible Wait for webhook deployment readiness
 - name: Wait for external-secrets webhook to be ready
   kubernetes.core.k8s:
     api_version: apps/v1
@@ -112,6 +124,8 @@
     - not ansible_check_mode
   tags: ["cluster", "infrastructure", "external-secrets"]
 
+# @docsible Create OCI authentication secret
+# @docsible Create OCI authentication secret
 - name: Create OCI Auth Secret
   kubernetes.core.k8s:
     state: present
@@ -135,6 +149,7 @@
     - not ansible_check_mode
   tags: ["cluster", "infrastructure", "external-secrets", "oci"]
 
+# @docsible Create OCI ClusterSecretStore
 - name: Create OCI ClusterSecretStore
   kubernetes.core.k8s:
     state: present

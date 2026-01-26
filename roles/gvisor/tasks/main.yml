@@ -1,2 +1,31 @@
-- name: Install gVisor runtime (host)
-  ansible.builtin.include_tasks: host.yml
+---
+# @docsible Download gVisor runtime binary
+- name: Download runsc
+  ansible.builtin.get_url:
+    url: https://storage.googleapis.com/gvisor/releases/release/latest/x86_64/runsc
+    dest: /usr/local/bin/runsc
+    mode: "0755"
+    owner: root
+    group: root
+    checksum: sha512:https://storage.googleapis.com/gvisor/releases/release/latest/x86_64/runsc.sha512
+
+# @docsible Use K3s auto-deploy manifests directory for the RuntimeClass
+- name: Ensure K3s manifests directory exists
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/server/manifests
+    state: directory
+    mode: "0755"
+
+# @docsible Deploy gVisor RuntimeClass manifest
+- name: Deploy RuntimeClass manifest
+  ansible.builtin.template:
+    src: gvisor-runtimeclass.yaml.j2
+    dest: /var/lib/rancher/k3s/server/manifests/gvisor-runtimeclass.yaml
+    mode: "0644"
+
+# @docsible Remove gVisor runtime binary (cleanup)
+- name: Remove runsc (cleanup)
+  ansible.builtin.file:
+    path: /usr/local/bin/runsc
+    state: absent
+  tags: ["cleanup", "never"]

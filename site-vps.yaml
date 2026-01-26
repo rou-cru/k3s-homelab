@@ -7,12 +7,14 @@
   vars_files:
     - "{{ secrets_file | default('secrets.yaml') }}"
   pre_tasks:
+    # @docsible Update APT cache for package installation
     - name: Update APT cache
       ansible.builtin.apt:
         update_cache: true
         cache_valid_time: 3600
       tags: always
 
+    # @docsible Validate Tailscale VPN authentication key
     - name: Validate Tailscale AuthKey presence
       ansible.builtin.assert:
         that:
@@ -24,6 +26,7 @@
       tags: always
       no_log: true
 
+    # @docsible Verify master node is defined in inventory
     - name: Validate k3s_server group exists
       ansible.builtin.assert:
         that:
@@ -34,21 +37,25 @@
 
   tasks:
     # Phase 1: OS-level configuration
+    # @docsible Validate system requirements for VPS node
     - name: Run preflight role
       ansible.builtin.import_role:
         name: preflight
       tags: ["host", "os"]
 
+    # @docsible Configure base OS settings for VPS
     - name: Run common role
       ansible.builtin.import_role:
         name: common
       tags: ["host", "os"]
 
+    # @docsible Deploy system monitoring on VPS
     - name: Run glances monitoring
       ansible.builtin.import_role:
         name: glances
       tags: ["host", "os"]
 
+    # @docsible Optimize network stack for VPS connectivity
     - name: Run common network optimizations
       ansible.builtin.import_role:
         name: common
@@ -57,6 +64,7 @@
       tags: ["host", "os", "network"]
 
     # Phase 2: Network connectivity
+    # @docsible Setup Tailscale VPN for secure cluster communication
     - name: Run tailscale role
       ansible.builtin.import_role:
         name: tailscale
@@ -66,6 +74,7 @@
       ansible.builtin.meta: flush_handlers
 
     # Phase 4: K3s Agent join
+    # @docsible Fetch authentication token from master node
     - name: Retrieve K3s server token from master
       ansible.builtin.slurp:
         src: /var/lib/rancher/k3s/server/node-token
@@ -76,6 +85,7 @@
       tags: ["cluster"]
       when: not ansible_check_mode
 
+    # @docsible Store server token for agent registration
     - name: Set K3s token fact
       ansible.builtin.set_fact:
         k3s_agent_token: "{{ k3s_token_raw.content | b64decode | trim }}"
@@ -83,12 +93,14 @@
       tags: ["cluster"]
       when: k3s_token_raw is not skipped
 
+    # @docsible Join VPS as K3s agent node to cluster
     - name: Run k3s_agent role
       ansible.builtin.import_role:
         name: k3s_agent
       tags: ["cluster"]
 
   post_tasks:
+    # @docsible Show VPS configuration summary and next steps
     - name: Display VPS setup summary
       ansible.builtin.debug:
         msg: |

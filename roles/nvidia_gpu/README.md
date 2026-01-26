@@ -230,34 +230,34 @@ Supports host setup, cluster setup, and headless X11 configurations.
 
 #### File: tasks/host.yml
 
-| Name | Module | Has Conditions | Tags |
-| ---- | ------ | -------------- | -----|
-| [Install pciutils](tasks/host.yml#L1) | ansible.builtin.apt | False |  |
-| [Normalize setup mode](tasks/host.yml#L8) | ansible.builtin.set_fact | False |  |
-| [Get PCI vendors](tasks/host.yml#L12) | ansible.builtin.shell | False |  |
-| [Detect GPU](tasks/host.yml#L17) | ansible.builtin.set_fact | False |  |
-| [Set GPU active (auto)](tasks/host.yml#L30) | ansible.builtin.set_fact | True |  |
-| [Set GPU active (forced)](tasks/host.yml#L36) | ansible.builtin.set_fact | True |  |
-| [Fail if GPU missing](tasks/host.yml#L42) | ansible.builtin.fail | True |  |
-| [Set GPU active (disabled)](tasks/host.yml#L49) | ansible.builtin.set_fact | True |  |
-| [Debug NVIDIA facts](tasks/host.yml#L55) | ansible.builtin.debug | False |  |
-| [Install driver deps](tasks/host.yml#L59) | ansible.builtin.apt | True |  |
-| [Detect driver](tasks/host.yml#L69) | ansible.builtin.shell | True |  |
-| [Set driver version](tasks/host.yml#L81) | ansible.builtin.set_fact | True |  |
-| [Set driver fallback](tasks/host.yml#L89) | ansible.builtin.set_fact | True |  |
-| [Set manual driver](tasks/host.yml#L98) | ansible.builtin.set_fact | True |  |
-| [Blacklist nouveau](tasks/host.yml#L105) | ansible.builtin.copy | True |  |
-| [Update initramfs](tasks/host.yml#L115) | ansible.builtin.command | True |  |
-| [Set utils package](tasks/host.yml#L122) | ansible.builtin.set_fact | True |  |
-| [Check broken packages](tasks/host.yml#L127) | ansible.builtin.shell | True |  |
-| [Fix broken packages](tasks/host.yml#L133) | ansible.builtin.shell | True |  |
-| [Install NVIDIA driver](tasks/host.yml#L146) | ansible.builtin.apt | True |  |
-| [Reboot system (nvidia)](tasks/host.yml#L156) | ansible.builtin.reboot | True |  |
-| [Ensure APT keyrings dir](tasks/host.yml#L165) | ansible.builtin.file | True |  |
-| [Write toolkit repo](tasks/host.yml#L174) | ansible.builtin.copy | True |  |
-| [Install toolkit](tasks/host.yml#L186) | ansible.builtin.apt | True |  |
-| [Register NVIDIA as an available runtime](tasks/host.yml#L194) | ansible.builtin.set_fact | True | host,nvidia |
-| [Import headless optimization](tasks/host.yml#L201) | ansible.builtin.import_tasks | True |  |
+| Name | Module | Has Conditions | Tags | Comments |
+| ---- | ------ | -------------- | -----| -------- |
+| [Install pciutils](tasks/host.yml#L2) | ansible.builtin.apt | False |  | @docsible Install PCI utilities |
+| [Normalize setup mode](tasks/host.yml#L10) | ansible.builtin.set_fact | False |  | @docsible Normalize setup mode |
+| [Get PCI vendors](tasks/host.yml#L15) | ansible.builtin.shell | False |  | @docsible Get PCI vendor IDs |
+| [Detect GPU](tasks/host.yml#L21) | ansible.builtin.set_fact | False |  | @docsible Detect NVIDIA GPU presence |
+| [Set GPU active (auto)](tasks/host.yml#L35) | ansible.builtin.set_fact | True |  | @docsible Set GPU active in auto mode |
+| [Set GPU active (forced)](tasks/host.yml#L42) | ansible.builtin.set_fact | True |  | @docsible Force GPU active |
+| [Fail if GPU missing](tasks/host.yml#L49) | ansible.builtin.fail | True |  | @docsible Fail if GPU missing in forced mode |
+| [Set GPU active (disabled)](tasks/host.yml#L57) | ansible.builtin.set_fact | True |  | @docsible Disable GPU setup |
+| [Debug NVIDIA facts](tasks/host.yml#L64) | ansible.builtin.debug | False |  | @docsible Debug NVIDIA facts |
+| [Install driver deps](tasks/host.yml#L69) | ansible.builtin.apt | True |  | @docsible Install driver dependencies |
+| [Detect driver](tasks/host.yml#L80) | ansible.builtin.shell | True |  | @docsible Detect recommended NVIDIA driver |
+| [Set driver version](tasks/host.yml#L93) | ansible.builtin.set_fact | True |  | @docsible Set detected driver version |
+| [Set driver fallback](tasks/host.yml#L102) | ansible.builtin.set_fact | True |  | @docsible Set fallback driver version |
+| [Set manual driver](tasks/host.yml#L112) | ansible.builtin.set_fact | True |  | @docsible Set manual driver version |
+| [Blacklist nouveau](tasks/host.yml#L120) | ansible.builtin.copy | True |  | @docsible Blacklist nouveau driver |
+| [Update initramfs](tasks/host.yml#L130) | ansible.builtin.command | True |  |  |
+| [Set utils package](tasks/host.yml#L138) | ansible.builtin.set_fact | True |  | @docsible Set utils package name |
+| [Check broken packages](tasks/host.yml#L144) | ansible.builtin.shell | True |  | @docsible Check for broken NVIDIA packages |
+| [Fix broken packages](tasks/host.yml#L151) | ansible.builtin.shell | True |  | @docsible Fix broken NVIDIA packages |
+| [Install NVIDIA driver](tasks/host.yml#L165) | ansible.builtin.apt | True |  | @docsible Install NVIDIA driver |
+| [Reboot system (nvidia)](tasks/host.yml#L176) | ansible.builtin.reboot | True |  | @docsible Reboot system to load drivers |
+| [Ensure APT keyrings dir](tasks/host.yml#L186) | ansible.builtin.file | True |  | @docsible Ensure APT keyrings directory |
+| [Write toolkit repo](tasks/host.yml#L196) | ansible.builtin.copy | True |  | @docsible Write NVIDIA toolkit repository |
+| [Install toolkit](tasks/host.yml#L209) | ansible.builtin.apt | True |  | @docsible Install NVIDIA container toolkit |
+| [Register NVIDIA as an available runtime](tasks/host.yml#L218) | ansible.builtin.set_fact | True | host,nvidia | @docsible Register NVIDIA runtime for containerd |
+| [Import headless optimization](tasks/host.yml#L226) | ansible.builtin.import_tasks | True |  | @docsible Import headless X11 optimization |
 
 
 ## Task Flow Graphs

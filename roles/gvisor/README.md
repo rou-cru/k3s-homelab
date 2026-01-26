@@ -50,16 +50,19 @@ Description: Install gVisor runsc and register a RuntimeClass for K3s server wor
 
 #### File: tasks/host.yml
 
-| Name | Module | Has Conditions | Tags | Comments |
-| ---- | ------ | -------------- | -----| -------- |
-| [Install runsc binary](tasks/host.yml#L2) | ansible.builtin.get_url | True |  | Installation of gVisor (runsc) |
-| [Add gVisor to additional runtimes list](tasks/host.yml#L13) | ansible.builtin.set_fact | True | a,l,w,a,y,s | Register gVisor as an available runtime for the cluster |
+| Name | Module | Has Conditions | Comments |
+| ---- | ------ | -------------- | -------- |
+| [Install runsc binary](tasks/host.yml#L3) | ansible.builtin.get_url | True | Installation of gVisor (runsc)
+@docsible Download gVisor runtime binary |
 
 #### File: tasks/main.yml
 
-| Name | Module | Has Conditions |
-| ---- | ------ | -------------- |
-| [Install gVisor runtime (host)](tasks/main.yml#L1) | ansible.builtin.include_tasks | False |
+| Name | Module | Has Conditions | Tags | Comments |
+| ---- | ------ | -------------- | -----| -------- |
+| [Download runsc](tasks/main.yml#L3) | ansible.builtin.get_url | False |  | @docsible Download gVisor runtime binary |
+| [Ensure K3s manifests directory exists](tasks/main.yml#L13) | ansible.builtin.file | False |  | @docsible Use K3s auto-deploy manifests directory for the RuntimeClass |
+| [Deploy RuntimeClass manifest](tasks/main.yml#L20) | ansible.builtin.template | False |  | @docsible Deploy gVisor RuntimeClass manifest |
+| [Remove runsc (cleanup)](tasks/main.yml#L27) | ansible.builtin.file | False | cleanup,never | @docsible Remove gVisor runtime binary (cleanup) |
 
 #### File: tasks/runtimeclass.yml
 
@@ -88,8 +91,7 @@ classDef includeVars stroke:#8e44ad,stroke-width:2px;
 classDef rescue stroke:#665352,stroke-width:2px;
 
   Start-->|Task| Install_runsc_binary0[install runsc binary<br>When: **k3s server  in group names and  gvisor install  <br>default true    bool**]:::task
-  Install_runsc_binary0-->|Task| Add_gVisor_to_additional_runtimes_list1[add gvisor to additional runtimes list<br>When: **k3s server  in group names and  gvisor install  <br>default true    bool**]:::task
-  Add_gVisor_to_additional_runtimes_list1-->End
+  Install_runsc_binary0-->End
 ```
 
 
@@ -107,8 +109,11 @@ classDef importRole stroke:#699ba7,stroke-width:2px;
 classDef includeVars stroke:#8e44ad,stroke-width:2px;
 classDef rescue stroke:#665352,stroke-width:2px;
 
-  Start-->|Include task| Install_gVisor_runtime__host__host_yml_0[install gvisor runtime  host <br>include_task: host yml]:::includeTasks
-  Install_gVisor_runtime__host__host_yml_0-->End
+  Start-->|Task| Download_runsc0[download runsc]:::task
+  Download_runsc0-->|Task| Ensure_K3s_manifests_directory_exists1[ensure k3s manifests directory exists]:::task
+  Ensure_K3s_manifests_directory_exists1-->|Task| Deploy_RuntimeClass_manifest2[deploy runtimeclass manifest]:::task
+  Deploy_RuntimeClass_manifest2-->|Task| Remove_runsc__cleanup_3[remove runsc  cleanup ]:::task
+  Remove_runsc__cleanup_3-->End
 ```
 
 

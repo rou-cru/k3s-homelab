@@ -1,11 +1,11 @@
-# Check if hddtemp package is available for disk temperature monitoring
+# @docsible Check hddtemp availability
 - name: Check hddtemp availability
   ansible.builtin.command: apt-cache show hddtemp
   register: glances_hddtemp_available
   changed_when: false
   failed_when: false
   check_mode: no
-# Build package list including hddtemp if available
+# @docsible Build system package list
 - name: Build Glances system package list
   ansible.builtin.set_fact:
     glances_system_packages: >-
@@ -15,42 +15,42 @@
         ['python3-venv', 'python3-pip', 'lm-sensors']
         + (['hddtemp'] if glances_hddtemp_available.stdout | length > 0 else [])
       }}
-# Install system packages required for Glances and hardware monitoring
+# @docsible Install system dependencies
 - name: Install system dependencies for Glances and sensors
   ansible.builtin.apt:
     name: "{{ glances_system_packages }}"
     state: present
     update_cache: true
     cache_valid_time: 3600
-# Create dedicated directory for Glances virtual environment
+# @docsible Create Glances venv directory
 - name: Create directory for Glances venv
   ansible.builtin.file:
     path: "{{ glances_venv_path }}"
     state: directory
     mode: '0750'
-# Verify uv binary is available for venv creation.
+# @docsible Check uv availability
 - name: Check uv availability
   ansible.builtin.stat:
     path: /usr/local/bin/uv
   register: glances_uv_binary
   changed_when: false
-# Fail fast when uv is missing outside check mode.
+# @docsible Validate uv installation
 - name: Fail when uv is missing
   ansible.builtin.fail:
     msg: "uv not found at /usr/local/bin/uv. Run the common role to install uv before glances."
   when:
     - not ansible_check_mode
     - not glances_uv_binary.stat.exists
-# Create Python virtual environment using uv for Glances installation
+# @docsible Create Python virtual environment with uv
 - name: Create Glances virtual environment (uv)
-  ansible.builtin.command: uv venv "{{ glances_venv_path }}"
+  ansible.builtin.command: uv venv --seed "{{ glances_venv_path }}"
   args:
     creates: "{{ glances_venv_path }}/bin/python"
   environment:
     PATH: "/usr/local/bin:{{ ansible_facts['env']['PATH'] }}"
   notify: Restart glances
   when: not ansible_check_mode
-# Install Glances with all extras in the virtual environment
+# @docsible Install Glances in virtual environment
 - name: Install Glances in virtual environment
   ansible.builtin.pip:
     name: "{{ glances_packages }}"
@@ -58,14 +58,14 @@
     extra_args: --upgrade
   notify: Restart glances
   when: not ansible_check_mode
-# Deploy systemd service for Glances web interface
+# @docsible Create systemd service for Glances Web
 - name: Create Systemd service for Glances Web
   ansible.builtin.template:
     src: glances-web.service.j2
     dest: /etc/systemd/system/glances-web.service
     mode: '0644'
   notify: Restart glances
-# Enable and start Glances web service
+# @docsible Enable and start Glances service
 - name: Ensure Glances service is enabled and running
   ansible.builtin.systemd:
     name: glances-web

@@ -22,7 +22,7 @@ tailscale_ssh: "true"
 # Description: SHA256 for https://tailscale.com/install.sh (pin to avoid supply-chain drift).
 # Type: str
 # Required: false
-tailscale_install_script_checksum: "7fab06250c94a527d5f74002d9fb45ac9fc702c72f7901a959571112c75048f1"
+tailscale_install_script_checksum: "39e5b9185e9329955b324a48c13d4863c3a93f814260336cf0d4ad92a0aac3d3"
 # Title: Exit Node
 # Description: Whether to advertise this node as a Tailscale exit node.
 # Type: bool

@@ -70,10 +70,10 @@ Description: Common configurations for K3s nodes (server and agent)
 | [Uninstall K3s (Agent)](tasks/main.yml#L21) | ansible.builtin.command | True |  |
 | [Cleanup K3s directories](tasks/main.yml#L30) | ansible.builtin.file | True | Cleanup directories |
 | [Ensure K3s config directory exists](tasks/main.yml#L43) | ansible.builtin.file | False | Create base directories |
-| [Ensure CNI config directory exists](tasks/main.yml#L49) | ansible.builtin.file | False |  |
-| [Ensure CNI bin directory exists](tasks/main.yml#L55) | ansible.builtin.file | False |  |
-| [Ensure K3s agent etc directory exists (for containerd)](tasks/main.yml#L61) | ansible.builtin.file | False |  |
-| [Deploy containerd configuration template](tasks/main.yml#L69) | ansible.builtin.template | False | Deploy Containerd Config |
+| [Ensure CNI config directory exists](tasks/main.yml#L49) | ansible.builtin.file | True |  |
+| [Ensure CNI bin directory exists](tasks/main.yml#L56) | ansible.builtin.file | True |  |
+| [Ensure K3s agent etc directory exists (for containerd)](tasks/main.yml#L63) | ansible.builtin.file | True |  |
+| [Deploy containerd configuration template](tasks/main.yml#L72) | ansible.builtin.template | True | Deploy Containerd Config |
 
 
 ## Task Flow Graphs
@@ -100,10 +100,10 @@ classDef rescue stroke:#665352,stroke-width:2px;
   Uninstall_K3s__Server_2-->|Task| Uninstall_K3s__Agent_3[uninstall k3s  agent <br>When: **k3s recreate   bool and k3s agent uninstall script<br>stat exists and not ansible check mode**]:::task
   Uninstall_K3s__Agent_3-->|Task| Cleanup_K3s_directories4[cleanup k3s directories<br>When: **k3s recreate   bool**]:::task
   Cleanup_K3s_directories4-->|Task| Ensure_K3s_config_directory_exists5[ensure k3s config directory exists]:::task
-  Ensure_K3s_config_directory_exists5-->|Task| Ensure_CNI_config_directory_exists6[ensure cni config directory exists]:::task
-  Ensure_CNI_config_directory_exists6-->|Task| Ensure_CNI_bin_directory_exists7[ensure cni bin directory exists]:::task
-  Ensure_CNI_bin_directory_exists7-->|Task| Ensure_K3s_agent_etc_directory_exists__for_containerd_8[ensure k3s agent etc directory exists  for<br>containerd ]:::task
-  Ensure_K3s_agent_etc_directory_exists__for_containerd_8-->|Task| Deploy_containerd_configuration_template9[deploy containerd configuration template]:::task
+  Ensure_K3s_config_directory_exists5-->|Task| Ensure_CNI_config_directory_exists6[ensure cni config directory exists<br>When: **k3s common containerd additional runtimes  <br>default       length   0**]:::task
+  Ensure_CNI_config_directory_exists6-->|Task| Ensure_CNI_bin_directory_exists7[ensure cni bin directory exists<br>When: **k3s common containerd additional runtimes  <br>default       length   0**]:::task
+  Ensure_CNI_bin_directory_exists7-->|Task| Ensure_K3s_agent_etc_directory_exists__for_containerd_8[ensure k3s agent etc directory exists  for<br>containerd <br>When: **k3s common containerd additional runtimes  <br>default       length   0**]:::task
+  Ensure_K3s_agent_etc_directory_exists__for_containerd_8-->|Task| Deploy_containerd_configuration_template9[deploy containerd configuration template<br>When: **k3s common containerd additional runtimes  <br>default       length   0**]:::task
   Deploy_containerd_configuration_template9-->End
 ```
 

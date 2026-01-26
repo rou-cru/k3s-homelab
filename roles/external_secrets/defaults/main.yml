@@ -3,3 +3,23 @@
 # Type: str
 # Required: false
 oci_config_file: "{{ playbook_dir }}/.oci"
+# Title: External Secrets Namespace
+# Description: Namespace to install External Secrets Operator into.
+# Type: str
+# Required: false
+external_secrets_namespace: "external-secrets"
+# Title: External Secrets ServiceMonitor
+# Description: Enable ServiceMonitor resources for External Secrets.
+# Type: bool
+# Required: false
+external_secrets_servicemonitor_enabled: false
+# Title: External Secrets Grafana Dashboard
+# Description: Enable bundled Grafana dashboard resources.
+# Type: bool
+# Required: false
+external_secrets_grafana_dashboard_enabled: false
+# Title: External Secrets Webhook Issuer Name
+# Description: ClusterIssuer name for the webhook certificate.
+# Type: str
+# Required: false
+external_secrets_webhook_issuer_name: "homelab-ca-issuer"

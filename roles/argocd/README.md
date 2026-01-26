@@ -60,12 +60,12 @@ Description: Deploy ArgoCD on K3s via Helm (expects External Secrets and an OCI 
 
 | Name | Module | Has Conditions | Tags | Comments |
 | ---- | ------ | -------------- | -----| -------- |
-| [Check if Helm is installed](tasks/main.yml#L2) | ansible.builtin.command | False |  | Verify Helm binary is available for ArgoCD deployment |
-| [Ensure ArgoCD Helm repo](tasks/main.yml#L9) | kubernetes.core.helm_repository | True |  | Add ArgoCD Helm repository for chart installation |
-| [Deploy ArgoCD](tasks/main.yml#L18) | kubernetes.core.helm | True | apps,argocd | Deploy ArgoCD using Helm with custom configuration |
-| [Create ArgoCD Admin Password ExternalSecret](tasks/main.yml#L143) | kubernetes.core.k8s | True | apps,argocd,secrets | Create ExternalSecret for ArgoCD admin password from vault |
-| [Wait for argocd-secret to have admin.password](tasks/main.yml#L173) | kubernetes.core.k8s_info | True | apps,argocd,secrets | Wait for ExternalSecret controller to populate admin password |
-| [Restart ArgoCD Server to pick up new password](tasks/main.yml#L194) | kubernetes.core.k8s | True | apps,argocd,secrets | Restart ArgoCD server to load new admin password from secret |
+| [Check if Helm is installed](tasks/main.yml#L2) | ansible.builtin.command | False |  | @docsible Check Helm availability |
+| [Ensure ArgoCD Helm repo](tasks/main.yml#L9) | kubernetes.core.helm_repository | True |  | @docsible Add ArgoCD Helm repository |
+| [Deploy ArgoCD](tasks/main.yml#L18) | kubernetes.core.helm | True | apps,argocd | @docsible Deploy ArgoCD via Helm |
+| [Create ArgoCD Admin Password ExternalSecret](tasks/main.yml#L143) | kubernetes.core.k8s | True | apps,argocd,secrets | @docsible Create ExternalSecret for admin password |
+| [Wait for argocd-secret to have admin.password](tasks/main.yml#L176) | kubernetes.core.k8s_info | True | apps,argocd,secrets | @docsible Wait for admin password secret |
+| [Restart ArgoCD Server to pick up new password](tasks/main.yml#L197) | kubernetes.core.k8s | True | apps,argocd,secrets | @docsible Restart ArgoCD server for password update |
 
 
 ## Task Flow Graphs

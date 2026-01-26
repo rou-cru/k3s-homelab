@@ -48,6 +48,11 @@ k3s_server_copy_kubeconfig_local: true
 # Type: str
 # Required: false
 k3s_server_local_kubeconfig_path: "{{ lookup('env', 'HOME') }}/.kube/config"
+# Title: Kubeconfig Context Name
+# Description: Context name to use in the local kubeconfig.
+# Type: str
+# Required: false
+k3s_server_context_name: "{{ inventory_hostname }}"
 
 # Title: CNI Bin Directory
 # Description: Directory for CNI binaries.
