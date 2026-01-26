@@ -38,3 +38,8 @@ k3s_cni_conf_dir: "/etc/cni/net.d"
 # Type: bool
 # Required: false
 k3s_recreate: false
+# Title: Restart Handler Name
+# Description: Handler name for restarting k3s (differs between server and agent).
+# Type: str
+# Required: false
+k3s_common_restart_handler: "Restart k3s"

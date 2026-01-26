@@ -13,11 +13,12 @@ common_install_acpid: true
 # Type: bool
 # Required: false
 common_install_cloud_binaries: true
-# Title: Install K8s Python Dependencies
-# Description: Installs python3-kubernetes and related Python modules.
+# Title: Install K8s Ansible Dependencies
+# Description: Install Python deps for kubernetes.core Ansible collection via uv.
+# Required on nodes where kubernetes.core modules execute (typically k3s servers).
 # Type: bool
 # Required: false
-common_install_k8s_python: true
+common_install_k8s_ansible_deps: false
 # Title: Install Debug Packages
 # Description: Installs lightweight OS debugging/incident response tools.
 # Type: bool

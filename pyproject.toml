@@ -9,6 +9,10 @@ dependencies = [
   "molecule-plugins[vagrant]>=23.5.0",
   "python-vagrant>=1.0.0",
   "pytest-testinfra>=10.0.0",
+  # kubernetes.core collection dependencies
+  "kubernetes>=24.2.0",
+  "PyYAML>=3.11",
+  "jsonpatch",
 ]
 
 requires-python = ">=3.12"

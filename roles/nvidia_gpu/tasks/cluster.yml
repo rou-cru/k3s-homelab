@@ -47,13 +47,14 @@
     - name: Wait for daemonset
       kubernetes.core.k8s_info:
         kind: DaemonSet
-        name: nvidia-device-plugin
         namespace: kube-system
         kubeconfig: "{{ k8s_kubeconfig }}"
+        label_selectors:
+          - app.kubernetes.io/name=nvidia-device-plugin
       register: nvdp_ds
       until: >-
         nvdp_ds.resources | length > 0 and
-        nvdp_ds.resources[0].status.numberReady == nvdp_ds.resources[0].status.desiredNumberScheduled
+        nvdp_ds.resources[0].status.numberReady | default(0) > 0
       retries: 60
       delay: 5
       when: helm_binary_check.rc == 0

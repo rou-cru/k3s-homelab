@@ -75,11 +75,7 @@
     dest: /var/lib/rancher/k3s/agent/etc/containerd/config.toml.tmpl
     mode: "0640"
   when: k3s_common_containerd_additional_runtimes | default([]) | length > 0
-  # Note: Handlers are tricky with shared roles.
-  # We should define a specific handler in the parent role or use a generic one if possible.
-  # For now, we rely on the parent role to have a "Restart k3s" or "Restart k3s-agent" handler
-  # but since we don't know which one to notify, we might need a variable or condition.
-  # A safer approach is to register a change and let the parent handle it, or use a listen topic.
+  notify: "{{ k3s_common_restart_handler | default('Restart k3s') }}"
 
 # Common Systemd Override Directory (Structure only, not content)
 # Service names differ (k3s vs k3s-agent), so we leave the override creation to the specific roles.

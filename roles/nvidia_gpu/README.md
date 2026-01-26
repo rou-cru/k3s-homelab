@@ -212,9 +212,9 @@ Supports host setup, cluster setup, and headless X11 configurations.
 | [Copy values](tasks/cluster.yml#L28) | ansible.builtin.copy | True |  |
 | [Install device plugin](tasks/cluster.yml#L35) | kubernetes.core.helm | True |  |
 | [Wait for daemonset](tasks/cluster.yml#L47) | kubernetes.core.k8s_info | True |  |
-| [Check GPU resources](tasks/cluster.yml#L61) | kubernetes.core.k8s_info | True |  |
-| [Extract GPU capacities from nodes](tasks/cluster.yml#L69) | ansible.builtin.set_fact | True |  |
-| [Debug GPU resources](tasks/cluster.yml#L78) | ansible.builtin.debug | True |  |
+| [Check GPU resources](tasks/cluster.yml#L62) | kubernetes.core.k8s_info | True |  |
+| [Extract GPU capacities from nodes](tasks/cluster.yml#L70) | ansible.builtin.set_fact | True |  |
+| [Debug GPU resources](tasks/cluster.yml#L79) | ansible.builtin.debug | True |  |
 
 #### File: tasks/headless_optimization.yml
 

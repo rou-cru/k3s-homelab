@@ -39,17 +39,6 @@
     filename: github-cli
     state: present
   when: common_install_github_cli_repo | bool
-# Install Python modules for Kubernetes Ansible integration
-- name: Install Python dependencies for K8s Ansible modules
-  ansible.builtin.apt:
-    name:
-      - python3-kubernetes
-      - python3-pip
-      - python3-yaml
-      - python3-jsonpatch
-    state: present
-    update_cache: true
-  when: common_install_k8s_python | bool
 # Install lightweight debug packages
 - name: Install debug packages
   ansible.builtin.apt:

@@ -8,14 +8,7 @@
     fail_msg: "ERROR: Invalid tailscale_ip ({{ tailscale_ip | default('undefined') }}). Must be 100.x.x.x"
   when: tailscale_ip is defined
 
-# Import common K3s setup tasks (directories, containerd, uninstall logic)
-- name: Run K3s Common
-  ansible.builtin.import_role:
-    name: k3s_common
-  vars:
-    k3s_recreate: "{{ k3s_server_recreate }}"
-
-# Detect available container runtimes
+# Detect available container runtimes BEFORE importing k3s_common
 - name: Check for runsc runtime
   ansible.builtin.stat:
     path: /usr/local/bin/runsc
@@ -34,6 +27,14 @@
         + (['runsc'] if k3s_runsc_stat.stat.exists else [])
         + (['nvidia'] if k3s_nvidia_runtime_stat.stat.exists else [])
       }}
+
+# Import common K3s setup tasks (directories, containerd, uninstall logic)
+- name: Run K3s Common
+  ansible.builtin.import_role:
+    name: k3s_common
+  vars:
+    k3s_recreate: "{{ k3s_server_recreate }}"
+    k3s_common_restart_handler: "Restart k3s"
 
 # Create secure log directory for K3s components
 - name: Ensure K3s log directory exists

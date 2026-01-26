@@ -17,6 +17,10 @@ common_audio_optimization_enabled: true
 # Enable Mining Optimizations (Hugepages, MSR)
 common_mining_enabled: true
 
+# K8s Ansible Dependencies
+# K3s servers need kubernetes.core Python deps for Ansible modules
+common_install_k8s_ansible_deps: true
+
 # Cluster Lifecycle
 # Avoid full rebuilds unless explicitly requested
 k3s_server_recreate: false

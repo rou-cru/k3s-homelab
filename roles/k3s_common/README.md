@@ -33,6 +33,7 @@ Description: Common configurations for K3s nodes (server and agent)
 | [k3s_cni_bin_dir](defaults/main.yml#L30)   | str | `/opt/cni/bin` |    false  |  K3s CNI Binary Directory |
 | [k3s_cni_conf_dir](defaults/main.yml#L35)   | str | `/etc/cni/net.d` |    false  |  K3s CNI Configuration Directory |
 | [k3s_recreate](defaults/main.yml#L40)   | bool | `False` |    false  |  Recreate K3s |
+| [k3s_common_restart_handler](defaults/main.yml#L45)   | str | `Restart k3s` |    false  |  Restart Handler Name |
 
 
 
@@ -49,6 +50,7 @@ Description: Common configurations for K3s nodes (server and agent)
 <tr><td><b>k3s_cni_bin_dir</b></td><td>Path to CNI binaries.</td></tr>
 <tr><td><b>k3s_cni_conf_dir</b></td><td>Path to CNI configuration files.</td></tr>
 <tr><td><b>k3s_recreate</b></td><td>If true, uninstalls and wipes previous K3s installation before deploying.</td></tr>
+<tr><td><b>k3s_common_restart_handler</b></td><td>Handler name for restarting k3s (differs between server and agent).</td></tr>
 </table>
 <br>
 </details>

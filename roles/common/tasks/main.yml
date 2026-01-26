@@ -100,3 +100,10 @@
   loop: "{{ common_helm_repositories }}"
   become: false
   when: common_install_cloud_binaries | bool
+
+# Install kubernetes.core Ansible collection Python dependencies
+- name: Install K8s Ansible deps
+  ansible.builtin.include_tasks: k8s_ansible_deps.yml
+  when:
+    - common_install_k8s_ansible_deps | bool
+    - common_install_cloud_binaries | bool

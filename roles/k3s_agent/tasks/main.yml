@@ -19,12 +19,33 @@
     fail_msg: "ERROR: k3s_agent_server_url and k3s_agent_token are required"
   when: not ansible_check_mode
 
+# Detect available container runtimes BEFORE importing k3s_common
+- name: Check for runsc runtime
+  ansible.builtin.stat:
+    path: /usr/local/bin/runsc
+  register: k3s_runsc_stat
+
+- name: Check for NVIDIA container runtime
+  ansible.builtin.stat:
+    path: /usr/bin/nvidia-container-runtime
+  register: k3s_nvidia_runtime_stat
+
+- name: Build containerd runtime list
+  ansible.builtin.set_fact:
+    k3s_common_containerd_additional_runtimes: >-
+      {{
+        []
+        + (['runsc'] if k3s_runsc_stat.stat.exists else [])
+        + (['nvidia'] if k3s_nvidia_runtime_stat.stat.exists else [])
+      }}
+
 # Import common K3s setup tasks (directories, containerd, uninstall logic)
 - name: Run K3s Common
   ansible.builtin.import_role:
     name: k3s_common
   vars:
     k3s_recreate: "{{ k3s_agent_recreate }}"
+    k3s_common_restart_handler: "Restart k3s-agent"
 
 # Deploy K3s agent configuration
 - name: Deploy agent config
