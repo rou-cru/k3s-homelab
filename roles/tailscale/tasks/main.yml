@@ -29,20 +29,36 @@
   changed_when: false
   failed_when: false
   check_mode: false
-# Determine if Tailscale is actively running and connected
-# Parses JSON output to check BackendState=Running indicating active connection
+# Determine if Tailscale is actively connected
+# Parses JSON output to check Self.Online=true and detect stale state
 - name: Determine state
   ansible.builtin.set_fact:
-    # Check if BackendState is Running and Self.Online is true
+    tailscale_backend_state: >-
+      {{
+        (tailscale_status_json.stdout | from_json).BackendState
+        if tailscale_status_json.rc == 0 else ''
+      }}
     tailscale_is_running: >-
       {{
 
 
         tailscale_status_json.rc == 0 and
-        (tailscale_status_json.stdout | from_json).BackendState == 'Running'
+        (tailscale_status_json.stdout | from_json).Self.Online | default(false)
       }}
+    tailscale_needs_logout: >-
+      {{
+        tailscale_backend_state == 'Running' and
+        not (tailscale_status_json.stdout | from_json).Self.Online | default(false)
+      }}
+# Re-auth from clean state if in stale running state
+- name: Logout Tailscale (reset state)
+  ansible.builtin.command: tailscale logout
+  when:
+    - tailscale_needs_logout | bool
+    - not ansible_check_mode
+
 # Configure Tailscale with authentication and custom settings
-# Runs only if not connected, ensures idempotency by checking tailscale_is_running state
+# Runs only if not connected
 - name: Configure Tailscale
   ansible.builtin.shell: |
     tailscale up \
@@ -57,7 +73,7 @@
     TSKEY: "{{ tailscale_authkey }}"
   register: tailscale_up
   no_log: true
-  # Execute if NOT running (repair) OR if we suspect drift (can be improved later)
+  # Execute if NOT online
   when:
     - not tailscale_is_running | bool
     - not ansible_check_mode
