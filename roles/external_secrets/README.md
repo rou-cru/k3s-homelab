@@ -13,6 +13,91 @@ Description: Install External Secrets Operator and configure an OCI Vault-backed
 
 
 
+<details>
+<summary><b> Argument Specifications in meta/argument_specs</b></summary>
+
+#### Key: main
+
+**Description**: Deploys External Secrets Operator and configures an OCI Vault-backed
+ClusterSecretStore for external secret management.
+
+
+**Options**:
+
+
+  - **externalSecrets_namespace**
+    - **Required**: False
+    - **Type**: str
+    - **Default**: external-secrets
+  
+    - **Description**: Namespace for External Secrets Operator.
+  
+  
+  
+
+  - **externalSecrets_chartVersion**
+    - **Required**: False
+    - **Type**: str
+    - **Default**: none
+  
+    - **Description**: Helm chart version (omit for latest).
+  
+  
+  
+
+  - **externalSecrets_webhookIssuerName**
+    - **Required**: False
+    - **Type**: str
+    - **Default**: selfsigned-issuer
+  
+    - **Description**: ClusterIssuer for webhook certificates.
+  
+  
+  
+
+  - **externalSecrets_serviceMonitorEnabled**
+    - **Required**: False
+    - **Type**: bool
+    - **Default**: False
+  
+    - **Description**: Enable Prometheus ServiceMonitor.
+  
+  
+  
+
+  - **externalSecrets_grafanaDashboardEnabled**
+    - **Required**: False
+    - **Type**: bool
+    - **Default**: False
+  
+    - **Description**: Enable Grafana dashboard ConfigMap.
+  
+  
+  
+
+  - **kubeconfig**
+    - **Required**: True
+    - **Type**: str
+    - **Default**: none
+  
+    - **Description**: Path to kubeconfig for cluster access.
+  
+  
+  
+
+  - **oci_configFile**
+    - **Required**: True
+    - **Type**: str
+    - **Default**: none
+  
+    - **Description**: Path to OCI CLI configuration file.
+  
+  
+  
+
+
+
+</details>
 
 
 
@@ -28,19 +113,13 @@ Description: Install External Secrets Operator and configure an OCI Vault-backed
 
 | Name | Module | Has Conditions | Tags | Comments |
 | ---- | ------ | -------------- | -----| -------- |
-| [Check if Helm is installed](tasks/main.yml#L3) | ansible.builtin.stat | False |  | @docsible Check Helm availability
-@docsible Check Helm availability |
-| [Ensure External Secrets Helm repo](tasks/main.yml#L11) | kubernetes.core.helm_repository | True |  | @docsible Add External Secrets Helm repository
-@docsible Add External Secrets Helm repository |
-| [Deploy External Secrets Operator](tasks/main.yml#L21) | kubernetes.core.helm | True | cluster,infrastructure,external-secrets | @docsible Deploy External Secrets Operator via Helm
-@docsible Deploy External Secrets Operator via Helm |
-| [Wait for external-secrets webhook CA bundle](tasks/main.yml#L84) | kubernetes.core.k8s_info | True | cluster,infrastructure,external-secrets | @docsible Wait for webhook CA bundle population
-@docsible Wait for webhook CA bundle population |
-| [Wait for external-secrets webhook to be ready](tasks/main.yml#L109) | kubernetes.core.k8s | True | cluster,infrastructure,external-secrets | @docsible Wait for webhook deployment readiness
-@docsible Wait for webhook deployment readiness |
-| [Create OCI Auth Secret](tasks/main.yml#L129) | kubernetes.core.k8s | True | cluster,infrastructure,external-secrets,oci | @docsible Create OCI authentication secret
-@docsible Create OCI authentication secret |
-| [Create OCI ClusterSecretStore](tasks/main.yml#L153) | kubernetes.core.k8s | True | cluster,infrastructure,external-secrets,oci | @docsible Create OCI ClusterSecretStore |
+| [Check if Helm is installed](tasks/main.yml#L2) | ansible.builtin.stat | False |  | @docsible Verify Helm CLI availability |
+| [Ensure External Secrets Helm repo](tasks/main.yml#L9) | kubernetes.core.helm_repository | True |  | @docsible Add External Secrets Helm repository |
+| [Deploy External Secrets Operator](tasks/main.yml#L18) | kubernetes.core.helm | True | cluster,infrastructure,external-secrets | @docsible Deploy External Secrets Operator via Helm |
+| [Wait for external-secrets webhook CA bundle](tasks/main.yml#L80) | kubernetes.core.k8s_info | True | cluster,infrastructure,external-secrets | @docsible Wait for webhook CA bundle population |
+| [Wait for external-secrets webhook to be ready](tasks/main.yml#L104) | kubernetes.core.k8s | True | cluster,infrastructure,external-secrets | @docsible Wait for webhook deployment readiness |
+| [Create OCI Auth Secret](tasks/main.yml#L123) | kubernetes.core.k8s | True | cluster,infrastructure,external-secrets,oci | @docsible Create OCI Vault authentication secret |
+| [Create OCI ClusterSecretStore](tasks/main.yml#L147) | kubernetes.core.k8s | True | cluster,infrastructure,external-secrets,oci | @docsible Create OCI Vault ClusterSecretStore |
 
 
 ## Task Flow Graphs

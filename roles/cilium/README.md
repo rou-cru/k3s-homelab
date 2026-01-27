@@ -24,7 +24,7 @@ Description: Installs and configures Cilium CNI for K3s clusters.
 **Options**:
 
 
-  - **cilium_version**
+  - **cilium_chartVersion**
     - **Required**: False
     - **Type**: str
     - **Default**: 1.18.5
@@ -34,7 +34,7 @@ Description: Installs and configures Cilium CNI for K3s clusters.
   
   
 
-  - **cilium_chart_name**
+  - **cilium_chartName**
     - **Required**: False
     - **Type**: str
     - **Default**: cilium
@@ -54,7 +54,7 @@ Description: Installs and configures Cilium CNI for K3s clusters.
   
   
 
-  - **cilium_rollout_timeout**
+  - **cilium_rolloutTimeout**
     - **Required**: False
     - **Type**: int
     - **Default**: 300
@@ -64,7 +64,7 @@ Description: Installs and configures Cilium CNI for K3s clusters.
   
   
 
-  - **cilium_wait_retries**
+  - **cilium_waitRetries**
     - **Required**: False
     - **Type**: int
     - **Default**: 60
@@ -74,7 +74,7 @@ Description: Installs and configures Cilium CNI for K3s clusters.
   
   
 
-  - **cilium_wait_delay**
+  - **cilium_waitDelay**
     - **Required**: False
     - **Type**: int
     - **Default**: 5
@@ -110,22 +110,22 @@ Description: Installs and configures Cilium CNI for K3s clusters.
 
 #### File: tasks/gateway.yml
 
-| Name | Module | Has Conditions |
-| ---- | ------ | -------------- |
-| [Deploy General Cluster Gateway](tasks/gateway.yml#L1) | kubernetes.core.k8s | True |
+| Name | Module | Has Conditions | Comments |
+| ---- | ------ | -------------- | -------- |
+| [Deploy General Cluster Gateway](tasks/gateway.yml#L2) | kubernetes.core.k8s | True | @docsible Deploy Gateway API public gateway with HTTP/HTTPS listeners |
 
 #### File: tasks/main.yml
 
 | Name | Module | Has Conditions | Tags | Comments |
 | ---- | ------ | -------------- | -----| -------- |
-| [Create temporary values file](tasks/main.yml#L2) | ansible.builtin.tempfile | True |  | Create temporary file for Cilium Helm values configuration |
-| [Ensure Cilium Helm repo](tasks/main.yml#L10) | kubernetes.core.helm_repository | True |  | Add Cilium Helm repository for CNI installation |
-| [Template Cilium values file](tasks/main.yml#L17) | ansible.builtin.template | True |  | Generate Cilium configuration from Jinja2 template |
-| [Install Cilium via Helm](tasks/main.yml#L25) | kubernetes.core.helm | True |  | Deploy Cilium CNI using Helm with custom configuration |
-| [Wait for Cilium DaemonSet to be created](tasks/main.yml#L38) | kubernetes.core.k8s_info | True |  | Verify Cilium DaemonSet creation before proceeding |
-| [Wait for cilium pods](tasks/main.yml#L51) | kubernetes.core.k8s_info | True |  | Wait for cilium pods |
-| [Deploy Cluster Gateway](tasks/main.yml#L67) | ansible.builtin.import_tasks | True | cluster,network,gateway | Deploy General Cluster Gateway |
-| [Remove temporary values file](tasks/main.yml#L74) | ansible.builtin.file | True |  | Clean up temporary configuration file |
+| [Create temporary values file](tasks/main.yml#L2) | ansible.builtin.tempfile | True |  | @docsible Create temporary values file |
+| [Ensure Cilium Helm repo](tasks/main.yml#L10) | kubernetes.core.helm_repository | True |  | @docsible Add Cilium Helm repository |
+| [Template Cilium values file](tasks/main.yml#L17) | ansible.builtin.template | True |  | @docsible Generate Cilium values from template |
+| [Install Cilium via Helm](tasks/main.yml#L25) | kubernetes.core.helm | True |  | @docsible Deploy Cilium CNI via Helm |
+| [Wait for Cilium DaemonSet to be created](tasks/main.yml#L38) | kubernetes.core.k8s_info | True |  | @docsible Wait for Cilium DaemonSet creation |
+| [Wait for cilium pods](tasks/main.yml#L51) | kubernetes.core.k8s_info | True |  | @docsible Wait for all Cilium pods to be ready |
+| [Deploy Cluster Gateway](tasks/main.yml#L67) | ansible.builtin.import_tasks | True | cluster,network,gateway | @docsible Deploy Gateway API resources |
+| [Remove temporary values file](tasks/main.yml#L74) | ansible.builtin.file | True |  | @docsible Cleanup temporary values file |
 
 
 ## Task Flow Graphs

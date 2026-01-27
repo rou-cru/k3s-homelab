@@ -160,32 +160,32 @@ Supports host setup, cluster setup, and headless X11 configurations.
 
 #### File: tasks/cluster.yml
 
-| Name | Module | Has Conditions | Tags |
-| ---- | ------ | -------------- | -----|
-| [NVIDIA GPU cluster setup](tasks/cluster.yml#L1) | block | True | cluster,nvidia |
-| [Check if Helm is installed](tasks/cluster.yml#L4) | ansible.builtin.command | False |  |
-| [Warn if Helm is not available](tasks/cluster.yml#L10) | ansible.builtin.debug | True |  |
-| [Ensure NVIDIA Helm repo](tasks/cluster.yml#L15) | kubernetes.core.helm_repository | True |  |
-| [Create temp values](tasks/cluster.yml#L21) | ansible.builtin.tempfile | True |  |
-| [Copy values](tasks/cluster.yml#L28) | ansible.builtin.copy | True |  |
-| [Install device plugin](tasks/cluster.yml#L35) | kubernetes.core.helm | True |  |
-| [Wait for daemonset](tasks/cluster.yml#L47) | kubernetes.core.k8s_info | True |  |
-| [Check GPU resources](tasks/cluster.yml#L62) | kubernetes.core.k8s_info | True |  |
-| [Extract GPU capacities from nodes](tasks/cluster.yml#L70) | ansible.builtin.set_fact | True |  |
-| [Debug GPU resources](tasks/cluster.yml#L79) | ansible.builtin.debug | True |  |
+| Name | Module | Has Conditions | Tags | Comments |
+| ---- | ------ | -------------- | -----| -------- |
+| [NVIDIA GPU cluster setup](tasks/cluster.yml#L2) | block | True | cluster,nvidia | @docsible Configure NVIDIA GPU in Kubernetes cluster |
+| [Check if Helm is installed](tasks/cluster.yml#L6) | ansible.builtin.command | False |  | @docsible Verify Helm availability |
+| [Warn if Helm is not available](tasks/cluster.yml#L13) | ansible.builtin.debug | True |  | @docsible Warn when Helm is missing |
+| [Ensure NVIDIA Helm repo](tasks/cluster.yml#L19) | kubernetes.core.helm_repository | True |  | @docsible Add NVIDIA device plugin Helm repository |
+| [Create temp values](tasks/cluster.yml#L26) | ansible.builtin.tempfile | True |  | @docsible Create temporary values file |
+| [Copy values](tasks/cluster.yml#L34) | ansible.builtin.copy | True |  | @docsible Copy device plugin values template |
+| [Install device plugin](tasks/cluster.yml#L42) | kubernetes.core.helm | True |  | @docsible Install NVIDIA device plugin via Helm |
+| [Wait for daemonset](tasks/cluster.yml#L55) | kubernetes.core.k8s_info | True |  | @docsible Wait for device plugin DaemonSet readiness |
+| [Check GPU resources](tasks/cluster.yml#L71) | kubernetes.core.k8s_info | True |  | @docsible Query node GPU capacity |
+| [Extract GPU capacities from nodes](tasks/cluster.yml#L80) | ansible.builtin.set_fact | True |  | @docsible Parse GPU resource allocation |
+| [Debug GPU resources](tasks/cluster.yml#L90) | ansible.builtin.debug | True |  | @docsible Display detected GPU resources |
 
 #### File: tasks/headless_optimization.yml
 
-| Name | Module | Has Conditions |
-| ---- | ------ | -------------- |
-| [Install X11 deps](tasks/headless_optimization.yml#L1) | ansible.builtin.apt | True |
-| [Configure xorg](tasks/headless_optimization.yml#L11) | ansible.builtin.template | True |
-| [Deploy persistence svc](tasks/headless_optimization.yml#L21) | ansible.builtin.copy | True |
-| [Deploy Xorg svc](tasks/headless_optimization.yml#L31) | ansible.builtin.copy | True |
-| [Reload systemd (nvidia)](tasks/headless_optimization.yml#L41) | ansible.builtin.systemd | True |
-| [Start persistence svc](tasks/headless_optimization.yml#L48) | ansible.builtin.systemd | True |
-| [Start Xorg svc](tasks/headless_optimization.yml#L55) | ansible.builtin.systemd | True |
-| [Wait for X server](tasks/headless_optimization.yml#L64) | ansible.builtin.wait_for | True |
+| Name | Module | Has Conditions | Comments |
+| ---- | ------ | -------------- | -------- |
+| [Install X11 deps](tasks/headless_optimization.yml#L2) | ansible.builtin.apt | True | @docsible Install X11 server for headless GPU control |
+| [Configure xorg](tasks/headless_optimization.yml#L13) | ansible.builtin.template | True | @docsible Generate xorg.conf with Coolbits for fan/clocks control |
+| [Deploy persistence svc](tasks/headless_optimization.yml#L24) | ansible.builtin.copy | True | @docsible Deploy persistence daemon service |
+| [Deploy Xorg svc](tasks/headless_optimization.yml#L35) | ansible.builtin.copy | True | @docsible Deploy X11 service for headless operation |
+| [Reload systemd (nvidia)](tasks/headless_optimization.yml#L46) | ansible.builtin.systemd | True | @docsible Reload systemd after service changes |
+| [Start persistence svc](tasks/headless_optimization.yml#L54) | ansible.builtin.systemd | True | @docsible Start persistence daemon |
+| [Start Xorg svc](tasks/headless_optimization.yml#L62) | ansible.builtin.systemd | True | @docsible Start X11 service on display :1 |
+| [Wait for X server](tasks/headless_optimization.yml#L72) | ansible.builtin.wait_for | True | @docsible Wait for X server socket readiness |
 
 #### File: tasks/host.yml
 

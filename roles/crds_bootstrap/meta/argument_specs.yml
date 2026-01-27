@@ -1,0 +1,27 @@
+---
+argument_specs:
+  main:
+    short_description: Bootstrap Gateway API and Prometheus CRDs
+    description: |
+      Installs Gateway API standard CRDs and Prometheus Operator CRDs
+      required by various Helm charts and operators.
+    author: rc
+    options:
+      gateway_apiVersion:
+        type: str
+        required: false
+        default: "v1.2.0"
+        description: Gateway API CRDs version to install.
+      prometheus_operatorCrdsNamespace:
+        type: str
+        required: false
+        default: "monitoring"
+        description: Namespace for Prometheus Operator CRDs.
+      prometheus_operatorCrdsVersion:
+        type: str
+        required: true
+        description: Prometheus Operator CRDs Helm chart version.
+      kubeconfig:
+        type: str
+        required: true
+        description: Path to kubeconfig for cluster access.

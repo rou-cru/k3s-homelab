@@ -1,4 +1,4 @@
-# Install Gateway API CRDs
+# @docsible Install Gateway API standard CRDs
 - name: Install Gateway API CRDs
   kubernetes.core.k8s:
     state: present
@@ -6,6 +6,7 @@
       https://github.com/kubernetes-sigs/gateway-api/releases/download/{{ gateway_apiVersion }}/standard-install.yaml
     kubeconfig: "{{ kubeconfig }}"
 
+# @docsible Wait for Gateway CRDs to be established
 - name: Wait for Gateway API CRDs to be established
   kubernetes.core.k8s_info:
     api_version: apiextensions.k8s.io/v1
@@ -18,13 +19,14 @@
       status: "True"
     wait_timeout: 60
 
-# Install Prometheus Operator CRDs via Helm
+# @docsible Add Prometheus Community Helm repository
 - name: Add Prometheus Community Helm repo
   kubernetes.core.helm_repository:
     name: prometheus-community
     repo_url: https://prometheus-community.github.io/helm-charts
   check_mode: false
 
+# @docsible Install Prometheus Operator CRDs via Helm
 - name: Install Prometheus Operator CRDs
   kubernetes.core.helm:
     release_name: prometheus-operator-crds

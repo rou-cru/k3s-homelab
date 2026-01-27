@@ -1,0 +1,42 @@
+---
+argument_specs:
+  main:
+    short_description: Deploy ArgoCD GitOps server
+    description: |
+      Installs ArgoCD via Helm and configures admin password
+      via External Secrets OCI Vault integration.
+    author: rc
+    options:
+      argocd_namespace:
+        type: str
+        required: false
+        default: "argocd"
+        description: Namespace for ArgoCD deployment.
+      argocd_chartVersion:
+        type: str
+        required: false
+        description: ArgoCD Helm chart version (omit for latest).
+      argocd_installCrds:
+        type: bool
+        required: false
+        default: true
+        description: Install ArgoCD CRDs.
+      argocd_dexEnabled:
+        type: bool
+        required: false
+        default: false
+        description: Enable Dex for SSO integration.
+      argocd_haEnabled:
+        type: bool
+        required: false
+        default: false
+        description: Enable high availability mode.
+      argocd_serviceMonitorEnabled:
+        type: bool
+        required: false
+        default: false
+        description: Enable Prometheus ServiceMonitor.
+      kubeconfig:
+        type: str
+        required: true
+        description: Path to kubeconfig for cluster access.

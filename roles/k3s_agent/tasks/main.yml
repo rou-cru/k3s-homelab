@@ -1,4 +1,4 @@
-# main.yml - K3s Agent Role
+# @docsible Validate Tailscale IP format (100.x.x.x)
 - name: Validate Tailscale IP
   ansible.builtin.assert:
     that:
@@ -7,6 +7,7 @@
       - IP_tailscale is match('^100\.')
     fail_msg: "ERROR: Invalid IP_tailscale ({{ IP_tailscale | default('undefined') }}). Must be 100.x.x.x"
 
+# @docsible Verify required variables are defined
 - name: Verify K3s agent requirements
   ansible.builtin.assert:
     that:
@@ -16,17 +17,19 @@
       - k3s_agentToken | length > 0
     fail_msg: "ERROR: k3s_agentServerUrl and k3s_agentToken are required"
 
-# Detect if gVisor or Nvidia runtimes are present on host
+# @docsible Check for gVisor runtime
 - name: Check for runsc binary
   ansible.builtin.stat:
     path: /usr/local/bin/runsc
   register: k3s_runsc_stat
 
+# @docsible Check for NVIDIA runtime
 - name: Check for nvidia-container-runtime
   ansible.builtin.stat:
     path: /usr/bin/nvidia-container-runtime
   register: k3s_nvidia_runtime_stat
 
+# @docsible Build list of additional containerd runtimes
 - name: Build containerd runtime list
   ansible.builtin.set_fact:
     k3s_commonContainerdAdditionalRuntimes: >-
@@ -36,7 +39,7 @@
         + (['nvidia'] if k3s_nvidia_runtime_stat.stat.exists else [])
       }}
 
-# Import common K3s setup tasks (directories, containerd, uninstall logic)
+# @docsible Import common K3s setup tasks
 - name: Run K3s Common
   ansible.builtin.import_role:
     name: k3s_common
@@ -44,7 +47,7 @@
     k3s_recreate: "{{ k3s_agentRecreate }}"
     k3s_commonRestartHandler: "Restart k3s-agent"
 
-# Deploy K3s agent configuration
+# @docsible Deploy agent configuration file
 - name: Deploy agent config
   ansible.builtin.template:
     src: config.yaml.j2
@@ -53,7 +56,7 @@
   notify: Restart k3s-agent
   when: not ansible_check_mode
 
-# Download and install K3s agent with specified version
+# @docsible Install K3s agent binary
 - name: Install K3s agent
   ansible.builtin.shell: |
     set -o pipefail
@@ -69,14 +72,14 @@
   no_log: true
   when: not ansible_check_mode
 
-# Create systemd override directory for K3s agent service customization
+# @docsible Create systemd override directory
 - name: Create override dir
   ansible.builtin.file:
     path: /etc/systemd/system/k3s-agent.service.d
     state: directory
     mode: "0750"
 
-# Override K3s agent service configuration for clean startup
+# @docsible Deploy systemd service override
 - name: Create override
   ansible.builtin.copy:
     dest: /etc/systemd/system/k3s-agent.service.d/override.conf
@@ -87,12 +90,12 @@
     mode: "0640"
   notify: Restart k3s-agent
 
-# Reload systemd configuration after service changes
+# @docsible Reload systemd daemon
 - name: Reload systemd
   ansible.builtin.systemd:
     daemon_reload: true
 
-# Enable and start K3s agent service
+# @docsible Enable and start K3s agent service
 - name: Start K3s agent
   ansible.builtin.systemd:
     name: k3s-agent
@@ -100,11 +103,11 @@
     state: started
   when: not ansible_check_mode
 
-# Apply pending service restarts before continuing
+# @docsible Apply pending handler restarts
 - name: Flush handlers
   ansible.builtin.meta: flush_handlers
 
-# Wait for node to appear and become ready on the cluster
+# @docsible Wait for node Ready condition
 - name: Wait for node to be ready
   kubernetes.core.k8s_info:
     kind: Node
@@ -122,7 +125,7 @@
   delay: "{{ k3s_agentReadyzDelay }}"
   when: not ansible_check_mode
 
-# Apply node labels if specified
+# @docsible Apply custom node labels
 - name: Apply node labels
   kubernetes.core.k8s:
     kind: Node
@@ -136,7 +139,7 @@
     - k3s_agentNodeLabels | length > 0
     - not ansible_check_mode
 
-# Apply node taints if specified
+# @docsible Apply custom node taints
 - name: Apply node taints
   kubernetes.core.k8s_taint:
     name: "{{ ansible_facts['hostname'] }}"
@@ -152,7 +155,7 @@
     - k3s_agentNodeTaints | length > 0
     - not ansible_check_mode
 
-# Display success message
+# @docsible Display join confirmation
 - name: Show agent join status
   ansible.builtin.debug:
     msg: "✅ K3s agent {{ ansible_facts['hostname'] }} joined cluster at {{ k3s_agentServerUrl }}"

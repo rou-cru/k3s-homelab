@@ -1,3 +1,4 @@
+# @docsible Deploy Gateway API public gateway with HTTP/HTTPS listeners
 - name: Deploy General Cluster Gateway
   kubernetes.core.k8s:
     state: present

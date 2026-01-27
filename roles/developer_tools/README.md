@@ -25,7 +25,7 @@ Kubernetes CLIs (kubectl, helm, k9s), Python tools (uv, pipx), and AI CLIs.
 **Options**:
 
 
-  - **devtools_install_docker**
+  - **devtools_installDocker**
     - **Required**: False
     - **Type**: bool
     - **Default**: False
@@ -35,7 +35,7 @@ Kubernetes CLIs (kubectl, helm, k9s), Python tools (uv, pipx), and AI CLIs.
   
   
 
-  - **devtools_install_vagrant**
+  - **devtools_installVagrant**
     - **Required**: False
     - **Type**: bool
     - **Default**: True
@@ -63,34 +63,33 @@ Kubernetes CLIs (kubectl, helm, k9s), Python tools (uv, pipx), and AI CLIs.
 
 | Name | Module | Has Conditions | Comments |
 | ---- | ------ | -------------- | -------- |
-| [Install dev tools (apt)](tasks/main.yml#L1) | ansible.builtin.apt | False |  |
-| [Install NVM](tasks/main.yml#L20) | ansible.builtin.shell | True | Kubernetes tools are installed in roles/common to avoid snap usage.
-Development environments |
-| [Install latest Node.js LTS via NVM](tasks/main.yml#L28) | ansible.builtin.shell | True |  |
-| [Enable Corepack and activate pnpm](tasks/main.yml#L38) | ansible.builtin.shell | True |  |
-| [Install Devbox](tasks/main.yml#L48) | ansible.builtin.shell | True |  |
-| [Install nvitop](tasks/main.yml#L55) | ansible.builtin.command | True | Python CLI tools (pipx/uv) |
-| [Install Kimi](tasks/main.yml#L64) | ansible.builtin.command | True |  |
-| [Install AI tools](tasks/main.yml#L72) | ansible.builtin.shell | True | AI CLI tools (npm) |
-| [Install Docker](tasks/main.yml#L87) | block | True | Docker (optional, disabled by default) |
-| [Add Docker key](tasks/main.yml#L92) | ansible.builtin.shell | False |  |
-| [Add Docker repo](tasks/main.yml#L99) | ansible.builtin.apt_repository | False |  |
-| [Install Docker CLI](tasks/main.yml#L115) | ansible.builtin.apt | False |  |
-| [Show Docker warning](tasks/main.yml#L123) | ansible.builtin.debug | False |  |
-| [Install Vagrant and libvirt](tasks/main.yml#L135) | block | True | Vagrant + libvirt (for Molecule testing) |
-| [Set HashiCorp repo release](tasks/main.yml#L140) | ansible.builtin.set_fact | False |  |
-| [Set HashiCorp repo architecture](tasks/main.yml#L144) | ansible.builtin.set_fact | False |  |
-| [Validate HashiCorp repo architecture](tasks/main.yml#L154) | ansible.builtin.assert | False |  |
-| [Ensure APT keyrings dir (HashiCorp)](tasks/main.yml#L159) | ansible.builtin.file | True |  |
-| [Install HashiCorp keyring](tasks/main.yml#L165) | ansible.builtin.shell | True |  |
-| [Add HashiCorp APT repo](tasks/main.yml#L174) | ansible.builtin.apt_repository | True |  |
-| [Install libvirt and dependencies](tasks/main.yml#L189) | ansible.builtin.apt | False |  |
-| [Ensure libvirtd service is enabled and started](tasks/main.yml#L208) | ansible.builtin.systemd | False |  |
-| [Add ansible_user to libvirt group](tasks/main.yml#L213) | ansible.builtin.user | False |  |
-| [Add root to libvirt group](tasks/main.yml#L218) | ansible.builtin.user | False |  |
-| [Check installed Vagrant plugins](tasks/main.yml#L223) | ansible.builtin.command | False |  |
-| [Install vagrant-libvirt plugin](tasks/main.yml#L227) | ansible.builtin.command | True |  |
-| [Show Vagrant installation success](tasks/main.yml#L235) | ansible.builtin.debug | False |  |
+| [Install dev tools (apt)](tasks/main.yml#L2) | ansible.builtin.apt | False | @docsible Install base development tools via APT |
+| [Install NVM](tasks/main.yml#L20) | ansible.builtin.shell | True | @docsible Install Node Version Manager |
+| [Install latest Node.js LTS via NVM](tasks/main.yml#L29) | ansible.builtin.shell | True | @docsible Install Node.js LTS via NVM |
+| [Enable Corepack and activate pnpm](tasks/main.yml#L40) | ansible.builtin.shell | True | @docsible Enable Corepack and activate pnpm |
+| [Install Devbox](tasks/main.yml#L51) | ansible.builtin.shell | True | @docsible Install Devbox package manager |
+| [Install nvitop](tasks/main.yml#L58) | ansible.builtin.command | True | @docsible Install nvitop GPU monitor via uv |
+| [Install Kimi](tasks/main.yml#L68) | ansible.builtin.command | True | @docsible Install Kimi CLI via uv |
+| [Install AI tools](tasks/main.yml#L76) | ansible.builtin.shell | True | @docsible Install AI CLI tools via npm |
+| [Install Docker](tasks/main.yml#L91) | block | True | @docsible Install Docker CLI if enabled |
+| [Add Docker key](tasks/main.yml#L97) | ansible.builtin.shell | False | @docsible Add Docker GPG key |
+| [Add Docker repo](tasks/main.yml#L105) | ansible.builtin.apt_repository | False | @docsible Add Docker APT repository |
+| [Install Docker CLI](tasks/main.yml#L122) | ansible.builtin.apt | False | @docsible Install Docker CLI packages |
+| [Show Docker warning](tasks/main.yml#L131) | ansible.builtin.debug | False | @docsible Warn about containerd conflict |
+| [Install Vagrant and libvirt](tasks/main.yml#L143) | block | True | @docsible Install Vagrant and libvirt for testing |
+| [Set HashiCorp repo release](tasks/main.yml#L149) | ansible.builtin.set_fact | False | @docsible Determine HashiCorp repo release |
+| [Set HashiCorp repo architecture](tasks/main.yml#L154) | ansible.builtin.set_fact | False | @docsible Determine architecture for HashiCorp repo |
+| [Validate HashiCorp repo architecture](tasks/main.yml#L165) | ansible.builtin.assert | False | @docsible Validate supported architecture |
+| [Ensure APT keyrings dir (HashiCorp)](tasks/main.yml#L171) | ansible.builtin.file | True | @docsible Create APT keyrings directory |
+| [Install HashiCorp keyring](tasks/main.yml#L178) | ansible.builtin.shell | True | @docsible Install HashiCorp GPG key |
+| [Add HashiCorp APT repo](tasks/main.yml#L188) | ansible.builtin.apt_repository | True | @docsible Add HashiCorp APT repository |
+| [Install libvirt and dependencies](tasks/main.yml#L204) | ansible.builtin.apt | False | @docsible Install libvirt and build dependencies |
+| [Ensure libvirtd service is enabled and started](tasks/main.yml#L224) | ansible.builtin.systemd | False | @docsible Enable libvirtd service |
+| [Add ansible_user to libvirt group](tasks/main.yml#L230) | ansible.builtin.user | False | @docsible Add ansible user to libvirt group |
+| [Add root to libvirt group](tasks/main.yml#L236) | ansible.builtin.user | False | @docsible Add root to libvirt group |
+| [Check installed Vagrant plugins](tasks/main.yml#L242) | ansible.builtin.command | False | @docsible List installed Vagrant plugins |
+| [Install vagrant-libvirt plugin](tasks/main.yml#L247) | ansible.builtin.command | True | @docsible Install vagrant-libvirt plugin |
+| [Show Vagrant installation success](tasks/main.yml#L256) | ansible.builtin.debug | False | @docsible Confirm Vagrant installation |
 
 
 ## Task Flow Graphs
@@ -119,17 +118,17 @@ classDef rescue stroke:#665352,stroke-width:2px;
   Install_Devbox4-->|Task| Install_nvitop5[install nvitop<br>When: **nvidia setupmode   default  auto       false  and<br>not ansible check mode**]:::task
   Install_nvitop5-->|Task| Install_Kimi6[install kimi<br>When: **not ansible check mode**]:::task
   Install_Kimi6-->|Task| Install_AI_tools7[install ai tools<br>When: **not ansible check mode**]:::task
-  Install_AI_tools7-->|Block Start| Install_Docker8_block_start_0[[install docker<br>When: **devtools install docker   default false    bool<br>and not ansible check mode**]]:::block
+  Install_AI_tools7-->|Block Start| Install_Docker8_block_start_0[[install docker<br>When: **devtools installdocker   default false    bool and<br>not ansible check mode**]]:::block
   Install_Docker8_block_start_0-->|Task| Add_Docker_key0[add docker key]:::task
   Add_Docker_key0-->|Task| Add_Docker_repo1[add docker repo]:::task
   Add_Docker_repo1-->|Task| Install_Docker_CLI2[install docker cli]:::task
   Install_Docker_CLI2-->|Task| Show_Docker_warning3[show docker warning]:::task
   Show_Docker_warning3-.->|End of Block| Install_Docker8_block_start_0
-  Show_Docker_warning3-->|Rescue Start| Install_Docker8_rescue_start_0[install docker<br>When: **devtools install docker   default false    bool<br>and not ansible check mode**]:::rescue
+  Show_Docker_warning3-->|Rescue Start| Install_Docker8_rescue_start_0[install docker<br>When: **devtools installdocker   default false    bool and<br>not ansible check mode**]:::rescue
   Install_Docker8_rescue_start_0-->|Task| Report_Docker_installation_failure0[report docker installation failure]:::task
   Report_Docker_installation_failure0-->|Task| Fail_Docker_installation1[fail docker installation]:::task
   Fail_Docker_installation1-.->|End of Rescue Block| Install_Docker8_block_start_0
-  Fail_Docker_installation1-->|Block Start| Install_Vagrant_and_libvirt9_block_start_0[[install vagrant and libvirt<br>When: **devtools install vagrant   default true    bool<br>and not ansible check mode**]]:::block
+  Fail_Docker_installation1-->|Block Start| Install_Vagrant_and_libvirt9_block_start_0[[install vagrant and libvirt<br>When: **devtools installvagrant   default true    bool and<br>not ansible check mode**]]:::block
   Install_Vagrant_and_libvirt9_block_start_0-->|Task| Set_HashiCorp_repo_release0[set hashicorp repo release]:::task
   Set_HashiCorp_repo_release0-->|Task| Set_HashiCorp_repo_architecture1[set hashicorp repo architecture]:::task
   Set_HashiCorp_repo_architecture1-->|Task| Validate_HashiCorp_repo_architecture2[validate hashicorp repo architecture]:::task
@@ -144,7 +143,7 @@ classDef rescue stroke:#665352,stroke-width:2px;
   Check_installed_Vagrant_plugins10-->|Task| Install_vagrant_libvirt_plugin11[install vagrant libvirt plugin<br>When: **not ansible check mode and vagrant plugin list rc <br>  0 and  vagrant libvirt  not in vagrant plugin<br>list stdout**]:::task
   Install_vagrant_libvirt_plugin11-->|Task| Show_Vagrant_installation_success12[show vagrant installation success]:::task
   Show_Vagrant_installation_success12-.->|End of Block| Install_Vagrant_and_libvirt9_block_start_0
-  Show_Vagrant_installation_success12-->|Rescue Start| Install_Vagrant_and_libvirt9_rescue_start_0[install vagrant and libvirt<br>When: **devtools install vagrant   default true    bool<br>and not ansible check mode**]:::rescue
+  Show_Vagrant_installation_success12-->|Rescue Start| Install_Vagrant_and_libvirt9_rescue_start_0[install vagrant and libvirt<br>When: **devtools installvagrant   default true    bool and<br>not ansible check mode**]:::rescue
   Install_Vagrant_and_libvirt9_rescue_start_0-->|Task| Report_Vagrant_installation_failure0[report vagrant installation failure]:::task
   Report_Vagrant_installation_failure0-->|Task| Fail_Vagrant_installation1[fail vagrant installation]:::task
   Fail_Vagrant_installation1-.->|End of Rescue Block| Install_Vagrant_and_libvirt9_block_start_0

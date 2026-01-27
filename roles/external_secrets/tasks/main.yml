@@ -1,12 +1,10 @@
-# @docsible Check Helm availability
-# @docsible Check Helm availability
+# @docsible Verify Helm CLI availability
 - name: Check if Helm is installed
   ansible.builtin.stat:
     path: /usr/local/bin/helm
   register: helm_binary_check
   failed_when: false
 
-# @docsible Add External Secrets Helm repository
 # @docsible Add External Secrets Helm repository
 - name: Ensure External Secrets Helm repo
   kubernetes.core.helm_repository:
@@ -16,7 +14,6 @@
     - helm_binary_check.stat.exists
     - not ansible_check_mode
 
-# @docsible Deploy External Secrets Operator via Helm
 # @docsible Deploy External Secrets Operator via Helm
 - name: Deploy External Secrets Operator
   kubernetes.core.helm:
@@ -80,7 +77,6 @@
   tags: ["cluster", "infrastructure", "external-secrets"]
 
 # @docsible Wait for webhook CA bundle population
-# @docsible Wait for webhook CA bundle population
 - name: Wait for external-secrets webhook CA bundle
   kubernetes.core.k8s_info:
     api_version: admissionregistration.k8s.io/v1
@@ -105,7 +101,6 @@
   tags: ["cluster", "infrastructure", "external-secrets"]
 
 # @docsible Wait for webhook deployment readiness
-# @docsible Wait for webhook deployment readiness
 - name: Wait for external-secrets webhook to be ready
   kubernetes.core.k8s:
     api_version: apps/v1
@@ -124,8 +119,7 @@
     - not ansible_check_mode
   tags: ["cluster", "infrastructure", "external-secrets"]
 
-# @docsible Create OCI authentication secret
-# @docsible Create OCI authentication secret
+# @docsible Create OCI Vault authentication secret
 - name: Create OCI Auth Secret
   kubernetes.core.k8s:
     state: present
@@ -149,7 +143,7 @@
     - not ansible_check_mode
   tags: ["cluster", "infrastructure", "external-secrets", "oci"]
 
-# @docsible Create OCI ClusterSecretStore
+# @docsible Create OCI Vault ClusterSecretStore
 - name: Create OCI ClusterSecretStore
   kubernetes.core.k8s:
     state: present

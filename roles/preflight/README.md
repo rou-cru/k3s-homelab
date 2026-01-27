@@ -46,13 +46,13 @@ Description: Pre-flight checks to ensure minimum system requirements are met.
 
 | Name | Module | Has Conditions | Comments |
 | ---- | ------ | -------------- | -------- |
-| [Set system hostname](tasks/main.yml#L2) | ansible.builtin.hostname | True | Verify network connectivity to K3s download endpoint |
-| [Check connectivity](tasks/main.yml#L7) | ansible.builtin.uri | False |  |
-| [Fail on disconnect](tasks/main.yml#L17) | ansible.builtin.fail | True | Abort if network is unreachable |
-| [Check disk space](tasks/main.yml#L22) | ansible.builtin.shell | False | Check available disk space on root filesystem |
-| [Assert disk space](tasks/main.yml#L29) | ansible.builtin.assert | False | Validate disk space meets minimum requirements |
-| [Assert memory](tasks/main.yml#L40) | ansible.builtin.assert | False | Validate system memory meets minimum requirements |
-| [Assert architecture](tasks/main.yml#L48) | ansible.builtin.assert | False | Validate system architecture is supported |
+| [Set system hostname](tasks/main.yml#L2) | ansible.builtin.hostname | True | @docsible Set system hostname |
+| [Check connectivity](tasks/main.yml#L8) | ansible.builtin.uri | False | @docsible Verify network connectivity to K3s download endpoint |
+| [Fail on disconnect](tasks/main.yml#L18) | ansible.builtin.fail | True | @docsible Fail if network is unreachable |
+| [Check disk space](tasks/main.yml#L23) | ansible.builtin.shell | False | @docsible Check available disk space on root filesystem |
+| [Assert disk space](tasks/main.yml#L30) | ansible.builtin.assert | False | @docsible Validate minimum disk space requirement |
+| [Assert memory](tasks/main.yml#L41) | ansible.builtin.assert | False | @docsible Validate minimum memory requirement |
+| [Assert architecture](tasks/main.yml#L49) | ansible.builtin.assert | False | @docsible Validate x86_64 architecture |
 
 
 ## Task Flow Graphs

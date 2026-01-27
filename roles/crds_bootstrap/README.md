@@ -13,6 +13,61 @@ Description: Bootstrap cluster-wide CRDs (Gateway API and Prometheus Operator) f
 
 
 
+<details>
+<summary><b> Argument Specifications in meta/argument_specs</b></summary>
+
+#### Key: main
+
+**Description**: Installs Gateway API standard CRDs and Prometheus Operator CRDs
+required by various Helm charts and operators.
+
+
+**Options**:
+
+
+  - **gateway_apiVersion**
+    - **Required**: False
+    - **Type**: str
+    - **Default**: v1.2.0
+  
+    - **Description**: Gateway API CRDs version to install.
+  
+  
+  
+
+  - **prometheus_operatorCrdsNamespace**
+    - **Required**: False
+    - **Type**: str
+    - **Default**: monitoring
+  
+    - **Description**: Namespace for Prometheus Operator CRDs.
+  
+  
+  
+
+  - **prometheus_operatorCrdsVersion**
+    - **Required**: True
+    - **Type**: str
+    - **Default**: none
+  
+    - **Description**: Prometheus Operator CRDs Helm chart version.
+  
+  
+  
+
+  - **kubeconfig**
+    - **Required**: True
+    - **Type**: str
+    - **Default**: none
+  
+    - **Description**: Path to kubeconfig for cluster access.
+  
+  
+  
+
+
+
+</details>
 
 
 
@@ -28,10 +83,10 @@ Description: Bootstrap cluster-wide CRDs (Gateway API and Prometheus Operator) f
 
 | Name | Module | Has Conditions | Comments |
 | ---- | ------ | -------------- | -------- |
-| [Install Gateway API CRDs](tasks/main.yml#L2) | kubernetes.core.k8s | False | Install Gateway API CRDs |
-| [Wait for Gateway API CRDs to be established](tasks/main.yml#L9) | kubernetes.core.k8s_info | False |  |
-| [Add Prometheus Community Helm repo](tasks/main.yml#L22) | kubernetes.core.helm_repository | False | Install Prometheus Operator CRDs via Helm |
-| [Install Prometheus Operator CRDs](tasks/main.yml#L28) | kubernetes.core.helm | False |  |
+| [Install Gateway API CRDs](tasks/main.yml#L2) | kubernetes.core.k8s | False | @docsible Install Gateway API standard CRDs |
+| [Wait for Gateway API CRDs to be established](tasks/main.yml#L10) | kubernetes.core.k8s_info | False | @docsible Wait for Gateway CRDs to be established |
+| [Add Prometheus Community Helm repo](tasks/main.yml#L23) | kubernetes.core.helm_repository | False | @docsible Add Prometheus Community Helm repository |
+| [Install Prometheus Operator CRDs](tasks/main.yml#L30) | kubernetes.core.helm | False | @docsible Install Prometheus Operator CRDs via Helm |
 
 
 ## Task Flow Graphs

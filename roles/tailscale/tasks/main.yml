@@ -1,4 +1,4 @@
-# Download Tailscale installation script with checksum verification
+# @docsible Download Tailscale installation script
 - name: Install Tailscale
   ansible.builtin.get_url:
     url: https://tailscale.com/install.sh
@@ -7,13 +7,13 @@
     checksum: "sha256:{{ tailscale_installScriptChecksum }}"
     timeout: 60
   when: not ansible_check_mode
-# Execute Tailscale installation script if not already installed
+# @docsible Execute Tailscale installer
 - name: Run Tailscale installer
   ansible.builtin.command: /tmp/tailscale-install.sh
   args:
     creates: /usr/sbin/tailscaled
   when: not ansible_check_mode
-# Enable and start Tailscale daemon service
+# @docsible Enable and start Tailscale daemon
 - name: Start tailscaled
   ansible.builtin.systemd:
     name: tailscaled
@@ -21,16 +21,14 @@
     state: started
   ignore_errors: "{{ ansible_check_mode }}"
   when: not ansible_check_mode
-# Check current Tailscale connection status in JSON format
-# Determines if Tailscale daemon is running and connected to control plane
+# @docsible Check Tailscale connection status
 - name: Check status
   ansible.builtin.command: tailscale status --json
   register: tailscale_status_json
   changed_when: false
   failed_when: false
   check_mode: false
-# Determine if Tailscale is actively connected
-# Parses JSON output to check Self.Online=true and detect stale state
+# @docsible Parse connection state from status output
 - name: Determine state
   ansible.builtin.set_fact:
     tailscale_backend_state: >-
@@ -50,15 +48,14 @@
         tailscale_backend_state == 'Running' and
         not (tailscale_status_json.stdout | from_json).Self.Online | default(false)
       }}
-# Re-auth from clean state if in stale running state
+# @docsible Logout if in stale state
 - name: Logout Tailscale (reset state)
   ansible.builtin.command: tailscale logout
   when:
     - tailscale_needs_logout | bool
     - not ansible_check_mode
 
-# Configure Tailscale with authentication and custom settings
-# Runs only if not connected
+# @docsible Configure Tailscale with auth key and settings
 - name: Configure Tailscale
   ansible.builtin.shell: |
     tailscale up \
@@ -79,8 +76,7 @@
     - not ansible_check_mode
   changed_when: tailscale_up.rc == 0
 
-# Configure exit node if enabled (idempotent even when already running)
-# Updates exit node advertisement without disrupting active connection
+# @docsible Advertise as exit node
 - name: Enable exit node advertisement
   ansible.builtin.command: tailscale set --advertise-exit-node
   when:
@@ -90,8 +86,7 @@
   register: tailscale_exit_node_set
   changed_when: false
 
-# Advertise routes if specified (idempotent even when already running)
-# Updates subnet routes without requiring reconnect
+# @docsible Advertise subnet routes
 - name: Advertise routes
   ansible.builtin.command: tailscale set --advertise-routes="{{ tailscale_advertiseRoutes }}"
   when:
@@ -100,7 +95,7 @@
     - not ansible_check_mode
   register: tailscale_routes_set
   changed_when: false
-# Wait for Tailscale to assign valid 100.x.x.x IP address
+# @docsible Wait for Tailscale IP assignment
 - name: Wait for IP
   ansible.builtin.shell: |
     set -o pipefail
@@ -118,19 +113,19 @@
     - (tailscale_ip_cmd.stdout | trim is regex('^100\.'))
   retries: 20
   delay: 3
-# Store Tailscale IP address as ansible fact for other roles
+# @docsible Store Tailscale IP as fact
 - name: Set IP fact
   ansible.builtin.set_fact:
     IP_tailscale: >-
       {{ (tailscale_ip_cmd.stdout_lines | default([])) | first | default(tailscale_ip_cmd.stdout | trim) }}
   when: tailscale_ip_cmd is not skipped
 
-# In check mode, provide a mock Tailscale IP to avoid cascading failures
+# @docsible Provide mock IP in check mode
 - name: Set mock IP fact (check mode)
   ansible.builtin.set_fact:
     IP_tailscale: "100.64.0.1"
   when: ansible_check_mode
-# Test SSH connectivity through Tailscale network
+# @docsible Test SSH connectivity via Tailscale
 - name: Validate connectivity
   ansible.builtin.wait_for:
     host: "{{ IP_tailscale }}"
@@ -138,13 +133,12 @@
     timeout: 10
   register: tailscale_connectivity_check
   when: IP_tailscale is defined and IP_tailscale | length > 0
-# Display warning if Tailscale connectivity test fails
-# Non-blocking warning - connectivity may work even if initial test fails
+# @docsible Warn if connectivity test fails
 - name: Warn connectivity
   ansible.builtin.debug:
     msg: "⚠️  Tailscale connectivity failed: {{ IP_tailscale }}:22"
   when: tailscale_connectivity_check.failed | default(false)
-# Remind user to approve exit node in admin console
+# @docsible Remind about exit node approval in admin console
 - name: Exit node approval reminder
   ansible.builtin.debug:
     msg: |

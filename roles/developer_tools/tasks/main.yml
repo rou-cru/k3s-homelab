@@ -1,3 +1,4 @@
+# @docsible Install base development tools via APT
 - name: Install dev tools (apt)
   ansible.builtin.apt:
     name:
@@ -15,8 +16,7 @@
       - ca-certificates
     state: present
     update_cache: true
-# Kubernetes tools are installed in roles/common to avoid snap usage.
-# Development environments
+# @docsible Install Node Version Manager
 - name: Install NVM
   ansible.builtin.shell: |
     set -euo pipefail
@@ -25,6 +25,7 @@
     creates: /root/.nvm/nvm.sh
     executable: /bin/bash
   when: not ansible_check_mode
+# @docsible Install Node.js LTS via NVM
 - name: Install latest Node.js LTS via NVM
   ansible.builtin.shell: |
     set -euo pipefail
@@ -35,6 +36,7 @@
   args:
     executable: /bin/bash
   when: not ansible_check_mode
+# @docsible Enable Corepack and activate pnpm
 - name: Enable Corepack and activate pnpm
   ansible.builtin.shell: |
     set -euo pipefail
@@ -45,13 +47,14 @@
   args:
     executable: /bin/bash
   when: not ansible_check_mode
+# @docsible Install Devbox package manager
 - name: Install Devbox
   ansible.builtin.shell: |
     curl -fsSL https://get.jetpack.io/devbox | bash
   args:
     creates: /usr/local/bin/devbox
   when: not ansible_check_mode
-# Python CLI tools (pipx/uv)
+# @docsible Install nvitop GPU monitor via uv
 - name: Install nvitop
   ansible.builtin.command: uv tool install nvitop
   args:
@@ -61,6 +64,7 @@
   when:
     - nvidia_setupMode | default('auto') != 'false'
     - not ansible_check_mode
+# @docsible Install Kimi CLI via uv
 - name: Install Kimi
   ansible.builtin.command: uv tool install kimi-cli
   args:
@@ -68,7 +72,7 @@
   environment:
     PATH: "/root/.cargo/bin:{{ ansible_facts['env']['PATH'] }}"
   when: not ansible_check_mode
-# AI CLI tools (npm)
+# @docsible Install AI CLI tools via npm
 - name: Install AI tools
   ansible.builtin.shell: |
     set -euo pipefail
@@ -83,12 +87,13 @@
     - "@qwen-code/qwen-code"
     - "@openai/codex"
   when: not ansible_check_mode
-# Docker (optional, disabled by default)
+# @docsible Install Docker CLI if enabled
 - name: Install Docker
   when:
     - devtools_installDocker | default(false) | bool
     - not ansible_check_mode
   block:
+    # @docsible Add Docker GPG key
     - name: Add Docker key
       ansible.builtin.shell: |
         set -o pipefail
@@ -96,6 +101,7 @@
           gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
       args:
         creates: /usr/share/keyrings/docker-archive-keyring.gpg
+    # @docsible Add Docker APT repository
     - name: Add Docker repo
       ansible.builtin.apt_repository:
         repo: >-
@@ -112,6 +118,7 @@
           }}
         state: present
         filename: docker
+    # @docsible Install Docker CLI packages
     - name: Install Docker CLI
       ansible.builtin.apt:
         name:
@@ -120,6 +127,7 @@
           - docker-compose-plugin
         state: present
         update_cache: true
+    # @docsible Warn about containerd conflict
     - name: Show Docker warning
       ansible.builtin.debug:
         msg: "⚠️  Docker CLI installed (containerd used by K3s)"
@@ -131,16 +139,18 @@
     - name: Fail Docker installation
       ansible.builtin.fail:
         msg: "Docker installation failed"
-# Vagrant + libvirt (for Molecule testing)
+# @docsible Install Vagrant and libvirt for testing
 - name: Install Vagrant and libvirt
   when:
     - devtools_installVagrant | default(true) | bool
     - not ansible_check_mode
   block:
+    # @docsible Determine HashiCorp repo release
     - name: Set HashiCorp repo release
       ansible.builtin.set_fact:
         hashicorp_repo_release: >-
           {{ 'jammy' if ansible_facts['distribution_release'] == 'noble' else ansible_facts['distribution_release'] }}
+    # @docsible Determine architecture for HashiCorp repo
     - name: Set HashiCorp repo architecture
       ansible.builtin.set_fact:
         hashicorp_repo_arch: >-
@@ -151,17 +161,20 @@
             if ansible_facts['architecture'] == 'aarch64'
             else 'unsupported'
           }}
+    # @docsible Validate supported architecture
     - name: Validate HashiCorp repo architecture
       ansible.builtin.assert:
         that:
           - hashicorp_repo_arch != 'unsupported'
         fail_msg: "Unsupported architecture for HashiCorp repo: {{ ansible_facts['architecture'] }}"
+    # @docsible Create APT keyrings directory
     - name: Ensure APT keyrings dir (HashiCorp)
       ansible.builtin.file:
         path: /usr/share/keyrings
         state: directory
         mode: "0755"
       when: not ansible_check_mode
+    # @docsible Install HashiCorp GPG key
     - name: Install HashiCorp keyring
       ansible.builtin.shell: |
         set -euo pipefail
@@ -171,6 +184,7 @@
         executable: /bin/bash
         creates: /usr/share/keyrings/hashicorp-archive-keyring.gpg
       when: not ansible_check_mode
+    # @docsible Add HashiCorp APT repository
     - name: Add HashiCorp APT repo
       ansible.builtin.apt_repository:
         repo: >-
@@ -186,6 +200,7 @@
         state: present
         filename: hashicorp
       when: not ansible_check_mode
+    # @docsible Install libvirt and build dependencies
     - name: Install libvirt and dependencies
       ansible.builtin.apt:
         name:
@@ -205,25 +220,30 @@
           - vagrant
         state: present
         update_cache: true
+    # @docsible Enable libvirtd service
     - name: Ensure libvirtd service is enabled and started
       ansible.builtin.systemd:
         name: libvirtd
         enabled: true
         state: started
+    # @docsible Add ansible user to libvirt group
     - name: Add ansible_user to libvirt group
       ansible.builtin.user:
         name: "{{ ansible_user }}"
         groups: libvirt
         append: true
+    # @docsible Add root to libvirt group
     - name: Add root to libvirt group
       ansible.builtin.user:
         name: root
         groups: libvirt
         append: true
+    # @docsible List installed Vagrant plugins
     - name: Check installed Vagrant plugins
       ansible.builtin.command: vagrant plugin list
       register: vagrant_plugin_list
       changed_when: false
+    # @docsible Install vagrant-libvirt plugin
     - name: Install vagrant-libvirt plugin
       ansible.builtin.command: vagrant plugin install vagrant-libvirt
       register: vagrant_plugin_result
@@ -232,6 +252,7 @@
         - not ansible_check_mode
         - vagrant_plugin_list.rc == 0
         - "'vagrant-libvirt' not in vagrant_plugin_list.stdout"
+    # @docsible Confirm Vagrant installation
     - name: Show Vagrant installation success
       ansible.builtin.debug:
         msg: "✅ Vagrant + libvirt installed successfully"

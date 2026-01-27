@@ -107,25 +107,21 @@ settings like DNS acceptance and SSH access.
 
 | Name | Module | Has Conditions | Comments |
 | ---- | ------ | -------------- | -------- |
-| [Install Tailscale](tasks/main.yml#L2) | ansible.builtin.get_url | True | Download Tailscale installation script with checksum verification |
-| [Run Tailscale installer](tasks/main.yml#L11) | ansible.builtin.command | True | Execute Tailscale installation script if not already installed |
-| [Start tailscaled](tasks/main.yml#L17) | ansible.builtin.systemd | True | Enable and start Tailscale daemon service |
-| [Check status](tasks/main.yml#L26) | ansible.builtin.command | False | Check current Tailscale connection status in JSON format
-Determines if Tailscale daemon is running and connected to control plane |
-| [Determine state](tasks/main.yml#L34) | ansible.builtin.set_fact | False | Determine if Tailscale is actively running and connected
-Parses JSON output to check BackendState=Running indicating active connection |
-| [Configure Tailscale](tasks/main.yml#L46) | ansible.builtin.shell | True | Configure Tailscale with authentication and custom settings
-Runs only if not connected, ensures idempotency by checking tailscale_is_running state |
-| [Enable exit node advertisement](tasks/main.yml#L68) | ansible.builtin.command | True | Configure exit node if enabled (idempotent even when already running)
-Updates exit node advertisement without disrupting active connection |
-| [Advertise routes](tasks/main.yml#L79) | ansible.builtin.command | True | Advertise routes if specified (idempotent even when already running)
-Updates subnet routes without requiring reconnect |
-| [Wait for IP](tasks/main.yml#L88) | ansible.builtin.shell | True | Wait for Tailscale to assign valid 100.x.x.x IP address |
-| [Set IP fact](tasks/main.yml#L106) | ansible.builtin.set_fact | True | Store Tailscale IP address as ansible fact for other roles |
-| [Validate connectivity](tasks/main.yml#L112) | ansible.builtin.wait_for | True | Test SSH connectivity through Tailscale network |
-| [Warn connectivity](tasks/main.yml#L121) | ansible.builtin.debug | True | Display warning if Tailscale connectivity test fails
-Non-blocking warning - connectivity may work even if initial test fails |
-| [Exit node approval reminder](tasks/main.yml#L126) | ansible.builtin.debug | True | Remind user to approve exit node in admin console |
+| [Install Tailscale](tasks/main.yml#L2) | ansible.builtin.get_url | True | @docsible Download Tailscale installation script |
+| [Run Tailscale installer](tasks/main.yml#L11) | ansible.builtin.command | True | @docsible Execute Tailscale installer |
+| [Start tailscaled](tasks/main.yml#L17) | ansible.builtin.systemd | True | @docsible Enable and start Tailscale daemon |
+| [Check status](tasks/main.yml#L25) | ansible.builtin.command | False | @docsible Check Tailscale connection status |
+| [Determine state](tasks/main.yml#L32) | ansible.builtin.set_fact | False | @docsible Parse connection state from status output |
+| [Logout Tailscale (reset state)](tasks/main.yml#L52) | ansible.builtin.command | True | @docsible Logout if in stale state |
+| [Configure Tailscale](tasks/main.yml#L59) | ansible.builtin.shell | True | @docsible Configure Tailscale with auth key and settings |
+| [Enable exit node advertisement](tasks/main.yml#L80) | ansible.builtin.command | True | @docsible Advertise as exit node |
+| [Advertise routes](tasks/main.yml#L90) | ansible.builtin.command | True | @docsible Advertise subnet routes |
+| [Wait for IP](tasks/main.yml#L99) | ansible.builtin.shell | True | @docsible Wait for Tailscale IP assignment |
+| [Set IP fact](tasks/main.yml#L117) | ansible.builtin.set_fact | True | @docsible Store Tailscale IP as fact |
+| [Set mock IP fact (check mode)](tasks/main.yml#L124) | ansible.builtin.set_fact | True | @docsible Provide mock IP in check mode |
+| [Validate connectivity](tasks/main.yml#L129) | ansible.builtin.wait_for | True | @docsible Test SSH connectivity via Tailscale |
+| [Warn connectivity](tasks/main.yml#L137) | ansible.builtin.debug | True | @docsible Warn if connectivity test fails |
+| [Exit node approval reminder](tasks/main.yml#L142) | ansible.builtin.debug | True | @docsible Remind about exit node approval in admin console |
 
 
 ## Task Flow Graphs
@@ -151,15 +147,17 @@ classDef rescue stroke:#665352,stroke-width:2px;
   Run_Tailscale_installer1-->|Task| Start_tailscaled2[start tailscaled<br>When: **not ansible check mode**]:::task
   Start_tailscaled2-->|Task| Check_status3[check status]:::task
   Check_status3-->|Task| Determine_state4[determine state]:::task
-  Determine_state4-->|Task| Configure_Tailscale5[configure tailscale<br>When: **not tailscale is running   bool and not ansible<br>check mode**]:::task
-  Configure_Tailscale5-->|Task| Enable_exit_node_advertisement6[enable exit node advertisement<br>When: **tailscale exitnodeenabled   bool and tailscale is<br>running   bool and not ansible check mode**]:::task
-  Enable_exit_node_advertisement6-->|Task| Advertise_routes7[advertise routes<br>When: **tailscale advertiseroutes   length   0 and<br>tailscale is running   bool and not ansible check<br>mode**]:::task
-  Advertise_routes7-->|Task| Wait_for_IP8[wait for ip<br>When: **tailscale status json rc    0 and not ansible<br>check mode**]:::task
-  Wait_for_IP8-->|Task| Set_IP_fact9[set ip fact<br>When: **tailscale ip cmd is not skipped**]:::task
-  Set_IP_fact9-->|Task| Validate_connectivity10[validate connectivity<br>When: **tailscale ip is defined and tailscale ip   length <br> 0**]:::task
-  Validate_connectivity10-->|Task| Warn_connectivity11[warn connectivity<br>When: **tailscale connectivity check failed   default<br>false**]:::task
-  Warn_connectivity11-->|Task| Exit_node_approval_reminder12[exit node approval reminder<br>When: **tailscale exitnodeenabled   bool**]:::task
-  Exit_node_approval_reminder12-->End
+  Determine_state4-->|Task| Logout_Tailscale__reset_state_5[logout tailscale  reset state <br>When: **tailscale needs logout   bool and not ansible<br>check mode**]:::task
+  Logout_Tailscale__reset_state_5-->|Task| Configure_Tailscale6[configure tailscale<br>When: **not tailscale is running   bool and not ansible<br>check mode**]:::task
+  Configure_Tailscale6-->|Task| Enable_exit_node_advertisement7[enable exit node advertisement<br>When: **tailscale exitnodeenabled   bool and tailscale is<br>running   bool and not ansible check mode**]:::task
+  Enable_exit_node_advertisement7-->|Task| Advertise_routes8[advertise routes<br>When: **tailscale advertiseroutes   length   0 and<br>tailscale is running   bool and not ansible check<br>mode**]:::task
+  Advertise_routes8-->|Task| Wait_for_IP9[wait for ip<br>When: **tailscale status json rc    0 and not ansible<br>check mode**]:::task
+  Wait_for_IP9-->|Task| Set_IP_fact10[set ip fact<br>When: **tailscale ip cmd is not skipped**]:::task
+  Set_IP_fact10-->|Task| Set_mock_IP_fact__check_mode_11[set mock ip fact  check mode <br>When: **ansible check mode**]:::task
+  Set_mock_IP_fact__check_mode_11-->|Task| Validate_connectivity12[validate connectivity<br>When: **ip tailscale is defined and ip tailscale   length <br> 0**]:::task
+  Validate_connectivity12-->|Task| Warn_connectivity13[warn connectivity<br>When: **tailscale connectivity check failed   default<br>false**]:::task
+  Warn_connectivity13-->|Task| Exit_node_approval_reminder14[exit node approval reminder<br>When: **tailscale exitnodeenabled   bool**]:::task
+  Exit_node_approval_reminder14-->End
 ```
 
 

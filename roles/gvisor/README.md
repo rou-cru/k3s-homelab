@@ -13,6 +13,41 @@ Description: Install gVisor runsc and register a RuntimeClass for K3s server wor
 
 
 
+<details>
+<summary><b> Argument Specifications in meta/argument_specs</b></summary>
+
+#### Key: main
+
+**Description**: Downloads and installs gVisor runsc runtime and deploys
+a RuntimeClass for sandboxed workloads in K3s.
+
+
+**Options**:
+
+
+  - **gvisor_version**
+    - **Required**: False
+    - **Type**: str
+    - **Default**: latest
+  
+    - **Description**: gVisor version to install.
+  
+  
+  
+
+  - **gvisor_install**
+    - **Required**: False
+    - **Type**: bool
+    - **Default**: True
+  
+    - **Description**: Enable gVisor installation.
+  
+  
+  
+
+
+
+</details>
 
 
 
@@ -28,8 +63,7 @@ Description: Install gVisor runsc and register a RuntimeClass for K3s server wor
 
 | Name | Module | Has Conditions | Comments |
 | ---- | ------ | -------------- | -------- |
-| [Install runsc binary](tasks/host.yml#L3) | ansible.builtin.get_url | True | Installation of gVisor (runsc)
-@docsible Download gVisor runtime binary |
+| [Install runsc binary](tasks/host.yml#L2) | ansible.builtin.get_url | True | @docsible Download and install gVisor runsc binary |
 
 #### File: tasks/main.yml
 
@@ -44,8 +78,8 @@ Description: Install gVisor runsc and register a RuntimeClass for K3s server wor
 
 | Name | Module | Has Conditions | Comments |
 | ---- | ------ | -------------- | -------- |
-| [Ensure K3s manifests directory exists](tasks/runtimeclass.yml#L2) | ansible.builtin.file | True | Use K3s auto-deploy manifests directory for the RuntimeClass |
-| [Deploy gVisor RuntimeClass manifest](tasks/runtimeclass.yml#L11) | ansible.builtin.copy | True |  |
+| [Ensure K3s manifests directory exists](tasks/runtimeclass.yml#L2) | ansible.builtin.file | True | @docsible Create K3s auto-deploy manifests directory |
+| [Deploy gVisor RuntimeClass manifest](tasks/runtimeclass.yml#L12) | ansible.builtin.copy | True | @docsible Deploy gVisor RuntimeClass manifest |
 
 
 ## Task Flow Graphs

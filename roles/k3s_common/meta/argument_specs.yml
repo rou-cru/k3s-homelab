@@ -1,0 +1,39 @@
+---
+argument_specs:
+  main:
+    short_description: Common K3s configuration tasks
+    description: |
+      Shared tasks for K3s nodes including directory setup,
+      containerd configuration, and registry authentication.
+    author: rc
+    options:
+      k3s_recreate:
+        type: bool
+        required: false
+        default: false
+        description: Uninstall and wipe existing K3s before setup.
+      k3s_commonRestartHandler:
+        type: str
+        required: false
+        default: "Restart k3s"
+        description: Handler name to notify on config changes.
+      k3s_commonRegistryAuths:
+        type: list
+        required: false
+        default: []
+        description: List of registry authentication configs.
+      k3s_commonContainerdAdditionalRuntimes:
+        type: list
+        required: false
+        default: []
+        description: Additional containerd runtimes (nvidia, runsc).
+      k3s_cniConfDir:
+        type: str
+        required: false
+        default: "/etc/cni/net.d"
+        description: CNI configuration directory.
+      k3s_cniBinDir:
+        type: str
+        required: false
+        default: "/opt/cni/bin"
+        description: CNI binaries directory.

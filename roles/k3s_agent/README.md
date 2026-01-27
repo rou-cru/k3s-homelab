@@ -87,7 +87,7 @@ Description: Install and configure K3s agent node to join existing cluster
   
   
 
-  - **tailscale_ip**
+  - **IP_tailscale**
     - **Required**: False
     - **Type**: str
     - **Default**: none
@@ -115,22 +115,23 @@ Description: Install and configure K3s agent node to join existing cluster
 
 | Name | Module | Has Conditions | Comments |
 | ---- | ------ | -------------- | -------- |
-| [Verify K3s agent requirements](tasks/main.yml#L2) | ansible.builtin.assert | False | main.yml - K3s Agent Role |
-| [Check for runsc binary](tasks/main.yml#L12) | ansible.builtin.stat | False | Detect if gVisor or Nvidia runtimes are present on host |
-| [Check for nvidia-container-runtime](tasks/main.yml#L17) | ansible.builtin.stat | False |  |
-| [Build containerd runtime list](tasks/main.yml#L22) | ansible.builtin.set_fact | False |  |
-| [Run K3s Common](tasks/main.yml#L32) | ansible.builtin.import_role | False | Import common K3s setup tasks (directories, containerd, uninstall logic) |
-| [Deploy agent config](tasks/main.yml#L40) | ansible.builtin.template | True | Deploy K3s agent configuration |
-| [Install K3s agent](tasks/main.yml#L49) | ansible.builtin.shell | True | Download and install K3s agent with specified version |
-| [Create override dir](tasks/main.yml#L65) | ansible.builtin.file | False | Create systemd override directory for K3s agent service customization |
-| [Create override](tasks/main.yml#L72) | ansible.builtin.copy | False | Override K3s agent service configuration for clean startup |
-| [Reload systemd](tasks/main.yml#L83) | ansible.builtin.systemd | False | Reload systemd configuration after service changes |
-| [Start K3s agent](tasks/main.yml#L88) | ansible.builtin.systemd | True | Enable and start K3s agent service |
-| [Flush handlers](tasks/main.yml#L96) | ansible.builtin.meta | False | Apply pending service restarts before continuing |
-| [Wait for node to be ready](tasks/main.yml#L100) | kubernetes.core.k8s_info | True | Wait for node to appear and become ready on the cluster |
-| [Apply node labels](tasks/main.yml#L118) | kubernetes.core.k8s | True | Apply node labels if specified |
-| [Apply node taints](tasks/main.yml#L132) | kubernetes.core.k8s_taint | True | Apply node taints if specified |
-| [Show agent join status](tasks/main.yml#L148) | ansible.builtin.debug | False | Display success message |
+| [Validate Tailscale IP](tasks/main.yml#L2) | ansible.builtin.assert | False | @docsible Validate Tailscale IP format (100.x.x.x) |
+| [Verify K3s agent requirements](tasks/main.yml#L11) | ansible.builtin.assert | False | @docsible Verify required variables are defined |
+| [Check for runsc binary](tasks/main.yml#L21) | ansible.builtin.stat | False | @docsible Check for gVisor runtime |
+| [Check for nvidia-container-runtime](tasks/main.yml#L27) | ansible.builtin.stat | False | @docsible Check for NVIDIA runtime |
+| [Build containerd runtime list](tasks/main.yml#L33) | ansible.builtin.set_fact | False | @docsible Build list of additional containerd runtimes |
+| [Run K3s Common](tasks/main.yml#L43) | ansible.builtin.import_role | False | @docsible Import common K3s setup tasks |
+| [Deploy agent config](tasks/main.yml#L51) | ansible.builtin.template | True | @docsible Deploy agent configuration file |
+| [Install K3s agent](tasks/main.yml#L60) | ansible.builtin.shell | True | @docsible Install K3s agent binary |
+| [Create override dir](tasks/main.yml#L76) | ansible.builtin.file | False | @docsible Create systemd override directory |
+| [Create override](tasks/main.yml#L83) | ansible.builtin.copy | False | @docsible Deploy systemd service override |
+| [Reload systemd](tasks/main.yml#L94) | ansible.builtin.systemd | False | @docsible Reload systemd daemon |
+| [Start K3s agent](tasks/main.yml#L99) | ansible.builtin.systemd | True | @docsible Enable and start K3s agent service |
+| [Flush handlers](tasks/main.yml#L107) | ansible.builtin.meta | False | @docsible Apply pending handler restarts |
+| [Wait for node to be ready](tasks/main.yml#L111) | kubernetes.core.k8s_info | True | @docsible Wait for node Ready condition |
+| [Apply node labels](tasks/main.yml#L129) | kubernetes.core.k8s | True | @docsible Apply custom node labels |
+| [Apply node taints](tasks/main.yml#L143) | kubernetes.core.k8s_taint | True | @docsible Apply custom node taints |
+| [Show agent join status](tasks/main.yml#L159) | ansible.builtin.debug | False | @docsible Display join confirmation |
 
 
 ## Task Flow Graphs
@@ -151,23 +152,24 @@ classDef importRole stroke:#699ba7,stroke-width:2px;
 classDef includeVars stroke:#8e44ad,stroke-width:2px;
 classDef rescue stroke:#665352,stroke-width:2px;
 
-  Start-->|Task| Verify_K3s_agent_requirements0[verify k3s agent requirements]:::task
-  Verify_K3s_agent_requirements0-->|Task| Check_for_runsc_binary1[check for runsc binary]:::task
-  Check_for_runsc_binary1-->|Task| Check_for_nvidia_container_runtime2[check for nvidia container runtime]:::task
-  Check_for_nvidia_container_runtime2-->|Task| Build_containerd_runtime_list3[build containerd runtime list]:::task
-  Build_containerd_runtime_list3-->|Import role| Run_K3s_Common_k3s_common_4([run k3s common<br>import_role: k3s common]):::importRole
-  Run_K3s_Common_k3s_common_4-->|Task| Deploy_agent_config5[deploy agent config<br>When: **not ansible check mode**]:::task
-  Deploy_agent_config5-->|Task| Install_K3s_agent6[install k3s agent<br>When: **not ansible check mode**]:::task
-  Install_K3s_agent6-->|Task| Create_override_dir7[create override dir]:::task
-  Create_override_dir7-->|Task| Create_override8[create override]:::task
-  Create_override8-->|Task| Reload_systemd9[reload systemd]:::task
-  Reload_systemd9-->|Task| Start_K3s_agent10[start k3s agent<br>When: **not ansible check mode**]:::task
-  Start_K3s_agent10-->|Task| Flush_handlers11[flush handlers]:::task
-  Flush_handlers11-->|Task| Wait_for_node_to_be_ready12[wait for node to be ready<br>When: **not ansible check mode**]:::task
-  Wait_for_node_to_be_ready12-->|Task| Apply_node_labels13[apply node labels<br>When: **k3s agentnodelabels   length   0 and not ansible<br>check mode**]:::task
-  Apply_node_labels13-->|Task| Apply_node_taints14[apply node taints<br>When: **k3s agentnodetaints   length   0 and not ansible<br>check mode**]:::task
-  Apply_node_taints14-->|Task| Show_agent_join_status15[show agent join status]:::task
-  Show_agent_join_status15-->End
+  Start-->|Task| Validate_Tailscale_IP0[validate tailscale ip]:::task
+  Validate_Tailscale_IP0-->|Task| Verify_K3s_agent_requirements1[verify k3s agent requirements]:::task
+  Verify_K3s_agent_requirements1-->|Task| Check_for_runsc_binary2[check for runsc binary]:::task
+  Check_for_runsc_binary2-->|Task| Check_for_nvidia_container_runtime3[check for nvidia container runtime]:::task
+  Check_for_nvidia_container_runtime3-->|Task| Build_containerd_runtime_list4[build containerd runtime list]:::task
+  Build_containerd_runtime_list4-->|Import role| Run_K3s_Common_k3s_common_5([run k3s common<br>import_role: k3s common]):::importRole
+  Run_K3s_Common_k3s_common_5-->|Task| Deploy_agent_config6[deploy agent config<br>When: **not ansible check mode**]:::task
+  Deploy_agent_config6-->|Task| Install_K3s_agent7[install k3s agent<br>When: **not ansible check mode**]:::task
+  Install_K3s_agent7-->|Task| Create_override_dir8[create override dir]:::task
+  Create_override_dir8-->|Task| Create_override9[create override]:::task
+  Create_override9-->|Task| Reload_systemd10[reload systemd]:::task
+  Reload_systemd10-->|Task| Start_K3s_agent11[start k3s agent<br>When: **not ansible check mode**]:::task
+  Start_K3s_agent11-->|Task| Flush_handlers12[flush handlers]:::task
+  Flush_handlers12-->|Task| Wait_for_node_to_be_ready13[wait for node to be ready<br>When: **not ansible check mode**]:::task
+  Wait_for_node_to_be_ready13-->|Task| Apply_node_labels14[apply node labels<br>When: **k3s agentnodelabels   length   0 and not ansible<br>check mode**]:::task
+  Apply_node_labels14-->|Task| Apply_node_taints15[apply node taints<br>When: **k3s agentnodetaints   length   0 and not ansible<br>check mode**]:::task
+  Apply_node_taints15-->|Task| Show_agent_join_status16[show agent join status]:::task
+  Show_agent_join_status16-->End
 ```
 
 

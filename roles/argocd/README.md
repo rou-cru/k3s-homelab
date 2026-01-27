@@ -13,6 +13,91 @@ Description: Deploy ArgoCD on K3s via Helm (expects External Secrets and an OCI 
 
 
 
+<details>
+<summary><b> Argument Specifications in meta/argument_specs</b></summary>
+
+#### Key: main
+
+**Description**: Installs ArgoCD via Helm and configures admin password
+via External Secrets OCI Vault integration.
+
+
+**Options**:
+
+
+  - **argocd_namespace**
+    - **Required**: False
+    - **Type**: str
+    - **Default**: argocd
+  
+    - **Description**: Namespace for ArgoCD deployment.
+  
+  
+  
+
+  - **argocd_chartVersion**
+    - **Required**: False
+    - **Type**: str
+    - **Default**: none
+  
+    - **Description**: ArgoCD Helm chart version (omit for latest).
+  
+  
+  
+
+  - **argocd_installCrds**
+    - **Required**: False
+    - **Type**: bool
+    - **Default**: True
+  
+    - **Description**: Install ArgoCD CRDs.
+  
+  
+  
+
+  - **argocd_dexEnabled**
+    - **Required**: False
+    - **Type**: bool
+    - **Default**: False
+  
+    - **Description**: Enable Dex for SSO integration.
+  
+  
+  
+
+  - **argocd_haEnabled**
+    - **Required**: False
+    - **Type**: bool
+    - **Default**: False
+  
+    - **Description**: Enable high availability mode.
+  
+  
+  
+
+  - **argocd_serviceMonitorEnabled**
+    - **Required**: False
+    - **Type**: bool
+    - **Default**: False
+  
+    - **Description**: Enable Prometheus ServiceMonitor.
+  
+  
+  
+
+  - **kubeconfig**
+    - **Required**: True
+    - **Type**: str
+    - **Default**: none
+  
+    - **Description**: Path to kubeconfig for cluster access.
+  
+  
+  
+
+
+
+</details>
 
 
 

@@ -1,9 +1,11 @@
+# @docsible Verify Helm CLI availability
 - name: Check if Helm is installed
   ansible.builtin.command: which helm
   register: helm_binary_check
   changed_when: false
   failed_when: false
 
+# @docsible Add Jetstack Helm repository
 - name: Ensure Jetstack Helm repo
   kubernetes.core.helm_repository:
     name: jetstack
@@ -12,6 +14,7 @@
     - helm_binary_check.rc == 0
     - not ansible_check_mode
 
+# @docsible Deploy cert-manager with CRDs and resource limits
 - name: Deploy cert-manager
   kubernetes.core.helm:
     name: cert-manager
@@ -75,6 +78,7 @@
     - not ansible_check_mode
   tags: ["cluster", "infrastructure", "cert-manager"]
 
+# @docsible Wait for webhook deployment readiness
 - name: Wait for cert-manager webhook to be available
   kubernetes.core.k8s:
     api_version: apps/v1
@@ -93,6 +97,7 @@
     - not ansible_check_mode
   tags: ["cluster", "infrastructure", "cert-manager"]
 
+# @docsible Create self-signed CA bootstrap issuer
 - name: Create cert-manager self-signed ClusterIssuer
   kubernetes.core.k8s:
     state: present
@@ -110,6 +115,7 @@
     - not ansible_check_mode
   tags: ["cluster", "infrastructure", "cert-manager"]
 
+# @docsible Generate cluster-wide CA certificate
 - name: Create cert-manager CA certificate
   kubernetes.core.k8s:
     state: present
@@ -137,6 +143,7 @@
     - not ansible_check_mode
   tags: ["cluster", "infrastructure", "cert-manager"]
 
+# @docsible Wait for CA secret generation
 - name: Wait for cert-manager CA secret
   kubernetes.core.k8s_info:
     api_version: v1
@@ -155,6 +162,7 @@
     - not ansible_check_mode
   tags: ["cluster", "infrastructure", "cert-manager"]
 
+# @docsible Create CA-based ClusterIssuer for workloads
 - name: Create cert-manager CA ClusterIssuer
   kubernetes.core.k8s:
     state: present

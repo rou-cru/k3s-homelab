@@ -1,4 +1,4 @@
-# main.yml - K3s Server Role
+# @docsible Validate Tailscale IP format (100.x.x.x)
 - name: Validate Tailscale IP
   ansible.builtin.assert:
     that:
@@ -7,6 +7,7 @@
       - IP_tailscale is match('^100\.')
     fail_msg: "ERROR: Invalid IP_tailscale ({{ IP_tailscale | default('undefined') }}). Must be 100.x.x.x"
 
+# @docsible Verify K3s version is defined
 - name: Verify K3s server version
   ansible.builtin.assert:
     that:
@@ -14,17 +15,19 @@
       - k3s_serverVersion | length > 0
     fail_msg: "ERROR: k3s_serverVersion must be defined"
 
-# Detect if gVisor or Nvidia runtimes are present on host
+# @docsible Check for gVisor runtime
 - name: Check for runsc binary
   ansible.builtin.stat:
     path: /usr/local/bin/runsc
   register: k3s_runsc_stat
 
+# @docsible Check for NVIDIA runtime
 - name: Check for nvidia-container-runtime
   ansible.builtin.stat:
     path: /usr/bin/nvidia-container-runtime
   register: k3s_nvidia_runtime_stat
 
+# @docsible Build list of additional containerd runtimes
 - name: Build containerd runtime list
   ansible.builtin.set_fact:
     k3s_commonContainerdAdditionalRuntimes: >-
@@ -34,7 +37,7 @@
         + (['nvidia'] if k3s_nvidia_runtime_stat.stat.exists else [])
       }}
 
-# Import common K3s setup tasks (directories, containerd, uninstall logic)
+# @docsible Import common K3s setup tasks
 - name: Run K3s Common
   ansible.builtin.import_role:
     name: k3s_common
@@ -42,13 +45,14 @@
     k3s_recreate: "{{ k3s_serverRecreate }}"
     k3s_commonRestartHandler: "Restart k3s"
 
+# @docsible Create log directory for audit logs
 - name: Ensure K3s log directory exists
   ansible.builtin.file:
     path: /var/log/k3s
     state: directory
     mode: "0755"
 
-# Create audit log file with strict permissions for security
+# @docsible Create audit log with restrictive permissions
 - name: Ensure K3s audit log file exists with restrictive permissions
   ansible.builtin.file:
     path: /var/log/k3s/audit.log
@@ -58,14 +62,14 @@
     mode: "0600"
     modification_time: preserve
 
-# Deploy Kubernetes audit policy for API security monitoring
+# @docsible Deploy Kubernetes audit policy
 - name: Deploy K3s audit policy
   ansible.builtin.template:
     src: audit-policy.yaml.j2
     dest: /etc/rancher/k3s/audit-policy.yaml
     mode: "0600"
 
-# Deploy K3s server configuration
+# @docsible Deploy server configuration file
 - name: Deploy server config
   ansible.builtin.template:
     src: config.yaml.j2
@@ -74,7 +78,7 @@
   notify: Restart k3s
   when: not ansible_check_mode
 
-# Download and install K3s server with specified version
+# @docsible Install K3s server binary
 - name: Install K3s server
   ansible.builtin.shell: |
     set -o pipefail
@@ -89,14 +93,14 @@
     creates: /usr/local/bin/k3s
   when: not ansible_check_mode
 
-# Create systemd override directory for K3s server service customization
+# @docsible Create systemd override directory
 - name: Create override dir
   ansible.builtin.file:
     path: /etc/systemd/system/k3s.service.d
     state: directory
     mode: "0750"
 
-# Override K3s server service configuration for clean startup
+# @docsible Deploy systemd service override
 - name: Create override
   ansible.builtin.copy:
     dest: /etc/systemd/system/k3s.service.d/override.conf
@@ -107,12 +111,12 @@
     mode: "0640"
   notify: Restart k3s
 
-# Reload systemd configuration after service changes
+# @docsible Reload systemd daemon
 - name: Reload systemd (k3s)
   ansible.builtin.systemd:
     daemon_reload: true
 
-# Enable and start K3s service
+# @docsible Enable and start K3s service
 - name: Start K3s
   ansible.builtin.systemd:
     name: k3s
@@ -120,25 +124,25 @@
     state: started
   when: not ansible_check_mode
 
-# Apply pending service restarts before continuing
+# @docsible Apply pending handler restarts
 - name: Flush handlers
   ansible.builtin.meta: flush_handlers
 
-# Wait for K3s node token to be generated
+# @docsible Wait for node join token generation
 - name: Wait for node-token
   ansible.builtin.wait_for:
     path: /var/lib/rancher/k3s/server/node-token
     timeout: "{{ k3s_serverNodeTokenTimeout }}"
   when: not ansible_check_mode
 
-# Wait for K3s to generate admin kubeconfig file
+# @docsible Wait for admin kubeconfig generation
 - name: Wait for kubeconfig
   ansible.builtin.wait_for:
     path: /etc/rancher/k3s/k3s.yaml
     timeout: "{{ k3s_serverNodeTokenTimeout }}"
   when: not ansible_check_mode
 
-# Read K3s admin kubeconfig for Tailscale integration
+# @docsible Read generated kubeconfig
 - name: Read kubeconfig
   ansible.builtin.slurp:
     src: /etc/rancher/k3s/k3s.yaml
@@ -146,7 +150,7 @@
   no_log: true
   when: not ansible_check_mode
 
-# Replace localhost with Tailscale IP for remote cluster access
+# @docsible Replace localhost with Tailscale IP
 - name: Build canonical config
   ansible.builtin.set_fact:
     k3s_kubeconfig_canonical: |
@@ -154,7 +158,7 @@
          regex_replace('https://[0-9.]+:6443', 'https://' + IP_tailscale + ':6443') }}
   when: not ansible_check_mode
 
-# Store Tailscale-enabled kubeconfig for server access
+# @docsible Store Tailscale-enabled kubeconfig
 - name: Write server config
   ansible.builtin.copy:
     content: "{{ k3s_kubeconfig_canonical }}"
@@ -164,7 +168,7 @@
     mode: "{{ k3s_serverKubeconfigMode }}"
   when: not ansible_check_mode
 
-# Create secure kubeconfig directory for ansible user
+# @docsible Create kubeconfig directory for ansible user
 - name: Create user kube dir
   ansible.builtin.file:
     path: "{{ kubeconfig | dirname }}"
@@ -174,7 +178,7 @@
     mode: "0700"
   when: not ansible_check_mode
 
-# Deploy Tailscale-enabled kubeconfig for ansible user
+# @docsible Deploy kubeconfig for ansible user
 - name: Write user config
   ansible.builtin.copy:
     content: "{{ k3s_kubeconfig_canonical }}"
@@ -184,19 +188,20 @@
     mode: "0600"
   when: not ansible_check_mode
 
-# Read the generated node token for agent joins
+# @docsible Read node token for agent registration
 - name: Read node-token
   ansible.builtin.slurp:
     src: /var/lib/rancher/k3s/server/node-token
   register: k3s_server_node_token_raw
   when: not ansible_check_mode
 
+# @docsible Store node token as fact
 - name: Set node-token fact
   ansible.builtin.set_fact:
     k3s_server_node_token: "{{ k3s_server_node_token_raw.content | b64decode | trim }}"
   when: not ansible_check_mode
 
-# Verify Kubernetes API server is ready before proceeding
+# @docsible Wait for Kubernetes API server readiness
 - name: Wait for apiserver
   kubernetes.core.k8s_info:
     kind: Namespace
@@ -209,7 +214,7 @@
   when: not ansible_check_mode
   become: false
 
-# Label the master node as a control-plane node
+# @docsible Label node as control-plane
 - name: Label master node
   kubernetes.core.k8s:
     kind: Node
@@ -222,7 +227,7 @@
           node-role.kubernetes.io/master: "true"
   when: not ansible_check_mode
 
-# Remove Traefik resources if disabled
+# @docsible Remove Traefik if disabled
 - name: Remove Traefik resources if disabled
   kubernetes.core.k8s:
     kind: "{{ item.kind }}"
@@ -237,7 +242,7 @@
     - k3s_serverDisableTraefik | bool
     - not ansible_check_mode
 
-# Copy kubeconfig to local machine for remote cluster management
+# @docsible Copy kubeconfig to Ansible controller
 - name: Copy local config
   when:
     - k3s_serverCopyKubeconfigLocal | default(true) | bool
@@ -246,14 +251,14 @@
   become: false
   run_once: true
   block:
-    # Create local directory for kubeconfig storage
+    # @docsible Create local kubeconfig directory
     - name: Create local dir
       ansible.builtin.file:
         path: "{{ k3s_serverLocalKubeconfigPath | dirname }}"
         state: directory
         mode: "0700"
 
-    # Retrieve Tailscale-enabled kubeconfig from server
+    # @docsible Fetch kubeconfig from server
     - name: Fetch config
       ansible.builtin.slurp:
         src: /etc/rancher/k3s/k3s-tailscale.yaml
@@ -261,7 +266,7 @@
       delegate_to: "{{ inventory_hostname }}"
       become: true
 
-    # Customize kubeconfig with unique context names for multi-cluster support
+    # @docsible Customize kubeconfig context names
     - name: Parse config
       ansible.builtin.set_fact:
         k3s_server_kubeconfig_local: |
@@ -272,18 +277,19 @@
              regex_replace('current-context: default', 'current-context: k3s-' + k3s_serverContextName)
           }}
 
-    # Save customized kubeconfig to local file
+    # @docsible Save customized kubeconfig locally
     - name: Write local config
       ansible.builtin.copy:
         content: "{{ k3s_server_kubeconfig_local }}"
         dest: "{{ k3s_serverLocalKubeconfigPath }}"
         mode: "0600"
 
-    # Display success message with kubeconfig location
+    # @docsible Display kubeconfig location
     - name: Show config info
       ansible.builtin.debug:
         msg: "✅ Kubeconfig ready: {{ k3s_serverLocalKubeconfigPath }}"
   rescue:
+    # @docsible Report copy failure details
     - name: Report kubeconfig copy failure
       ansible.builtin.debug:
         msg: >-

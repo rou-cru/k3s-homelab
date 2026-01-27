@@ -13,6 +13,101 @@ Description: Install cert-manager on K3s and bootstrap a self-signed CA with Clu
 
 
 
+<details>
+<summary><b> Argument Specifications in meta/argument_specs</b></summary>
+
+#### Key: main
+
+**Description**: Deploys cert-manager via Helm with CRDs enabled and bootstraps
+a self-signed CA with ClusterIssuers for cluster-wide TLS.
+
+
+**Options**:
+
+
+  - **certManager_namespace**
+    - **Required**: False
+    - **Type**: str
+    - **Default**: cert-manager
+  
+    - **Description**: Namespace for cert-manager deployment.
+  
+  
+  
+
+  - **certManager_chartVersion**
+    - **Required**: False
+    - **Type**: str
+    - **Default**: none
+  
+    - **Description**: cert-manager Helm chart version (omit for latest).
+  
+  
+  
+
+  - **certManager_selfsignedIssuerName**
+    - **Required**: False
+    - **Type**: str
+    - **Default**: selfsigned-issuer
+  
+    - **Description**: Name for the self-signed ClusterIssuer.
+  
+  
+  
+
+  - **certManager_caCertificateName**
+    - **Required**: False
+    - **Type**: str
+    - **Default**: ca-certificate
+  
+    - **Description**: Name for the CA Certificate resource.
+  
+  
+  
+
+  - **certManager_caSecretName**
+    - **Required**: False
+    - **Type**: str
+    - **Default**: ca-secret
+  
+    - **Description**: Secret name for storing the CA certificate.
+  
+  
+  
+
+  - **certManager_caIssuerName**
+    - **Required**: False
+    - **Type**: str
+    - **Default**: ca-issuer
+  
+    - **Description**: Name for the CA ClusterIssuer.
+  
+  
+  
+
+  - **certManager_prometheusEnabled**
+    - **Required**: False
+    - **Type**: bool
+    - **Default**: False
+  
+    - **Description**: Enable Prometheus ServiceMonitor for metrics.
+  
+  
+  
+
+  - **kubeconfig**
+    - **Required**: True
+    - **Type**: str
+    - **Default**: none
+  
+    - **Description**: Path to kubeconfig for cluster access.
+  
+  
+  
+
+
+
+</details>
 
 
 
@@ -26,16 +121,16 @@ Description: Install cert-manager on K3s and bootstrap a self-signed CA with Clu
 
 #### File: tasks/main.yml
 
-| Name | Module | Has Conditions | Tags |
-| ---- | ------ | -------------- | -----|
-| [Check if Helm is installed](tasks/main.yml#L1) | ansible.builtin.command | False |  |
-| [Ensure Jetstack Helm repo](tasks/main.yml#L7) | kubernetes.core.helm_repository | True |  |
-| [Deploy cert-manager](tasks/main.yml#L15) | kubernetes.core.helm | True | cluster,infrastructure,cert-manager |
-| [Wait for cert-manager webhook to be available](tasks/main.yml#L78) | kubernetes.core.k8s | True | cluster,infrastructure,cert-manager |
-| [Create cert-manager self-signed ClusterIssuer](tasks/main.yml#L96) | kubernetes.core.k8s | True | cluster,infrastructure,cert-manager |
-| [Create cert-manager CA certificate](tasks/main.yml#L113) | kubernetes.core.k8s | True | cluster,infrastructure,cert-manager |
-| [Wait for cert-manager CA secret](tasks/main.yml#L140) | kubernetes.core.k8s_info | True | cluster,infrastructure,cert-manager |
-| [Create cert-manager CA ClusterIssuer](tasks/main.yml#L158) | kubernetes.core.k8s | True | cluster,infrastructure,cert-manager |
+| Name | Module | Has Conditions | Tags | Comments |
+| ---- | ------ | -------------- | -----| -------- |
+| [Check if Helm is installed](tasks/main.yml#L2) | ansible.builtin.command | False |  | @docsible Verify Helm CLI availability |
+| [Ensure Jetstack Helm repo](tasks/main.yml#L9) | kubernetes.core.helm_repository | True |  | @docsible Add Jetstack Helm repository |
+| [Deploy cert-manager](tasks/main.yml#L18) | kubernetes.core.helm | True | cluster,infrastructure,cert-manager | @docsible Deploy cert-manager with CRDs and resource limits |
+| [Wait for cert-manager webhook to be available](tasks/main.yml#L82) | kubernetes.core.k8s | True | cluster,infrastructure,cert-manager | @docsible Wait for webhook deployment readiness |
+| [Create cert-manager self-signed ClusterIssuer](tasks/main.yml#L101) | kubernetes.core.k8s | True | cluster,infrastructure,cert-manager | @docsible Create self-signed CA bootstrap issuer |
+| [Create cert-manager CA certificate](tasks/main.yml#L119) | kubernetes.core.k8s | True | cluster,infrastructure,cert-manager | @docsible Generate cluster-wide CA certificate |
+| [Wait for cert-manager CA secret](tasks/main.yml#L147) | kubernetes.core.k8s_info | True | cluster,infrastructure,cert-manager | @docsible Wait for CA secret generation |
+| [Create cert-manager CA ClusterIssuer](tasks/main.yml#L166) | kubernetes.core.k8s | True | cluster,infrastructure,cert-manager | @docsible Create CA-based ClusterIssuer for workloads |
 
 
 ## Task Flow Graphs

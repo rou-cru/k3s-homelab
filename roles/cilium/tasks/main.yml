@@ -1,4 +1,4 @@
-# Create temporary file for Cilium Helm values configuration
+# @docsible Create temporary values file
 - name: Create temporary values file
   ansible.builtin.tempfile:
     state: file
@@ -6,14 +6,14 @@
   register: cilium_values_tmp
   check_mode: false
   when: not ansible_check_mode
-# Add Cilium Helm repository for CNI installation
+# @docsible Add Cilium Helm repository
 - name: Ensure Cilium Helm repo
   kubernetes.core.helm_repository:
     name: cilium
     repo_url: https://helm.cilium.io/
   register: cilium_repo_add
   when: not ansible_check_mode
-# Generate Cilium configuration from Jinja2 template
+# @docsible Generate Cilium values from template
 - name: Template Cilium values file
   ansible.builtin.template:
     src: cilium-values.yaml.j2
@@ -21,7 +21,7 @@
     mode: "0600"
   check_mode: false
   when: not ansible_check_mode
-# Deploy Cilium CNI using Helm with custom configuration
+# @docsible Deploy Cilium CNI via Helm
 - name: Install Cilium via Helm
   kubernetes.core.helm:
     release_name: cilium
@@ -34,7 +34,7 @@
     kubeconfig: "{{ kubeconfig }}"
     update_repo_cache: true # Ensure latest chart information
   when: not ansible_check_mode
-# Verify Cilium DaemonSet creation before proceeding
+# @docsible Wait for Cilium DaemonSet creation
 - name: Wait for Cilium DaemonSet to be created
   kubernetes.core.k8s_info:
     kind: DaemonSet
@@ -47,7 +47,7 @@
   delay: "{{ cilium_waitDelay }}"
   when: not ansible_check_mode
 
-# Wait for cilium pods
+# @docsible Wait for all Cilium pods to be ready
 - name: Wait for cilium pods
   kubernetes.core.k8s_info:
     kind: DaemonSet
@@ -63,14 +63,14 @@
   delay: "{{ cilium_waitDelay }}"
   when: not ansible_check_mode
 
-# Deploy General Cluster Gateway
+# @docsible Deploy Gateway API resources
 - name: Deploy Cluster Gateway
   ansible.builtin.import_tasks: gateway.yml
   become: false
   tags: ["cluster", "network", "gateway"]
   when: not ansible_check_mode
 
-# Clean up temporary configuration file
+# @docsible Cleanup temporary values file
 - name: Remove temporary values file
   ansible.builtin.file:
     path: "{{ cilium_values_tmp.path }}"

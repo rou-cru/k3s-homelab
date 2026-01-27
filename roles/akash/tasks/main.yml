@@ -1,8 +1,5 @@
 ---
-# Akash Provider Installation
-# Deploys Akash provider stack on K3s cluster
-
-# Validate required variables
+# @docsible Validate required Akash configuration variables
 - name: Validate Akash configuration
   ansible.builtin.assert:
     that:
@@ -10,21 +7,21 @@
       - akash_providerDomain | length > 0
     fail_msg: "ERROR: akash_walletAddress and akash_providerDomain are required"
 
-# Add Akash Helm repository
+# @docsible Add Akash Network Helm repository
 - name: Add Akash Helm repository
   kubernetes.core.helm_repository:
     name: akash
     repo_url: "https://akash-network.github.io/helm-charts"
   become: false
 
-# Add Ingress Nginx Helm repository
+# @docsible Add Ingress NGINX Helm repository
 - name: Add Ingress Nginx Helm repository
   kubernetes.core.helm_repository:
     name: ingress-nginx
     repo_url: "https://kubernetes.github.io/ingress-nginx"
   become: false
 
-# Create akash-services namespace
+# @docsible Create dedicated namespace with restricted pod security
 - name: Create akash-services namespace
   kubernetes.core.k8s:
     state: present
@@ -38,7 +35,7 @@
           pod-security.kubernetes.io/enforce: restricted
   become: false
 
-# Deploy Ingress Nginx for Akash
+# @docsible Deploy Ingress NGINX controller for Akash workloads
 - name: Deploy Ingress Nginx for Akash
   kubernetes.core.helm:
     name: akash-ingress
@@ -70,7 +67,7 @@
             memory: 512Mi
   become: false
 
-# Deploy Akash Hostname Operator
+# @docsible Deploy hostname operator for custom domains
 - name: Deploy Akash Hostname Operator
   kubernetes.core.helm:
     name: akash-hostname-operator
@@ -80,7 +77,7 @@
     create_namespace: false
   become: false
 
-# Deploy Akash Inventory Operator
+# @docsible Deploy inventory operator for resource tracking
 - name: Deploy Akash Inventory Operator
   kubernetes.core.helm:
     name: akash-inventory-operator
@@ -90,7 +87,7 @@
     create_namespace: false
   become: false
 
-# Build provider attributes
+# @docsible Build provider attributes including GPU if enabled
 - name: Build provider attributes
   ansible.builtin.set_fact:
     akash_full_attributes: >-
@@ -104,7 +101,7 @@
         ] if akash_gpuEnabled | bool else [])
       }}
 
-# Deploy Akash Provider
+# @docsible Deploy Akash provider with bidding configuration
 - name: Deploy Akash Provider
   kubernetes.core.helm:
     name: akash-provider
@@ -135,7 +132,7 @@
   become: false
   when: akash_walletAddress | length > 0
 
-# Display post-installation instructions
+# @docsible Display deployment status and next steps
 - name: Display Akash setup instructions
   ansible.builtin.debug:
     msg: |

@@ -296,24 +296,24 @@ RoG hardware tweaks, and network optimizations.
 
 | Name | Module | Has Conditions | Comments |
 | ---- | ------ | -------------- | -------- |
-| [Disable swap](tasks/main.yml#L2) | ansible.builtin.command | True | Disable swap to meet K3s requirements - Kubernetes doesn't support swap |
-| [Disable swap (fstab)](tasks/main.yml#L9) | ansible.builtin.replace | False | Permanently disable swap by commenting out fstab entries |
-| [Detect Ubuntu version](tasks/main.yml#L15) | ansible.builtin.set_fact | False | Store Ubuntu version for kernel package selection |
-| [Define kernel package](tasks/main.yml#L19) | ansible.builtin.set_fact | True | Use HWE kernel for better hardware support on Ubuntu 20.04-24.04 |
-| [Install system base tools](tasks/main.yml#L24) | ansible.builtin.apt | False | Install essential system tools for K3s and networking |
-| [Install NetworkManager](tasks/main.yml#L34) | ansible.builtin.apt | True | Optional base packages for workstation-style hosts |
-| [Install ACPI daemon](tasks/main.yml#L39) | ansible.builtin.apt | True |  |
-| [Install dependencies](tasks/main.yml#L45) | ansible.builtin.include_tasks | False | Install additional system dependencies |
-| [Install HWE kernel](tasks/main.yml#L48) | ansible.builtin.apt | True | Install Hardware Enablement kernel for newer hardware support |
-| [Install generic kernel](tasks/main.yml#L58) | ansible.builtin.apt | True | Fallback to generic kernel if HWE installation fails or unavailable |
-| [Register kernel change](tasks/main.yml#L68) | ansible.builtin.set_fact | False | Track if kernel was changed to trigger reboot later |
-| [Configure power](tasks/main.yml#L75) | ansible.builtin.include_tasks | False | Configure power management settings |
-| [Apply hardware tuning](tasks/main.yml#L78) | ansible.builtin.include_tasks | False | Apply hardware-specific optimizations |
-| [System Tuning](tasks/main.yml#L81) | ansible.builtin.include_tasks | False | Apply system-level performance tuning |
-| [Install Cloud-Native Binaries](tasks/main.yml#L84) | ansible.builtin.include_tasks | False | Install Kubernetes and container tools |
-| [Ensure Helm config directory exists](tasks/main.yml#L88) | ansible.builtin.file | True | Configure Helm repositories (inline from helm_setup.yml) |
-| [Add Helm Repositories](tasks/main.yml#L96) | kubernetes.core.helm_repository | True |  |
-| [Install K8s Ansible deps](tasks/main.yml#L105) | ansible.builtin.include_tasks | True | Install kubernetes.core Ansible collection Python dependencies |
+| [Disable swap](tasks/main.yml#L2) | ansible.builtin.command | True | @docsible Disable swap for Kubernetes compatibility |
+| [Disable swap (fstab)](tasks/main.yml#L9) | ansible.builtin.replace | False | @docsible Permanently disable swap in fstab |
+| [Detect Ubuntu version](tasks/main.yml#L15) | ansible.builtin.set_fact | False | @docsible Detect Ubuntu version for kernel selection |
+| [Define kernel package](tasks/main.yml#L19) | ansible.builtin.set_fact | True | @docsible Set HWE kernel package name |
+| [Install system base tools](tasks/main.yml#L24) | ansible.builtin.apt | False | @docsible Install essential system utilities |
+| [Install NetworkManager](tasks/main.yml#L34) | ansible.builtin.apt | True | @docsible Install NetworkManager if enabled |
+| [Install ACPI daemon](tasks/main.yml#L40) | ansible.builtin.apt | True | @docsible Install ACPI daemon if enabled |
+| [Install dependencies](tasks/main.yml#L46) | ansible.builtin.include_tasks | False | @docsible Install additional system dependencies |
+| [Install HWE kernel](tasks/main.yml#L49) | ansible.builtin.apt | True | @docsible Install HWE kernel for newer hardware |
+| [Install generic kernel](tasks/main.yml#L59) | ansible.builtin.apt | True | @docsible Fallback to generic kernel if HWE fails |
+| [Register kernel change](tasks/main.yml#L69) | ansible.builtin.set_fact | False | @docsible Track kernel installation changes |
+| [Configure power](tasks/main.yml#L76) | ansible.builtin.include_tasks | False | @docsible Configure power management settings |
+| [Apply hardware tuning](tasks/main.yml#L79) | ansible.builtin.include_tasks | False | @docsible Apply hardware-specific optimizations |
+| [System Tuning](tasks/main.yml#L82) | ansible.builtin.include_tasks | False | @docsible Apply system-level kernel tuning |
+| [Install Cloud-Native Binaries](tasks/main.yml#L85) | ansible.builtin.include_tasks | False | @docsible Install cloud-native binaries (Helm, kubectl, etc.) |
+| [Ensure Helm config directory exists](tasks/main.yml#L89) | ansible.builtin.file | True | @docsible Create Helm configuration directory |
+| [Add Helm Repositories](tasks/main.yml#L98) | kubernetes.core.helm_repository | True | @docsible Add configured Helm repositories |
+| [Install K8s Ansible deps](tasks/main.yml#L107) | ansible.builtin.include_tasks | True | @docsible Install Python dependencies for K8s modules |
 
 #### File: tasks/network_optimization.yml
 
@@ -326,11 +326,11 @@ Optimize Realtek network drivers for ASUS RoG hardware |
 | [Ensure pcie_aspm=off in GRUB](tasks/network_optimization.yml#L21) | ansible.builtin.replace | False | Disable PCIe Active State Power Management for network stability |
 | [Update GRUB](tasks/network_optimization.yml#L28) | ansible.builtin.command | True | Apply GRUB configuration changes for next boot |
 | [Register driver change](tasks/network_optimization.yml#L35) | ansible.builtin.set_fact | False | Track if network driver changes require reboot |
-| [Detect primary ethernet interface](tasks/network_optimization.yml#L51) | ansible.builtin.set_fact | True | Identify primary network interface for optimization targeting |
-| [Deploy optimization script](tasks/network_optimization.yml#L56) | ansible.builtin.template | False | Deploy network optimization script with interface-specific settings |
-| [Deploy optimization service](tasks/network_optimization.yml#L62) | ansible.builtin.copy | False | Install systemd service for network optimization at boot |
-| [Reload systemd daemon for network optimization](tasks/network_optimization.yml#L68) | ansible.builtin.systemd | True | Ensure systemd sees the new unit before enabling it |
-| [Start optimization service](tasks/network_optimization.yml#L75) | ansible.builtin.systemd | True | Enable and start network optimization service |
+| [Detect primary ethernet interface](tasks/network_optimization.yml#L52) | ansible.builtin.set_fact | True | Identify primary network interface for optimization targeting |
+| [Deploy optimization script](tasks/network_optimization.yml#L57) | ansible.builtin.template | False | Deploy network optimization script with interface-specific settings |
+| [Deploy optimization service](tasks/network_optimization.yml#L63) | ansible.builtin.copy | False | Install systemd service for network optimization at boot |
+| [Reload systemd daemon for network optimization](tasks/network_optimization.yml#L69) | ansible.builtin.systemd | True | Ensure systemd sees the new unit before enabling it |
+| [Start optimization service](tasks/network_optimization.yml#L76) | ansible.builtin.systemd | True | Enable and start network optimization service |
 
 #### File: tasks/power_management.yml
 
