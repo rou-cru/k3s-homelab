@@ -46,6 +46,17 @@
     state: directory
     mode: "0750"
 
+- name: Configure K3s registry auth
+  ansible.builtin.template:
+    src: registries.yaml.j2
+    dest: /etc/rancher/k3s/registries.yaml
+    mode: "0600"
+  no_log: true
+  notify: "{{ k3s_common_restart_handler | default('Restart k3s') }}"
+  when:
+    - k3s_common_registry_auths is defined
+    - k3s_common_registry_auths | length > 0
+
 - name: Ensure CNI config directory exists
   ansible.builtin.file:
     path: "{{ k3s_cni_conf_dir }}"

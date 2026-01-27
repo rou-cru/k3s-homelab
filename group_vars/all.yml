@@ -11,3 +11,15 @@ ansible_ssh_pipelining: true
 # Standard Wait/Retry Settings
 global_wait_retries: 60
 global_wait_delay: 10
+
+# Global registry auth (Docker Hub) for all K3s nodes
+k3s_common_registry_auths:
+  - name: "docker.io"
+    endpoint: "https://registry-1.docker.io"
+    auth_hosts:
+      - "docker.io"
+      - "index.docker.io"
+      - "registry-1.docker.io"
+      - "registry.docker.io"
+    username: "{{ dockerhub_username }}"
+    password: "{{ dockerhub_token }}"

@@ -44,7 +44,7 @@
         readOnlyRootFilesystem: false
 
       log:
-        level: warning
+        level: warn
 
       genericTargets:
         enabled: true

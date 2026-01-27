@@ -224,15 +224,23 @@
       tags: ["apps"]
 
     # @docsible Apply Kubernetes namespaces
+    - name: Find namespace manifests on remote
+      ansible.builtin.find:
+        paths: "{{ k8s_manifests_dir }}/bootstrap/namespaces"
+        patterns: "*.yaml"
+      register: k8s_namespace_manifests
+      become: false
+      tags: ["apps"]
+      when: not ansible_check_mode
+
     - name: Apply Namespaces
       kubernetes.core.k8s:
-        src: "{{ item }}"
+        src: "{{ item.path }}"
         kubeconfig: "{{ k8s_kubeconfig }}"
         state: present
       become: false
       tags: ["apps"]
-      with_fileglob:
-        - "k8s/bootstrap/namespaces/*.yaml"
+      loop: "{{ k8s_namespace_manifests.files | sort(attribute='path') }}"
       when: not ansible_check_mode
 
     # @docsible Generate Honeygain config
