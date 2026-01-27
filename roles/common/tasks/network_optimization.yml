@@ -1,7 +1,7 @@
 # Network optimization: Realtek drivers and network configuration
 # Optimize Realtek network drivers for ASUS RoG hardware
 - name: Realtek optimizations
-  when: common_rog_server | bool
+  when: hardware_rogServer | default(false) | bool
   block:
     # Install optimized Realtek r8168 driver for better performance
     - name: Install Realtek driver
@@ -50,7 +50,7 @@
 # Identify primary network interface for optimization targeting
 - name: Detect primary ethernet interface
   ansible.builtin.set_fact:
-    common_primary_interface: "{{ ansible_facts['default_ipv4']['interface'] }}"
+    system_primaryInterface: "{{ ansible_facts['default_ipv4']['interface'] }}"
   when: ansible_facts['default_ipv4']['interface'] is defined
 # Deploy network optimization script with interface-specific settings
 - name: Deploy optimization script

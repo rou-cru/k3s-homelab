@@ -38,7 +38,7 @@ Section "Device"
     Identifier     "Device0"
     Driver         "nvidia"
     VendorName     "NVIDIA Corporation"
-    BusID          "PCI:{{ nvidia_gpu_pci_bus_id | default('1:0:0') }}"
+    BusID          "PCI:{{ nvidia_pciBusId | default('1:0:0') }}"
 EndSection
 
 Section "Screen"
@@ -47,7 +47,7 @@ Section "Screen"
     Monitor        "Monitor0"
     DefaultDepth    24
     Option         "AllowEmptyInitialConfiguration" "True"
-    Option         "Coolbits" "{{ nvidia_gpu_coolbits | default('28') }}"
+    Option         "Coolbits" "{{ nvidia_coolbits | default('28') }}"
     SubSection     "Display"
         Depth       24
     EndSubSection

@@ -25,12 +25,12 @@
 - name: Install Cilium via Helm
   kubernetes.core.helm:
     release_name: cilium
-    chart_ref: cilium/{{ cilium_chart_name }}
+    chart_ref: cilium/{{ cilium_chartName }}
     release_namespace: "{{ cilium_namespace }}"
     create_namespace: true
     values_files:
       - "{{ cilium_values_tmp.path }}"
-    chart_version: "{{ cilium_version }}"
+    chart_version: "{{ cilium_chartVersion }}"
     kubeconfig: "{{ k8s_kubeconfig }}"
     update_repo_cache: true # Ensure latest chart information
   when: not ansible_check_mode
@@ -43,8 +43,8 @@
     kubeconfig: "{{ k8s_kubeconfig }}"
   register: cilium_ds_check
   until: cilium_ds_check.resources | length > 0
-  retries: "{{ global_wait_retries }}"
-  delay: "{{ global_wait_delay }}"
+  retries: "{{ cilium_waitRetries }}"
+  delay: "{{ cilium_waitDelay }}"
   when: not ansible_check_mode
 
 # Wait for cilium pods
@@ -59,8 +59,8 @@
     cilium_ds.resources | length > 0 and
     cilium_ds.resources[0].status.numberReady == cilium_ds.resources[0].status.desiredNumberScheduled and
     cilium_ds.resources[0].status.updatedNumberScheduled == cilium_ds.resources[0].status.desiredNumberScheduled
-  retries: "{{ global_wait_retries }}"
-  delay: "{{ global_wait_delay }}"
+  retries: "{{ cilium_waitRetries }}"
+  delay: "{{ cilium_waitDelay }}"
   when: not ansible_check_mode
 
 # Deploy General Cluster Gateway

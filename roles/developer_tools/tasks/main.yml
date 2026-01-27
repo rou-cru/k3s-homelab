@@ -20,7 +20,7 @@
 - name: Install NVM
   ansible.builtin.shell: |
     set -euo pipefail
-    curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/{{ devtools_nvm_version }}/install.sh | bash
+    curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/{{ devtools_nvmVersion }}/install.sh | bash
   args:
     creates: /root/.nvm/nvm.sh
     executable: /bin/bash
@@ -59,7 +59,7 @@
   environment:
     PATH: "/root/.cargo/bin:{{ ansible_facts['env']['PATH'] }}"
   when:
-    - nvidia_gpu_setup_mode | default('auto') != 'false'
+    - nvidia_setupMode | default('auto') != 'false'
     - not ansible_check_mode
 - name: Install Kimi
   ansible.builtin.command: uv tool install kimi-cli
@@ -86,7 +86,7 @@
 # Docker (optional, disabled by default)
 - name: Install Docker
   when:
-    - devtools_install_docker | default(false) | bool
+    - devtools_installDocker | default(false) | bool
     - not ansible_check_mode
   block:
     - name: Add Docker key
@@ -134,7 +134,7 @@
 # Vagrant + libvirt (for Molecule testing)
 - name: Install Vagrant and libvirt
   when:
-    - devtools_install_vagrant | default(true) | bool
+    - devtools_installVagrant | default(true) | bool
     - not ansible_check_mode
   block:
     - name: Set HashiCorp repo release

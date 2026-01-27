@@ -60,7 +60,7 @@
       ansible.builtin.import_role:
         name: common
         tasks_from: network_optimization.yml
-      when: common_network_optimization_enabled | default(false)
+      when: system_networkOptimize | default(false)
       tags: ["host", "os", "network"]
 
     # Phase 2: Network connectivity
@@ -88,10 +88,14 @@
     # @docsible Store server token for agent registration
     - name: Set K3s token fact
       ansible.builtin.set_fact:
-        k3s_agent_token: "{{ k3s_token_raw.content | b64decode | trim }}"
+        k3s_agentToken: >-
+          {{
+            'mock-token-for-check-mode' if ansible_check_mode
+            else (k3s_token_raw.content | b64decode | trim)
+          }}
       no_log: true
       tags: ["cluster"]
-      when: k3s_token_raw is not skipped
+      when: ansible_check_mode or k3s_token_raw is not skipped
 
     # @docsible Join VPS as K3s agent node to cluster
     - name: Run k3s_agent role
@@ -110,8 +114,8 @@
           Hostname: {{ ansible_facts['hostname'] }}
           Tailscale IP: {{ tailscale_ip | default('Not configured') }}
           Public IP: {{ ansible_host }}
-          K3s Server: {{ k3s_agent_server_url | default('Not configured') }}
-          Exit Node: {{ tailscale_exit_node_enabled | default(false) }}
+          K3s Server: {{ k3s_agentServerUrl | default('Not configured') }}
+          Exit Node: {{ tailscale_exitNodeEnabled | default(false) }}
 
           Next steps:
           1. Approve exit node in Tailscale admin console

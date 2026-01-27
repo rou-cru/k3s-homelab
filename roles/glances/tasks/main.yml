@@ -18,7 +18,7 @@
 # @docsible Create Glances venv directory
 - name: Create directory for Glances venv
   ansible.builtin.file:
-    path: "{{ glances_venv_path }}"
+    path: "{{ glances_venvPath }}"
     state: directory
     mode: '0750'
 # @docsible Check uv availability
@@ -36,9 +36,9 @@
     - not glances_uv_binary.stat.exists
 # @docsible Create Python virtual environment with uv
 - name: Create Glances virtual environment (uv)
-  ansible.builtin.command: uv venv --seed "{{ glances_venv_path }}"
+  ansible.builtin.command: uv venv --seed "{{ glances_venvPath }}"
   args:
-    creates: "{{ glances_venv_path }}/bin/python"
+    creates: "{{ glances_venvPath }}/bin/python"
   environment:
     PATH: "/usr/local/bin:{{ ansible_facts['env']['PATH'] }}"
   notify: Restart glances
@@ -47,7 +47,7 @@
 - name: Install Glances in virtual environment
   ansible.builtin.pip:
     name: "{{ glances_packages }}"
-    executable: "{{ glances_venv_path }}/bin/pip"
+    executable: "{{ glances_venvPath }}/bin/pip"
     extra_args: --upgrade
   notify: Restart glances
   when: not ansible_check_mode

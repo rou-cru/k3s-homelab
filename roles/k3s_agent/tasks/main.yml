@@ -1,38 +1,27 @@
-# Validate Tailscale IP address format for secure cluster communication
-- name: Validate Tailscale IP
+# main.yml - K3s Agent Role
+- name: Verify K3s agent requirements
   ansible.builtin.assert:
     that:
-      - tailscale_ip is defined
-      - tailscale_ip | length > 0
-      - tailscale_ip is match('^100\.')
-    fail_msg: "ERROR: Invalid tailscale_ip ({{ tailscale_ip | default('undefined') }}). Must be 100.x.x.x"
-  when: tailscale_ip is defined
+      - k3s_agentServerUrl is defined
+      - k3s_agentServerUrl | length > 0
+      - k3s_agentToken is defined
+      - k3s_agentToken | length > 0
+    fail_msg: "ERROR: k3s_agentServerUrl and k3s_agentToken are required"
 
-# Validate required server connection parameters
-- name: Validate server parameters
-  ansible.builtin.assert:
-    that:
-      - k3s_agent_server_url is defined
-      - k3s_agent_server_url | length > 0
-      - k3s_agent_token is defined
-      - k3s_agent_token | length > 0
-    fail_msg: "ERROR: k3s_agent_server_url and k3s_agent_token are required"
-  when: not ansible_check_mode
-
-# Detect available container runtimes BEFORE importing k3s_common
-- name: Check for runsc runtime
+# Detect if gVisor or Nvidia runtimes are present on host
+- name: Check for runsc binary
   ansible.builtin.stat:
     path: /usr/local/bin/runsc
   register: k3s_runsc_stat
 
-- name: Check for NVIDIA container runtime
+- name: Check for nvidia-container-runtime
   ansible.builtin.stat:
     path: /usr/bin/nvidia-container-runtime
   register: k3s_nvidia_runtime_stat
 
 - name: Build containerd runtime list
   ansible.builtin.set_fact:
-    k3s_common_containerd_additional_runtimes: >-
+    k3s_commonContainerdAdditionalRuntimes: >-
       {{
         []
         + (['runsc'] if k3s_runsc_stat.stat.exists else [])
@@ -44,8 +33,8 @@
   ansible.builtin.import_role:
     name: k3s_common
   vars:
-    k3s_recreate: "{{ k3s_agent_recreate }}"
-    k3s_common_restart_handler: "Restart k3s-agent"
+    k3s_recreate: "{{ k3s_agentRecreate }}"
+    k3s_commonRestartHandler: "Restart k3s-agent"
 
 # Deploy K3s agent configuration
 - name: Deploy agent config
@@ -61,10 +50,10 @@
   ansible.builtin.shell: |
     set -o pipefail
     curl -sfL https://get.k3s.io | \
-      INSTALL_K3S_VERSION="{{ k3s_agent_version }}" \
+      INSTALL_K3S_VERSION="{{ k3s_agentVersion }}" \
       INSTALL_K3S_EXEC="agent" \
-      K3S_URL="{{ k3s_agent_server_url }}" \
-      K3S_TOKEN="{{ k3s_agent_token }}" \
+      K3S_URL="{{ k3s_agentServerUrl }}" \
+      K3S_TOKEN="{{ k3s_agentToken }}" \
       sh -
   args:
     executable: /bin/bash
@@ -121,8 +110,8 @@
      selectattr('type', 'equalto', 'Ready') |
      map(attribute='status') |
      first) == 'True'
-  retries: "{{ k3s_agent_readyz_retries }}"
-  delay: "{{ k3s_agent_readyz_delay }}"
+  retries: "{{ k3s_agentReadyzRetries }}"
+  delay: "{{ k3s_agentReadyzDelay }}"
   when: not ansible_check_mode
 
 # Apply node labels if specified
@@ -133,10 +122,10 @@
     kubeconfig: "{{ k8s_kubeconfig }}"
     definition:
       metadata:
-        labels: "{{ dict(k3s_agent_node_labels | map('split', '=') | map('list')) }}"
+        labels: "{{ dict(k3s_agentNodeLabels | map('split', '=') | map('list')) }}"
   delegate_to: "{{ groups['k3s_server'][0] }}"
   when:
-    - k3s_agent_node_labels | length > 0
+    - k3s_agentNodeLabels | length > 0
     - not ansible_check_mode
 
 # Apply node taints if specified
@@ -150,12 +139,12 @@
         effect: "{{ item.split(':')[1] }}"
     state: present
   delegate_to: "{{ groups['k3s_server'][0] }}"
-  loop: "{{ k3s_agent_node_taints }}"
+  loop: "{{ k3s_agentNodeTaints }}"
   when:
-    - k3s_agent_node_taints | length > 0
+    - k3s_agentNodeTaints | length > 0
     - not ansible_check_mode
 
 # Display success message
 - name: Show agent join status
   ansible.builtin.debug:
-    msg: "✅ K3s agent {{ ansible_facts['hostname'] }} joined cluster at {{ k3s_agent_server_url }}"
+    msg: "✅ K3s agent {{ ansible_facts['hostname'] }} joined cluster at {{ k3s_agentServerUrl }}"

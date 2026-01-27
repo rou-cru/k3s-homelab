@@ -1,15 +1,14 @@
 mirrors:
-{% for reg in k3s_common_registry_auths %}
+{% for reg in k3s_commonRegistryAuths %}
   "{{ reg.name }}":
     endpoint:
-      - "{{ reg.endpoint | default('https://' ~ reg.name) }}"
+      - "{{ reg.endpoint }}"
 {% endfor %}
+
 configs:
-{% for reg in k3s_common_registry_auths %}
-{%     for host in reg.auth_hosts %}
-  "{{ host }}":
+{% for reg in k3s_commonRegistryAuths %}
+  "{{ reg.auth_hosts | first }}":
     auth:
       username: "{{ reg.username }}"
       password: "{{ reg.password }}"
-{%     endfor %}
 {% endfor %}

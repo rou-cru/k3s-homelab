@@ -15,14 +15,14 @@ tasks:
       PYTHONWARNINGS: ignore
     sources:
       - "{{.TEMPLATE_DIR}}/apply-rog-tweaks.sh.j2"
-      - "{{.DEFAULTS_FILE}}"
+      - "group_vars/k3s_server.yml"
     generates:
       - "{{.OUTPUT_DIR}}/apply-rog-tweaks.sh"
     cmds:
       - mkdir -p {{.OUTPUT_DIR}}
       - |
         j2 {{.TEMPLATE_DIR}}/apply-rog-tweaks.sh.j2 \
-          {{.DEFAULTS_FILE}} > {{.OUTPUT_DIR}}/apply-rog-tweaks.sh
+          group_vars/k3s_server.yml > {{.OUTPUT_DIR}}/apply-rog-tweaks.sh
       - chmod +x {{.OUTPUT_DIR}}/apply-rog-tweaks.sh
   render-network-opt:
     internal: true
@@ -109,7 +109,7 @@ tasks:
       - sh: command -v j2lint
         msg: "j2lint not found. Run: devbox shell"
     cmds:
-      - j2lint roles/**/templates/*.j2
+      - j2lint roles/**/templates/*.j2 --ignore jinja-variable-lower-case
   validate-bash:
     desc: "Validate rendered bash scripts"
     cmds:

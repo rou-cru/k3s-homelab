@@ -53,7 +53,7 @@ Description: Install and configure Glances system monitoring with web interface.
   
   
 
-  - **glances_bind_address**
+  - **glances_bindAddress**
     - **Required**: false
     - **Type**: str
     - **Default**: 127.0.0.1
@@ -63,7 +63,7 @@ Description: Install and configure Glances system monitoring with web interface.
   
   
 
-  - **glances_venv_path**
+  - **glances_venvPath**
     - **Required**: false
     - **Type**: str
     - **Default**: /opt/glances

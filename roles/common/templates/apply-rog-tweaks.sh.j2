@@ -1,8 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
-BATTERY_THRESHOLD={{ common_battery_charge_threshold }}
-THERMAL_MODE={{ common_thermal_policy }}
+BATTERY_THRESHOLD={{ hardware_batteryChargeThreshold }}
+THERMAL_MODE={{ hardware_thermalPolicy }}
 
 if ! [[ "$BATTERY_THRESHOLD" =~ ^[0-9]+$ ]] ||
     [ "$BATTERY_THRESHOLD" -lt 0 ] ||

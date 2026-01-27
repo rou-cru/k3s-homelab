@@ -1,86 +1,57 @@
-# ==============================================================================
-# PROJECT DEFAULTS - Single Source of Truth
-# ==============================================================================
-# Override ONLY in group_vars/<target>.yml when absolutely necessary
-# Principle: Default = on-premise physical majority; VPS overrides
-
-# ------------------------------------------------------------------------------
-# ANSIBLE CONNECTION
-# ------------------------------------------------------------------------------
+# ---- ANSIBLE TARGETS CONNECTION ----------------------------------------------------
 ansible_user: rc
 ansible_become: true
 ansible_ssh_pipelining: true
 
-# ------------------------------------------------------------------------------
-# KUBERNETES GLOBAL
-# ------------------------------------------------------------------------------
+# ---- KUBERNETES --------------------------------------------------------------------
 k8s_kubeconfig: "/home/{{ ansible_user }}/.kube/config"
-k8s_manifests_dir: "/home/{{ ansible_user }}/k8s-manifests"
-global_wait_retries: 60
-global_wait_delay: 10
+k8s_manifestsDir: "/home/{{ ansible_user }}/k8s-manifests"
+global_waitRetries: 60
+global_waitDelay: 10
 
-# K3s Version (single source - used by k3s_server, k3s_agent, k3s_common)
+## K3s
 k3s_version: "v1.35.0+k3s1"
-k3s_cni_bin_dir: "/opt/cni/bin"
-k3s_cni_conf_dir: "/etc/cni/net.d"
-k3s_recreate: false
+k3s_cniBinDir: "/opt/cni/bin"
+k3s_cniConfDir: "/etc/cni/net.d"
+k3s_recreate: true
 
-# Containerd
-k3s_common_containerd_optimized: true
-k3s_common_containerd_default_runtime: "runc"
-k3s_common_containerd_sandbox_image: "registry.k8s.io/pause:3.10.1"
-k3s_common_containerd_additional_runtimes: []
-k3s_common_restart_handler: "Restart k3s"
+### Containerd
+k3s_commonContainerdOptimized: true
+k3s_commonContainerdDefaultRuntime: "runc"
+k3s_commonContainerdSandboxImage: "registry.k8s.io/pause:3.10.1"
+k3s_commonContainerdAdditionalRuntimes: []
+k3s_commonRestartHandler: "Restart k3s"
 
-# ------------------------------------------------------------------------------
-# COMMON ROLE - INSTALLATION FLAGS
-# ------------------------------------------------------------------------------
-# Default: true (on-premise nodes need these)
-common_install_uv: true
-common_install_cloud_binaries: true
-common_install_hwe_kernel: true
-common_install_network_manager: true
-common_install_acpid: true
-common_install_debug_packages: true
-common_install_dev_packages: true
-common_install_github_cli_repo: true
-common_install_k8s_ansible_deps: false  # Only k3s_server needs this
+# ---- INSTALLATION FLAGS ------------------------------------------------------------
+system_installUv: true
+system_installCloudBinaries: true
+system_installHweKernel: true
+system_installNetworkManager: true
+system_installAcpid: true
+system_installDebugPackages: true
+system_installDevPackages: true
+system_installGithubCliRepo: true
+system_installK8sAnsibleDeps: false  # Only k3s_server needs this
 
-# ------------------------------------------------------------------------------
-# COMMON ROLE - HARDWARE OPTIMIZATION (Generic - applies to physical nodes)
-# ------------------------------------------------------------------------------
-common_network_optimization_enabled: true
-common_power_efficiency_tuning_enabled: false  # Only specific hardware
+# ---- HARDWARE OPTIMIZATION ---------------------------------------------------------
+system_networkOptimize: true
+hardware_powerEfficiencyTuningEnabled: false  # Only specific hardware
 
 # System limits (all nodes benefit)
-common_file_descriptors_soft: 100000
-common_file_descriptors_hard: 100000
-common_fs_file_max: 2097152
-common_inotify_max_instances: 8192
-common_inotify_max_watches: 524288
-common_watchdog_timeout_sec: 120
+system_fileDescriptorsSoft: 100000
+system_fileDescriptorsHard: 100000
+system_fsFileMax: 2097152
+system_inotifyMaxInstances: 8192
+system_inotifyMaxWatches: 524288
+system_watchdogTimeoutSec: 120
 
-# ------------------------------------------------------------------------------
-# COMMON ROLE - HARDWARE SPECIFIC FLAGS (default: false, each target enables)
-# ------------------------------------------------------------------------------
-common_rog_server: false
-common_radio_block_enabled: false
-common_audio_optimization_enabled: false
-common_mining_enabled: false
-common_battery_charge_threshold: 80
-common_thermal_policy: 1
-common_hugepages_count: 1280
+# ---- MINING (Global defaults) ------------------------------------------------------
+mining_cpuEnabled: false
+mining_gpuEnabled: false
+system_hugepagesCount: 1280
 
-# Intel-specific (disabled by default)
-common_intel_rapl_pl1_limit_microwatts: 100000000
-common_intel_rapl_pl2_limit_microwatts: 140000000
-common_intel_pstate_max_perf_pct: 80
-common_intel_pstate_no_turbo: 1
-
-# ------------------------------------------------------------------------------
-# COMMON ROLE - PACKAGES
-# ------------------------------------------------------------------------------
-common_debug_packages:
+# ---- PACKAGES ----------------------------------------------------------------------
+packages_debug:
   - dnsutils
   - htop
   - iotop
@@ -92,214 +63,165 @@ common_debug_packages:
   - tcpdump
   - tmux
   - traceroute
+  - tree
+  - git
 
-common_dev_packages:
+packages_dev:
   - gh
   - imagemagick
   - s-tui
   - fbi
   - nvtop
-  - tree
   - make
   - cmake
   - ninja-build
-  - git
   - timeshift
   - xvfb
   - sqlite3
 
-common_helm_repositories:
+system_helmRepositories:
   - name: cilium
     repo_url: "https://helm.cilium.io/"
   - name: nvdp
     repo_url: "https://nvidia.github.io/k8s-device-plugin"
 
-# ------------------------------------------------------------------------------
-# CONSTANTS - CHECKSUMS & VERSIONS
-# ------------------------------------------------------------------------------
-common_uv_install_script_checksum: "10fb1f54d56f3eb60622006797339d4ea0bfda9b358d07db635f73cf89f7094c"
-common_helm_install_script_checksum: "38b65f882d9cae3891755bdb03becc6a01ae6f9cb24826c191f219ddfee70a5d"
-tailscale_install_script_checksum: "39e5b9185e9329955b324a48c13d4863c3a93f814260336cf0d4ad92a0aac3d3"
+# ---- CONSTANTS - CHECKSUMS & VERSIONS ----------------------------------------------
+system_uvInstallScriptChecksum: "10fb1f54d56f3eb60622006797339d4ea0bfda9b358d07db635f73cf89f7094c"
+system_helmInstallScriptChecksum: "38b65f882d9cae3891755bdb03becc6a01ae6f9cb24826c191f219ddfee70a5d"
+tailscale_installScriptChecksum: "39e5b9185e9329955b324a48c13d4863c3a93f814260336cf0d4ad92a0aac3d3"
 
 # Chart versions
-cilium_version: "1.18.5"
-longhorn_chart_version: "1.7.2"
-gateway_api_version: "v1.2.0"
-prometheus_operator_crds_version: "26.0.0"
+cilium_chartVersion: "1.18.5"
+longhorn_chartVersion: "1.7.2"
+gateway_apiVersion: "v1.2.0"
+prometheus_operatorCrdsVersion: "26.0.0"
 gvisor_version: "20231204.0"
 
-# NVIDIA
-nvidia_gpu_driver_fallback: "nvidia-driver-535"
-nvidia_gpu_device_plugin_version: "0.14.3"
+# ---- K3S SERVER ROLE ---------------------------------------------------------------
+k3s_serverVersion: "{{ k3s_version }}"
+k3s_serverDisableTraefik: true
+k3s_serverDisableServicelb: true
+k3s_serverKubeconfigMode: "0600"
+k3s_serverNodeTokenTimeout: 180
+k3s_serverReadyzRetries: 30
+k3s_serverReadyzDelay: 2
+k3s_serverRecreate: false
+k3s_serverCopyKubeconfigLocal: true
+k3s_serverLocalKubeconfigPath: "{{ lookup('env', 'HOME') }}/.kube/config"
+k3s_serverContextName: "{{ inventory_hostname }}"
 
-# ------------------------------------------------------------------------------
-# K3S SERVER ROLE
-# ------------------------------------------------------------------------------
-k3s_server_version: "{{ k3s_version }}"
-k3s_server_disable_traefik: true
-k3s_server_disable_servicelb: true
-k3s_server_kubeconfig_mode: "0600"
-k3s_server_node_token_timeout: 180
-k3s_server_readyz_retries: 30
-k3s_server_readyz_delay: 2
-k3s_server_recreate: false
-k3s_server_copy_kubeconfig_local: true
-k3s_server_local_kubeconfig_path: "{{ lookup('env', 'HOME') }}/.kube/config"
-k3s_server_context_name: "{{ inventory_hostname }}"
+# ---- K3S AGENT ROLE ----------------------------------------------------------------
+k3s_agentVersion: "{{ k3s_version }}"
+k3s_agentServerUrl: ""
+k3s_agentToken: ""
+k3s_agentNodeLabels: []
+k3s_agentNodeTaints: []
+k3s_agentKubeletArgs: []
+k3s_agentReadyzRetries: 30
+k3s_agentReadyzDelay: 5
+k3s_agentRecreate: false
 
-# ------------------------------------------------------------------------------
-# K3S AGENT ROLE
-# ------------------------------------------------------------------------------
-k3s_agent_version: "{{ k3s_version }}"
-k3s_agent_server_url: ""
-k3s_agent_token: ""
-k3s_agent_node_labels: []
-k3s_agent_node_taints: []
-k3s_agent_kubelet_args: []
-k3s_agent_readyz_retries: 30
-k3s_agent_readyz_delay: 5
-k3s_agent_recreate: false
-
-# ------------------------------------------------------------------------------
-# CILIUM
-# ------------------------------------------------------------------------------
-cilium_chart_name: "cilium"
+# ---- CILIUM ------------------------------------------------------------------------
+cilium_chartName: "cilium"
 cilium_namespace: "kube-system"
-cilium_rollout_timeout: 300
-cilium_wait_retries: 60
-cilium_wait_delay: 5
+cilium_rolloutTimeout: 300
+cilium_waitRetries: 60
+cilium_waitDelay: 5
 cilium_devices: "tailscale+"
 
-# ------------------------------------------------------------------------------
-# GLANCES
-# ------------------------------------------------------------------------------
+# ---- GLANCES -----------------------------------------------------------------------
 glances_state: "present"
 glances_port: 61208
-glances_bind_address: "127.0.0.1"
-glances_venv_path: "/opt/glances"
+glances_bindAddress: "127.0.0.1"
+glances_venvPath: "/opt/glances"
 glances_packages:
   - "glances[all]"
 
-# ------------------------------------------------------------------------------
-# TAILSCALE
-# ------------------------------------------------------------------------------
-tailscale_hostname_prefix: "k3s"
+# ---- TAILSCALE ---------------------------------------------------------------------
+tailscale_hostnamePrefix: "k3s"
 tailscale_tags: ""
-tailscale_accept_dns: "true"
+tailscale_acceptDns: "true"
 tailscale_ssh: "true"
-tailscale_exit_node_enabled: false
-tailscale_advertise_routes: ""
+tailscale_exitNodeEnabled: false
+tailscale_advertiseRoutes: ""
 
-# ------------------------------------------------------------------------------
-# NVIDIA GPU
-# ------------------------------------------------------------------------------
-nvidia_gpu_setup: "auto"
-nvidia_gpu_driver_package: "auto"
-nvidia_gpu_toolkit_repo_url: "https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list"
-nvidia_gpu_toolkit_gpg_url: "https://nvidia.github.io/libnvidia-container/gpgkey"
-nvidia_gpu_device_plugin_repo: "https://nvidia.github.io/k8s-device-plugin"
-nvidia_gpu_reboot_timeout: 600
-nvidia_gpu_headless_x11_enabled: true
-nvidia_gpu_pci_bus_id: "1:0:0"
-nvidia_gpu_coolbits: "28"
-
-# ------------------------------------------------------------------------------
-# GVISOR
-# ------------------------------------------------------------------------------
+# ---- GVISOR ------------------------------------------------------------------------
 gvisor_install: true
 
-# ------------------------------------------------------------------------------
-# DEVELOPER TOOLS
-# ------------------------------------------------------------------------------
+# ---- DEVELOPER TOOLS ---------------------------------------------------------------
 devtools_enabled: true
-devtools_nvm_version: "v0.39.7"
-devtools_install_docker: false
-devtools_install_vagrant: true
+devtools_nvmVersion: "v0.39.7"
+devtools_installDocker: false
+devtools_installVagrant: true
 
-# ------------------------------------------------------------------------------
-# CERT MANAGER
-# ------------------------------------------------------------------------------
-cert_manager_namespace: "cert-manager"
-cert_manager_chart_version: ""
-cert_manager_selfsigned_issuer_name: "homelab-selfsigned-issuer"
-cert_manager_ca_certificate_name: "homelab-ca"
-cert_manager_ca_secret_name: "homelab-ca-secret"
-cert_manager_ca_issuer_name: "homelab-ca-issuer"
-cert_manager_prometheus_enabled: false
+# ---- CERT MANAGER ------------------------------------------------------------------
+certManager_namespace: "cert-manager"
+certManager_chartVersion: ""
+certManager_selfsignedIssuerName: "homelab-selfsigned-issuer"
+certManager_caCertificateName: "homelab-ca"
+certManager_caSecretName: "homelab-ca-secret"
+certManager_caIssuerName: "homelab-ca-issuer"
+certManager_prometheusEnabled: false
 
-# ------------------------------------------------------------------------------
-# ARGOCD
-# ------------------------------------------------------------------------------
+# ---- ARGOCD ------------------------------------------------------------------------
 argocd_namespace: "argocd"
-argocd_chart_version: ""
-argocd_install_crds: true
-argocd_ha_enabled: false
-argocd_dex_enabled: false
-argocd_servicemonitor_enabled: true
+argocd_chartVersion: ""
+argocd_installCrds: true
+argocd_haEnabled: false
+argocd_dexEnabled: false
+argocd_serviceMonitorEnabled: true
 
-# ------------------------------------------------------------------------------
-# EXTERNAL SECRETS
-# ------------------------------------------------------------------------------
-oci_config_file: "{{ playbook_dir }}/.oci"
-external_secrets_namespace: "external-secrets"
-external_secrets_servicemonitor_enabled: false
-external_secrets_grafana_dashboard_enabled: false
-external_secrets_webhook_issuer_name: "homelab-ca-issuer"
+# ---- EXTERNAL SECRETS --------------------------------------------------------------
+oci_configFile: "{{ playbook_dir }}/.oci"
+externalSecrets_namespace: "external-secrets"
+externalSecrets_serviceMonitorEnabled: false
+externalSecrets_grafanaDashboardEnabled: false
+externalSecrets_webhookIssuerName: "homelab-ca-issuer"
 
-# ------------------------------------------------------------------------------
-# LONGHORN
-# ------------------------------------------------------------------------------
-longhorn_default_replica_count: 1
-longhorn_data_locality: "best-effort"
-longhorn_storage_over_provisioning: 100
-longhorn_storage_minimal_available: 25
-longhorn_default_class: true
-longhorn_backup_target: ""
-longhorn_backup_credential_secret: ""
-longhorn_guaranteed_engine_manager_cpu: 12
-longhorn_guaranteed_replica_manager_cpu: 12
-longhorn_priority_class: "priority-ops-critical"
+# ---- LONGHORN ----------------------------------------------------------------------
+longhorn_defaultReplicaCount: 1
+longhorn_dataLocality: "best-effort"
+longhorn_storageOverProvisioning: 100
+longhorn_storageMinimalAvailable: 25
+longhorn_defaultClass: true
+longhorn_backupTarget: ""
+longhorn_backupCredentialSecret: ""
+longhorn_guaranteedEngineManagerCpu: 12
+longhorn_guaranteedReplicaManagerCpu: 12
+longhorn_priorityClass: "priority-ops-critical"
 
-# ------------------------------------------------------------------------------
-# CRDS BOOTSTRAP
-# ------------------------------------------------------------------------------
-prometheus_operator_crds_namespace: "monitoring"
+# ---- CRDS BOOTSTRAP ----------------------------------------------------------------
+prometheus_operatorCrdsNamespace: "monitoring"
 
-# ------------------------------------------------------------------------------
-# PREFLIGHT
-# ------------------------------------------------------------------------------
-preflight_min_ram_mb: 2048
-preflight_min_disk_gb: 20
+# ---- PREFLIGHT -----------------------------------------------------------------------
+preflight_minRamMb: 2048
+preflight_minDiskGb: 20
 
-# ------------------------------------------------------------------------------
-# AKASH (disabled by default - specialized use case)
-# ------------------------------------------------------------------------------
-akash_node_moniker: "homelab-provider"
-akash_wallet_address: ""
-akash_keyring_backend: "os"
-akash_chain_id: "akashnet-2"
-akash_node_rpc: "https://rpc.akashnet.net:443"
-akash_provider_domain: ""
-akash_bid_price_script: ""
-akash_provider_attributes:
+# ---- AKASH (disabled by default - specialized use case) ----------------------------
+akash_nodeMoniker: "homelab-provider"
+akash_walletAddress: ""
+akash_keyringBackend: "os"
+akash_chainId: "akashnet-2"
+akash_nodeRpc: "https://rpc.akashnet.net:443"
+akash_providerDomain: ""
+akash_bidPriceScript: ""
+akash_providerAttributes:
   - key: host
     value: akash
   - key: tier
     value: community
   - key: organization
     value: homelab
-akash_gpu_vendor: "nvidia"
-akash_gpu_model: "rtx4070"
-akash_ingress_nginx_version: "4.11.3"
-akash_hostname_operator_version: "1.0.0"
-akash_inventory_operator_version: "1.0.0"
-akash_provider_version: "6.0.0"
-akash_gpu_enabled: true
+akash_gpuVendor: "nvidia"
+akash_gpuModel: "rtx4070"
+akash_ingressNginxVersion: "4.11.3"
+akash_hostnameOperatorVersion: "1.0.0"
+akash_inventoryOperatorVersion: "1.0.0"
+akash_providerVersion: "6.0.0"
+akash_gpuEnabled: true
 
-# ------------------------------------------------------------------------------
-# REGISTRY AUTH (from secrets.yaml)
-# ------------------------------------------------------------------------------
-k3s_common_registry_auths:
+# ---- REGISTRY AUTH (from secrets.yaml) -----------------------------------------------
+k3s_commonRegistryAuths:
   - name: "docker.io"
     endpoint: "https://registry-1.docker.io"
     auth_hosts:

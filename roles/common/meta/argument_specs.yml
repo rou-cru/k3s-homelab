@@ -6,87 +6,87 @@ argument_specs:
       RoG hardware tweaks, and network optimizations.
     author: rc
     options:
-      common_rog_server:
+      hardware_rogServer:
         type: bool
         required: false
         default: false
         description: Enables ASUS RoG specific hardware tweaks (drivers, LEDs, power profiles).
-      common_radio_block_enabled:
+      hardware_radioBlockEnabled:
         type: bool
         required: false
         default: false
         description: Soft-blocks WiFi and Bluetooth radios to save power.
-      common_audio_optimization_enabled:
+      hardware_audioOptimizationEnabled:
         type: bool
         required: false
         default: false
         description: Installs alsa-utils and configures realtime limits for audio.
-      common_file_descriptors_soft:
+      system_fileDescriptorsSoft:
         type: int
         required: false
         default: 100000
         description: Soft limit for open file descriptors (ulimit -n).
-      common_file_descriptors_hard:
+      system_fileDescriptorsHard:
         type: int
         required: false
         default: 100000
         description: Hard limit for open file descriptors.
-      common_fs_file_max:
+      system_fsFileMax:
         type: int
         required: false
         default: 2097152
         description: System-wide maximum number of open file descriptors.
-      common_inotify_max_instances:
+      system_inotifyMaxInstances:
         type: int
         required: false
         default: 8192
         description: Max inotify instances per user.
-      common_inotify_max_watches:
+      system_inotifyMaxWatches:
         type: int
         required: false
         default: 524288
         description: Max inotify watches per user.
-      common_watchdog_timeout_sec:
+      system_watchdogTimeoutSec:
         type: int
         required: false
         default: 120
         description: Hardware watchdog timeout in seconds (RuntimeWatchdogSec).
-      common_battery_charge_threshold:
+      hardware_batteryChargeThreshold:
         type: int
         required: false
         default: 80
         description: Battery charge limit percentage for RoG laptops.
-      common_thermal_policy:
+      hardware_thermalPolicy:
         type: int
         required: false
         default: 1
         description: RoG thermal policy ID (0=balanced, 1=turbo, 2=silent - check specific model).
-      common_mining_enabled:
+      mining_cpuEnabled:
         type: bool
         required: false
         default: false
         description: Enables optimizations for crypto mining (hugepages, MSR).
-      common_hugepages_count:
+      system_hugepagesCount:
         type: int
         required: false
         default: 1280
         description: Number of hugepages to allocate if mining is enabled (1280 ~ 2.5Gi).
-      common_power_efficiency_tuning_enabled:
+      hardware_powerEfficiencyTuningEnabled:
         type: bool
         required: false
         default: false
         description: Enables Intel P-State power efficiency tuning.
-      common_intel_pstate_max_perf_pct:
+      hardware_intelPstateMaxPerfPct:
         type: int
         required: false
         default: 80
         description: Maximum performance percentage for Intel P-State driver.
-      common_intel_pstate_no_turbo:
+      hardware_intelPstateNoTurbo:
         type: int
         required: false
         default: 1
         description: Disable Intel Turbo Boost (1=disabled, 0=enabled).
-      common_helm_repositories:
+      system_helmRepositories:
         type: list
         required: false
         default: []
@@ -101,17 +101,17 @@ argument_specs:
             type: str
             required: true
             description: URL of the repository.
-      common_install_uv:
+      system_installUv:
         type: bool
         required: false
         default: true
         description: Install uv Python package manager (required by glances and other Python roles).
-      common_uv_install_script_checksum:
+      system_uvInstallScriptChecksum:
         type: str
         required: false
         default: "10fb1f54d56f3eb60622006797339d4ea0bfda9b358d07db635f73cf89f7094c"
         description: SHA256 checksum for uv install script verification.
-      common_helm_install_script_checksum:
+      system_helmInstallScriptChecksum:
         type: str
         required: false
         default: "38b65f882d9cae3891755bdb03becc6a01ae6f9cb24826c191f219ddfee70a5d"

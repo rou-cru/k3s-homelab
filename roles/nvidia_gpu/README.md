@@ -25,7 +25,7 @@ Supports host setup, cluster setup, and headless X11 configurations.
 **Options**:
 
 
-  - **nvidia_gpu_setup**
+  - **nvidia_setup**
     - **Required**: False
     - **Type**: str
     - **Default**: auto
@@ -44,7 +44,7 @@ Supports host setup, cluster setup, and headless X11 configurations.
   
   
 
-  - **nvidia_gpu_driver_package**
+  - **nvidia_driverPackage**
     - **Required**: False
     - **Type**: str
     - **Default**: auto
@@ -54,7 +54,7 @@ Supports host setup, cluster setup, and headless X11 configurations.
   
   
 
-  - **nvidia_gpu_driver_fallback**
+  - **nvidia_driverFallback**
     - **Required**: False
     - **Type**: str
     - **Default**: nvidia-driver-535
@@ -64,7 +64,7 @@ Supports host setup, cluster setup, and headless X11 configurations.
   
   
 
-  - **nvidia_gpu_toolkit_repo_url**
+  - **nvidia_toolkitRepoUrl**
     - **Required**: False
     - **Type**: str
     - **Default**: https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list
@@ -74,7 +74,7 @@ Supports host setup, cluster setup, and headless X11 configurations.
   
   
 
-  - **nvidia_gpu_toolkit_gpg_url**
+  - **nvidia_toolkitGpgUrl**
     - **Required**: False
     - **Type**: str
     - **Default**: https://nvidia.github.io/libnvidia-container/gpgkey
@@ -84,7 +84,7 @@ Supports host setup, cluster setup, and headless X11 configurations.
   
   
 
-  - **nvidia_gpu_device_plugin_version**
+  - **nvidia_devicePluginVersion**
     - **Required**: False
     - **Type**: str
     - **Default**: none
@@ -94,7 +94,7 @@ Supports host setup, cluster setup, and headless X11 configurations.
   
   
 
-  - **nvidia_gpu_device_plugin_repo**
+  - **nvidia_devicePluginRepo**
     - **Required**: False
     - **Type**: str
     - **Default**: https://nvidia.github.io/k8s-device-plugin
@@ -104,7 +104,7 @@ Supports host setup, cluster setup, and headless X11 configurations.
   
   
 
-  - **nvidia_gpu_reboot_timeout**
+  - **nvidia_rebootTimeout**
     - **Required**: False
     - **Type**: int
     - **Default**: 600
@@ -114,7 +114,7 @@ Supports host setup, cluster setup, and headless X11 configurations.
   
   
 
-  - **nvidia_gpu_headless_x11_enabled**
+  - **nvidia_headlessX11Enabled**
     - **Required**: False
     - **Type**: bool
     - **Default**: True
@@ -124,7 +124,7 @@ Supports host setup, cluster setup, and headless X11 configurations.
   
   
 
-  - **nvidia_gpu_pci_bus_id**
+  - **nvidia_pciBusId**
     - **Required**: False
     - **Type**: str
     - **Default**: 1:0:0
@@ -134,7 +134,7 @@ Supports host setup, cluster setup, and headless X11 configurations.
   
   
 
-  - **nvidia_gpu_coolbits**
+  - **nvidia_coolbits**
     - **Required**: False
     - **Type**: str
     - **Default**: 28
@@ -271,14 +271,14 @@ classDef importRole stroke:#699ba7,stroke-width:2px;
 classDef includeVars stroke:#8e44ad,stroke-width:2px;
 classDef rescue stroke:#665352,stroke-width:2px;
 
-  Start-->|Task| Install_X11_deps0[install x11 deps<br>When: **nvidia gpu active   default false    bool**]:::task
-  Install_X11_deps0-->|Task| Configure_xorg1[configure xorg<br>When: **nvidia gpu active   default false    bool**]:::task
-  Configure_xorg1-->|Task| Deploy_persistence_svc2[deploy persistence svc<br>When: **nvidia gpu active   default false    bool**]:::task
-  Deploy_persistence_svc2-->|Task| Deploy_Xorg_svc3[deploy xorg svc<br>When: **nvidia gpu active   default false    bool**]:::task
-  Deploy_Xorg_svc3-->|Task| Reload_systemd__nvidia_4[reload systemd  nvidia <br>When: **nvidia gpu active   default false    bool and<br>nvidia gpu persistence service changed or nvidia<br>gpu xorg service changed**]:::task
-  Reload_systemd__nvidia_4-->|Task| Start_persistence_svc5[start persistence svc<br>When: **nvidia gpu active   default false    bool**]:::task
-  Start_persistence_svc5-->|Task| Start_Xorg_svc6[start xorg svc<br>When: **nvidia gpu active   default false    bool and<br>nvidia gpu headless x11 enabled   default true   <br>bool**]:::task
-  Start_Xorg_svc6-->|Task| Wait_for_X_server7[wait for x server<br>When: **nvidia gpu active   default false    bool and<br>nvidia gpu headless x11 enabled   default true   <br>bool**]:::task
+  Start-->|Task| Install_X11_deps0[install x11 deps<br>When: **nvidia active   default false    bool**]:::task
+  Install_X11_deps0-->|Task| Configure_xorg1[configure xorg<br>When: **nvidia active   default false    bool**]:::task
+  Configure_xorg1-->|Task| Deploy_persistence_svc2[deploy persistence svc<br>When: **nvidia active   default false    bool**]:::task
+  Deploy_persistence_svc2-->|Task| Deploy_Xorg_svc3[deploy xorg svc<br>When: **nvidia active   default false    bool**]:::task
+  Deploy_Xorg_svc3-->|Task| Reload_systemd__nvidia_4[reload systemd  nvidia <br>When: **nvidia active   default false    bool and nvidia<br>persistenceservice changed or nvidia xorgservice<br>changed**]:::task
+  Reload_systemd__nvidia_4-->|Task| Start_persistence_svc5[start persistence svc<br>When: **nvidia active   default false    bool**]:::task
+  Start_persistence_svc5-->|Task| Start_Xorg_svc6[start xorg svc<br>When: **nvidia active   default false    bool and nvidia<br>headlessx11enabled   default true    bool**]:::task
+  Start_Xorg_svc6-->|Task| Wait_for_X_server7[wait for x server<br>When: **nvidia active   default false    bool and nvidia<br>headlessx11enabled   default true    bool**]:::task
   Wait_for_X_server7-->End
 ```
 
@@ -301,28 +301,28 @@ classDef rescue stroke:#665352,stroke-width:2px;
   Install_pciutils0-->|Task| Normalize_setup_mode1[normalize setup mode]:::task
   Normalize_setup_mode1-->|Task| Get_PCI_vendors2[get pci vendors]:::task
   Get_PCI_vendors2-->|Task| Detect_GPU3[detect gpu]:::task
-  Detect_GPU3-->|Task| Set_GPU_active__auto_4[set gpu active  auto <br>When: **nvidia gpu setup mode     auto**]:::task
-  Set_GPU_active__auto_4-->|Task| Set_GPU_active__forced_5[set gpu active  forced <br>When: **nvidia gpu setup mode     true**]:::task
-  Set_GPU_active__forced_5-->|Task| Fail_if_GPU_missing6[fail if gpu missing<br>When: **nvidia gpu setup mode     true  and not  nvidia<br>gpu present   default false**]:::task
-  Fail_if_GPU_missing6-->|Task| Set_GPU_active__disabled_7[set gpu active  disabled <br>When: **nvidia gpu setup mode     false**]:::task
+  Detect_GPU3-->|Task| Set_GPU_active__auto_4[set gpu active  auto <br>When: **nvidia setupmode     auto**]:::task
+  Set_GPU_active__auto_4-->|Task| Set_GPU_active__forced_5[set gpu active  forced <br>When: **nvidia setupmode     true**]:::task
+  Set_GPU_active__forced_5-->|Task| Fail_if_GPU_missing6[fail if gpu missing<br>When: **nvidia setupmode     true  and not  nvidia present<br>  default false**]:::task
+  Fail_if_GPU_missing6-->|Task| Set_GPU_active__disabled_7[set gpu active  disabled <br>When: **nvidia setupmode     false**]:::task
   Set_GPU_active__disabled_7-->|Task| Debug_NVIDIA_facts8[debug nvidia facts]:::task
-  Debug_NVIDIA_facts8-->|Task| Install_driver_deps9[install driver deps<br>When: **nvidia gpu active   default false    bool**]:::task
-  Install_driver_deps9-->|Task| Detect_driver10[detect driver<br>When: **nvidia gpu active   default false    bool and<br>nvidia gpu driver package     auto**]:::task
-  Detect_driver10-->|Task| Set_driver_version11[set driver version<br>When: **nvidia gpu active   default false    bool and<br>nvidia gpu driver package     auto  and nvidia gpu<br>detected driver stdout   length   0**]:::task
-  Set_driver_version11-->|Task| Set_driver_fallback12[set driver fallback<br>When: **nvidia gpu driver package     auto  and  nvidia<br>gpu detected driver skipped is defined and nvidia<br>gpu detected driver skipped  or  nvidia gpu<br>detected driver stdout   length    0  and nvidia<br>gpu active   default false    bool**]:::task
-  Set_driver_fallback12-->|Task| Set_manual_driver13[set manual driver<br>When: **nvidia gpu active   default false    bool and<br>nvidia gpu driver package     auto**]:::task
-  Set_manual_driver13-->|Task| Blacklist_nouveau14[blacklist nouveau<br>When: **nvidia gpu active   default false    bool**]:::task
-  Blacklist_nouveau14-->|Task| Update_initramfs15[update initramfs<br>When: **nvidia gpu blacklist nouveau changed and not<br>ansible check mode**]:::task
-  Update_initramfs15-->|Task| Set_utils_package16[set utils package<br>When: **nvidia gpu active   default false    bool**]:::task
-  Set_utils_package16-->|Task| Check_broken_packages17[check broken packages<br>When: **nvidia gpu active   default false    bool**]:::task
-  Check_broken_packages17-->|Task| Fix_broken_packages18[fix broken packages<br>When: **nvidia gpu active   default false    bool and<br>nvidia gpu broken check stdout   int   0 and not<br>ansible check mode**]:::task
-  Fix_broken_packages18-->|Task| Install_NVIDIA_driver19[install nvidia driver<br>When: **nvidia gpu active   default false    bool**]:::task
-  Install_NVIDIA_driver19-->|Task| Reboot_system__nvidia_20[reboot system  nvidia <br>When: **nvidia gpu active   default false    bool and<br>nvidia gpu driver install changed or nvidia gpu<br>blacklist nouveau changed and not ansible check<br>mode**]:::task
-  Reboot_system__nvidia_20-->|Task| Ensure_APT_keyrings_dir21[ensure apt keyrings dir<br>When: **nvidia gpu active   default false    bool**]:::task
-  Ensure_APT_keyrings_dir21-->|Task| Write_toolkit_repo22[write toolkit repo<br>When: **nvidia gpu active   default false    bool**]:::task
-  Write_toolkit_repo22-->|Task| Install_toolkit23[install toolkit<br>When: **nvidia gpu active   default false    bool**]:::task
-  Install_toolkit23-->|Task| Register_NVIDIA_as_an_available_runtime24[register nvidia as an available runtime<br>When: **nvidia gpu active   default false    bool**]:::task
-  Register_NVIDIA_as_an_available_runtime24-->|Import task| Import_headless_optimization_headless_optimization_yml_25[/import headless optimization<br>When: **nvidia gpu active   default false    bool and<br>nvidia gpu headless x11 enabled   default true   <br>bool**<br>import_task: headless optimization yml/]:::importTasks
+  Debug_NVIDIA_facts8-->|Task| Install_driver_deps9[install driver deps<br>When: **nvidia active   default false    bool**]:::task
+  Install_driver_deps9-->|Task| Detect_driver10[detect driver<br>When: **nvidia active   default false    bool and nvidia<br>driverpackage     auto**]:::task
+  Detect_driver10-->|Task| Set_driver_version11[set driver version<br>When: **nvidia active   default false    bool and nvidia<br>driverpackage     auto  and nvidia detecteddriver<br>stdout   length   0**]:::task
+  Set_driver_version11-->|Task| Set_driver_fallback12[set driver fallback<br>When: **nvidia driverpackage     auto  and  nvidia<br>detecteddriver skipped is defined and nvidia<br>detecteddriver skipped  or  nvidia detecteddriver<br>stdout   length    0  and nvidia active   default<br>false    bool**]:::task
+  Set_driver_fallback12-->|Task| Set_manual_driver13[set manual driver<br>When: **nvidia active   default false    bool and nvidia<br>driverpackage     auto**]:::task
+  Set_manual_driver13-->|Task| Blacklist_nouveau14[blacklist nouveau<br>When: **nvidia active   default false    bool**]:::task
+  Blacklist_nouveau14-->|Task| Update_initramfs15[update initramfs<br>When: **nvidia blacklistnouveau changed and not ansible<br>check mode**]:::task
+  Update_initramfs15-->|Task| Set_utils_package16[set utils package<br>When: **nvidia active   default false    bool**]:::task
+  Set_utils_package16-->|Task| Check_broken_packages17[check broken packages<br>When: **nvidia active   default false    bool**]:::task
+  Check_broken_packages17-->|Task| Fix_broken_packages18[fix broken packages<br>When: **nvidia active   default false    bool and nvidia<br>brokencheck stdout   int   0 and not ansible check<br>mode**]:::task
+  Fix_broken_packages18-->|Task| Install_NVIDIA_driver19[install nvidia driver<br>When: **nvidia active   default false    bool**]:::task
+  Install_NVIDIA_driver19-->|Task| Reboot_system__nvidia_20[reboot system  nvidia <br>When: **nvidia active   default false    bool and nvidia<br>driverinstall changed or nvidia blacklistnouveau<br>changed and not ansible check mode**]:::task
+  Reboot_system__nvidia_20-->|Task| Ensure_APT_keyrings_dir21[ensure apt keyrings dir<br>When: **nvidia active   default false    bool**]:::task
+  Ensure_APT_keyrings_dir21-->|Task| Write_toolkit_repo22[write toolkit repo<br>When: **nvidia active   default false    bool**]:::task
+  Write_toolkit_repo22-->|Task| Install_toolkit23[install toolkit<br>When: **nvidia active   default false    bool**]:::task
+  Install_toolkit23-->|Task| Register_NVIDIA_as_an_available_runtime24[register nvidia as an available runtime<br>When: **nvidia active   default false    bool**]:::task
+  Register_NVIDIA_as_an_available_runtime24-->|Import task| Import_headless_optimization_headless_optimization_yml_25[/import headless optimization<br>When: **nvidia active   default false    bool and nvidia<br>headlessx11enabled   default true    bool**<br>import_task: headless optimization yml/]:::importTasks
   Import_headless_optimization_headless_optimization_yml_25-->End
 ```
 

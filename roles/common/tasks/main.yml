@@ -35,12 +35,12 @@
   ansible.builtin.apt:
     name: network-manager
     state: present
-  when: common_install_network_manager | bool
+  when: system_installNetworkManager | bool
 - name: Install ACPI daemon
   ansible.builtin.apt:
     name: acpid
     state: present
-  when: common_install_acpid | bool
+  when: system_installAcpid | bool
 # Install additional system dependencies
 - name: Install dependencies
   ansible.builtin.include_tasks: dependencies.yml
@@ -51,7 +51,7 @@
     state: present
   when:
     - hwe_kernel_package is defined
-    - common_install_hwe_kernel | bool
+    - system_installHweKernel | bool
   register: common_hwe_kernel_install
   failed_when: false
 # Fallback to generic kernel if HWE installation fails or unavailable
@@ -91,19 +91,19 @@
     state: directory
     mode: '0755'
   become: false
-  when: common_install_cloud_binaries | bool
+  when: system_installCloudBinaries | bool
 
 - name: Add Helm Repositories
   kubernetes.core.helm_repository:
     name: "{{ item.name }}"
     repo_url: "{{ item.repo_url }}"
-  loop: "{{ common_helm_repositories }}"
+  loop: "{{ system_helmRepositories }}"
   become: false
-  when: common_install_cloud_binaries | bool
+  when: system_installCloudBinaries | bool
 
 # Install kubernetes.core Ansible collection Python dependencies
 - name: Install K8s Ansible deps
   ansible.builtin.include_tasks: k8s_ansible_deps.yml
   when:
-    - common_install_k8s_ansible_deps | bool
-    - common_install_cloud_binaries | bool
+    - system_installK8sAnsibleDeps | bool
+    - system_installCloudBinaries | bool

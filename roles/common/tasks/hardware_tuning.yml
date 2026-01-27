@@ -13,7 +13,7 @@
     name:
       - alsa-utils
     state: present
-  when: common_audio_optimization_enabled | bool
+  when: hardware_audioOptimizationEnabled | default(false) | bool
 
 # Enable IRQ balancing service for better CPU utilization across cores
 - name: Start irqbalance
@@ -31,7 +31,7 @@
     - wifi
     - bluetooth
   when:
-    - common_radio_block_enabled | bool
+    - hardware_radioBlockEnabled | default(false) | bool
     - ansible_facts['virtualization_role'] != 'guest'
     - not ansible_check_mode
   changed_when: false
@@ -46,7 +46,7 @@
   loop:
     - {type: "-", item: "memlock", value: "unlimited"}
     - {type: "-", item: "rtprio", value: "95"}
-  when: common_audio_optimization_enabled | bool
+  when: hardware_audioOptimizationEnabled | default(false) | bool
 # Enable automatic SSD trimming for optimal storage performance and longevity
 - name: Enable fstrim
   ansible.builtin.systemd:
@@ -62,7 +62,7 @@
     dest: /usr/local/bin/apply-rog-tweaks.sh
     mode: "0755"
   when:
-    - common_rog_server | bool
+    - hardware_rogServer | default(false) | bool
     - ansible_facts['virtualization_role'] | default('guest') != 'guest'
 
 - name: Deploy systemd service for RoG Tweaks
@@ -71,7 +71,7 @@
     dest: /etc/systemd/system/rog-server-tweaks.service
     mode: "0640"
   when:
-    - common_rog_server | bool
+    - hardware_rogServer | default(false) | bool
     - ansible_facts['virtualization_role'] | default('guest') != 'guest'
 
 - name: Enable and start RoG Tweaks service
@@ -82,5 +82,5 @@
     daemon_reload: true
   ignore_errors: "{{ ansible_check_mode }}"
   when:
-    - common_rog_server | bool
+    - hardware_rogServer | default(false) | bool
     - ansible_facts['virtualization_role'] | default('guest') != 'guest'

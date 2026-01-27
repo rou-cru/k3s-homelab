@@ -40,7 +40,7 @@
         update_repo_cache: true
         values_files:
           - "{{ nvidia_device_plugin_values_tmp.path }}"
-        chart_version: "{{ nvidia_gpu_device_plugin_version }}"
+        chart_version: "{{ nvidia_devicePluginVersion }}"
         kubeconfig: "{{ k8s_kubeconfig }}"
       when: helm_binary_check.rc == 0
 

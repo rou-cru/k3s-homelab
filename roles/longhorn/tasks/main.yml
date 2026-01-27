@@ -42,28 +42,28 @@
   kubernetes.core.helm:
     name: longhorn
     chart_ref: longhorn/longhorn
-    chart_version: "{{ longhorn_chart_version }}"
+    chart_version: "{{ longhorn_chartVersion }}"
     release_namespace: longhorn-system
     create_namespace: false
     values:
       persistence:
-        defaultClass: "{{ longhorn_default_class }}"
-        defaultClassReplicaCount: "{{ longhorn_default_replica_count }}"
-        defaultDataLocality: "{{ longhorn_data_locality }}"
+        defaultClass: "{{ longhorn_defaultClass }}"
+        defaultClassReplicaCount: "{{ longhorn_defaultReplicaCount }}"
+        defaultDataLocality: "{{ longhorn_dataLocality }}"
       defaultSettings:
-        storageOverProvisioningPercentage: "{{ longhorn_storage_over_provisioning }}"
-        storageMinimalAvailablePercentage: "{{ longhorn_storage_minimal_available }}"
-        defaultReplicaCount: "{{ longhorn_default_replica_count }}"
-        defaultDataLocality: "{{ longhorn_data_locality }}"
-        backupTarget: "{{ longhorn_backup_target }}"
-        backupTargetCredentialSecret: "{{ longhorn_backup_credential_secret }}"
-        guaranteedEngineManagerCPU: "{{ longhorn_guaranteed_engine_manager_cpu }}"
-        guaranteedReplicaManagerCPU: "{{ longhorn_guaranteed_replica_manager_cpu }}"
-        priorityClass: "{{ longhorn_priority_class }}"
+        storageOverProvisioningPercentage: "{{ longhorn_storageOverProvisioning }}"
+        storageMinimalAvailablePercentage: "{{ longhorn_storageMinimalAvailable }}"
+        defaultReplicaCount: "{{ longhorn_defaultReplicaCount }}"
+        defaultDataLocality: "{{ longhorn_dataLocality }}"
+        backupTarget: "{{ longhorn_backupTarget }}"
+        backupTargetCredentialSecret: "{{ longhorn_backupCredentialSecret }}"
+        guaranteedEngineManagerCPU: "{{ longhorn_guaranteedEngineManagerCpu }}"
+        guaranteedReplicaManagerCPU: "{{ longhorn_guaranteedReplicaManagerCpu }}"
+        priorityClass: "{{ longhorn_priorityClass }}"
       longhornManager:
-        priorityClass: "{{ longhorn_priority_class }}"
+        priorityClass: "{{ longhorn_priorityClass }}"
       longhornDriver:
-        priorityClass: "{{ longhorn_priority_class }}"
+        priorityClass: "{{ longhorn_priorityClass }}"
   become: false
 
 # Wait for Longhorn to be ready
@@ -89,14 +89,14 @@
       ====================================
       Longhorn Storage Deployed
       ====================================
-      Default Class: {{ longhorn_default_class }}
-      Replica Count: {{ longhorn_default_replica_count }}
-      Data Locality: {{ longhorn_data_locality }}
+      Default Class: {{ longhorn_defaultClass }}
+      Replica Count: {{ longhorn_defaultReplicaCount }}
+      Data Locality: {{ longhorn_dataLocality }}
 
       Access Longhorn UI:
         kubectl port-forward -n longhorn-system svc/longhorn-frontend 8080:80
 
       Notes:
         - VPS replica support pending latency validation
-        - Backup target: {{ longhorn_backup_target | default('Not configured') }}
+        - Backup target: {{ longhorn_backupTarget | default('Not configured') }}
       ====================================

@@ -4,7 +4,7 @@
     url: https://tailscale.com/install.sh
     dest: /tmp/tailscale-install.sh
     mode: "0755"
-    checksum: "sha256:{{ tailscale_install_script_checksum }}"
+    checksum: "sha256:{{ tailscale_installScriptChecksum }}"
     timeout: 60
   when: not ansible_check_mode
 # Execute Tailscale installation script if not already installed
@@ -49,10 +49,10 @@
       --authkey="${TSKEY}" \
       --hostname="{{ inventory_hostname }}" \
       {% if tailscale_tags | length > 0 %}--advertise-tags="{{ tailscale_tags }}" {% endif %}
-      --accept-dns="{{ tailscale_accept_dns }}" \
+      --accept-dns="{{ tailscale_acceptDns }}" \
       {% if tailscale_ssh | bool %}--ssh {% endif %}
-      {% if tailscale_exit_node_enabled | bool %}--advertise-exit-node {% endif %}
-      {% if tailscale_advertise_routes | length > 0 %}--advertise-routes="{{ tailscale_advertise_routes }}" {% endif %}
+      {% if tailscale_exitNodeEnabled | bool %}--advertise-exit-node {% endif %}
+      {% if tailscale_advertiseRoutes | length > 0 %}--advertise-routes="{{ tailscale_advertiseRoutes }}" {% endif %}
   environment:
     TSKEY: "{{ tailscale_authkey }}"
   register: tailscale_up
@@ -68,7 +68,7 @@
 - name: Enable exit node advertisement
   ansible.builtin.command: tailscale set --advertise-exit-node
   when:
-    - tailscale_exit_node_enabled | bool
+    - tailscale_exitNodeEnabled | bool
     - tailscale_is_running | bool
     - not ansible_check_mode
   register: tailscale_exit_node_set
@@ -77,9 +77,9 @@
 # Advertise routes if specified (idempotent even when already running)
 # Updates subnet routes without requiring reconnect
 - name: Advertise routes
-  ansible.builtin.command: tailscale set --advertise-routes="{{ tailscale_advertise_routes }}"
+  ansible.builtin.command: tailscale set --advertise-routes="{{ tailscale_advertiseRoutes }}"
   when:
-    - tailscale_advertise_routes | length > 0
+    - tailscale_advertiseRoutes | length > 0
     - tailscale_is_running | bool
     - not ansible_check_mode
   register: tailscale_routes_set
@@ -129,4 +129,4 @@
       ⚠️  Exit node advertised for {{ inventory_hostname }}
       Manual step required: Approve exit node in Tailscale admin console
       https://login.tailscale.com/admin/machines
-  when: tailscale_exit_node_enabled | bool
+  when: tailscale_exitNodeEnabled | bool

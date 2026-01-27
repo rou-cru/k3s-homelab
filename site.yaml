@@ -26,7 +26,7 @@
     # @docsible Normalize NVIDIA setup mode
     - name: Normalize NVIDIA GPU setup mode
       ansible.builtin.set_fact:
-        nvidia_gpu_setup_mode: "{{ nvidia_gpu_setup | default('auto') | string | lower }}"
+        nvidia_setupMode: "{{ nvidia_setup | default('auto') | string | lower }}"
       tags: ["nvidia"]
     # @docsible Validate Tailscale AuthKey
     - name: Validate Tailscale AuthKey presence
@@ -61,7 +61,7 @@
       ansible.builtin.import_role:
         name: common
         tasks_from: network_optimization.yml
-      when: common_network_optimization_enabled | default(true)
+      when: system_networkOptimize | default(true)
       tags: ["host", "os", "network"]
     # @docsible Install kubectl, helm, and other development tools
     - name: Run developer tools role
@@ -82,7 +82,7 @@
         name: nvidia_gpu
         tasks_from: host.yml
       tags: ["host", "nvidia"]
-      when: nvidia_gpu_setup_mode != 'false'
+      when: nvidia_setupMode != 'false'
     # @docsible Ensure all host-level changes are applied before cluster setup
     - name: Flush host handlers before cluster init
       ansible.builtin.meta: flush_handlers
@@ -123,7 +123,7 @@
         tasks_from: cluster.yml
       tags: ["cluster", "nvidia"]
       when:
-        - nvidia_gpu_active | default(false) | bool
+        - nvidia_active | default(false) | bool
         - not ansible_check_mode
       become: false
     # @docsible Deploy Cert Manager
@@ -170,8 +170,8 @@
           {{
             []
             + (['miner.network=true'] if (miner_label_network | default(true) | bool) else [])
-            + (['miner.cpu=true'] if (miner_label_cpu | default(true) | bool) else [])
-            + (['miner.gpu=true'] if (miner_label_gpu | default(true) | bool) else [])
+            + (['miner.cpu=true'] if (mining_cpuEnabled | default(false) | bool) else [])
+            + (['miner.gpu=true'] if (mining_gpuEnabled | default(false) | bool) else [])
           }}
       tags: ["cluster", "apps", "miners"]
     # @docsible Label control plane for mining
@@ -208,7 +208,7 @@
     # @docsible Clean remote manifests directory
     - name: Clean remote manifests directory
       ansible.builtin.file:
-        path: "{{ k8s_manifests_dir }}"
+        path: "{{ k8s_manifestsDir }}"
         state: absent
       become: false
       tags: ["apps"]
@@ -217,7 +217,7 @@
     - name: Copy Kustomize bases to remote
       ansible.builtin.copy:
         src: k8s/
-        dest: "{{ k8s_manifests_dir }}/"
+        dest: "{{ k8s_manifestsDir }}/"
         directory_mode: "0750"
         mode: "0640"
       become: false
@@ -226,7 +226,7 @@
     # @docsible Apply Kubernetes namespaces
     - name: Find namespace manifests on remote
       ansible.builtin.find:
-        paths: "{{ k8s_manifests_dir }}/bootstrap/namespaces"
+        paths: "{{ k8s_manifestsDir }}/bootstrap/namespaces"
         patterns: "*.yaml"
       register: k8s_namespace_manifests
       become: false
@@ -246,7 +246,7 @@
     # @docsible Generate Honeygain config
     - name: Generate Honeygain Config (Kustomize Bridge)
       ansible.builtin.copy:
-        dest: "{{ k8s_manifests_dir }}/apps/miners/honeygain/config.env"
+        dest: "{{ k8s_manifestsDir }}/apps/miners/honeygain/config.env"
         content: |
           HONEYGAIN_EMAIL={{ honeygain_email }}
           HONEYGAIN_DEVICE={{ honeygain_device | default('bandwidth-miner') }}
@@ -257,7 +257,7 @@
     # @docsible Generate Honeygain secrets
     - name: Generate Honeygain Secrets (Kustomize Bridge)
       ansible.builtin.copy:
-        dest: "{{ k8s_manifests_dir }}/apps/miners/honeygain/secret.env"
+        dest: "{{ k8s_manifestsDir }}/apps/miners/honeygain/secret.env"
         content: |
           HONEYGAIN_PASS={{ honeygain_pass }}
         mode: "0600"
@@ -267,7 +267,7 @@
 
     # @docsible Deploy Honeygain workload
     - name: Deploy Honeygain via Kustomize
-      ansible.builtin.command: kubectl apply -k {{ k8s_manifests_dir }}/apps/miners/honeygain/
+      ansible.builtin.command: kubectl apply -k {{ k8s_manifestsDir }}/apps/miners/honeygain/
       environment:
         KUBECONFIG: "{{ k8s_kubeconfig }}"
       register: honeygain_apply
@@ -279,7 +279,7 @@
     # @docsible Generate mining wallets secret
     - name: Generate Mining Wallets Secret (Kustomize Bridge)
       ansible.builtin.copy:
-        dest: "{{ k8s_manifests_dir }}/apps/miners/mining-secrets/wallets.env"
+        dest: "{{ k8s_manifestsDir }}/apps/miners/mining-secrets/wallets.env"
         content: |
           XEL_WALLET={{ wallet_cpu }}
         mode: "0600"
@@ -289,7 +289,7 @@
 
     # @docsible Deploy mining secrets
     - name: Deploy Mining Secrets via Kustomize
-      ansible.builtin.command: kubectl apply -k {{ k8s_manifests_dir }}/apps/miners/mining-secrets/
+      ansible.builtin.command: kubectl apply -k {{ k8s_manifestsDir }}/apps/miners/mining-secrets/
       environment:
         KUBECONFIG: "{{ k8s_kubeconfig }}"
       register: mining_secrets_apply
@@ -300,7 +300,7 @@
 
     # @docsible Deploy mining pools ConfigMap
     - name: Deploy Mining Pools ConfigMap via Kustomize
-      ansible.builtin.command: kubectl apply -k {{ k8s_manifests_dir }}/apps/miners/mining-pools/
+      ansible.builtin.command: kubectl apply -k {{ k8s_manifestsDir }}/apps/miners/mining-pools/
       environment:
         KUBECONFIG: "{{ k8s_kubeconfig }}"
       register: mining_pools_apply
@@ -311,7 +311,7 @@
 
     # @docsible Deploy CPU miner
     - name: Deploy Unmineable CPU TNN via Kustomize
-      ansible.builtin.command: kubectl apply -k {{ k8s_manifests_dir }}/apps/miners/cpu-miner/
+      ansible.builtin.command: kubectl apply -k {{ k8s_manifestsDir }}/apps/miners/cpu-miner/
       environment:
         KUBECONFIG: "{{ k8s_kubeconfig }}"
       register: unmineable_cpu_tnn_apply
@@ -322,14 +322,14 @@
 
     # @docsible Deploy GPU miner
     - name: Deploy Unmineable GPU Rigel via Kustomize
-      ansible.builtin.command: kubectl apply -k {{ k8s_manifests_dir }}/apps/miners/gpu-miner/
+      ansible.builtin.command: kubectl apply -k {{ k8s_manifestsDir }}/apps/miners/gpu-miner/
       environment:
         KUBECONFIG: "{{ k8s_kubeconfig }}"
       register: unmineable_gpu_rigel_apply
       changed_when: >-
         'configured' in unmineable_gpu_rigel_apply.stdout or 'created' in unmineable_gpu_rigel_apply.stdout
       when:
-        - nvidia_gpu_active | default(false) | bool
+        - nvidia_active | default(false) | bool
         - not ansible_check_mode
       become: false
       tags: ["apps", "miners", "gpu-miner"]

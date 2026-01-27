@@ -6,12 +6,12 @@ argument_specs:
       Kubernetes CLIs (kubectl, helm, k9s), Python tools (uv, pipx), and AI CLIs.
     author: rc
     options:
-      devtools_install_docker:
+      devtools_installDocker:
         type: bool
         required: false
         default: false
         description: Installs Docker CLI (not recommended for K3s nodes which use containerd).
-      devtools_install_vagrant:
+      devtools_installVagrant:
         type: bool
         required: false
         default: true

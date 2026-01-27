@@ -8,29 +8,29 @@ argument_specs:
       - Supports custom node labels and taints
     author: rc
     options:
-      k3s_agent_version:
+      k3s_agentVersion:
         type: str
         default: "v1.35.0+k3s1"
         description: K3s version to install (should match server version)
-      k3s_agent_server_url:
+      k3s_agentServerUrl:
         type: str
         required: true
         description: K3s server URL (use Tailscale IP)
-      k3s_agent_token:
+      k3s_agentToken:
         type: str
         required: false
         description: K3s server token for node authentication (set dynamically from server)
-      k3s_agent_node_labels:
+      k3s_agentNodeLabels:
         type: list
         elements: str
         default: []
         description: Labels to apply to this node
-      k3s_agent_node_taints:
+      k3s_agentNodeTaints:
         type: list
         elements: str
         default: []
         description: Taints to apply to this node
-      k3s_agent_recreate:
+      k3s_agentRecreate:
         type: bool
         default: false
         description: Uninstall and wipe previous K3s agent before deploying

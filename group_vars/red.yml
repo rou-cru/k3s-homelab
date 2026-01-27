@@ -1,0 +1,5 @@
+# group_vars/red.yml - Generic On-Premise Node
+# Inherits all defaults from group_vars/all.yml
+# No overrides needed for standard on-premise hardware
+---
+{}

@@ -35,7 +35,7 @@ settings like DNS acceptance and SSH access.
   
   
 
-  - **tailscale_hostname_prefix**
+  - **tailscale_hostnamePrefix**
     - **Required**: False
     - **Type**: str
     - **Default**: k3s
@@ -55,7 +55,7 @@ settings like DNS acceptance and SSH access.
   
   
 
-  - **tailscale_accept_dns**
+  - **tailscale_acceptDns**
     - **Required**: False
     - **Type**: str
     - **Default**: true
@@ -152,13 +152,13 @@ classDef rescue stroke:#665352,stroke-width:2px;
   Start_tailscaled2-->|Task| Check_status3[check status]:::task
   Check_status3-->|Task| Determine_state4[determine state]:::task
   Determine_state4-->|Task| Configure_Tailscale5[configure tailscale<br>When: **not tailscale is running   bool and not ansible<br>check mode**]:::task
-  Configure_Tailscale5-->|Task| Enable_exit_node_advertisement6[enable exit node advertisement<br>When: **tailscale exit node enabled   bool and tailscale<br>is running   bool and not ansible check mode**]:::task
-  Enable_exit_node_advertisement6-->|Task| Advertise_routes7[advertise routes<br>When: **tailscale advertise routes   length   0 and<br>tailscale is running   bool and not ansible check<br>mode**]:::task
+  Configure_Tailscale5-->|Task| Enable_exit_node_advertisement6[enable exit node advertisement<br>When: **tailscale exitnodeenabled   bool and tailscale is<br>running   bool and not ansible check mode**]:::task
+  Enable_exit_node_advertisement6-->|Task| Advertise_routes7[advertise routes<br>When: **tailscale advertiseroutes   length   0 and<br>tailscale is running   bool and not ansible check<br>mode**]:::task
   Advertise_routes7-->|Task| Wait_for_IP8[wait for ip<br>When: **tailscale status json rc    0 and not ansible<br>check mode**]:::task
   Wait_for_IP8-->|Task| Set_IP_fact9[set ip fact<br>When: **tailscale ip cmd is not skipped**]:::task
   Set_IP_fact9-->|Task| Validate_connectivity10[validate connectivity<br>When: **tailscale ip is defined and tailscale ip   length <br> 0**]:::task
   Validate_connectivity10-->|Task| Warn_connectivity11[warn connectivity<br>When: **tailscale connectivity check failed   default<br>false**]:::task
-  Warn_connectivity11-->|Task| Exit_node_approval_reminder12[exit node approval reminder<br>When: **tailscale exit node enabled   bool**]:::task
+  Warn_connectivity11-->|Task| Exit_node_approval_reminder12[exit node approval reminder<br>When: **tailscale exitnodeenabled   bool**]:::task
   Exit_node_approval_reminder12-->End
 ```
 

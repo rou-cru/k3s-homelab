@@ -5,12 +5,12 @@ argument_specs:
       Deploys Cilium CNI using Helm, managing values templating and rollout verification.
     author: rc
     options:
-      cilium_version:
+      cilium_chartVersion:
         type: str
         required: false
         default: "1.18.5"
         description: Version of the Cilium Helm chart to install.
-      cilium_chart_name:
+      cilium_chartName:
         type: str
         required: false
         default: "cilium"
@@ -20,17 +20,17 @@ argument_specs:
         required: false
         default: "kube-system"
         description: Kubernetes namespace where Cilium should be installed.
-      cilium_rollout_timeout:
+      cilium_rolloutTimeout:
         type: int
         required: false
         default: 300
         description: Timeout (seconds) for waiting for Cilium pods rollout.
-      cilium_wait_retries:
+      cilium_waitRetries:
         type: int
         required: false
         default: 60
         description: Number of retries when checking for DaemonSet creation.
-      cilium_wait_delay:
+      cilium_waitDelay:
         type: int
         required: false
         default: 5

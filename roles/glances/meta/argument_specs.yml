@@ -16,11 +16,11 @@ argument_specs:
         type: int
         default: 61208
         description: Port for Glances web interface.
-      glances_bind_address:
+      glances_bindAddress:
         type: str
         default: "127.0.0.1"
         description: Address to bind Glances web server.
-      glances_venv_path:
+      glances_venvPath:
         type: str
         default: "/opt/glances"
         description: Path for Python virtual environment.

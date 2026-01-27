@@ -22,11 +22,11 @@
     release_namespace: "{{ argocd_namespace }}"
     update_repo_cache: true
     create_namespace: true
-    chart_version: "{{ argocd_chart_version | default(omit, true) }}"
+    chart_version: "{{ argocd_chartVersion | default(omit, true) }}"
     kubeconfig: "{{ k8s_kubeconfig }}"
     values:
       crds:
-        install: "{{ argocd_install_crds }}"
+        install: "{{ argocd_installCrds }}"
         keep: true
 
       configs:
@@ -53,10 +53,10 @@
           level: warning
 
       dex:
-        enabled: "{{ argocd_dex_enabled }}"
+        enabled: "{{ argocd_dexEnabled }}"
 
       redis-ha:
-        enabled: "{{ argocd_ha_enabled }}"
+        enabled: "{{ argocd_haEnabled }}"
 
       controller:
         replicas: 1
@@ -71,7 +71,7 @@
         metrics:
           enabled: true
           serviceMonitor:
-            enabled: "{{ argocd_servicemonitor_enabled }}"
+            enabled: "{{ argocd_serviceMonitorEnabled }}"
 
       server:
         replicas: 1
@@ -86,7 +86,7 @@
         metrics:
           enabled: true
           serviceMonitor:
-            enabled: "{{ argocd_servicemonitor_enabled }}"
+            enabled: "{{ argocd_serviceMonitorEnabled }}"
 
       repoServer:
         replicas: 1
@@ -101,7 +101,7 @@
         metrics:
           enabled: true
           serviceMonitor:
-            enabled: "{{ argocd_servicemonitor_enabled }}"
+            enabled: "{{ argocd_serviceMonitorEnabled }}"
 
       applicationSet:
         enabled: true
@@ -117,7 +117,7 @@
         metrics:
           enabled: true
           serviceMonitor:
-            enabled: "{{ argocd_servicemonitor_enabled }}"
+            enabled: "{{ argocd_serviceMonitorEnabled }}"
 
       notifications:
         enabled: true
@@ -132,7 +132,7 @@
         metrics:
           enabled: true
           serviceMonitor:
-            enabled: "{{ argocd_servicemonitor_enabled }}"
+            enabled: "{{ argocd_serviceMonitorEnabled }}"
   become: false
   when:
     - helm_binary_check.rc == 0

@@ -25,7 +25,7 @@ RoG hardware tweaks, and network optimizations.
 **Options**:
 
 
-  - **common_rog_server**
+  - **hardware_rogServer**
     - **Required**: False
     - **Type**: bool
     - **Default**: False
@@ -35,7 +35,7 @@ RoG hardware tweaks, and network optimizations.
   
   
 
-  - **common_radio_block_enabled**
+  - **hardware_radioBlockEnabled**
     - **Required**: False
     - **Type**: bool
     - **Default**: False
@@ -45,7 +45,7 @@ RoG hardware tweaks, and network optimizations.
   
   
 
-  - **common_audio_optimization_enabled**
+  - **hardware_audioOptimizationEnabled**
     - **Required**: False
     - **Type**: bool
     - **Default**: False
@@ -55,7 +55,7 @@ RoG hardware tweaks, and network optimizations.
   
   
 
-  - **common_file_descriptors_soft**
+  - **system_fileDescriptorsSoft**
     - **Required**: False
     - **Type**: int
     - **Default**: 100000
@@ -65,7 +65,7 @@ RoG hardware tweaks, and network optimizations.
   
   
 
-  - **common_file_descriptors_hard**
+  - **system_fileDescriptorsHard**
     - **Required**: False
     - **Type**: int
     - **Default**: 100000
@@ -75,7 +75,7 @@ RoG hardware tweaks, and network optimizations.
   
   
 
-  - **common_fs_file_max**
+  - **system_fsFileMax**
     - **Required**: False
     - **Type**: int
     - **Default**: 2097152
@@ -85,7 +85,7 @@ RoG hardware tweaks, and network optimizations.
   
   
 
-  - **common_inotify_max_instances**
+  - **system_inotifyMaxInstances**
     - **Required**: False
     - **Type**: int
     - **Default**: 8192
@@ -95,7 +95,7 @@ RoG hardware tweaks, and network optimizations.
   
   
 
-  - **common_inotify_max_watches**
+  - **system_inotifyMaxWatches**
     - **Required**: False
     - **Type**: int
     - **Default**: 524288
@@ -105,7 +105,7 @@ RoG hardware tweaks, and network optimizations.
   
   
 
-  - **common_watchdog_timeout_sec**
+  - **system_watchdogTimeoutSec**
     - **Required**: False
     - **Type**: int
     - **Default**: 120
@@ -115,7 +115,7 @@ RoG hardware tweaks, and network optimizations.
   
   
 
-  - **common_battery_charge_threshold**
+  - **hardware_batteryChargeThreshold**
     - **Required**: False
     - **Type**: int
     - **Default**: 80
@@ -125,7 +125,7 @@ RoG hardware tweaks, and network optimizations.
   
   
 
-  - **common_thermal_policy**
+  - **hardware_thermalPolicy**
     - **Required**: False
     - **Type**: int
     - **Default**: 1
@@ -135,7 +135,7 @@ RoG hardware tweaks, and network optimizations.
   
   
 
-  - **common_mining_enabled**
+  - **mining_cpuEnabled**
     - **Required**: False
     - **Type**: bool
     - **Default**: False
@@ -145,7 +145,7 @@ RoG hardware tweaks, and network optimizations.
   
   
 
-  - **common_hugepages_count**
+  - **system_hugepagesCount**
     - **Required**: False
     - **Type**: int
     - **Default**: 1280
@@ -155,7 +155,7 @@ RoG hardware tweaks, and network optimizations.
   
   
 
-  - **common_power_efficiency_tuning_enabled**
+  - **hardware_powerEfficiencyTuningEnabled**
     - **Required**: False
     - **Type**: bool
     - **Default**: False
@@ -165,7 +165,7 @@ RoG hardware tweaks, and network optimizations.
   
   
 
-  - **common_intel_pstate_max_perf_pct**
+  - **hardware_intelPstateMaxPerfPct**
     - **Required**: False
     - **Type**: int
     - **Default**: 80
@@ -175,7 +175,7 @@ RoG hardware tweaks, and network optimizations.
   
   
 
-  - **common_intel_pstate_no_turbo**
+  - **hardware_intelPstateNoTurbo**
     - **Required**: False
     - **Type**: int
     - **Default**: 1
@@ -185,7 +185,7 @@ RoG hardware tweaks, and network optimizations.
   
   
 
-  - **common_helm_repositories**
+  - **system_helmRepositories**
     - **Required**: False
     - **Type**: list
     - **Default**: []
@@ -197,7 +197,7 @@ RoG hardware tweaks, and network optimizations.
     
   
 
-  - **common_install_uv**
+  - **system_installUv**
     - **Required**: False
     - **Type**: bool
     - **Default**: True
@@ -207,7 +207,7 @@ RoG hardware tweaks, and network optimizations.
   
   
 
-  - **common_uv_install_script_checksum**
+  - **system_uvInstallScriptChecksum**
     - **Required**: False
     - **Type**: str
     - **Default**: 10fb1f54d56f3eb60622006797339d4ea0bfda9b358d07db635f73cf89f7094c
@@ -217,7 +217,7 @@ RoG hardware tweaks, and network optimizations.
   
   
 
-  - **common_helm_install_script_checksum**
+  - **system_helmInstallScriptChecksum**
     - **Required**: False
     - **Type**: str
     - **Default**: 38b65f882d9cae3891755bdb03becc6a01ae6f9cb24826c191f219ddfee70a5d
@@ -376,31 +376,31 @@ classDef importRole stroke:#699ba7,stroke-width:2px;
 classDef includeVars stroke:#8e44ad,stroke-width:2px;
 classDef rescue stroke:#665352,stroke-width:2px;
 
-  Start-->|Block Start| Install_uv__Python_Tool_Manager_0_block_start_0[[install uv  python tool manager <br>When: **common install uv   bool and not ansible check<br>mode**]]:::block
+  Start-->|Block Start| Install_uv__Python_Tool_Manager_0_block_start_0[[install uv  python tool manager <br>When: **system installuv   bool and not ansible check mode**]]:::block
   Install_uv__Python_Tool_Manager_0_block_start_0-->|Task| Check_if_uv_is_installed0[check if uv is installed]:::task
   Check_if_uv_is_installed0-->|Task| Download_and_install_uv1[download and install uv<br>When: **not uv binary stat exists**]:::task
   Download_and_install_uv1-->|Task| Run_uv_installer2[run uv installer<br>When: **not uv binary stat exists**]:::task
   Run_uv_installer2-.->|End of Block| Install_uv__Python_Tool_Manager_0_block_start_0
-  Run_uv_installer2-->|Rescue Start| Install_uv__Python_Tool_Manager_0_rescue_start_0[install uv  python tool manager <br>When: **common install uv   bool and not ansible check<br>mode**]:::rescue
+  Run_uv_installer2-->|Rescue Start| Install_uv__Python_Tool_Manager_0_rescue_start_0[install uv  python tool manager <br>When: **system installuv   bool and not ansible check mode**]:::rescue
   Install_uv__Python_Tool_Manager_0_rescue_start_0-->|Task| Report_uv_installation_failure0[report uv installation failure]:::task
   Report_uv_installation_failure0-.->|End of Rescue Block| Install_uv__Python_Tool_Manager_0_block_start_0
-  Report_uv_installation_failure0-->|Block Start| Install_Kubectl__Official_Binary_1_block_start_0[[install kubectl  official binary <br>When: **common install cloud binaries   bool and not<br>ansible check mode**]]:::block
+  Report_uv_installation_failure0-->|Block Start| Install_Kubectl__Official_Binary_1_block_start_0[[install kubectl  official binary <br>When: **system installcloudbinaries   bool and not ansible<br>check mode**]]:::block
   Install_Kubectl__Official_Binary_1_block_start_0-->|Task| Get_latest_stable_kubectl_version0[get latest stable kubectl version]:::task
   Get_latest_stable_kubectl_version0-->|Task| Set_kubectl_version_fact1[set kubectl version fact]:::task
   Set_kubectl_version_fact1-->|Task| Get_kubectl_checksum2[get kubectl checksum]:::task
   Get_kubectl_checksum2-->|Task| Check_current_kubectl_version3[check current kubectl version]:::task
   Check_current_kubectl_version3-->|Task| Download_and_install_kubectl4[download and install kubectl<br>When: **kubectl current version failed or kubectl version<br>not in kubectl current version stdout**]:::task
   Download_and_install_kubectl4-.->|End of Block| Install_Kubectl__Official_Binary_1_block_start_0
-  Download_and_install_kubectl4-->|Rescue Start| Install_Kubectl__Official_Binary_1_rescue_start_0[install kubectl  official binary <br>When: **common install cloud binaries   bool and not<br>ansible check mode**]:::rescue
+  Download_and_install_kubectl4-->|Rescue Start| Install_Kubectl__Official_Binary_1_rescue_start_0[install kubectl  official binary <br>When: **system installcloudbinaries   bool and not ansible<br>check mode**]:::rescue
   Install_Kubectl__Official_Binary_1_rescue_start_0-->|Task| Report_kubectl_installation_failure0[report kubectl installation failure]:::task
   Report_kubectl_installation_failure0-.->|End of Rescue Block| Install_Kubectl__Official_Binary_1_block_start_0
-  Report_kubectl_installation_failure0-->|Block Start| Install_Helm__Official_Script_2_block_start_0[[install helm  official script <br>When: **common install cloud binaries   bool and not<br>ansible check mode**]]:::block
+  Report_kubectl_installation_failure0-->|Block Start| Install_Helm__Official_Script_2_block_start_0[[install helm  official script <br>When: **system installcloudbinaries   bool and not ansible<br>check mode**]]:::block
   Install_Helm__Official_Script_2_block_start_0-->|Task| Check_if_helm_is_installed0[check if helm is installed]:::task
   Check_if_helm_is_installed0-->|Task| Install_Helm1[install helm<br>When: **not helm binary stat exists**]:::task
   Install_Helm1-->|Task| Run_helm_installer2[run helm installer<br>When: **not helm binary stat exists**]:::task
   Run_helm_installer2-->|Task| Install_helm_diff_plugin3[install helm diff plugin<br>When: **not ansible check mode or helm binary stat exists**]:::task
   Install_helm_diff_plugin3-.->|End of Block| Install_Helm__Official_Script_2_block_start_0
-  Install_helm_diff_plugin3-->|Rescue Start| Install_Helm__Official_Script_2_rescue_start_0[install helm  official script <br>When: **common install cloud binaries   bool and not<br>ansible check mode**]:::rescue
+  Install_helm_diff_plugin3-->|Rescue Start| Install_Helm__Official_Script_2_rescue_start_0[install helm  official script <br>When: **system installcloudbinaries   bool and not ansible<br>check mode**]:::rescue
   Install_Helm__Official_Script_2_rescue_start_0-->|Task| Report_helm_installation_failure0[report helm installation failure]:::task
   Report_helm_installation_failure0-.->|End of Rescue Block| Install_Helm__Official_Script_2_block_start_0
   Report_helm_installation_failure0-->End
@@ -421,12 +421,12 @@ classDef importRole stroke:#699ba7,stroke-width:2px;
 classDef includeVars stroke:#8e44ad,stroke-width:2px;
 classDef rescue stroke:#665352,stroke-width:2px;
 
-  Start-->|Task| Download_GitHub_CLI_keyring0[download GitHub CLI keyring<br>When: **common install github cli repo   bool**]:::task
-  Download_GitHub_CLI_keyring0-->|Task| Verify_GitHub_CLI_keyring_fingerprint1[verify GitHub CLI keyring fingerprint<br>When: **common install github cli repo   bool and not<br>ansible check mode**]:::task
-  Verify_GitHub_CLI_keyring_fingerprint1-->|Task| Assert_GitHub_CLI_keyring_fingerprint2[assert GitHub CLI keyring fingerprint<br>When: **common install github cli repo   bool and not<br>ansible check mode and githubcli keyring<br>fingerprint is defined**]:::task
-  Assert_GitHub_CLI_keyring_fingerprint2-->|Task| Add_GitHub_CLI_repository3[add GitHub CLI repository<br>When: **common install github cli repo   bool**]:::task
-  Add_GitHub_CLI_repository3-->|Task| Install_debug_packages4[install debug packages<br>When: **common install debug packages   bool and common<br>debug packages   default       length   0**]:::task
-  Install_debug_packages4-->|Task| Install_dev_packages5[install dev packages<br>When: **common install dev packages   bool and common dev<br>packages   default       length   0**]:::task
+  Start-->|Task| Download_GitHub_CLI_keyring0[download GitHub CLI keyring<br>When: **system installgithubclirepo   bool**]:::task
+  Download_GitHub_CLI_keyring0-->|Task| Verify_GitHub_CLI_keyring_fingerprint1[verify GitHub CLI keyring fingerprint<br>When: **system installgithubclirepo   bool and not ansible<br>check mode**]:::task
+  Verify_GitHub_CLI_keyring_fingerprint1-->|Task| Assert_GitHub_CLI_keyring_fingerprint2[assert GitHub CLI keyring fingerprint<br>When: **system installgithubclirepo   bool and not ansible<br>check mode and githubcli keyring fingerprint is<br>defined**]:::task
+  Assert_GitHub_CLI_keyring_fingerprint2-->|Task| Add_GitHub_CLI_repository3[add GitHub CLI repository<br>When: **system installgithubclirepo   bool**]:::task
+  Add_GitHub_CLI_repository3-->|Task| Install_debug_packages4[install debug packages<br>When: **system installdebugpackages   bool and packages<br>debug   default       length   0**]:::task
+  Install_debug_packages4-->|Task| Install_dev_packages5[install dev packages<br>When: **system installdevpackages   bool and packages dev <br> default       length   0**]:::task
   Install_dev_packages5-->End
 ```
 
@@ -446,14 +446,14 @@ classDef includeVars stroke:#8e44ad,stroke-width:2px;
 classDef rescue stroke:#665352,stroke-width:2px;
 
   Start-->|Task| Install_tuning_tools0[install tuning tools<br>When: **ansible facts  virtualization role       guest**]:::task
-  Install_tuning_tools0-->|Task| Install_audio_tools1[install audio tools<br>When: **common audio optimization enabled   bool**]:::task
+  Install_tuning_tools0-->|Task| Install_audio_tools1[install audio tools<br>When: **hardware audiooptimizationenabled   default false <br>  bool**]:::task
   Install_audio_tools1-->|Task| Start_irqbalance2[start irqbalance<br>When: **ansible facts  virtualization role       guest**]:::task
-  Start_irqbalance2-->|Task| Block_wireless_radios3[block wireless radios<br>When: **common radio block enabled   bool and ansible<br>facts  virtualization role       guest  and not<br>ansible check mode**]:::task
-  Block_wireless_radios3-->|Task| Optimize_audio_limits4[optimize audio limits<br>When: **common audio optimization enabled   bool**]:::task
+  Start_irqbalance2-->|Task| Block_wireless_radios3[block wireless radios<br>When: **hardware radioblockenabled   default false    bool<br>and ansible facts  virtualization role       guest<br> and not ansible check mode**]:::task
+  Block_wireless_radios3-->|Task| Optimize_audio_limits4[optimize audio limits<br>When: **hardware audiooptimizationenabled   default false <br>  bool**]:::task
   Optimize_audio_limits4-->|Task| Enable_fstrim5[enable fstrim]:::task
-  Enable_fstrim5-->|Task| Deploy_RoG_Hardware_Tweaks_Script6[deploy rog hardware tweaks script<br>When: **common rog server   bool and ansible facts <br>virtualization role     default  guest       guest<br>**]:::task
-  Deploy_RoG_Hardware_Tweaks_Script6-->|Task| Deploy_systemd_service_for_RoG_Tweaks7[deploy systemd service for rog tweaks<br>When: **common rog server   bool and ansible facts <br>virtualization role     default  guest       guest<br>**]:::task
-  Deploy_systemd_service_for_RoG_Tweaks7-->|Task| Enable_and_start_RoG_Tweaks_service8[enable and start rog tweaks service<br>When: **common rog server   bool and ansible facts <br>virtualization role     default  guest       guest<br>**]:::task
+  Enable_fstrim5-->|Task| Deploy_RoG_Hardware_Tweaks_Script6[deploy rog hardware tweaks script<br>When: **hardware rogserver   default false    bool and<br>ansible facts  virtualization role     default <br>guest       guest**]:::task
+  Deploy_RoG_Hardware_Tweaks_Script6-->|Task| Deploy_systemd_service_for_RoG_Tweaks7[deploy systemd service for rog tweaks<br>When: **hardware rogserver   default false    bool and<br>ansible facts  virtualization role     default <br>guest       guest**]:::task
+  Deploy_systemd_service_for_RoG_Tweaks7-->|Task| Enable_and_start_RoG_Tweaks_service8[enable and start rog tweaks service<br>When: **hardware rogserver   default false    bool and<br>ansible facts  virtualization role     default <br>guest       guest**]:::task
   Enable_and_start_RoG_Tweaks_service8-->End
 ```
 
@@ -496,19 +496,19 @@ classDef rescue stroke:#665352,stroke-width:2px;
   Disable_swap__fstab_1-->|Task| Detect_Ubuntu_version2[detect ubuntu version]:::task
   Detect_Ubuntu_version2-->|Task| Define_kernel_package3[define kernel package<br>When: **ubuntu version is version  20 04         and<br>ubuntu version is version  24 04**]:::task
   Define_kernel_package3-->|Task| Install_system_base_tools4[install system base tools]:::task
-  Install_system_base_tools4-->|Task| Install_NetworkManager5[install networkmanager<br>When: **common install network manager   bool**]:::task
-  Install_NetworkManager5-->|Task| Install_ACPI_daemon6[install acpi daemon<br>When: **common install acpid   bool**]:::task
+  Install_system_base_tools4-->|Task| Install_NetworkManager5[install networkmanager<br>When: **system installnetworkmanager   bool**]:::task
+  Install_NetworkManager5-->|Task| Install_ACPI_daemon6[install acpi daemon<br>When: **system installacpid   bool**]:::task
   Install_ACPI_daemon6-->|Include task| Install_dependencies_dependencies_yml_7[install dependencies<br>include_task: dependencies yml]:::includeTasks
-  Install_dependencies_dependencies_yml_7-->|Task| Install_HWE_kernel8[install hwe kernel<br>When: **hwe kernel package is defined and common install<br>hwe kernel   bool**]:::task
+  Install_dependencies_dependencies_yml_7-->|Task| Install_HWE_kernel8[install hwe kernel<br>When: **hwe kernel package is defined and system<br>installhwekernel   bool**]:::task
   Install_HWE_kernel8-->|Task| Install_generic_kernel9[install generic kernel<br>When: **common hwe kernel install is skipped  or  common<br>hwe kernel install is failed  or  hwe kernel<br>package is not defined**]:::task
   Install_generic_kernel9-->|Task| Register_kernel_change10[register kernel change]:::task
   Register_kernel_change10-->|Include task| Configure_power_power_management_yml_11[configure power<br>include_task: power management yml]:::includeTasks
   Configure_power_power_management_yml_11-->|Include task| Apply_hardware_tuning_hardware_tuning_yml_12[apply hardware tuning<br>include_task: hardware tuning yml]:::includeTasks
   Apply_hardware_tuning_hardware_tuning_yml_12-->|Include task| System_Tuning_system_tuning_yml_13[system tuning<br>include_task: system tuning yml]:::includeTasks
   System_Tuning_system_tuning_yml_13-->|Include task| Install_Cloud_Native_Binaries_binaries_yml_14[install cloud native binaries<br>include_task: binaries yml]:::includeTasks
-  Install_Cloud_Native_Binaries_binaries_yml_14-->|Task| Ensure_Helm_config_directory_exists15[ensure helm config directory exists<br>When: **common install cloud binaries   bool**]:::task
-  Ensure_Helm_config_directory_exists15-->|Task| Add_Helm_Repositories16[add helm repositories<br>When: **common install cloud binaries   bool**]:::task
-  Add_Helm_Repositories16-->|Include task| Install_K8s_Ansible_deps_k8s_ansible_deps_yml_17[install k8s ansible deps<br>When: **common install k8s ansible deps   bool and common<br>install cloud binaries   bool**<br>include_task: k8s ansible deps yml]:::includeTasks
+  Install_Cloud_Native_Binaries_binaries_yml_14-->|Task| Ensure_Helm_config_directory_exists15[ensure helm config directory exists<br>When: **system installcloudbinaries   bool**]:::task
+  Ensure_Helm_config_directory_exists15-->|Task| Add_Helm_Repositories16[add helm repositories<br>When: **system installcloudbinaries   bool**]:::task
+  Add_Helm_Repositories16-->|Include task| Install_K8s_Ansible_deps_k8s_ansible_deps_yml_17[install k8s ansible deps<br>When: **system installk8sansibledeps   bool and system<br>installcloudbinaries   bool**<br>include_task: k8s ansible deps yml]:::includeTasks
   Install_K8s_Ansible_deps_k8s_ansible_deps_yml_17-->End
 ```
 
@@ -527,14 +527,14 @@ classDef importRole stroke:#699ba7,stroke-width:2px;
 classDef includeVars stroke:#8e44ad,stroke-width:2px;
 classDef rescue stroke:#665352,stroke-width:2px;
 
-  Start-->|Block Start| Realtek_optimizations0_block_start_0[[realtek optimizations<br>When: **common rog server   bool**]]:::block
+  Start-->|Block Start| Realtek_optimizations0_block_start_0[[realtek optimizations<br>When: **hardware rogserver   default false    bool**]]:::block
   Realtek_optimizations0_block_start_0-->|Task| Install_Realtek_driver0[install realtek driver]:::task
   Install_Realtek_driver0-->|Task| Blacklist_generic_driver1[blacklist generic driver]:::task
   Blacklist_generic_driver1-->|Task| Ensure_pcie_aspm_off_in_GRUB2[ensure pcie aspm off in grub]:::task
   Ensure_pcie_aspm_off_in_GRUB2-->|Task| Update_GRUB3[update grub<br>When: **common grub aspm changed and not ansible check<br>mode**]:::task
   Update_GRUB3-->|Task| Register_driver_change4[register driver change]:::task
   Register_driver_change4-.->|End of Block| Realtek_optimizations0_block_start_0
-  Register_driver_change4-->|Rescue Start| Realtek_optimizations0_rescue_start_0[realtek optimizations<br>When: **common rog server   bool**]:::rescue
+  Register_driver_change4-->|Rescue Start| Realtek_optimizations0_rescue_start_0[realtek optimizations<br>When: **hardware rogserver   default false    bool**]:::rescue
   Realtek_optimizations0_rescue_start_0-->|Task| Report_RoG_Realtek_optimization_failure0[report rog realtek optimization failure]:::task
   Report_RoG_Realtek_optimization_failure0-->|Task| Fail_RoG_Realtek_optimization1[fail rog realtek optimization]:::task
   Fail_RoG_Realtek_optimization1-.->|End of Rescue Block| Realtek_optimizations0_block_start_0
@@ -563,7 +563,7 @@ classDef rescue stroke:#665352,stroke-width:2px;
 
   Start-->|Task| Configure_logind_to_ignore_Lid_Switch0[configure logind to ignore lid switch<br>When: **ansible facts  virtualization role       guest**]:::task
   Configure_logind_to_ignore_Lid_Switch0-->|Task| Mask_sleep_and_suspend_targets_to_prevent_accidental_suspension1[mask sleep and suspend targets to prevent<br>accidental suspension<br>When: **ansible facts  virtualization role       guest**]:::task
-  Mask_sleep_and_suspend_targets_to_prevent_accidental_suspension1-->|Task| Configure_Power_Efficiency_Tuning__tmpfiles_d_2[configure power efficiency tuning  tmpfiles d <br>When: **common power efficiency tuning enabled   bool and<br>ansible facts  processor vendor   is defined and<br>ansible facts  processor vendor       genuineintel<br>**]:::task
+  Mask_sleep_and_suspend_targets_to_prevent_accidental_suspension1-->|Task| Configure_Power_Efficiency_Tuning__tmpfiles_d_2[configure power efficiency tuning  tmpfiles d <br>When: **hardware powerefficiencytuningenabled   bool and<br>ansible facts  processor vendor   is defined and<br>ansible facts  processor vendor       genuineintel<br>**]:::task
   Configure_Power_Efficiency_Tuning__tmpfiles_d_2-->End
 ```
 
@@ -591,9 +591,9 @@ classDef rescue stroke:#665352,stroke-width:2px;
   Increase_file_max5-->|Task| Increase_inotify_watches6[increase inotify watches]:::task
   Increase_inotify_watches6-->|Task| Increase_user_watches7[increase user watches]:::task
   Increase_user_watches7-->|Task| Enable_watchdog8[enable watchdog]:::task
-  Enable_watchdog8-->|Task| Configure_hugepages9[configure hugepages<br>When: **common mining enabled   default false**]:::task
-  Configure_hugepages9-->|Task| Load_MSR_module10[load msr module<br>When: **common mining enabled   default false**]:::task
-  Load_MSR_module10-->|Task| Configure_Nvidia_modules_load11[configure nvidia modules load<br>When: **common mining enabled   default false**]:::task
+  Enable_watchdog8-->|Task| Configure_hugepages9[configure hugepages<br>When: **mining cpuenabled   default false  or mining<br>gpuenabled   default false**]:::task
+  Configure_hugepages9-->|Task| Load_MSR_module10[load msr module<br>When: **mining cpuenabled   default false**]:::task
+  Load_MSR_module10-->|Task| Configure_Nvidia_modules_load11[configure nvidia modules load<br>When: **mining gpuenabled   default false**]:::task
   Configure_Nvidia_modules_load11-->End
 ```
 

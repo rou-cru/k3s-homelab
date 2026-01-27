@@ -9,7 +9,7 @@
         url: https://astral.sh/uv/install.sh
         dest: /tmp/uv-install.sh
         mode: "0755"
-        checksum: "sha256:{{ common_uv_install_script_checksum }}"
+        checksum: "sha256:{{ system_uvInstallScriptChecksum }}"
         timeout: 60
       when: not uv_binary.stat.exists
       changed_when: false
@@ -20,7 +20,7 @@
       when: not uv_binary.stat.exists
       changed_when: true
   when:
-    - common_install_uv | bool
+    - system_installUv | bool
     - not ansible_check_mode
   rescue:
     - name: Report uv installation failure
@@ -58,7 +58,7 @@
         group: root
       when: kubectl_current_version.failed or kubectl_version not in kubectl_current_version.stdout
   when:
-    - common_install_cloud_binaries | bool
+    - system_installCloudBinaries | bool
     - not ansible_check_mode
   rescue:
     - name: Report kubectl installation failure
@@ -75,7 +75,7 @@
         url: https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
         dest: /tmp/get-helm-3
         mode: "0755"
-        checksum: "sha256:{{ common_helm_install_script_checksum }}"
+        checksum: "sha256:{{ system_helmInstallScriptChecksum }}"
         timeout: 60
       environment:
         HELM_INSTALL_DIR: "/usr/local/bin"
@@ -96,7 +96,7 @@
         - "'plugin already exists' not in helm_diff_install.stderr"
       when: not ansible_check_mode or helm_binary.stat.exists
   when:
-    - common_install_cloud_binaries | bool
+    - system_installCloudBinaries | bool
     - not ansible_check_mode
   rescue:
     - name: Report helm installation failure

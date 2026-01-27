@@ -4,16 +4,14 @@
 # ------------------------------------------------------------------------------
 # DISABLE PHYSICAL HARDWARE FEATURES
 # ------------------------------------------------------------------------------
-common_install_hwe_kernel: false
-common_install_network_manager: false
-common_install_acpid: false
-common_install_cloud_binaries: false
-common_install_dev_packages: false
-common_install_github_cli_repo: false
+system_installHweKernel: false
+system_installNetworkManager: false
+system_installAcpid: false
+system_installCloudBinaries: false
+system_installDevPackages: false
+system_installGithubCliRepo: false
 
-# No GPU on VPS
-nvidia_gpu_setup: "false"
-
+# No GPU on VPS (Implicit as it is now only in k3s_server.yml)
 # No gVisor on VPS
 gvisor_install: false
 
@@ -24,25 +22,25 @@ devtools_enabled: false
 # VPS-SPECIFIC REQUIREMENTS
 # ------------------------------------------------------------------------------
 # Exit node for egress gateway
-tailscale_exit_node_enabled: true
+tailscale_exitNodeEnabled: true
 
 # ------------------------------------------------------------------------------
 # K3S AGENT CONFIGURATION (VPS is agent, not server)
 # ------------------------------------------------------------------------------
-k3s_agent_server_url: "https://k3s-master:6443"
+k3s_agentServerUrl: "https://k3s-master:6443"
 
-k3s_agent_kubelet_args:
+k3s_agentKubeletArgs:
   - "--system-reserved=cpu=200m,memory=512Mi"
   - "--kube-reserved=cpu=200m,memory=512Mi"
   - "--eviction-hard=memory.available<256Mi,nodefs.available<10%"
   - "--eviction-soft=memory.available<512Mi,nodefs.available<15%"
   - "--eviction-soft-grace-period=memory.available=1m30s,nodefs.available=2m"
 
-k3s_agent_node_labels:
+k3s_agentNodeLabels:
   - "node-role.kubernetes.io/edge=true"
   - "topology.kubernetes.io/zone=vps"
   - "node.kubernetes.io/instance-type=vps"
   - "egress-gateway=vps"
 
-k3s_agent_node_taints:
+k3s_agentNodeTaints:
   - "node-role.kubernetes.io/edge=true:NoSchedule"

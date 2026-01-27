@@ -15,10 +15,10 @@ disable-network-policy: true
 disable-kube-proxy: true
 
 # Components
-disable: {{ (['traefik'] if k3s_server_disable_traefik | bool else []) + (['servicelb'] if k3s_server_disable_servicelb | bool else []) }}
+disable: {{ (['traefik'] if k3s_serverDisableTraefik | bool else []) + (['servicelb'] if k3s_serverDisableServicelb | bool else []) }}
 
 # Security / Access
-write-kubeconfig-mode: "{{ k3s_server_kubeconfig_mode }}"
+write-kubeconfig-mode: "{{ k3s_serverKubeconfigMode }}"
 
 # Security - Hardening
 secrets-encryption: true

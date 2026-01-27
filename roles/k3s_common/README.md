@@ -28,17 +28,14 @@ Description: Common configurations for K3s nodes (server and agent)
 
 | Name | Module | Has Conditions | Comments |
 | ---- | ------ | -------------- | -------- |
-| [Check K3s uninstall script](tasks/main.yml#L2) | ansible.builtin.stat | False | Check uninstall scripts (handle both server and agent cases) |
-| [Check K3s agent uninstall script](tasks/main.yml#L7) | ansible.builtin.stat | False |  |
-| [Uninstall K3s (Server)](tasks/main.yml#L13) | ansible.builtin.command | True | Uninstall if recreate is requested |
-| [Uninstall K3s (Agent)](tasks/main.yml#L21) | ansible.builtin.command | True |  |
-| [Cleanup K3s directories](tasks/main.yml#L30) | ansible.builtin.file | True | Cleanup directories |
-| [Ensure K3s config directory exists](tasks/main.yml#L43) | ansible.builtin.file | False | Create base directories |
-| [Configure K3s registry auth](tasks/main.yml#L49) | ansible.builtin.template | True |  |
-| [Ensure CNI config directory exists](tasks/main.yml#L60) | ansible.builtin.file | True |  |
-| [Ensure CNI bin directory exists](tasks/main.yml#L67) | ansible.builtin.file | True |  |
-| [Ensure K3s agent etc directory exists (for containerd)](tasks/main.yml#L74) | ansible.builtin.file | True |  |
-| [Deploy containerd configuration template](tasks/main.yml#L83) | ansible.builtin.template | True | Deploy Containerd Config |
+| [Ensure K3s config directory exists](tasks/main.yml#L2) | ansible.builtin.file | False | main.yml - K3s Common logic |
+| [Ensure registries.d exists](tasks/main.yml#L8) | ansible.builtin.file | False |  |
+| [Deploy registries.yaml](tasks/main.yml#L14) | ansible.builtin.template | True |  |
+| [Deploy containerd-config.toml](tasks/main.yml#L24) | ansible.builtin.template | True |  |
+| [Create containerd scripts dir](tasks/main.yml#L31) | ansible.builtin.file | True |  |
+| [Deploy runtime check script](tasks/main.yml#L38) | ansible.builtin.template | True |  |
+| [Ensure k3s service override dir](tasks/main.yml#L45) | ansible.builtin.file | True |  |
+| [Reload systemd and restart k3s](tasks/main.yml#L52) | ansible.builtin.systemd | True |  |
 
 
 ## Task Flow Graphs
@@ -59,18 +56,15 @@ classDef importRole stroke:#699ba7,stroke-width:2px;
 classDef includeVars stroke:#8e44ad,stroke-width:2px;
 classDef rescue stroke:#665352,stroke-width:2px;
 
-  Start-->|Task| Check_K3s_uninstall_script0[check k3s uninstall script]:::task
-  Check_K3s_uninstall_script0-->|Task| Check_K3s_agent_uninstall_script1[check k3s agent uninstall script]:::task
-  Check_K3s_agent_uninstall_script1-->|Task| Uninstall_K3s__Server_2[uninstall k3s  server <br>When: **k3s recreate   bool and k3s server uninstall<br>script stat exists and not ansible check mode**]:::task
-  Uninstall_K3s__Server_2-->|Task| Uninstall_K3s__Agent_3[uninstall k3s  agent <br>When: **k3s recreate   bool and k3s agent uninstall script<br>stat exists and not ansible check mode**]:::task
-  Uninstall_K3s__Agent_3-->|Task| Cleanup_K3s_directories4[cleanup k3s directories<br>When: **k3s recreate   bool**]:::task
-  Cleanup_K3s_directories4-->|Task| Ensure_K3s_config_directory_exists5[ensure k3s config directory exists]:::task
-  Ensure_K3s_config_directory_exists5-->|Task| Configure_K3s_registry_auth6[configure k3s registry auth<br>When: **k3s common registry auths is defined and k3s<br>common registry auths   length   0**]:::task
-  Configure_K3s_registry_auth6-->|Task| Ensure_CNI_config_directory_exists7[ensure cni config directory exists<br>When: **k3s common containerd additional runtimes  <br>default       length   0**]:::task
-  Ensure_CNI_config_directory_exists7-->|Task| Ensure_CNI_bin_directory_exists8[ensure cni bin directory exists<br>When: **k3s common containerd additional runtimes  <br>default       length   0**]:::task
-  Ensure_CNI_bin_directory_exists8-->|Task| Ensure_K3s_agent_etc_directory_exists__for_containerd_9[ensure k3s agent etc directory exists  for<br>containerd <br>When: **k3s common containerd additional runtimes  <br>default       length   0**]:::task
-  Ensure_K3s_agent_etc_directory_exists__for_containerd_9-->|Task| Deploy_containerd_configuration_template10[deploy containerd configuration template<br>When: **k3s common containerd additional runtimes  <br>default       length   0**]:::task
-  Deploy_containerd_configuration_template10-->End
+  Start-->|Task| Ensure_K3s_config_directory_exists0[ensure k3s config directory exists]:::task
+  Ensure_K3s_config_directory_exists0-->|Task| Ensure_registries_d_exists1[ensure registries d exists]:::task
+  Ensure_registries_d_exists1-->|Task| Deploy_registries_yaml2[deploy registries yaml<br>When: **k3s commonregistryauths is defined and k3s<br>commonregistryauths   length   0**]:::task
+  Deploy_registries_yaml2-->|Task| Deploy_containerd_config_toml3[deploy containerd config toml<br>When: **k3s commoncontainerdadditionalruntimes   default  <br>    length   0**]:::task
+  Deploy_containerd_config_toml3-->|Task| Create_containerd_scripts_dir4[create containerd scripts dir<br>When: **k3s commoncontainerdadditionalruntimes   default  <br>    length   0**]:::task
+  Create_containerd_scripts_dir4-->|Task| Deploy_runtime_check_script5[deploy runtime check script<br>When: **k3s commoncontainerdadditionalruntimes   default  <br>    length   0**]:::task
+  Deploy_runtime_check_script5-->|Task| Ensure_k3s_service_override_dir6[ensure k3s service override dir<br>When: **k3s commoncontainerdadditionalruntimes   default  <br>    length   0**]:::task
+  Ensure_k3s_service_override_dir6-->|Task| Reload_systemd_and_restart_k3s7[reload systemd and restart k3s<br>When: **k3s commoncontainerdadditionalruntimes   default  <br>    length   0**]:::task
+  Reload_systemd_and_restart_k3s7-->End
 ```
 
 

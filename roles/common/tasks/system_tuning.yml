@@ -52,47 +52,47 @@
     limit_item: "{{ item.item }}"
     value: "{{ item.value }}"
   loop:
-    - {type: "soft", item: "nofile", value: "{{ common_file_descriptors_soft }}"}
-    - {type: "hard", item: "nofile", value: "{{ common_file_descriptors_hard }}"}
+    - {type: "soft", item: "nofile", value: "{{ system_fileDescriptorsSoft }}"}
+    - {type: "hard", item: "nofile", value: "{{ system_fileDescriptorsHard }}"}
 - name: Increase file-max
   ansible.posix.sysctl:
     name: fs.file-max
-    value: "{{ common_fs_file_max }}"
+    value: "{{ system_fsFileMax }}"
     state: present
     reload: true
 - name: Increase inotify watches
   ansible.posix.sysctl:
     name: fs.inotify.max_user_instances
-    value: "{{ common_inotify_max_instances }}"
+    value: "{{ system_inotifyMaxInstances }}"
     state: present
     reload: true
 - name: Increase user watches
   ansible.posix.sysctl:
     name: fs.inotify.max_user_watches
-    value: "{{ common_inotify_max_watches }}"
+    value: "{{ system_inotifyMaxWatches }}"
     state: present
     reload: true
 - name: Enable watchdog
   ansible.builtin.lineinfile:
     path: /etc/systemd/system.conf
     regexp: "^#?RuntimeWatchdogSec="
-    line: "RuntimeWatchdogSec={{ common_watchdog_timeout_sec }}"
+    line: "RuntimeWatchdogSec={{ system_watchdogTimeoutSec }}"
     state: present
 - name: Configure hugepages
   ansible.posix.sysctl:
     name: vm.nr_hugepages
-    value: "{{ common_hugepages_count }}"
+    value: "{{ system_hugepagesCount }}"
     state: present
     reload: true
   # 2 MiB per page; default 1280 ~= 2.5 GiB
-  when: common_mining_enabled | default(false)
+  when: mining_cpuEnabled | default(false) or mining_gpuEnabled | default(false)
   tags: ["os"]
 - name: Load MSR module
   community.general.modprobe:
     name: msr
     state: present
     persistent: present
-  when: common_mining_enabled | default(false)
+  when: mining_cpuEnabled | default(false)
   tags: ["os"]
 - name: Configure Nvidia modules load
   ansible.builtin.copy:
@@ -102,5 +102,5 @@
       nvidia-uvm
       nvidia-modeset
     mode: "0644"
-  when: common_mining_enabled | default(false)
+  when: mining_gpuEnabled | default(false)
   tags: ["os", "nvidia"]
