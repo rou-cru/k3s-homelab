@@ -17,39 +17,7 @@ Description: Install cert-manager on K3s and bootstrap a self-signed CA with Clu
 
 
 
-### Defaults
 
-**These are static variables with lower priority**
-
-#### File: defaults/main.yml
-
-| Var          | Type         | Value       |Required    | Title       |
-|--------------|--------------|-------------|------------|-------------|
-| [cert_manager_namespace](defaults/main.yml#L5)   | str | `cert-manager` |    false  |  Namespace |
-| [cert_manager_chart_version](defaults/main.yml#L10)   | str |  |    false  |  Chart Version |
-| [cert_manager_selfsigned_issuer_name](defaults/main.yml#L15)   | str | `homelab-selfsigned-issuer` |    false  |  Self-Signed Issuer Name |
-| [cert_manager_ca_certificate_name](defaults/main.yml#L20)   | str | `homelab-ca` |    false  |  CA Certificate Name |
-| [cert_manager_ca_secret_name](defaults/main.yml#L25)   | str | `homelab-ca-secret` |    false  |  CA Secret Name |
-| [cert_manager_ca_issuer_name](defaults/main.yml#L30)   | str | `homelab-ca-issuer` |    false  |  CA Issuer Name |
-| [cert_manager_prometheus_enabled](defaults/main.yml#L35)   | bool | `False` |    false  |  Prometheus Monitoring |
-
-
-
-<details>
-<summary><b>Full descriptions for vars in defaults/main.yml</b></summary>
-<br>
-<table>
-<th>Var</th><th>Description</th>
-<tr><td><b>cert_manager_namespace</b></td><td>Kubernetes namespace where cert-manager will be installed.</td></tr>
-<tr><td><b>cert_manager_chart_version</b></td><td>cert-manager Helm chart version (empty for latest).</td></tr>
-<tr><td><b>cert_manager_selfsigned_issuer_name</b></td><td>Name for the self-signed certificate issuer.</td></tr>
-<tr><td><b>cert_manager_ca_certificate_name</b></td><td>Name for the cluster CA certificate resource.</td></tr>
-<tr><td><b>cert_manager_ca_secret_name</b></td><td>Name for the CA private key secret.</td></tr>
-<tr><td><b>cert_manager_ca_issuer_name</b></td><td>Name for the cluster CA certificate issuer.</td></tr>
-<tr><td><b>cert_manager_prometheus_enabled</b></td><td>Enable Prometheus monitoring integration for cert-manager.</td></tr>
-</table>
-<br>
-</details>
 
 
 

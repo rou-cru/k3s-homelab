@@ -101,6 +101,11 @@ argument_specs:
             type: str
             required: true
             description: URL of the repository.
+      common_install_uv:
+        type: bool
+        required: false
+        default: true
+        description: Install uv Python package manager (required by glances and other Python roles).
       common_uv_install_script_checksum:
         type: str
         required: false

@@ -90,37 +90,7 @@ Description: Install and configure Glances system monitoring with web interface.
 
 
 
-### Defaults
 
-**These are static variables with lower priority**
-
-#### File: defaults/main.yml
-
-| Var          | Type         | Value       |Required    | Title       |
-|--------------|--------------|-------------|------------|-------------|
-| [glances_state](defaults/main.yml#L5)   | str | `present` |    false  |  Installation State |
-| [glances_port](defaults/main.yml#L10)   | int | `61208` |    false  |  Web Interface Port |
-| [glances_bind_address](defaults/main.yml#L15)   | str | `127.0.0.1` |    false  |  Bind Address |
-| [glances_venv_path](defaults/main.yml#L20)   | str | `/opt/glances` |    false  |  Virtual Environment Path |
-| [glances_packages](defaults/main.yml#L26)   | list | `[]` |    false  |  Package List |
-| [glances_packages.**0**](defaults/main.yml#L32)   | str | `glances[all]` |    false  |  Glances Package |
-
-
-
-<details>
-<summary><b>Full descriptions for vars in defaults/main.yml</b></summary>
-<br>
-<table>
-<th>Var</th><th>Description</th>
-<tr><td><b>glances_state</b></td><td>Whether Glances should be present or absent.</td></tr>
-<tr><td><b>glances_port</b></td><td>Port number for Glances web interface.</td></tr>
-<tr><td><b>glances_bind_address</b></td><td>IP address to bind the web interface (127.0.0.1 for localhost only).</td></tr>
-<tr><td><b>glances_venv_path</b></td><td>Path where Glances virtual environment will be installed.</td></tr>
-<tr><td><b>glances_packages</b></td><td>Glances packages to install (list of pip specifiers, e.g., "glances[all]").</td></tr>
-<tr><td><b>glances_packages.0</b></td><td>Pip package specifier for Glances (include extras as needed).</td></tr>
-</table>
-<br>
-</details>
 
 
 

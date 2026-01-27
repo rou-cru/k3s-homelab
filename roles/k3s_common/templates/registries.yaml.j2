@@ -6,10 +6,10 @@ mirrors:
 {% endfor %}
 configs:
 {% for reg in k3s_common_registry_auths %}
-{% for host in reg.auth_hosts %}
+{%     for host in reg.auth_hosts %}
   "{{ host }}":
     auth:
       username: "{{ reg.username }}"
       password: "{{ reg.password }}"
-{% endfor %}
+{%     endfor %}
 {% endfor %}

@@ -1,35 +1,5 @@
-# Title: Namespace
-# Description: Kubernetes namespace where cert-manager will be installed.
-# Type: str
-# Required: false
-cert_manager_namespace: cert-manager
-# Title: Chart Version
-# Description: cert-manager Helm chart version (empty for latest).
-# Type: str
-# Required: false
-cert_manager_chart_version: ""
-# Title: Self-Signed Issuer Name
-# Description: Name for the self-signed certificate issuer.
-# Type: str
-# Required: false
-cert_manager_selfsigned_issuer_name: homelab-selfsigned-issuer
-# Title: CA Certificate Name
-# Description: Name for the cluster CA certificate resource.
-# Type: str
-# Required: false
-cert_manager_ca_certificate_name: homelab-ca
-# Title: CA Secret Name
-# Description: Name for the CA private key secret.
-# Type: str
-# Required: false
-cert_manager_ca_secret_name: homelab-ca-secret
-# Title: CA Issuer Name
-# Description: Name for the cluster CA certificate issuer.
-# Type: str
-# Required: false
-cert_manager_ca_issuer_name: homelab-ca-issuer
-# Title: Prometheus Monitoring
-# Description: Enable Prometheus monitoring integration for cert-manager.
-# Type: bool
-# Required: false
-cert_manager_prometheus_enabled: false
+# Role defaults moved to group_vars/all.yml
+# See: group_vars/all.yml for all project variables
+# This file intentionally left empty to maintain single source of truth
+---
+{}

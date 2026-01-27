@@ -1,17 +1,5 @@
-# Title: Gateway API Version
-# Description: Version tag for Gateway API standard install manifest.
-# Type: str
-# Required: false
-gateway_api_version: "v1.2.0"
-
-# Title: Prometheus Operator CRDs Chart Version
-# Description: Version of the prometheus-operator-crds Helm chart.
-# Type: str
-# Required: false
-prometheus_operator_crds_version: "26.0.0"
-
-# Title: Prometheus Operator CRDs Namespace
-# Description: Namespace where CRDs chart metadata will be installed (CRDs are global).
-# Type: str
-# Required: false
-prometheus_operator_crds_namespace: "monitoring"
+# Role defaults moved to group_vars/all.yml
+# See: group_vars/all.yml for all project variables
+# This file intentionally left empty to maintain single source of truth
+---
+{}

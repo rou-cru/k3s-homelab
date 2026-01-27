@@ -52,31 +52,7 @@ Kubernetes CLIs (kubectl, helm, k9s), Python tools (uv, pipx), and AI CLIs.
 
 
 
-### Defaults
 
-**These are static variables with lower priority**
-
-#### File: defaults/main.yml
-
-| Var          | Type         | Value       |Required    | Title       |
-|--------------|--------------|-------------|------------|-------------|
-| [devtools_nvm_version](defaults/main.yml#L5)   | str | `v0.39.7` |    false  |  NVM Version |
-| [devtools_install_docker](defaults/main.yml#L10)   | bool | `False` |    false  |  Install Docker |
-| [devtools_install_vagrant](defaults/main.yml#L15)   | bool | `True` |    false  |  Install Vagrant and libvirt |
-
-
-
-<details>
-<summary><b>Full descriptions for vars in defaults/main.yml</b></summary>
-<br>
-<table>
-<th>Var</th><th>Description</th>
-<tr><td><b>devtools_nvm_version</b></td><td>Version of NVM (Node Version Manager) to install.</td></tr>
-<tr><td><b>devtools_install_docker</b></td><td>Installs Docker CLI (not recommended for K3s nodes which use containerd).</td></tr>
-<tr><td><b>devtools_install_vagrant</b></td><td>Installs Vagrant with libvirt provider for Molecule testing and VM management.</td></tr>
-</table>
-<br>
-</details>
 
 
 

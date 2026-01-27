@@ -17,43 +17,7 @@ Description: Common configurations for K3s nodes (server and agent)
 
 
 
-### Defaults
 
-**These are static variables with lower priority**
-
-#### File: defaults/main.yml
-
-| Var          | Type         | Value       |Required    | Title       |
-|--------------|--------------|-------------|------------|-------------|
-| [k3s_version](defaults/main.yml#L5)   | str | `v1.35.0+k3s1` |    false  |  K3s Version |
-| [k3s_common_containerd_optimized](defaults/main.yml#L10)   | bool | `True` |    false  |  Containerd Optimized |
-| [k3s_common_containerd_default_runtime](defaults/main.yml#L15)   | str | `runc` |    false  |  Containerd Default Runtime |
-| [k3s_common_containerd_additional_runtimes](defaults/main.yml#L20)   | list | `[]` |    false  |  Containerd Additional Runtimes |
-| [k3s_common_containerd_sandbox_image](defaults/main.yml#L25)   | str | `registry.k8s.io/pause:3.10.1` |    false  |  Containerd Sandbox Image |
-| [k3s_cni_bin_dir](defaults/main.yml#L30)   | str | `/opt/cni/bin` |    false  |  K3s CNI Binary Directory |
-| [k3s_cni_conf_dir](defaults/main.yml#L35)   | str | `/etc/cni/net.d` |    false  |  K3s CNI Configuration Directory |
-| [k3s_recreate](defaults/main.yml#L40)   | bool | `False` |    false  |  Recreate K3s |
-| [k3s_common_restart_handler](defaults/main.yml#L45)   | str | `Restart k3s` |    false  |  Restart Handler Name |
-
-
-
-<details>
-<summary><b>Full descriptions for vars in defaults/main.yml</b></summary>
-<br>
-<table>
-<th>Var</th><th>Description</th>
-<tr><td><b>k3s_version</b></td><td>K3s version to install.</td></tr>
-<tr><td><b>k3s_common_containerd_optimized</b></td><td>Enable containerd optimized configuration.</td></tr>
-<tr><td><b>k3s_common_containerd_default_runtime</b></td><td>Default container runtime to use.</td></tr>
-<tr><td><b>k3s_common_containerd_additional_runtimes</b></td><td>List of additional container runtimes to register.</td></tr>
-<tr><td><b>k3s_common_containerd_sandbox_image</b></td><td>Pause container image for the CRI sandbox.</td></tr>
-<tr><td><b>k3s_cni_bin_dir</b></td><td>Path to CNI binaries.</td></tr>
-<tr><td><b>k3s_cni_conf_dir</b></td><td>Path to CNI configuration files.</td></tr>
-<tr><td><b>k3s_recreate</b></td><td>If true, uninstalls and wipes previous K3s installation before deploying.</td></tr>
-<tr><td><b>k3s_common_restart_handler</b></td><td>Handler name for restarting k3s (differs between server and agent).</td></tr>
-</table>
-<br>
-</details>
 
 
 
@@ -70,10 +34,11 @@ Description: Common configurations for K3s nodes (server and agent)
 | [Uninstall K3s (Agent)](tasks/main.yml#L21) | ansible.builtin.command | True |  |
 | [Cleanup K3s directories](tasks/main.yml#L30) | ansible.builtin.file | True | Cleanup directories |
 | [Ensure K3s config directory exists](tasks/main.yml#L43) | ansible.builtin.file | False | Create base directories |
-| [Ensure CNI config directory exists](tasks/main.yml#L49) | ansible.builtin.file | True |  |
-| [Ensure CNI bin directory exists](tasks/main.yml#L56) | ansible.builtin.file | True |  |
-| [Ensure K3s agent etc directory exists (for containerd)](tasks/main.yml#L63) | ansible.builtin.file | True |  |
-| [Deploy containerd configuration template](tasks/main.yml#L72) | ansible.builtin.template | True | Deploy Containerd Config |
+| [Configure K3s registry auth](tasks/main.yml#L49) | ansible.builtin.template | True |  |
+| [Ensure CNI config directory exists](tasks/main.yml#L60) | ansible.builtin.file | True |  |
+| [Ensure CNI bin directory exists](tasks/main.yml#L67) | ansible.builtin.file | True |  |
+| [Ensure K3s agent etc directory exists (for containerd)](tasks/main.yml#L74) | ansible.builtin.file | True |  |
+| [Deploy containerd configuration template](tasks/main.yml#L83) | ansible.builtin.template | True | Deploy Containerd Config |
 
 
 ## Task Flow Graphs
@@ -100,11 +65,12 @@ classDef rescue stroke:#665352,stroke-width:2px;
   Uninstall_K3s__Server_2-->|Task| Uninstall_K3s__Agent_3[uninstall k3s  agent <br>When: **k3s recreate   bool and k3s agent uninstall script<br>stat exists and not ansible check mode**]:::task
   Uninstall_K3s__Agent_3-->|Task| Cleanup_K3s_directories4[cleanup k3s directories<br>When: **k3s recreate   bool**]:::task
   Cleanup_K3s_directories4-->|Task| Ensure_K3s_config_directory_exists5[ensure k3s config directory exists]:::task
-  Ensure_K3s_config_directory_exists5-->|Task| Ensure_CNI_config_directory_exists6[ensure cni config directory exists<br>When: **k3s common containerd additional runtimes  <br>default       length   0**]:::task
-  Ensure_CNI_config_directory_exists6-->|Task| Ensure_CNI_bin_directory_exists7[ensure cni bin directory exists<br>When: **k3s common containerd additional runtimes  <br>default       length   0**]:::task
-  Ensure_CNI_bin_directory_exists7-->|Task| Ensure_K3s_agent_etc_directory_exists__for_containerd_8[ensure k3s agent etc directory exists  for<br>containerd <br>When: **k3s common containerd additional runtimes  <br>default       length   0**]:::task
-  Ensure_K3s_agent_etc_directory_exists__for_containerd_8-->|Task| Deploy_containerd_configuration_template9[deploy containerd configuration template<br>When: **k3s common containerd additional runtimes  <br>default       length   0**]:::task
-  Deploy_containerd_configuration_template9-->End
+  Ensure_K3s_config_directory_exists5-->|Task| Configure_K3s_registry_auth6[configure k3s registry auth<br>When: **k3s common registry auths is defined and k3s<br>common registry auths   length   0**]:::task
+  Configure_K3s_registry_auth6-->|Task| Ensure_CNI_config_directory_exists7[ensure cni config directory exists<br>When: **k3s common containerd additional runtimes  <br>default       length   0**]:::task
+  Ensure_CNI_config_directory_exists7-->|Task| Ensure_CNI_bin_directory_exists8[ensure cni bin directory exists<br>When: **k3s common containerd additional runtimes  <br>default       length   0**]:::task
+  Ensure_CNI_bin_directory_exists8-->|Task| Ensure_K3s_agent_etc_directory_exists__for_containerd_9[ensure k3s agent etc directory exists  for<br>containerd <br>When: **k3s common containerd additional runtimes  <br>default       length   0**]:::task
+  Ensure_K3s_agent_etc_directory_exists__for_containerd_9-->|Task| Deploy_containerd_configuration_template10[deploy containerd configuration template<br>When: **k3s common containerd additional runtimes  <br>default       length   0**]:::task
+  Deploy_containerd_configuration_template10-->End
 ```
 
 

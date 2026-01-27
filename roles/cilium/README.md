@@ -101,39 +101,7 @@ Description: Installs and configures Cilium CNI for K3s clusters.
 
 
 
-### Defaults
 
-**These are static variables with lower priority**
-
-#### File: defaults/main.yml
-
-| Var          | Type         | Value       |Required    | Title       |
-|--------------|--------------|-------------|------------|-------------|
-| [cilium_version](defaults/main.yml#L5)   | str | `1.18.5` |    false  |  Cilium Version |
-| [cilium_chart_name](defaults/main.yml#L10)   | str | `cilium` |    false  |  Chart Name |
-| [cilium_namespace](defaults/main.yml#L15)   | str | `kube-system` |    false  |  Namespace |
-| [cilium_rollout_timeout](defaults/main.yml#L20)   | int | `300` |    false  |  Rollout Timeout |
-| [cilium_wait_retries](defaults/main.yml#L25)   | int | `60` |    false  |  Wait Retries |
-| [cilium_wait_delay](defaults/main.yml#L30)   | int | `5` |    false  |  Wait Delay |
-| [cilium_devices](defaults/main.yml#L35)   | str | `tailscale+` |    false  |  Cilium devices |
-
-
-
-<details>
-<summary><b>Full descriptions for vars in defaults/main.yml</b></summary>
-<br>
-<table>
-<th>Var</th><th>Description</th>
-<tr><td><b>cilium_version</b></td><td>Version of the Cilium Helm chart to install.</td></tr>
-<tr><td><b>cilium_chart_name</b></td><td>Name of the chart in the repository (e.g., cilium/cilium).</td></tr>
-<tr><td><b>cilium_namespace</b></td><td>Kubernetes namespace where Cilium should be installed.</td></tr>
-<tr><td><b>cilium_rollout_timeout</b></td><td>Timeout (seconds) for waiting for Cilium pods rollout.</td></tr>
-<tr><td><b>cilium_wait_retries</b></td><td>Number of retries when checking for DaemonSet creation.</td></tr>
-<tr><td><b>cilium_wait_delay</b></td><td>Delay (seconds) between DaemonSet existence checks.</td></tr>
-<tr><td><b>cilium_devices</b></td><td>Space-separated device patterns to include (exclude tailscale0).</td></tr>
-</table>
-<br>
-</details>
 
 
 

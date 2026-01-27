@@ -1,26 +1,14 @@
-# group_vars/k3s_server.yml - Configuration for K3s Master Nodes
-# These nodes are physical machines managed by a non-root user (rc), requiring sudo.
+# group_vars/k3s_server.yml - K3s Master Node Overrides
+# Only values that DIFFER from group_vars/all.yml
 
-# Privilege Escalation
-
-ansible_user: rc
-
-# Hardware & Performance Optimizations (Physical Server)
-# Enable Realtek r8168 driver and sysctl network tuning
-common_network_optimization_enabled: true
-# Enable ASUS RoG specific drivers/leds
+# Hardware-specific: ASUS ROG Server
 common_rog_server: true
-# Enable WiFi/BT radio blocking
 common_radio_block_enabled: true
-# Enable ALSA and realtime audio limits
 common_audio_optimization_enabled: true
-# Enable Mining Optimizations (Hugepages, MSR)
 common_mining_enabled: true
 
-# K8s Ansible Dependencies
-# K3s servers need kubernetes.core Python deps for Ansible modules
+# K3s server needs Ansible K8s modules
 common_install_k8s_ansible_deps: true
 
-# Cluster Lifecycle
-# Avoid full rebuilds unless explicitly requested
+# Server lifecycle
 k3s_server_recreate: true

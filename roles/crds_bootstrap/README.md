@@ -17,31 +17,7 @@ Description: Bootstrap cluster-wide CRDs (Gateway API and Prometheus Operator) f
 
 
 
-### Defaults
 
-**These are static variables with lower priority**
-
-#### File: defaults/main.yml
-
-| Var          | Type         | Value       |Required    | Title       |
-|--------------|--------------|-------------|------------|-------------|
-| [gateway_api_version](defaults/main.yml#L5)   | str | `v1.2.0` |    false  |  Gateway API Version |
-| [prometheus_operator_crds_version](defaults/main.yml#L11)   | str | `26.0.0` |    false  |  Prometheus Operator CRDs Chart Version |
-| [prometheus_operator_crds_namespace](defaults/main.yml#L17)   | str | `monitoring` |    false  |  Prometheus Operator CRDs Namespace |
-
-
-
-<details>
-<summary><b>Full descriptions for vars in defaults/main.yml</b></summary>
-<br>
-<table>
-<th>Var</th><th>Description</th>
-<tr><td><b>gateway_api_version</b></td><td>Version tag for Gateway API standard install manifest.</td></tr>
-<tr><td><b>prometheus_operator_crds_version</b></td><td>Version of the prometheus-operator-crds Helm chart.</td></tr>
-<tr><td><b>prometheus_operator_crds_namespace</b></td><td>Namespace where CRDs chart metadata will be installed (CRDs are global).</td></tr>
-</table>
-<br>
-</details>
 
 
 

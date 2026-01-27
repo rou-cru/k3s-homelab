@@ -35,29 +35,7 @@ Description: Pre-flight checks to ensure minimum system requirements are met.
 
 
 
-### Defaults
 
-**These are static variables with lower priority**
-
-#### File: defaults/main.yml
-
-| Var          | Type         | Value       |Required    | Title       |
-|--------------|--------------|-------------|------------|-------------|
-| [preflight_min_ram_mb](defaults/main.yml#L8)   | int | `2048` |    false  |  Minimum RAM |
-| [preflight_min_disk_gb](defaults/main.yml#L14)   | int | `20` |    false  |  Minimum Disk Space |
-
-
-
-<details>
-<summary><b>Full descriptions for vars in defaults/main.yml</b></summary>
-<br>
-<table>
-<th>Var</th><th>Description</th>
-<tr><td><b>preflight_min_ram_mb</b></td><td>Minimum RAM required in MB.</td></tr>
-<tr><td><b>preflight_min_disk_gb</b></td><td>Minimum Disk space on / required in GB.</td></tr>
-</table>
-<br>
-</details>
 
 
 

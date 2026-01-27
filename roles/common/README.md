@@ -197,6 +197,16 @@ RoG hardware tweaks, and network optimizations.
     
   
 
+  - **common_install_uv**
+    - **Required**: False
+    - **Type**: bool
+    - **Default**: True
+  
+    - **Description**: Install uv Python package manager (required by glances and other Python roles).
+  
+  
+  
+
   - **common_uv_install_script_checksum**
     - **Required**: False
     - **Type**: str
@@ -224,123 +234,7 @@ RoG hardware tweaks, and network optimizations.
 
 
 
-### Defaults
 
-**These are static variables with lower priority**
-
-#### File: defaults/main.yml
-
-| Var          | Type         | Value       |Required    | Title       |
-|--------------|--------------|-------------|------------|-------------|
-| [common_install_network_manager](defaults/main.yml#L5)   | bool | `True` |    false  |  Install NetworkManager |
-| [common_install_acpid](defaults/main.yml#L10)   | bool | `True` |    false  |  Install ACPI daemon |
-| [common_install_cloud_binaries](defaults/main.yml#L15)   | bool | `True` |    false  |  Install Cloud-Native Binaries |
-| [common_install_k8s_ansible_deps](defaults/main.yml#L21)   | bool | `False` |    false  |  Install K8s Ansible Dependencies |
-| [common_install_debug_packages](defaults/main.yml#L26)   | bool | `True` |    false  |  Install Debug Packages |
-| [common_install_dev_packages](defaults/main.yml#L31)   | bool | `True` |    false  |  Install Dev Packages |
-| [common_install_github_cli_repo](defaults/main.yml#L36)   | bool | `True` |    false  |  Install GitHub CLI Repository |
-| [common_install_hwe_kernel](defaults/main.yml#L41)   | bool | `True` |    false  |  Install HWE kernel |
-| [common_rog_server](defaults/main.yml#L46)   | bool | `False` |    false  |  RoG Server Support |
-| [common_radio_block_enabled](defaults/main.yml#L51)   | bool | `False` |    false  |  Radio Block |
-| [common_audio_optimization_enabled](defaults/main.yml#L56)   | bool | `False` |    false  |  Audio Optimization |
-| [common_file_descriptors_soft](defaults/main.yml#L61)   | int | `100000` |    false  |  File Descriptors (Soft) |
-| [common_file_descriptors_hard](defaults/main.yml#L66)   | int | `100000` |    false  |  File Descriptors (Hard) |
-| [common_fs_file_max](defaults/main.yml#L71)   | int | `2097152` |    false  |  System File Max |
-| [common_inotify_max_instances](defaults/main.yml#L76)   | int | `8192` |    false  |  Inotify Instances |
-| [common_inotify_max_watches](defaults/main.yml#L81)   | int | `524288` |    false  |  Inotify Watches |
-| [common_power_efficiency_tuning_enabled](defaults/main.yml#L86)   | bool | `False` |    false  |  Power Efficiency Tuning |
-| [common_intel_rapl_pl1_limit_microwatts](defaults/main.yml#L91)   | int | `100000000` |    false  |  Intel RAPL PL1 Limit (Microwatts) |
-| [common_intel_rapl_pl2_limit_microwatts](defaults/main.yml#L96)   | int | `140000000` |    false  |  Intel RAPL PL2 Limit (Microwatts) |
-| [common_intel_pstate_max_perf_pct](defaults/main.yml#L101)   | int | `80` |    false  |  Intel P-State Max Performance Percent |
-| [common_intel_pstate_no_turbo](defaults/main.yml#L106)   | int | `1` |    false  |  Intel P-State Disable Turbo |
-| [common_watchdog_timeout_sec](defaults/main.yml#L111)   | int | `120` |    false  |  Watchdog Timeout |
-| [common_battery_charge_threshold](defaults/main.yml#L116)   | int | `80` |    false  |  Battery Charge Threshold |
-| [common_thermal_policy](defaults/main.yml#L121)   | int | `1` |    false  |  Thermal Policy |
-| [common_mining_enabled](defaults/main.yml#L126)   | bool | `False` |    false  |  Mining Optimization |
-| [common_hugepages_count](defaults/main.yml#L131)   | int | `1280` |    false  |  Hugepages Count |
-| [common_helm_repositories](defaults/main.yml#L136)   | list | `[]` |    false  |  Helm Repositories |
-| [common_helm_repositories.**0**](defaults/main.yml#L142)   | dict | `{}` |    false  |  Helm Repository |
-| [common_helm_repositories.0.**name**](defaults/main.yml#L142)   | str | `cilium` |    false  |  Helm Repository |
-| [common_helm_repositories.0.**repo_url**](defaults/main.yml#L147)   | str | `https://helm.cilium.io/` |    false  |  Helm Repository URL |
-| [common_helm_repositories.**1**](defaults/main.yml#L153)   | dict | `{}` |    false  |  Helm Repository |
-| [common_helm_repositories.1.**name**](defaults/main.yml#L153)   | str | `nvdp` |    false  |  Helm Repository |
-| [common_helm_repositories.1.**repo_url**](defaults/main.yml#L158)   | str | `https://nvidia.github.io/k8s-device-plugin` |    false  |  Helm Repository URL |
-| [common_uv_install_script_checksum](defaults/main.yml#L163)   | str | `10fb1f54d56f3eb60622006797339d4ea0bfda9b358d07db635f73cf89f7094c` |    false  |  UV install script checksum |
-| [common_helm_install_script_checksum](defaults/main.yml#L168)   | str | `38b65f882d9cae3891755bdb03becc6a01ae6f9cb24826c191f219ddfee70a5d` |    false  |  Helm install script checksum |
-| [common_debug_packages](defaults/main.yml#L174)   | list | `[]` |    false  |  Debug Packages |
-| [common_debug_packages.**0**](defaults/main.yml#L175)   | str | `dnsutils` |    None  |  None |
-| [common_debug_packages.**1**](defaults/main.yml#L176)   | str | `htop` |    None  |  None |
-| [common_debug_packages.**2**](defaults/main.yml#L177)   | str | `iotop` |    None  |  None |
-| [common_debug_packages.**3**](defaults/main.yml#L178)   | str | `jq` |    None  |  None |
-| [common_debug_packages.**4**](defaults/main.yml#L179)   | str | `lsof` |    None  |  None |
-| [common_debug_packages.**5**](defaults/main.yml#L180)   | str | `net-tools` |    None  |  None |
-| [common_debug_packages.**6**](defaults/main.yml#L181)   | str | `ripgrep` |    None  |  None |
-| [common_debug_packages.**7**](defaults/main.yml#L182)   | str | `sysstat` |    None  |  None |
-| [common_debug_packages.**8**](defaults/main.yml#L183)   | str | `tcpdump` |    None  |  None |
-| [common_debug_packages.**9**](defaults/main.yml#L184)   | str | `tmux` |    None  |  None |
-| [common_debug_packages.**10**](defaults/main.yml#L185)   | str | `traceroute` |    None  |  None |
-| [common_dev_packages](defaults/main.yml#L192)   | list | `[]` |    false  |  Dev Packages |
-| [common_dev_packages.**0**](defaults/main.yml#L193)   | str | `gh` |    None  |  None |
-| [common_dev_packages.**1**](defaults/main.yml#L194)   | str | `imagemagick` |    None  |  None |
-| [common_dev_packages.**2**](defaults/main.yml#L195)   | str | `s-tui` |    None  |  None |
-| [common_dev_packages.**3**](defaults/main.yml#L196)   | str | `fbi` |    None  |  None |
-| [common_dev_packages.**4**](defaults/main.yml#L197)   | str | `nvtop` |    None  |  None |
-| [common_dev_packages.**5**](defaults/main.yml#L198)   | str | `tree` |    None  |  None |
-| [common_dev_packages.**6**](defaults/main.yml#L199)   | str | `make` |    None  |  None |
-| [common_dev_packages.**7**](defaults/main.yml#L200)   | str | `cmake` |    None  |  None |
-| [common_dev_packages.**8**](defaults/main.yml#L201)   | str | `ninja-build` |    None  |  None |
-| [common_dev_packages.**9**](defaults/main.yml#L202)   | str | `git` |    None  |  None |
-| [common_dev_packages.**10**](defaults/main.yml#L203)   | str | `timeshift` |    None  |  None |
-| [common_dev_packages.**11**](defaults/main.yml#L204)   | str | `xvfb` |    None  |  None |
-| [common_dev_packages.**12**](defaults/main.yml#L205)   | str | `sqlite3` |    None  |  None |
-
-
-
-<details>
-<summary><b>Full descriptions for vars in defaults/main.yml</b></summary>
-<br>
-<table>
-<th>Var</th><th>Description</th>
-<tr><td><b>common_install_network_manager</b></td><td>Installs network-manager package.</td></tr>
-<tr><td><b>common_install_acpid</b></td><td>Installs acpid package.</td></tr>
-<tr><td><b>common_install_cloud_binaries</b></td><td>Installs uv/kubectl/helm and related tooling.</td></tr>
-<tr><td><b>common_install_k8s_ansible_deps</b></td><td>Install Python deps for kubernetes.core Ansible collection via uv.</td></tr>
-<tr><td><b>common_install_debug_packages</b></td><td>Installs lightweight OS debugging/incident response tools.</td></tr>
-<tr><td><b>common_install_dev_packages</b></td><td>Installs heavier developer/workstation packages.</td></tr>
-<tr><td><b>common_install_github_cli_repo</b></td><td>Adds the GitHub CLI apt repository and keyring.</td></tr>
-<tr><td><b>common_install_hwe_kernel</b></td><td>Installs the hardware enablement kernel package when available.</td></tr>
-<tr><td><b>common_rog_server</b></td><td>Enables ASUS RoG specific hardware tweaks (drivers, LEDs, power profiles).</td></tr>
-<tr><td><b>common_radio_block_enabled</b></td><td>Soft-blocks WiFi and Bluetooth radios to save power.</td></tr>
-<tr><td><b>common_audio_optimization_enabled</b></td><td>Installs alsa-utils and configures realtime limits for audio.</td></tr>
-<tr><td><b>common_file_descriptors_soft</b></td><td>Soft limit for open file descriptors (ulimit -n).</td></tr>
-<tr><td><b>common_file_descriptors_hard</b></td><td>Hard limit for open file descriptors.</td></tr>
-<tr><td><b>common_fs_file_max</b></td><td>System-wide maximum number of open file descriptors.</td></tr>
-<tr><td><b>common_inotify_max_instances</b></td><td>Max inotify instances per user.</td></tr>
-<tr><td><b>common_inotify_max_watches</b></td><td>Max inotify watches per user.</td></tr>
-<tr><td><b>common_power_efficiency_tuning_enabled</b></td><td>Low-level CPU power management (Intel RAPL & P-State) for efficiency/mining.</td></tr>
-<tr><td><b>common_intel_rapl_pl1_limit_microwatts</b></td><td>Sustained power limit for Intel RAPL (in microwatts).</td></tr>
-<tr><td><b>common_intel_rapl_pl2_limit_microwatts</b></td><td>Short-term power limit for Intel RAPL (in microwatts).</td></tr>
-<tr><td><b>common_intel_pstate_max_perf_pct</b></td><td>Maximum CPU performance percent for Intel P-State driver.</td></tr>
-<tr><td><b>common_intel_pstate_no_turbo</b></td><td>Disable turbo boost when set to 1.</td></tr>
-<tr><td><b>common_watchdog_timeout_sec</b></td><td>Hardware watchdog timeout in seconds (RuntimeWatchdogSec).</td></tr>
-<tr><td><b>common_battery_charge_threshold</b></td><td>Battery charge limit percentage for RoG laptops.</td></tr>
-<tr><td><b>common_thermal_policy</b></td><td>RoG thermal policy ID (0=balanced, 1=turbo, 2=silent - check specific model).</td></tr>
-<tr><td><b>common_mining_enabled</b></td><td>Enables optimizations for crypto mining (hugepages, MSR).</td></tr>
-<tr><td><b>common_hugepages_count</b></td><td>Number of hugepages to allocate if mining is enabled.</td></tr>
-<tr><td><b>common_helm_repositories</b></td><td>List of Helm repositories to add; each item is {name, repo_url}.</td></tr>
-<tr><td><b>common_helm_repositories.0</b></td><td>Helm repository entry with name and repo_url.</td></tr>
-<tr><td><b>common_helm_repositories.0.name</b></td><td>Helm repository entry with name and repo_url.</td></tr>
-<tr><td><b>common_helm_repositories.0.repo_url</b></td><td>Chart repository URL.</td></tr>
-<tr><td><b>common_helm_repositories.1</b></td><td>Helm repository entry with name and repo_url.</td></tr>
-<tr><td><b>common_helm_repositories.1.name</b></td><td>Helm repository entry with name and repo_url.</td></tr>
-<tr><td><b>common_helm_repositories.1.repo_url</b></td><td>Chart repository URL.</td></tr>
-<tr><td><b>common_uv_install_script_checksum</b></td><td>SHA256 for https://astral.sh/uv/install.sh (pin to avoid supply-chain drift).</td></tr>
-<tr><td><b>common_helm_install_script_checksum</b></td><td>SHA256 for https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3.</td></tr>
-<tr><td><b>common_debug_packages</b></td><td>Default debug tool packages for incident response.</td></tr>
-<tr><td><b>common_dev_packages</b></td><td>Default developer/workstation packages.</td></tr>
-</table>
-<br>
-</details>
 
 
 
@@ -394,11 +288,9 @@ RoG hardware tweaks, and network optimizations.
 
 #### File: tasks/k8s_ansible_deps.yml
 
-| Name | Module | Has Conditions | Comments |
-| ---- | ------ | -------------- | -------- |
-| [Check kubernetes Python version](tasks/k8s_ansible_deps.yml#L6) | ansible.builtin.command | False | Check if kubernetes Python library meets minimum version requirement |
-| [Install kubernetes.core deps via uv](tasks/k8s_ansible_deps.yml#L15) | ansible.builtin.command | True | Install kubernetes.core dependencies via uv if version is insufficient
-Deps from: ~/.ansible/collections/ansible_collections/kubernetes/core/requirements.txt |
+| Name | Module | Has Conditions |
+| ---- | ------ | -------------- |
+| [Install kubernetes.core deps via uv](tasks/k8s_ansible_deps.yml#L5) | ansible.builtin.command | True |
 
 #### File: tasks/main.yml
 
@@ -484,12 +376,12 @@ classDef importRole stroke:#699ba7,stroke-width:2px;
 classDef includeVars stroke:#8e44ad,stroke-width:2px;
 classDef rescue stroke:#665352,stroke-width:2px;
 
-  Start-->|Block Start| Install_uv__Python_Tool_Manager_0_block_start_0[[install uv  python tool manager <br>When: **common install cloud binaries   bool and not<br>ansible check mode**]]:::block
+  Start-->|Block Start| Install_uv__Python_Tool_Manager_0_block_start_0[[install uv  python tool manager <br>When: **common install uv   bool and not ansible check<br>mode**]]:::block
   Install_uv__Python_Tool_Manager_0_block_start_0-->|Task| Check_if_uv_is_installed0[check if uv is installed]:::task
   Check_if_uv_is_installed0-->|Task| Download_and_install_uv1[download and install uv<br>When: **not uv binary stat exists**]:::task
   Download_and_install_uv1-->|Task| Run_uv_installer2[run uv installer<br>When: **not uv binary stat exists**]:::task
   Run_uv_installer2-.->|End of Block| Install_uv__Python_Tool_Manager_0_block_start_0
-  Run_uv_installer2-->|Rescue Start| Install_uv__Python_Tool_Manager_0_rescue_start_0[install uv  python tool manager <br>When: **common install cloud binaries   bool and not<br>ansible check mode**]:::rescue
+  Run_uv_installer2-->|Rescue Start| Install_uv__Python_Tool_Manager_0_rescue_start_0[install uv  python tool manager <br>When: **common install uv   bool and not ansible check<br>mode**]:::rescue
   Install_uv__Python_Tool_Manager_0_rescue_start_0-->|Task| Report_uv_installation_failure0[report uv installation failure]:::task
   Report_uv_installation_failure0-.->|End of Rescue Block| Install_uv__Python_Tool_Manager_0_block_start_0
   Report_uv_installation_failure0-->|Block Start| Install_Kubectl__Official_Binary_1_block_start_0[[install kubectl  official binary <br>When: **common install cloud binaries   bool and not<br>ansible check mode**]]:::block
@@ -580,9 +472,8 @@ classDef importRole stroke:#699ba7,stroke-width:2px;
 classDef includeVars stroke:#8e44ad,stroke-width:2px;
 classDef rescue stroke:#665352,stroke-width:2px;
 
-  Start-->|Task| Check_kubernetes_Python_version0[check kubernetes python version]:::task
-  Check_kubernetes_Python_version0-->|Task| Install_kubernetes_core_deps_via_uv1[install kubernetes core deps via uv<br>When: **k8s python check rc    0 or  k8s python check<br>stdout   default  0   is version  24 2 0        <br>and not ansible check mode**]:::task
-  Install_kubernetes_core_deps_via_uv1-->End
+  Start-->|Task| Install_kubernetes_core_deps_via_uv0[install kubernetes core deps via uv<br>When: **not ansible check mode**]:::task
+  Install_kubernetes_core_deps_via_uv0-->End
 ```
 
 

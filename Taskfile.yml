@@ -1,7 +1,7 @@
 version: '3'
 vars:
   TEMPLATE_DIR: roles/common/templates
-  DEFAULTS_FILE: roles/common/defaults/main.yml
+  DEFAULTS_FILE: group_vars/all.yml
   TEST_VARS_FILE: .task/test-vars.yml
   OUTPUT_DIR: .task/rendered
 tasks:

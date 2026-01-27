@@ -20,7 +20,7 @@
       when: not uv_binary.stat.exists
       changed_when: true
   when:
-    - common_install_cloud_binaries | bool
+    - common_install_uv | bool
     - not ansible_check_mode
   rescue:
     - name: Report uv installation failure

@@ -96,39 +96,7 @@ settings like DNS acceptance and SSH access.
 
 
 
-### Defaults
 
-**These are static variables with lower priority**
-
-#### File: defaults/main.yml
-
-| Var          | Type         | Value       |Required    | Title       |
-|--------------|--------------|-------------|------------|-------------|
-| [tailscale_hostname_prefix](defaults/main.yml#L5)   | str | `k3s` |    false  |  Hostname Prefix |
-| [tailscale_tags](defaults/main.yml#L10)   | str |  |    false  |  ACL Tags |
-| [tailscale_accept_dns](defaults/main.yml#L15)   | str | `true` |    false  |  Accept DNS |
-| [tailscale_ssh](defaults/main.yml#L20)   | str | `true` |    false  |  Enable SSH |
-| [tailscale_install_script_checksum](defaults/main.yml#L25)   | str | `39e5b9185e9329955b324a48c13d4863c3a93f814260336cf0d4ad92a0aac3d3` |    false  |  Tailscale install script checksum |
-| [tailscale_exit_node_enabled](defaults/main.yml#L30)   | bool | `False` |    false  |  Exit Node |
-| [tailscale_advertise_routes](defaults/main.yml#L35)   | str |  |    false  |  Advertise Routes |
-
-
-
-<details>
-<summary><b>Full descriptions for vars in defaults/main.yml</b></summary>
-<br>
-<table>
-<th>Var</th><th>Description</th>
-<tr><td><b>tailscale_hostname_prefix</b></td><td>Prefix for the generated Tailscale hostname (e.g., k3s-hostname).</td></tr>
-<tr><td><b>tailscale_tags</b></td><td>Comma-separated list of ACL tags to advertise (e.g., tag:k3s).</td></tr>
-<tr><td><b>tailscale_accept_dns</b></td><td>Whether to accept DNS configuration from the tailnet ("true"/"false").</td></tr>
-<tr><td><b>tailscale_ssh</b></td><td>Whether to enable Tailscale SSH ("true"/"false").</td></tr>
-<tr><td><b>tailscale_install_script_checksum</b></td><td>SHA256 for https://tailscale.com/install.sh (pin to avoid supply-chain drift).</td></tr>
-<tr><td><b>tailscale_exit_node_enabled</b></td><td>Whether to advertise this node as a Tailscale exit node.</td></tr>
-<tr><td><b>tailscale_advertise_routes</b></td><td>CIDR routes to advertise to the tailnet (e.g., "10.42.0.0/16,10.43.0.0/16").</td></tr>
-</table>
-<br>
-</details>
 
 
 

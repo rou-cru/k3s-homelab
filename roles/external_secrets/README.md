@@ -17,35 +17,7 @@ Description: Install External Secrets Operator and configure an OCI Vault-backed
 
 
 
-### Defaults
 
-**These are static variables with lower priority**
-
-#### File: defaults/main.yml
-
-| Var          | Type         | Value       |Required    | Title       |
-|--------------|--------------|-------------|------------|-------------|
-| [oci_config_file](defaults/main.yml#L5)   | str | `{{ playbook_dir }}/.oci` |    false  |  OCI Configuration File |
-| [external_secrets_namespace](defaults/main.yml#L10)   | str | `external-secrets` |    false  |  External Secrets Namespace |
-| [external_secrets_servicemonitor_enabled](defaults/main.yml#L15)   | bool | `False` |    false  |  External Secrets ServiceMonitor |
-| [external_secrets_grafana_dashboard_enabled](defaults/main.yml#L20)   | bool | `False` |    false  |  External Secrets Grafana Dashboard |
-| [external_secrets_webhook_issuer_name](defaults/main.yml#L25)   | str | `homelab-ca-issuer` |    false  |  External Secrets Webhook Issuer Name |
-
-
-
-<details>
-<summary><b>Full descriptions for vars in defaults/main.yml</b></summary>
-<br>
-<table>
-<th>Var</th><th>Description</th>
-<tr><td><b>oci_config_file</b></td><td>Path to Oracle Cloud Infrastructure configuration file.</td></tr>
-<tr><td><b>external_secrets_namespace</b></td><td>Namespace to install External Secrets Operator into.</td></tr>
-<tr><td><b>external_secrets_servicemonitor_enabled</b></td><td>Enable ServiceMonitor resources for External Secrets.</td></tr>
-<tr><td><b>external_secrets_grafana_dashboard_enabled</b></td><td>Enable bundled Grafana dashboard resources.</td></tr>
-<tr><td><b>external_secrets_webhook_issuer_name</b></td><td>ClusterIssuer name for the webhook certificate.</td></tr>
-</table>
-<br>
-</details>
 
 
 
@@ -121,8 +93,5 @@ MIT
 
 ### Dependencies
 
-- **cert_manager**
-  
-  
-
+No dependencies specified.
 <!-- DOCSIBLE END -->

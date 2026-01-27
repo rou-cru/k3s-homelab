@@ -17,29 +17,7 @@ Description: Install gVisor runsc and register a RuntimeClass for K3s server wor
 
 
 
-### Defaults
 
-**These are static variables with lower priority**
-
-#### File: defaults/main.yml
-
-| Var          | Type         | Value       |Required    | Title       |
-|--------------|--------------|-------------|------------|-------------|
-| [gvisor_install](defaults/main.yml#L5)   | bool | `True` |    false  |  gVisor Install |
-| [gvisor_version](defaults/main.yml#L11)   | str | `20231204.0` |    false  |  gVisor Version |
-
-
-
-<details>
-<summary><b>Full descriptions for vars in defaults/main.yml</b></summary>
-<br>
-<table>
-<th>Var</th><th>Description</th>
-<tr><td><b>gvisor_install</b></td><td>Enable gVisor installation and RuntimeClass deployment.</td></tr>
-<tr><td><b>gvisor_version</b></td><td>Version of gVisor runtime to install.</td></tr>
-</table>
-<br>
-</details>
 
 
 

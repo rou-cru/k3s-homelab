@@ -133,53 +133,7 @@ and local context merging.
 
 
 
-### Defaults
 
-**These are static variables with lower priority**
-
-#### File: defaults/main.yml
-
-| Var          | Type         | Value       |Required    | Title       |
-|--------------|--------------|-------------|------------|-------------|
-| [k3s_server_version](defaults/main.yml#L5)   | str | `v1.35.0+k3s1` |    false  |  K3s Version |
-| [k3s_server_disable_traefik](defaults/main.yml#L10)   | bool | `True` |    false  |  Disable Traefik |
-| [k3s_server_disable_servicelb](defaults/main.yml#L15)   | bool | `True` |    false  |  Disable ServiceLB |
-| [k3s_server_kubeconfig_mode](defaults/main.yml#L20)   | str | `0600` |    false  |  Kubeconfig Mode |
-| [k3s_server_node_token_timeout](defaults/main.yml#L25)   | int | `180` |    false  |  Token Timeout |
-| [k3s_server_readyz_retries](defaults/main.yml#L30)   | int | `30` |    false  |  Readiness Retries |
-| [k3s_server_readyz_delay](defaults/main.yml#L35)   | int | `2` |    false  |  Readiness Delay |
-| [k3s_server_recreate](defaults/main.yml#L40)   | bool | `True` |    false  |  Recreate Cluster |
-| [k3s_server_copy_kubeconfig_local](defaults/main.yml#L45)   | bool | `True` |    false  |  Copy Kubeconfig Local |
-| [k3s_server_local_kubeconfig_path](defaults/main.yml#L50)   | str | `{{ lookup('env', 'HOME') }}/.kube/config` |    false  |  Local Kubeconfig Path |
-| [k3s_server_context_name](defaults/main.yml#L55)   | str | `{{ inventory_hostname }}` |    false  |  Kubeconfig Context Name |
-| [k3s_cni_bin_dir](defaults/main.yml#L61)   | str | `/opt/cni/bin` |    false  |  CNI Bin Directory |
-| [k3s_cni_conf_dir](defaults/main.yml#L67)   | str | `/etc/cni/net.d` |    false  |  CNI Config Directory |
-| [k3s_common_containerd_optimized](defaults/main.yml#L73)   | bool | `True` |    false  |  Containerd Optimizations |
-
-
-
-<details>
-<summary><b>Full descriptions for vars in defaults/main.yml</b></summary>
-<br>
-<table>
-<th>Var</th><th>Description</th>
-<tr><td><b>k3s_server_version</b></td><td>K3s version to install (e.g., v1.35.0+k3s1).</td></tr>
-<tr><td><b>k3s_server_disable_traefik</b></td><td>Disables the default Traefik ingress controller.</td></tr>
-<tr><td><b>k3s_server_disable_servicelb</b></td><td>Disables the default ServiceLB load balancer.</td></tr>
-<tr><td><b>k3s_server_kubeconfig_mode</b></td><td>File permission mode for the generated kubeconfig on the server.</td></tr>
-<tr><td><b>k3s_server_node_token_timeout</b></td><td>Timeout (seconds) to wait for K3s generated config/token presence.</td></tr>
-<tr><td><b>k3s_server_readyz_retries</b></td><td>Number of retries for the API server readiness check.</td></tr>
-<tr><td><b>k3s_server_readyz_delay</b></td><td>Delay (seconds) between readiness check retries.</td></tr>
-<tr><td><b>k3s_server_recreate</b></td><td>If true, uninstalls and wipes previous K3s installation before deploying.</td></tr>
-<tr><td><b>k3s_server_copy_kubeconfig_local</b></td><td>If true, copies the generated kubeconfig to the Ansible controller.</td></tr>
-<tr><td><b>k3s_server_local_kubeconfig_path</b></td><td>Local path where the kubeconfig should be saved.</td></tr>
-<tr><td><b>k3s_server_context_name</b></td><td>Context name to use in the local kubeconfig.</td></tr>
-<tr><td><b>k3s_cni_bin_dir</b></td><td>Directory for CNI binaries.</td></tr>
-<tr><td><b>k3s_cni_conf_dir</b></td><td>Directory for CNI configuration.</td></tr>
-<tr><td><b>k3s_common_containerd_optimized</b></td><td>Enable containerd performance and resource optimizations.</td></tr>
-</table>
-<br>
-</details>
 
 
 

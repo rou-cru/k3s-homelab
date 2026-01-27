@@ -17,37 +17,7 @@ Description: Deploy ArgoCD on K3s via Helm (expects External Secrets and an OCI 
 
 
 
-### Defaults
 
-**These are static variables with lower priority**
-
-#### File: defaults/main.yml
-
-| Var          | Type         | Value       |Required    | Title       |
-|--------------|--------------|-------------|------------|-------------|
-| [argocd_namespace](defaults/main.yml#L5)   | str | `argocd` |    false  |  ArgoCD Namespace |
-| [argocd_chart_version](defaults/main.yml#L10)   | str |  |    false  |  Chart Version |
-| [argocd_install_crds](defaults/main.yml#L15)   | bool | `True` |    false  |  Install CRDs |
-| [argocd_ha_enabled](defaults/main.yml#L20)   | bool | `False` |    false  |  High Availability |
-| [argocd_dex_enabled](defaults/main.yml#L25)   | bool | `False` |    false  |  Dex Integration |
-| [argocd_servicemonitor_enabled](defaults/main.yml#L30)   | bool | `True` |    false  |  ServiceMonitor |
-
-
-
-<details>
-<summary><b>Full descriptions for vars in defaults/main.yml</b></summary>
-<br>
-<table>
-<th>Var</th><th>Description</th>
-<tr><td><b>argocd_namespace</b></td><td>Kubernetes namespace where ArgoCD will be installed.</td></tr>
-<tr><td><b>argocd_chart_version</b></td><td>ArgoCD Helm chart version (empty for latest).</td></tr>
-<tr><td><b>argocd_install_crds</b></td><td>Whether to install ArgoCD Custom Resource Definitions.</td></tr>
-<tr><td><b>argocd_ha_enabled</b></td><td>Enable high availability mode for ArgoCD.</td></tr>
-<tr><td><b>argocd_dex_enabled</b></td><td>Enable Dex for SSO authentication integration.</td></tr>
-<tr><td><b>argocd_servicemonitor_enabled</b></td><td>Enable Prometheus ServiceMonitor for metrics collection.</td></tr>
-</table>
-<br>
-</details>
 
 
 
