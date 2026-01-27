@@ -8,9 +8,6 @@ token: "{{ k3s_agentToken }}"
 # Network - Bind to Tailscale IP for secure inter-node communication
 node-ip: "{{ IP_tailscale }}"
 
-# Kube-proxy - Must match server configuration (Cilium replacement)
-disable-kube-proxy: true
-
 {% if k3s_agentNodeLabels | length > 0 %}
 # Node labels
 node-label:

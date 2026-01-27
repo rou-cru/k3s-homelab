@@ -64,23 +64,13 @@
     (common_hwe_kernel_install is failed) or
     (hwe_kernel_package is not defined)
   register: common_generic_kernel_install
-# Track if kernel was changed to trigger reboot later
+# Track if kernel was changed (informational only)
 - name: Register kernel change
   ansible.builtin.set_fact:
     system_kernelChanged: >-
       {{ (common_hwe_kernel_install.changed | default(false))
         or (common_generic_kernel_install.changed | default(false))
       }}
-
-# Schedule reboot if kernel changed
-- name: Schedule reboot for kernel change
-  ansible.builtin.debug:
-    msg: "Kernel change detected; reboot will be scheduled."
-  changed_when: true
-  notify: Reboot host
-  when:
-    - system_kernelChanged | default(false) | bool
-    - not ansible_check_mode
 # Configure power management settings
 - name: Configure power
   ansible.builtin.include_tasks: power_management.yml

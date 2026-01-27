@@ -86,7 +86,7 @@ system_helmRepositories:
     repo_url: "https://nvidia.github.io/k8s-device-plugin"
 
 # ---- CONSTANTS - CHECKSUMS & VERSIONS ----------------------------------------------
-system_uvInstallScriptChecksum: "10fb1f54d56f3eb60622006797339d4ea0bfda9b358d07db635f73cf89f7094c"
+system_uvInstallScriptChecksum: "6a2da893cd56f9e2d1c9140d0c434fd1de097358bedeb89add559ef3179c932e"
 system_helmInstallScriptChecksum: "38b65f882d9cae3891755bdb03becc6a01ae6f9cb24826c191f219ddfee70a5d"
 tailscale_installScriptChecksum: "39e5b9185e9329955b324a48c13d4863c3a93f814260336cf0d4ad92a0aac3d3"
 

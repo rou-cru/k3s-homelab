@@ -39,15 +39,6 @@
              common_r8169_blacklist.changed or
              common_grub_aspm.changed }}
 
-    # Schedule reboot if network driver changes were applied
-    - name: Schedule reboot for network driver changes
-      ansible.builtin.debug:
-        msg: "Network driver change detected; reboot will be scheduled."
-      changed_when: true
-      notify: Reboot host
-      when:
-        - system_networkDriverChanged | default(false) | bool
-        - not ansible_check_mode
   # Handle Realtek optimization failures gracefully
   rescue:
     - name: Report RoG/Realtek optimization failure
