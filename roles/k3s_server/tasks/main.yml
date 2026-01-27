@@ -2,10 +2,10 @@
 - name: Validate Tailscale IP
   ansible.builtin.assert:
     that:
-      - tailscale_ip is defined
-      - tailscale_ip | length > 0
-      - tailscale_ip is match('^100\.')
-    fail_msg: "ERROR: Invalid tailscale_ip ({{ tailscale_ip | default('undefined') }}). Must be 100.x.x.x"
+      - IP_tailscale is defined
+      - IP_tailscale | length > 0
+      - IP_tailscale is match('^100\.')
+    fail_msg: "ERROR: Invalid IP_tailscale ({{ IP_tailscale | default('undefined') }}). Must be 100.x.x.x"
 
 - name: Verify K3s server version
   ansible.builtin.assert:
@@ -151,7 +151,7 @@
   ansible.builtin.set_fact:
     k3s_kubeconfig_canonical: |
       {{ k3s_kubeconfig_raw.content | b64decode |
-         regex_replace('https://[0-9.]+:6443', 'https://' + tailscale_ip + ':6443') }}
+         regex_replace('https://[0-9.]+:6443', 'https://' + IP_tailscale + ':6443') }}
   when: not ansible_check_mode
 
 # Store Tailscale-enabled kubeconfig for server access
@@ -167,7 +167,7 @@
 # Create secure kubeconfig directory for ansible user
 - name: Create user kube dir
   ansible.builtin.file:
-    path: "{{ k8s_kubeconfig | dirname }}"
+    path: "{{ kubeconfig | dirname }}"
     state: directory
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
@@ -178,7 +178,7 @@
 - name: Write user config
   ansible.builtin.copy:
     content: "{{ k3s_kubeconfig_canonical }}"
-    dest: "{{ k8s_kubeconfig }}"
+    dest: "{{ kubeconfig }}"
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
     mode: "0600"
@@ -201,7 +201,7 @@
   kubernetes.core.k8s_info:
     kind: Namespace
     name: kube-system
-    kubeconfig: "{{ k8s_kubeconfig }}"
+    kubeconfig: "{{ kubeconfig }}"
   register: k3s_server_readyz
   retries: "{{ k3s_serverReadyzRetries }}"
   delay: "{{ k3s_serverReadyzDelay }}"

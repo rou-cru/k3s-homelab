@@ -20,7 +20,7 @@
     update_repo_cache: true
     create_namespace: true
     chart_version: "{{ certManager_chartVersion | default(omit, true) }}"
-    kubeconfig: "{{ k8s_kubeconfig }}"
+    kubeconfig: "{{ kubeconfig }}"
     values:
       crds:
         enabled: true
@@ -86,7 +86,7 @@
       type: Available
       status: "True"
     wait_timeout: 300
-    kubeconfig: "{{ k8s_kubeconfig }}"
+    kubeconfig: "{{ kubeconfig }}"
   become: false
   when:
     - helm_binary_check.rc == 0
@@ -103,7 +103,7 @@
         name: "{{ certManager_selfsignedIssuerName }}"
       spec:
         selfSigned: {}
-    kubeconfig: "{{ k8s_kubeconfig }}"
+    kubeconfig: "{{ kubeconfig }}"
   become: false
   when:
     - helm_binary_check.rc == 0
@@ -130,7 +130,7 @@
         issuerRef:
           name: "{{ certManager_selfsignedIssuerName }}"
           kind: ClusterIssuer
-    kubeconfig: "{{ k8s_kubeconfig }}"
+    kubeconfig: "{{ kubeconfig }}"
   become: false
   when:
     - helm_binary_check.rc == 0
@@ -143,12 +143,12 @@
     kind: Secret
     name: "{{ certManager_caSecretName }}"
     namespace: "{{ certManager_namespace }}"
-    kubeconfig: "{{ k8s_kubeconfig }}"
-  register: cert_manager_ca_secret
+    kubeconfig: "{{ kubeconfig }}"
+  register: secretCA
   retries: 30
   delay: 5
   until:
-    - cert_manager_ca_secret.resources | length > 0
+    - secretCA.resources | length > 0
   become: false
   when:
     - helm_binary_check.rc == 0
@@ -166,7 +166,7 @@
       spec:
         ca:
           secretName: "{{ certManager_caSecretName }}"
-    kubeconfig: "{{ k8s_kubeconfig }}"
+    kubeconfig: "{{ kubeconfig }}"
   become: false
   when:
     - helm_binary_check.rc == 0

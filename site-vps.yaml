@@ -112,7 +112,7 @@
           VPS Node Setup Complete
           ====================================
           Hostname: {{ ansible_facts['hostname'] }}
-          Tailscale IP: {{ tailscale_ip | default('Not configured') }}
+          Tailscale IP: {{ IP_tailscale | default('Not configured') }}
           Public IP: {{ ansible_host }}
           K3s Server: {{ k3s_agentServerUrl | default('Not configured') }}
           Exit Node: {{ tailscale_exitNodeEnabled | default(false) }}

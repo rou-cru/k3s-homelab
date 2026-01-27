@@ -31,7 +31,7 @@
     values_files:
       - "{{ cilium_values_tmp.path }}"
     chart_version: "{{ cilium_chartVersion }}"
-    kubeconfig: "{{ k8s_kubeconfig }}"
+    kubeconfig: "{{ kubeconfig }}"
     update_repo_cache: true # Ensure latest chart information
   when: not ansible_check_mode
 # Verify Cilium DaemonSet creation before proceeding
@@ -40,7 +40,7 @@
     kind: DaemonSet
     name: cilium
     namespace: "{{ cilium_namespace }}"
-    kubeconfig: "{{ k8s_kubeconfig }}"
+    kubeconfig: "{{ kubeconfig }}"
   register: cilium_ds_check
   until: cilium_ds_check.resources | length > 0
   retries: "{{ cilium_waitRetries }}"
@@ -53,7 +53,7 @@
     kind: DaemonSet
     name: cilium
     namespace: "{{ cilium_namespace }}"
-    kubeconfig: "{{ k8s_kubeconfig }}"
+    kubeconfig: "{{ kubeconfig }}"
   register: cilium_ds
   until: >-
     cilium_ds.resources | length > 0 and

@@ -105,28 +105,28 @@
 # Store Tailscale IP address as ansible fact for other roles
 - name: Set IP fact
   ansible.builtin.set_fact:
-    tailscale_ip: >-
+    IP_tailscale: >-
       {{ (tailscale_ip_cmd.stdout_lines | default([])) | first | default(tailscale_ip_cmd.stdout | trim) }}
   when: tailscale_ip_cmd is not skipped
 
 # In check mode, provide a mock Tailscale IP to avoid cascading failures
 - name: Set mock IP fact (check mode)
   ansible.builtin.set_fact:
-    tailscale_ip: "100.64.0.1"
+    IP_tailscale: "100.64.0.1"
   when: ansible_check_mode
 # Test SSH connectivity through Tailscale network
 - name: Validate connectivity
   ansible.builtin.wait_for:
-    host: "{{ tailscale_ip }}"
+    host: "{{ IP_tailscale }}"
     port: 22
     timeout: 10
   register: tailscale_connectivity_check
-  when: tailscale_ip is defined and tailscale_ip | length > 0
+  when: IP_tailscale is defined and IP_tailscale | length > 0
 # Display warning if Tailscale connectivity test fails
 # Non-blocking warning - connectivity may work even if initial test fails
 - name: Warn connectivity
   ansible.builtin.debug:
-    msg: "⚠️  Tailscale connectivity failed: {{ tailscale_ip }}:22"
+    msg: "⚠️  Tailscale connectivity failed: {{ IP_tailscale }}:22"
   when: tailscale_connectivity_check.failed | default(false)
 # Remind user to approve exit node in admin console
 - name: Exit node approval reminder

@@ -2,12 +2,12 @@
 # Declarative configuration for K3s
 
 # Network - Bind to Tailscale IP
-node-ip: "{{ tailscale_ip }}"
-advertise-address: "{{ tailscale_ip }}"
+node-ip: "{{ IP_tailscale }}"
+advertise-address: "{{ IP_tailscale }}"
 
 # TLS - Add Tailscale IP to SANs
 tls-san:
-  - "{{ tailscale_ip }}"
+  - "{{ IP_tailscale }}"
 
 # CNI - We use Cilium, so disable Flannel
 flannel-backend: "none"

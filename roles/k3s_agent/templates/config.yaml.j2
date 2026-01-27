@@ -6,7 +6,7 @@ server: "{{ k3s_agentServerUrl }}"
 token: "{{ k3s_agentToken }}"
 
 # Network - Bind to Tailscale IP for secure inter-node communication
-node-ip: "{{ tailscale_ip }}"
+node-ip: "{{ IP_tailscale }}"
 
 # Kube-proxy - Must match server configuration (Cilium replacement)
 disable-kube-proxy: true

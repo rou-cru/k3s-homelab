@@ -149,7 +149,7 @@
   become: true
   vars:
     # @docsible Mining wallet configuration
-    wallet_cpu: "{{ mining_wallet | default('') }}"
+    wallet_cpu: "{{ miningWallet | default('') }}"
   vars_files:
     - "{{ secrets_file | default('secrets.yaml') }}"
   pre_tasks:
@@ -159,7 +159,7 @@
         that:
           - wallet_cpu | length > 0
         fail_msg: >-
-          ERROR: Configure 'mining_wallet' in 'secrets.yaml' or inventory variables.
+          ERROR: Configure 'miningWallet' in 'secrets.yaml' or inventory variables.
         success_msg: "Mining wallet configuration validated successfully."
       tags: always
   tasks:
@@ -169,7 +169,7 @@
         miner_control_plane_labels: >-
           {{
             []
-            + (['miner.network=true'] if (miner_label_network | default(true) | bool) else [])
+            + (['miner.network=true'] if (minerLabelNetwork | default(true) | bool) else [])
             + (['miner.cpu=true'] if (mining_cpuEnabled | default(false) | bool) else [])
             + (['miner.gpu=true'] if (mining_gpuEnabled | default(false) | bool) else [])
           }}
@@ -177,7 +177,7 @@
     # @docsible Label control plane for mining
     - name: Get control plane nodes for mining labeling
       kubernetes.core.k8s_info:
-        kubeconfig: "{{ k8s_kubeconfig }}"
+        kubeconfig: "{{ kubeconfig }}"
         kind: Node
         label_selectors:
           - node-role.kubernetes.io/control-plane
@@ -190,7 +190,7 @@
 
     - name: Label control plane nodes for mining workloads
       kubernetes.core.k8s:
-        kubeconfig: "{{ k8s_kubeconfig }}"
+        kubeconfig: "{{ kubeconfig }}"
         kind: Node
         name: "{{ item.metadata.name }}"
         definition:
@@ -236,7 +236,7 @@
     - name: Apply Namespaces
       kubernetes.core.k8s:
         src: "{{ item.path }}"
-        kubeconfig: "{{ k8s_kubeconfig }}"
+        kubeconfig: "{{ kubeconfig }}"
         state: present
       become: false
       tags: ["apps"]
@@ -248,8 +248,8 @@
       ansible.builtin.copy:
         dest: "{{ k8s_manifestsDir }}/apps/miners/honeygain/config.env"
         content: |
-          HONEYGAIN_EMAIL={{ honeygain_email }}
-          HONEYGAIN_DEVICE={{ honeygain_device | default('bandwidth-miner') }}
+          HONEYGAIN_EMAIL={{ honeygainEmail }}
+          HONEYGAIN_DEVICE={{ honeygainDevice | default('bandwidth-miner') }}
         mode: "0600"
       become: false
       tags: ["apps", "honeygain"]
@@ -259,7 +259,7 @@
       ansible.builtin.copy:
         dest: "{{ k8s_manifestsDir }}/apps/miners/honeygain/secret.env"
         content: |
-          HONEYGAIN_PASS={{ honeygain_pass }}
+          HONEYGAIN_PASS={{ honeygainPass }}
         mode: "0600"
       become: false
       tags: ["apps", "honeygain"]
@@ -269,7 +269,7 @@
     - name: Deploy Honeygain via Kustomize
       ansible.builtin.command: kubectl apply -k {{ k8s_manifestsDir }}/apps/miners/honeygain/
       environment:
-        KUBECONFIG: "{{ k8s_kubeconfig }}"
+        KUBECONFIG: "{{ kubeconfig }}"
       register: honeygain_apply
       changed_when: "'configured' in honeygain_apply.stdout or 'created' in honeygain_apply.stdout"
       become: false
@@ -291,7 +291,7 @@
     - name: Deploy Mining Secrets via Kustomize
       ansible.builtin.command: kubectl apply -k {{ k8s_manifestsDir }}/apps/miners/mining-secrets/
       environment:
-        KUBECONFIG: "{{ k8s_kubeconfig }}"
+        KUBECONFIG: "{{ kubeconfig }}"
       register: mining_secrets_apply
       changed_when: "'configured' in mining_secrets_apply.stdout or 'created' in mining_secrets_apply.stdout"
       become: false
@@ -302,7 +302,7 @@
     - name: Deploy Mining Pools ConfigMap via Kustomize
       ansible.builtin.command: kubectl apply -k {{ k8s_manifestsDir }}/apps/miners/mining-pools/
       environment:
-        KUBECONFIG: "{{ k8s_kubeconfig }}"
+        KUBECONFIG: "{{ kubeconfig }}"
       register: mining_pools_apply
       changed_when: "'configured' in mining_pools_apply.stdout or 'created' in mining_pools_apply.stdout"
       become: false
@@ -313,7 +313,7 @@
     - name: Deploy Unmineable CPU TNN via Kustomize
       ansible.builtin.command: kubectl apply -k {{ k8s_manifestsDir }}/apps/miners/cpu-miner/
       environment:
-        KUBECONFIG: "{{ k8s_kubeconfig }}"
+        KUBECONFIG: "{{ kubeconfig }}"
       register: unmineable_cpu_tnn_apply
       changed_when: "'configured' in unmineable_cpu_tnn_apply.stdout or 'created' in unmineable_cpu_tnn_apply.stdout"
       become: false
@@ -324,7 +324,7 @@
     - name: Deploy Unmineable GPU Rigel via Kustomize
       ansible.builtin.command: kubectl apply -k {{ k8s_manifestsDir }}/apps/miners/gpu-miner/
       environment:
-        KUBECONFIG: "{{ k8s_kubeconfig }}"
+        KUBECONFIG: "{{ kubeconfig }}"
       register: unmineable_gpu_rigel_apply
       changed_when: >-
         'configured' in unmineable_gpu_rigel_apply.stdout or 'created' in unmineable_gpu_rigel_apply.stdout

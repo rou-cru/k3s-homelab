@@ -34,7 +34,7 @@ argument_specs:
         type: bool
         default: false
         description: Uninstall and wipe previous K3s agent before deploying
-      tailscale_ip:
+      IP_tailscale:
         type: str
         required: false
         description: Tailscale IP address (100.x.x.x) for node communication (set by tailscale role)

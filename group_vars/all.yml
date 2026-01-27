@@ -4,7 +4,7 @@ ansible_become: true
 ansible_ssh_pipelining: true
 
 # ---- KUBERNETES --------------------------------------------------------------------
-k8s_kubeconfig: "/home/{{ ansible_user }}/.kube/config"
+kubeconfig: "/home/{{ ansible_user }}/.kube/config"
 k8s_manifestsDir: "/home/{{ ansible_user }}/k8s-manifests"
 global_waitRetries: 60
 global_waitDelay: 10
