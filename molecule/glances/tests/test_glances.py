@@ -5,9 +5,9 @@ def test_glances_venv_present(host):
     """
     Check that the Glances virtual environment contains a Python executable at the configured path.
     
-    Reads the Ansible variable "glances_venv_path" (defaults to "/opt/glances") and asserts that "{venv_path}/bin/python" exists.
+    Reads the Ansible variable "glances_venvPath" (defaults to "/opt/glances") and asserts that "{venv_path}/bin/python" exists.
     """
-    venv_path = host.ansible.get_variables().get("glances_venv_path", "/opt/glances")
+    venv_path = host.ansible.get_variables().get("glances_venvPath", "/opt/glances")
     assert host.file(f"{venv_path}/bin/python").exists
 
 

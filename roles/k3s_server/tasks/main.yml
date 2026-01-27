@@ -1,4 +1,12 @@
 # main.yml - K3s Server Role
+- name: Validate Tailscale IP
+  ansible.builtin.assert:
+    that:
+      - tailscale_ip is defined
+      - tailscale_ip | length > 0
+      - tailscale_ip is match('^100\.')
+    fail_msg: "ERROR: Invalid tailscale_ip ({{ tailscale_ip | default('undefined') }}). Must be 100.x.x.x"
+
 - name: Verify K3s server version
   ansible.builtin.assert:
     that:
@@ -39,6 +47,23 @@
     path: /var/log/k3s
     state: directory
     mode: "0755"
+
+# Create audit log file with strict permissions for security
+- name: Ensure K3s audit log file exists with restrictive permissions
+  ansible.builtin.file:
+    path: /var/log/k3s/audit.log
+    state: touch
+    owner: root
+    group: root
+    mode: "0600"
+    modification_time: preserve
+
+# Deploy Kubernetes audit policy for API security monitoring
+- name: Deploy K3s audit policy
+  ansible.builtin.template:
+    src: audit-policy.yaml.j2
+    dest: /etc/rancher/k3s/audit-policy.yaml
+    mode: "0600"
 
 # Deploy K3s server configuration
 - name: Deploy server config
@@ -82,11 +107,81 @@
     mode: "0640"
   notify: Restart k3s
 
+# Reload systemd configuration after service changes
+- name: Reload systemd (k3s)
+  ansible.builtin.systemd:
+    daemon_reload: true
+
+# Enable and start K3s service
+- name: Start K3s
+  ansible.builtin.systemd:
+    name: k3s
+    enabled: true
+    state: started
+  when: not ansible_check_mode
+
+# Apply pending service restarts before continuing
+- name: Flush handlers
+  ansible.builtin.meta: flush_handlers
+
 # Wait for K3s node token to be generated
 - name: Wait for node-token
   ansible.builtin.wait_for:
     path: /var/lib/rancher/k3s/server/node-token
     timeout: "{{ k3s_serverNodeTokenTimeout }}"
+  when: not ansible_check_mode
+
+# Wait for K3s to generate admin kubeconfig file
+- name: Wait for kubeconfig
+  ansible.builtin.wait_for:
+    path: /etc/rancher/k3s/k3s.yaml
+    timeout: "{{ k3s_serverNodeTokenTimeout }}"
+  when: not ansible_check_mode
+
+# Read K3s admin kubeconfig for Tailscale integration
+- name: Read kubeconfig
+  ansible.builtin.slurp:
+    src: /etc/rancher/k3s/k3s.yaml
+  register: k3s_kubeconfig_raw
+  no_log: true
+  when: not ansible_check_mode
+
+# Replace localhost with Tailscale IP for remote cluster access
+- name: Build canonical config
+  ansible.builtin.set_fact:
+    k3s_kubeconfig_canonical: |
+      {{ k3s_kubeconfig_raw.content | b64decode |
+         regex_replace('https://[0-9.]+:6443', 'https://' + tailscale_ip + ':6443') }}
+  when: not ansible_check_mode
+
+# Store Tailscale-enabled kubeconfig for server access
+- name: Write server config
+  ansible.builtin.copy:
+    content: "{{ k3s_kubeconfig_canonical }}"
+    dest: /etc/rancher/k3s/k3s-tailscale.yaml
+    owner: root
+    group: root
+    mode: "{{ k3s_serverKubeconfigMode }}"
+  when: not ansible_check_mode
+
+# Create secure kubeconfig directory for ansible user
+- name: Create user kube dir
+  ansible.builtin.file:
+    path: "{{ k8s_kubeconfig | dirname }}"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: "0700"
+  when: not ansible_check_mode
+
+# Deploy Tailscale-enabled kubeconfig for ansible user
+- name: Write user config
+  ansible.builtin.copy:
+    content: "{{ k3s_kubeconfig_canonical }}"
+    dest: "{{ k8s_kubeconfig }}"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: "0600"
   when: not ansible_check_mode
 
 # Read the generated node token for agent joins
@@ -101,23 +196,18 @@
     k3s_server_node_token: "{{ k3s_server_node_token_raw.content | b64decode | trim }}"
   when: not ansible_check_mode
 
-# Set proper permissions for the K3s kubeconfig file
-- name: Set kubeconfig permissions
-  ansible.builtin.file:
-    path: /etc/rancher/k3s/k3s.yaml
-    mode: "{{ k3s_serverKubeconfigMode }}"
-  when: not ansible_check_mode
-
-# Wait for K3s API server to become ready
-- name: Wait for API server to be ready
-  ansible.builtin.uri:
-    url: https://127.0.0.1:6443/readyz
-    validate_certs: false  # checkov:skip=CKV_ANSIBLE_1:Localhost self-signed cert validation
-  register: k3s_readyz
-  until: k3s_readyz.status == 200
+# Verify Kubernetes API server is ready before proceeding
+- name: Wait for apiserver
+  kubernetes.core.k8s_info:
+    kind: Namespace
+    name: kube-system
+    kubeconfig: "{{ k8s_kubeconfig }}"
+  register: k3s_server_readyz
   retries: "{{ k3s_serverReadyzRetries }}"
   delay: "{{ k3s_serverReadyzDelay }}"
+  until: k3s_server_readyz.resources | length > 0
   when: not ansible_check_mode
+  become: false
 
 # Label the master node as a control-plane node
 - name: Label master node
@@ -147,46 +237,57 @@
     - k3s_serverDisableTraefik | bool
     - not ansible_check_mode
 
-# Optional: Copy kubeconfig to a local path for management from workstation
-- name: Local kubeconfig setup
+# Copy kubeconfig to local machine for remote cluster management
+- name: Copy local config
   when:
     - k3s_serverCopyKubeconfigLocal | default(true) | bool
     - not ansible_check_mode
+  delegate_to: localhost
+  become: false
+  run_once: true
   block:
-    - name: Create local .kube directory
+    # Create local directory for kubeconfig storage
+    - name: Create local dir
       ansible.builtin.file:
         path: "{{ k3s_serverLocalKubeconfigPath | dirname }}"
         state: directory
         mode: "0700"
-      delegate_to: localhost
-      become: false
 
-    - name: Fetch kubeconfig from server
-      ansible.builtin.fetch:
-        src: /etc/rancher/k3s/k3s.yaml
+    # Retrieve Tailscale-enabled kubeconfig from server
+    - name: Fetch config
+      ansible.builtin.slurp:
+        src: /etc/rancher/k3s/k3s-tailscale.yaml
+      register: k3s_server_kubeconfig_b64
+      delegate_to: "{{ inventory_hostname }}"
+      become: true
+
+    # Customize kubeconfig with unique context names for multi-cluster support
+    - name: Parse config
+      ansible.builtin.set_fact:
+        k3s_server_kubeconfig_local: |
+          {{ k3s_server_kubeconfig_b64.content | b64decode |
+             regex_replace('name: default', 'name: k3s-' + k3s_serverContextName) |
+             regex_replace('cluster: default', 'cluster: k3s-' + k3s_serverContextName) |
+             regex_replace('user: default', 'user: k3s-' + k3s_serverContextName) |
+             regex_replace('current-context: default', 'current-context: k3s-' + k3s_serverContextName)
+          }}
+
+    # Save customized kubeconfig to local file
+    - name: Write local config
+      ansible.builtin.copy:
+        content: "{{ k3s_server_kubeconfig_local }}"
         dest: "{{ k3s_serverLocalKubeconfigPath }}"
-        flat: true
+        mode: "0600"
 
-    - name: Update server address in local kubeconfig
-      ansible.builtin.replace:
-        path: "{{ k3s_serverLocalKubeconfigPath }}"
-        regexp: 'https://127.0.0.1:6443'
-        replace: "https://{{ inventory_hostname }}:6443"
-      delegate_to: localhost
-      become: false
-
-    - name: Set context name in local kubeconfig
-      ansible.builtin.replace:
-        path: "{{ k3s_serverLocalKubeconfigPath }}"
-        regexp: 'name: default'
-        replace: "name: {{ k3s_serverContextName }}"
-      delegate_to: localhost
-      become: false
-
-    - name: Show kubeconfig status
+    # Display success message with kubeconfig location
+    - name: Show config info
       ansible.builtin.debug:
         msg: "✅ Kubeconfig ready: {{ k3s_serverLocalKubeconfigPath }}"
   rescue:
-    - name: Warn about local kubeconfig failure
+    - name: Report kubeconfig copy failure
       ansible.builtin.debug:
-        msg: "⚠️ Could not copy kubeconfig locally. This is non-critical."
+        msg: >-
+          Kubeconfig copy failed at {{ ansible_failed_task.name }}: {{ ansible_failed_result | to_json }}
+    - name: Fail kubeconfig copy
+      ansible.builtin.fail:
+        msg: "Kubeconfig copy to local machine failed"

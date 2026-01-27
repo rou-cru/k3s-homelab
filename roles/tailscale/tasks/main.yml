@@ -108,6 +108,12 @@
     tailscale_ip: >-
       {{ (tailscale_ip_cmd.stdout_lines | default([])) | first | default(tailscale_ip_cmd.stdout | trim) }}
   when: tailscale_ip_cmd is not skipped
+
+# In check mode, provide a mock Tailscale IP to avoid cascading failures
+- name: Set mock IP fact (check mode)
+  ansible.builtin.set_fact:
+    tailscale_ip: "100.64.0.1"
+  when: ansible_check_mode
 # Test SSH connectivity through Tailscale network
 - name: Validate connectivity
   ansible.builtin.wait_for:

@@ -23,3 +23,10 @@
   ansible.builtin.command: sysctl --system
   changed_when: false
   when: not ansible_check_mode
+
+# Reboot host to apply kernel or driver changes
+- name: Reboot host
+  ansible.builtin.reboot:
+    msg: "Rebooting to apply system changes"
+    reboot_timeout: 900
+  when: not ansible_check_mode

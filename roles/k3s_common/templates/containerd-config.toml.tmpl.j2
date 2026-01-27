@@ -1,49 +1,59 @@
-# containerd-config.toml.tmpl.j2
-# Custom containerd configuration for K3s common roles
+version = 2
 
-{% set _default_runtime = k3s_commonContainerdDefaultRuntime | default('runc') %}
-
-# Use optimized settings if enabled
-{% if k3s_commonContainerdOptimized | default(true) %}
+[plugins]
 [plugins."io.containerd.grpc.v1.cri"]
-  [plugins."io.containerd.grpc.v1.cri".containerd]
-    default_runtime_name = "{{ _default_runtime }}"
-    [plugins."io.containerd.grpc.v1.cri".containerd.runtimes]
-      [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
-        runtime_type = "io.containerd.runc.v2"
-        [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc.options]
-          SystemdCgroup = true
-{% endif %}
-
 {% if k3s_commonContainerdOptimized | default(true) %}
-[plugins."io.containerd.grpc.v1.cri".registry]
-  config_path = "/etc/rancher/k3s/registries.d"
+  stream_idle_timeout = "30m"
+  max_container_log_line_size = 16384
+  max_concurrent_downloads = 3
+  enable_unprivileged_ports = true
+  enable_unprivileged_icmp = true
+  sandbox_image = "{{ k3s_commonContainerdSandboxImage | default('registry.k8s.io/pause:3.10.1') }}"
 {% endif %}
 
-# Custom runtimes
+[plugins."io.containerd.grpc.v1.cri".containerd]
+{% set _default_runtime = k3s_commonContainerdDefaultRuntime | default('runc') %}
+  default_runtime_name = "{{ _default_runtime }}"
+  snapshotter = "overlayfs"
+{% if k3s_commonContainerdOptimized | default(true) %}
+  disable_snapshot_annotations = false
+  discard_unpacked_layers = true
+{% endif %}
+
 [plugins."io.containerd.grpc.v1.cri".containerd.runtimes]
+[plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
+  runtime_type = "io.containerd.runc.v2"
+
+[plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc.options]
+  SystemdCgroup = true
 {% if k3s_commonContainerdOptimized | default(true) %}
-  [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
-    runtime_type = "io.containerd.runc.v2"
-    [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc.options]
-      SystemdCgroup = true
+  BinaryName = "/usr/bin/runc"
 {% endif %}
 
 {% if 'nvidia' in (k3s_commonContainerdAdditionalRuntimes | default([])) %}
-  [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.nvidia]
-    runtime_type = "io.containerd.runc.v2"
-    [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.nvidia.options]
-      BinaryName = "/usr/bin/nvidia-container-runtime"
-      SystemdCgroup = true
+[plugins."io.containerd.grpc.v1.cri".containerd.runtimes.nvidia]
+  runtime_type = "io.containerd.runc.v2"
+[plugins."io.containerd.grpc.v1.cri".containerd.runtimes.nvidia.options]
+  BinaryName = "/usr/bin/nvidia-container-runtime"
+  SystemdCgroup = true
 {% endif %}
 
 {% if 'runsc' in (k3s_commonContainerdAdditionalRuntimes | default([])) %}
-  [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runsc]
-    runtime_type = "io.containerd.runsc.v1"
+[plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runsc]
+  runtime_type = "io.containerd.runsc.v1"
 {% endif %}
 
-# High performance tuning
+[plugins."io.containerd.grpc.v1.cri".cni]
+  bin_dir = "{{ k3s_cniBinDir }}"
+  conf_dir = "{{ k3s_cniConfDir }}"
+
 {% if k3s_commonContainerdOptimized | default(true) %}
-[plugins."io.containerd.grpc.v1.cri"]
-  max_container_log_line_size = 16384
+[plugins."io.containerd.grpc.v1.cri".registry]
+  config_path = "/etc/containerd/certs.d"
+
+[plugins."io.containerd.gc.v1.scheduler"]
+  deletion_threshold = 50
+  mutation_threshold = 100
+  schedule_delay = "30s"
+  startup_delay = "100ms"
 {% endif %}

@@ -29,8 +29,8 @@
   kubernetes.core.helm:
     release_name: prometheus-operator-crds
     chart_ref: prometheus-community/prometheus-operator-crds
-    release_namespace: "{{ prometheus_operator_crds_namespace }}"
+    release_namespace: "{{ prometheus_operatorCrdsNamespace }}"
     create_namespace: true
     update_repo_cache: true
-    chart_version: "{{ prometheus_operator_crds_version }}"
+    chart_version: "{{ prometheus_operatorCrdsVersion }}"
     kubeconfig: "{{ k8s_kubeconfig }}"

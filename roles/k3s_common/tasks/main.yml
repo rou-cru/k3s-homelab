@@ -1,56 +1,93 @@
-# main.yml - K3s Common logic
+# Check uninstall scripts (handle both server and agent cases)
+- name: Check K3s uninstall script
+  ansible.builtin.stat:
+    path: /usr/local/bin/k3s-uninstall.sh
+  register: k3s_server_uninstall_script
+
+- name: Check K3s agent uninstall script
+  ansible.builtin.stat:
+    path: /usr/local/bin/k3s-agent-uninstall.sh
+  register: k3s_agent_uninstall_script
+
+# Uninstall if recreate is requested
+- name: Uninstall K3s (Server)
+  ansible.builtin.command: /usr/local/bin/k3s-uninstall.sh
+  when:
+    - k3s_recreate | bool
+    - k3s_server_uninstall_script.stat.exists
+    - not ansible_check_mode
+  changed_when: true
+
+- name: Uninstall K3s (Agent)
+  ansible.builtin.command: /usr/local/bin/k3s-agent-uninstall.sh
+  when:
+    - k3s_recreate | bool
+    - k3s_agent_uninstall_script.stat.exists
+    - not ansible_check_mode
+  changed_when: true
+
+# Cleanup directories
+- name: Cleanup K3s directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /var/lib/rancher/k3s
+    - /etc/rancher/k3s
+    - /var/lib/kubelet
+    - /var/lib/cni
+    - /etc/cni/net.d
+  when:
+    - k3s_recreate | bool
+
+# Create base directories
 - name: Ensure K3s config directory exists
   ansible.builtin.file:
     path: /etc/rancher/k3s
     state: directory
-    mode: "0755"
+    mode: "0750"
 
-- name: Ensure registries.d exists
-  ansible.builtin.file:
-    path: /etc/rancher/k3s/registries.d
-    state: directory
-    mode: "0755"
-
-- name: Deploy registries.yaml
+- name: Configure K3s registry auth
   ansible.builtin.template:
     src: registries.yaml.j2
     dest: /etc/rancher/k3s/registries.yaml
     mode: "0600"
+  no_log: true
   notify: "{{ k3s_commonRestartHandler | default('Restart k3s') }}"
   when:
     - k3s_commonRegistryAuths is defined
     - k3s_commonRegistryAuths | length > 0
 
-- name: Deploy containerd-config.toml
+- name: Ensure CNI config directory exists
+  ansible.builtin.file:
+    path: "{{ k3s_cniConfDir }}"
+    state: directory
+    mode: "0750"
+  when: k3s_commonContainerdAdditionalRuntimes | default([]) | length > 0
+
+- name: Ensure CNI bin directory exists
+  ansible.builtin.file:
+    path: "{{ k3s_cniBinDir }}"
+    state: directory
+    mode: "0750"
+  when: k3s_commonContainerdAdditionalRuntimes | default([]) | length > 0
+
+- name: Ensure K3s agent etc directory exists (for containerd)
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/agent/etc/containerd
+    state: directory
+    mode: "0750"
+    recurse: true
+  when: k3s_commonContainerdAdditionalRuntimes | default([]) | length > 0
+
+# Deploy Containerd Config
+- name: Deploy containerd configuration template
   ansible.builtin.template:
     src: containerd-config.toml.tmpl.j2
-    dest: /etc/rancher/k3s/containerd-config.toml.tmpl
-    mode: "0644"
-  when: k3s_commonContainerdAdditionalRuntimes | default([]) | length > 0
-
-- name: Create containerd scripts dir
-  ansible.builtin.file:
-    path: /usr/local/bin/containerd-scripts
-    state: directory
-    mode: "0755"
-  when: k3s_commonContainerdAdditionalRuntimes | default([]) | length > 0
-
-- name: Deploy runtime check script
-  ansible.builtin.template:
-    src: check-runtime.sh.j2
-    dest: /usr/local/bin/containerd-scripts/check-runtime.sh
-    mode: "0755"
-  when: k3s_commonContainerdAdditionalRuntimes | default([]) | length > 0
-
-- name: Ensure k3s service override dir
-  ansible.builtin.file:
-    path: /etc/systemd/system/k3s.service.d
-    state: directory
-    mode: "0755"
-  when: k3s_commonContainerdAdditionalRuntimes | default([]) | length > 0
-
-- name: Reload systemd and restart k3s
-  ansible.builtin.systemd:
-    daemon_reload: true
+    dest: /var/lib/rancher/k3s/agent/etc/containerd/config.toml.tmpl
+    mode: "0640"
   when: k3s_commonContainerdAdditionalRuntimes | default([]) | length > 0
   notify: "{{ k3s_commonRestartHandler | default('Restart k3s') }}"
+
+# Common Systemd Override Directory (Structure only, not content)
+# Service names differ (k3s vs k3s-agent), so we leave the override creation to the specific roles.

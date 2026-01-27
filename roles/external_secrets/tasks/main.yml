@@ -22,10 +22,10 @@
   kubernetes.core.helm:
     name: external-secrets
     chart_ref: external-secrets/external-secrets
-    release_namespace: "{{ external_secrets_namespace }}"
+    release_namespace: "{{ externalSecrets_namespace }}"
     update_repo_cache: true
     create_namespace: true
-    chart_version: "{{ external_secrets_chart_version | default(omit, true) }}"
+    chart_version: "{{ externalSecrets_chartVersion | default(omit, true) }}"
     kubeconfig: "{{ k8s_kubeconfig }}"
     values:
       installCRDs: true
@@ -50,14 +50,14 @@
         enabled: true
 
       serviceMonitor:
-        enabled: "{{ external_secrets_servicemonitor_enabled }}"
+        enabled: "{{ externalSecrets_serviceMonitorEnabled }}"
 
       webhook:
         replicaCount: 1
         podDisruptionBudget:
           enabled: false
         serviceMonitor:
-          enabled: "{{ external_secrets_servicemonitor_enabled }}"
+          enabled: "{{ externalSecrets_serviceMonitorEnabled }}"
         certManager:
           enabled: true
           addInjectorAnnotations: true
@@ -66,13 +66,13 @@
             issuerRef:
               group: cert-manager.io
               kind: ClusterIssuer
-              name: "{{ external_secrets_webhook_issuer_name }}"
+              name: "{{ externalSecrets_webhookIssuerName }}"
 
       certController:
         enabled: false
 
       grafanaDashboard:
-        enabled: "{{ external_secrets_grafana_dashboard_enabled }}"
+        enabled: "{{ externalSecrets_grafanaDashboardEnabled }}"
   become: false
   when:
     - helm_binary_check.stat.exists

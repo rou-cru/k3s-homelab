@@ -17,7 +17,7 @@
 
 {% if k3s_commonContainerdOptimized | default(true) %}
 [plugins."io.containerd.grpc.v1.cri".registry]
-  config_path = "/etc/rancher/k3s/registries.d"
+  config_path = "/etc/containerd/certs.d"
 {% endif %}
 
 # Custom runtimes
