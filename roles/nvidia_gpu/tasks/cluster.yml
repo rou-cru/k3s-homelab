@@ -55,8 +55,8 @@
       until: >-
         nvdp_ds.resources | length > 0 and
         nvdp_ds.resources[0].status.numberReady | default(0) > 0
-      retries: "{{ global_wait_retries }}"
-      delay: "{{ global_wait_delay }}"
+      retries: "{{ global_waitRetries }}"
+      delay: "{{ global_waitDelay }}"
       when: helm_binary_check.rc == 0
 
     - name: Check GPU resources

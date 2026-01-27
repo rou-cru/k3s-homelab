@@ -3,7 +3,7 @@
   kubernetes.core.k8s:
     state: present
     src: >-
-      https://github.com/kubernetes-sigs/gateway-api/releases/download/{{ gateway_api_version }}/standard-install.yaml
+      https://github.com/kubernetes-sigs/gateway-api/releases/download/{{ gateway_apiVersion }}/standard-install.yaml
     kubeconfig: "{{ k8s_kubeconfig }}"
 
 - name: Wait for Gateway API CRDs to be established
