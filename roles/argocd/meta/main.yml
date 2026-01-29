@@ -16,5 +16,5 @@ galaxy_info:
     - k3s
     - argocd
 
-dependencies:
-  - role: external_secrets
+dependencies: []
+# NOTE: external_secrets is deployed in Play 1 of site.yaml before argocd

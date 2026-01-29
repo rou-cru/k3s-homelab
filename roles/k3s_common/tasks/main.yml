@@ -95,5 +95,12 @@
   when: k3s_commonContainerdAdditionalRuntimes | default([]) | length > 0
   notify: "{{ k3s_commonRestartHandler | default('Restart k3s') }}"
 
+# @docsible Remove containerd template when no extra runtimes are configured
+- name: Remove containerd configuration template
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/agent/etc/containerd/config.toml.tmpl
+    state: absent
+  when: k3s_commonContainerdAdditionalRuntimes | default([]) | length == 0
+
 # Common Systemd Override Directory (Structure only, not content)
 # Service names differ (k3s vs k3s-agent), so we leave the override creation to the specific roles.

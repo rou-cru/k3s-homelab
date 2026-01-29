@@ -26,9 +26,6 @@ version = 2
 
 [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc.options]
   SystemdCgroup = true
-{% if k3s_commonContainerdOptimized | default(true) %}
-  BinaryName = "/usr/bin/runc"
-{% endif %}
 
 {% if 'nvidia' in (k3s_commonContainerdAdditionalRuntimes | default([])) %}
 [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.nvidia]

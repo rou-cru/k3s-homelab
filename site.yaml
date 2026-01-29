@@ -140,13 +140,21 @@
       tags: ["cluster", "infrastructure", "external-secrets"]
       become: false
       when: not ansible_check_mode
+    # @docsible Deploy ACME/Let's Encrypt and public Gateway (requires external-secrets)
+    - name: Run cert-manager ACME configuration
+      ansible.builtin.import_role:
+        name: cert_manager
+        tasks_from: acme.yml
+      tags: ["cluster", "infrastructure", "acme", "gateway"]
+      become: false
+      when: not ansible_check_mode
 
 # ==============================================================================
 # PLAY 2: Mining Workloads (Deploy before VPS)
 # ==============================================================================
 - name: Deploy Mining Workloads
   hosts: k3s_server
-  become: true
+  become: false
   vars:
     # @docsible Mining wallet configuration
     wallet_cpu: "{{ miningWallet | default('') }}"
@@ -186,7 +194,6 @@
         - miner_control_plane_labels | length > 0
         - not ansible_check_mode
       tags: ["cluster", "apps", "miners"]
-      become: false
 
     - name: Label control plane nodes for mining workloads
       kubernetes.core.k8s:
@@ -203,14 +210,12 @@
         - miner_control_plane_labels | length > 0
         - not ansible_check_mode
       tags: ["cluster", "apps", "miners"]
-      become: false
 
     # @docsible Clean remote manifests directory
     - name: Clean remote manifests directory
       ansible.builtin.file:
         path: "{{ k8s_manifestsDir }}"
         state: absent
-      become: false
       tags: ["apps"]
 
     # @docsible Copy Kustomize bases to remote
@@ -220,7 +225,6 @@
         dest: "{{ k8s_manifestsDir }}/"
         directory_mode: "0750"
         mode: "0640"
-      become: false
       tags: ["apps"]
 
     # @docsible Apply Kubernetes namespaces
@@ -229,7 +233,6 @@
         paths: "{{ k8s_manifestsDir }}/bootstrap/namespaces"
         patterns: "*.yaml"
       register: k8s_namespace_manifests
-      become: false
       tags: ["apps"]
       when: not ansible_check_mode
 
@@ -238,7 +241,6 @@
         src: "{{ item.path }}"
         kubeconfig: "{{ kubeconfig }}"
         state: present
-      become: false
       tags: ["apps"]
       loop: "{{ k8s_namespace_manifests.files | sort(attribute='path') }}"
       when: not ansible_check_mode
@@ -251,7 +253,6 @@
           HONEYGAIN_EMAIL={{ honeygainEmail }}
           HONEYGAIN_DEVICE={{ honeygainDevice | default('bandwidth-miner') }}
         mode: "0600"
-      become: false
       tags: ["apps", "honeygain"]
 
     # @docsible Generate Honeygain secrets
@@ -261,7 +262,6 @@
         content: |
           HONEYGAIN_PASS={{ honeygainPass }}
         mode: "0600"
-      become: false
       tags: ["apps", "honeygain"]
       no_log: true
 
@@ -272,7 +272,6 @@
         KUBECONFIG: "{{ kubeconfig }}"
       register: honeygain_apply
       changed_when: "'configured' in honeygain_apply.stdout or 'created' in honeygain_apply.stdout"
-      become: false
       tags: ["apps", "honeygain"]
       when: not ansible_check_mode
 
@@ -283,7 +282,6 @@
         content: |
           XEL_WALLET={{ wallet_cpu }}
         mode: "0600"
-      become: false
       tags: ["apps", "miners"]
       no_log: true
 
@@ -294,7 +292,6 @@
         KUBECONFIG: "{{ kubeconfig }}"
       register: mining_secrets_apply
       changed_when: "'configured' in mining_secrets_apply.stdout or 'created' in mining_secrets_apply.stdout"
-      become: false
       tags: ["apps", "miners"]
       when: not ansible_check_mode
 
@@ -305,7 +302,6 @@
         KUBECONFIG: "{{ kubeconfig }}"
       register: mining_pools_apply
       changed_when: "'configured' in mining_pools_apply.stdout or 'created' in mining_pools_apply.stdout"
-      become: false
       tags: ["apps", "miners"]
       when: not ansible_check_mode
 
@@ -316,7 +312,6 @@
         KUBECONFIG: "{{ kubeconfig }}"
       register: unmineable_cpu_tnn_apply
       changed_when: "'configured' in unmineable_cpu_tnn_apply.stdout or 'created' in unmineable_cpu_tnn_apply.stdout"
-      become: false
       tags: ["apps", "miners", "cpu-miner"]
       when: not ansible_check_mode
 
@@ -331,7 +326,6 @@
       when:
         - nvidia_active | default(false) | bool
         - not ansible_check_mode
-      become: false
       tags: ["apps", "miners", "gpu-miner"]
 
 # ==============================================================================
@@ -347,12 +341,11 @@
 # ==============================================================================
 - name: Deploy ArgoCD GitOps
   hosts: k3s_server
-  become: true
+  become: false
   tasks:
     # @docsible Deploy ArgoCD GitOps
     - name: Run argocd role
       ansible.builtin.import_role:
         name: argocd
       tags: ["apps", "argocd"]
-      become: false
       when: not ansible_check_mode

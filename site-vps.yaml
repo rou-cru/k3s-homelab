@@ -74,6 +74,32 @@
       ansible.builtin.meta: flush_handlers
 
     # Phase 4: K3s Agent join
+    # @docsible Resolve master Tailscale IP for agent join URL
+    - name: Get master Tailscale IP
+      ansible.builtin.command: tailscale ip -4
+      register: k3s_master_tailscale_ip
+      delegate_to: "{{ groups['k3s_server'][0] }}"
+      changed_when: false
+      when: not ansible_check_mode
+
+    # @docsible Build k3s_agentServerUrl from master Tailscale IP
+    - name: Set K3s agent server URL
+      vars:
+        _k3s_master_ts_ip: >-
+          {{
+            (k3s_master_tailscale_ip.stdout_lines | default([]) | first)
+            | default(k3s_master_tailscale_ip.stdout | trim)
+          }}
+      ansible.builtin.set_fact:
+        k3s_agentServerUrl: "https://{{ _k3s_master_ts_ip }}:6443"
+      when: not ansible_check_mode
+
+    # @docsible Mock server URL in check mode
+    - name: Set K3s agent server URL (check mode)
+      ansible.builtin.set_fact:
+        k3s_agentServerUrl: "https://100.64.0.1:6443"
+      when: ansible_check_mode
+
     # @docsible Fetch authentication token from master node
     - name: Retrieve K3s server token from master
       ansible.builtin.slurp:

@@ -15,5 +15,5 @@ galaxy_info:
     - akash
     - provider
 
-dependencies:
-  - role: gvisor
+dependencies: []
+# NOTE: gvisor is deployed in Play 1 of site.yaml before akash

@@ -63,12 +63,7 @@
   delay: "{{ cilium_waitDelay }}"
   when: not ansible_check_mode
 
-# @docsible Deploy Gateway API resources
-- name: Deploy Cluster Gateway
-  ansible.builtin.import_tasks: gateway.yml
-  become: false
-  tags: ["cluster", "network", "gateway"]
-  when: not ansible_check_mode
+# NOTE: Gateway is deployed in cert_manager/acme.yml after certificates are ready
 
 # @docsible Cleanup temporary values file
 - name: Remove temporary values file

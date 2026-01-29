@@ -37,10 +37,10 @@ k3s_agentKubeletArgs:
   - "--eviction-soft-grace-period=memory.available=1m30s,nodefs.available=2m"
 
 k3s_agentNodeLabels:
-  - "node-role.kubernetes.io/edge=true"
+  - "node.kubernetes.io/edge=true"
   - "topology.kubernetes.io/zone=vps"
   - "node.kubernetes.io/instance-type=vps"
   - "egress-gateway=vps"
 
 k3s_agentNodeTaints:
-  - "node-role.kubernetes.io/edge=true:NoSchedule"
+  - "node.kubernetes.io/edge=true:NoSchedule"

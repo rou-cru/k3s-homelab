@@ -1,18 +1,9 @@
-# @docsible Verify Helm CLI availability
-- name: Check if Helm is installed
-  ansible.builtin.command: which helm
-  register: helm_binary_check
-  changed_when: false
-  failed_when: false
-
 # @docsible Add Jetstack Helm repository
 - name: Ensure Jetstack Helm repo
   kubernetes.core.helm_repository:
     name: jetstack
     repo_url: https://charts.jetstack.io
-  when:
-    - helm_binary_check.rc == 0
-    - not ansible_check_mode
+  when: not ansible_check_mode
 
 # @docsible Deploy cert-manager with CRDs and resource limits
 - name: Deploy cert-manager
@@ -72,10 +63,7 @@
             memory: 32Mi
           limits:
             memory: 128Mi
-  become: false
-  when:
-    - helm_binary_check.rc == 0
-    - not ansible_check_mode
+  when: not ansible_check_mode
   tags: ["cluster", "infrastructure", "cert-manager"]
 
 # @docsible Wait for webhook deployment readiness
@@ -91,10 +79,7 @@
       status: "True"
     wait_timeout: 300
     kubeconfig: "{{ kubeconfig }}"
-  become: false
-  when:
-    - helm_binary_check.rc == 0
-    - not ansible_check_mode
+  when: not ansible_check_mode
   tags: ["cluster", "infrastructure", "cert-manager"]
 
 # @docsible Create self-signed CA bootstrap issuer
@@ -109,10 +94,7 @@
       spec:
         selfSigned: {}
     kubeconfig: "{{ kubeconfig }}"
-  become: false
-  when:
-    - helm_binary_check.rc == 0
-    - not ansible_check_mode
+  when: not ansible_check_mode
   tags: ["cluster", "infrastructure", "cert-manager"]
 
 # @docsible Generate cluster-wide CA certificate
@@ -129,6 +111,8 @@
         isCA: true
         commonName: "{{ certManager_caCertificateName }}"
         secretName: "{{ certManager_caSecretName }}"
+        duration: 87600h
+        renewBefore: 720h
         privateKey:
           algorithm: ECDSA
           size: 256
@@ -137,10 +121,7 @@
           name: "{{ certManager_selfsignedIssuerName }}"
           kind: ClusterIssuer
     kubeconfig: "{{ kubeconfig }}"
-  become: false
-  when:
-    - helm_binary_check.rc == 0
-    - not ansible_check_mode
+  when: not ansible_check_mode
   tags: ["cluster", "infrastructure", "cert-manager"]
 
 # @docsible Wait for CA secret generation
@@ -156,10 +137,7 @@
   delay: 5
   until:
     - secretCA.resources | length > 0
-  become: false
-  when:
-    - helm_binary_check.rc == 0
-    - not ansible_check_mode
+  when: not ansible_check_mode
   tags: ["cluster", "infrastructure", "cert-manager"]
 
 # @docsible Create CA-based ClusterIssuer for workloads
@@ -175,8 +153,8 @@
         ca:
           secretName: "{{ certManager_caSecretName }}"
     kubeconfig: "{{ kubeconfig }}"
-  become: false
-  when:
-    - helm_binary_check.rc == 0
-    - not ansible_check_mode
+  when: not ansible_check_mode
   tags: ["cluster", "infrastructure", "cert-manager"]
+
+# NOTE: ACME/Let's Encrypt configuration is in acme.yml
+# It runs AFTER external_secrets to access ClusterSecretStore

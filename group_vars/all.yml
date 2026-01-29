@@ -1,7 +1,7 @@
 # ---- ANSIBLE TARGETS CONNECTION ----------------------------------------------------
 ansible_user: rc
-ansible_become: true
 ansible_ssh_pipelining: true
+# NOTE: become is controlled at play level, not globally
 
 # ---- KUBERNETES --------------------------------------------------------------------
 kubeconfig: "/home/{{ ansible_user }}/.kube/config"
@@ -163,6 +163,13 @@ certManager_caSecretName: "homelab-ca-secret"
 certManager_caIssuerName: "homelab-ca-issuer"
 certManager_prometheusEnabled: false
 
+# ---- ACME / LET'S ENCRYPT ----------------------------------------------------------
+acme_email: "rc@roura.xyz"
+acme_clusterIssuerName: "letsencrypt-prod"
+cloudflare_apiTokenSecretName: "cloudflare-token-secret"
+wildcard_tlsSecretName: "wildcard-roura-xyz-tls"
+wildcard_domain: "roura.xyz"
+
 # ---- ARGOCD ------------------------------------------------------------------------
 argocd_namespace: "argocd"
 argocd_chartVersion: ""
@@ -170,6 +177,8 @@ argocd_installCrds: true
 argocd_haEnabled: false
 argocd_dexEnabled: false
 argocd_serviceMonitorEnabled: true
+argocd_publicHostname: "argo.roura.xyz"
+public_gateway_ip: "74.208.250.178"
 
 # ---- EXTERNAL SECRETS --------------------------------------------------------------
 oci_configFile: "{{ playbook_dir }}/.oci"

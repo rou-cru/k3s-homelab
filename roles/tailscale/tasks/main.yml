@@ -30,23 +30,24 @@
   check_mode: false
 # @docsible Parse connection state from status output
 - name: Determine state
-  ansible.builtin.set_fact:
-    tailscale_backend_state: >-
+  vars:
+    _tailscale_backend_state: >-
       {{
         (tailscale_status_json.stdout | from_json).BackendState
         if tailscale_status_json.rc == 0 else ''
       }}
-    tailscale_is_running: >-
+    _tailscale_self_online: >-
       {{
-
-
         tailscale_status_json.rc == 0 and
         (tailscale_status_json.stdout | from_json).Self.Online | default(false)
       }}
+  ansible.builtin.set_fact:
+    tailscale_backend_state: "{{ _tailscale_backend_state }}"
+    tailscale_is_running: "{{ _tailscale_self_online }}"
     tailscale_needs_logout: >-
       {{
-        tailscale_backend_state == 'Running' and
-        not (tailscale_status_json.stdout | from_json).Self.Online | default(false)
+        _tailscale_backend_state == 'Running' and
+        not _tailscale_self_online
       }}
 # @docsible Logout if in stale state
 - name: Logout Tailscale (reset state)
