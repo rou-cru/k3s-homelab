@@ -29,7 +29,7 @@
     dest: /etc/tmpfiles.d/energy-tuning.conf
     mode: '0644'
   when:
-    - hardware_powerEfficiencyTuningEnabled | bool
+    - hardware_powerEfficiencyTuningEnabled | default(false) | bool
     - ansible_facts['processor_vendor'] is defined
     - ansible_facts['processor_vendor'] == 'GenuineIntel'
   notify: Apply power tuning

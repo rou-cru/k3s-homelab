@@ -19,6 +19,7 @@ spec:
         app: gpu-miner
     spec:
       hostNetwork: true  # Direct network access for optimal performance
+      automountServiceAccountToken: false
       dnsPolicy: ClusterFirstWithHostNet
       runtimeClassName: nvidia  # Use NVIDIA container runtime
       # Ensure pod runs only on nodes with NVIDIA GPU hardware
@@ -141,5 +142,12 @@ spec:
             - name: NVIDIA_DRIVER_CAPABILITIES
               value: "all"
           resources:
+            requests:
+              cpu: 500m
+              memory: 512Mi
+              ephemeral-storage: 100Mi
             limits:
               nvidia.com/gpu: "1"  # Request exactly 1 GPU device
+              cpu: 2000m
+              memory: 1Gi
+              ephemeral-storage: 200Mi

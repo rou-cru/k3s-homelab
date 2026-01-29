@@ -130,7 +130,7 @@
 - name: Update initramfs # noqa: no-handler
   ansible.builtin.command: update-initramfs -u
   when:
-    - nvidia_blacklistNouveau.changed
+    - nvidia_blacklistNouveau is changed
     - not ansible_check_mode
   changed_when: true
 

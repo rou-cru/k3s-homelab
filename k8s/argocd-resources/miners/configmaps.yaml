@@ -6,9 +6,10 @@ metadata:
   name: mining-pools
   namespace: workloads
 data:
-  # Kryptex pool configuration for XEL (Elastic) cryptocurrency
+  # Kryptex pool configuration for XEL (Elastic) cryptocurrency (Ports: 7019 TCP / 8019 SSL)
   KRYPTEX_XEL_HOST: xel-us.kryptex.network
   KRYPTEX_XEL_PORT: "7019"
+  KRYPTEX_XEL_SSL_PORT: "8019"
   KRYPTEX_XEL_SCHEME: stratum+tcp
   # Unmineable pool for Autolykos algorithm (ERG/Conflux)
   UNMINEABLE_AUTOLYKOS_HOST: autolykos.unmineable.com

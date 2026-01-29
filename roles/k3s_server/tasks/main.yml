@@ -78,16 +78,22 @@
   notify: Restart k3s
   when: not ansible_check_mode
 
+# @docsible Download K3s install script
+- name: Download K3s install script
+  ansible.builtin.get_url:
+    url: https://get.k3s.io
+    dest: /tmp/k3s_install.sh
+    mode: "0700"
+  when: not ansible_check_mode
+
 # @docsible Install K3s server binary
 - name: Install K3s server
   ansible.builtin.shell: |
-    set -o pipefail
-    curl -sfL https://get.k3s.io | \
-      INSTALL_K3S_VERSION="{{ k3s_serverVersion }}" \
-      sh -s - server \
-      --write-kubeconfig-mode {{ k3s_serverKubeconfigMode }} \
-      {{ '--disable traefik' if k3s_serverDisableTraefik | bool else '' }} \
-      {{ '--disable servicelb' if k3s_serverDisableServicelb | bool else '' }}
+    INSTALL_K3S_VERSION="{{ k3s_serverVersion }}" \
+    /tmp/k3s_install.sh server \
+    --write-kubeconfig-mode {{ k3s_serverKubeconfigMode }} \
+    {{ '--disable traefik' if k3s_serverDisableTraefik | bool else '' }} \
+    {{ '--disable servicelb' if k3s_serverDisableServicelb | bool else '' }}
   args:
     executable: /bin/bash
     creates: /usr/local/bin/k3s

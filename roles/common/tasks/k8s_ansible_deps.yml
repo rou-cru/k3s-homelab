@@ -2,9 +2,22 @@
 # Uses uv (installed via binaries.yml) to install modern versions
 # The apt python3-kubernetes package is too old (<24.2.0)
 
+- name: Check if kubernetes package is installed
+  ansible.builtin.command:
+    cmd: /usr/local/bin/uv pip show kubernetes
+  register: k8s_check
+  changed_when: false
+  failed_when: false
+  when: not ansible_check_mode
+
 - name: Install kubernetes.core deps via uv
   ansible.builtin.command:
     cmd: /usr/local/bin/uv pip install --system --break-system-packages kubernetes>=24.2.0 requests-oauthlib jsonpatch
   register: k8s_deps_install
   changed_when: "'Installed' in k8s_deps_install.stdout"
-  when: not ansible_check_mode
+  when:
+    - not ansible_check_mode
+    - k8s_check.rc != 0 or 'kubernetes' not in k8s_check.stdout
+  tags:
+    - k8s
+    - deps

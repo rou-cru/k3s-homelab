@@ -56,7 +56,7 @@
       ansible.builtin.import_role:
         name: glances
       tags: ["host", "os"]
-    # @docsible Optimize network stack for cluster通信
+    # @docsible Optimize network stack for cluster communication
     - name: Run common network optimizations
       ansible.builtin.import_role:
         name: common
@@ -154,7 +154,7 @@
 # ==============================================================================
 - name: Deploy Mining Workloads
   hosts: k3s_server
-  become: false
+  become: true
   vars:
     # @docsible Mining wallet configuration
     wallet_cpu: "{{ miningWallet | default('') }}"

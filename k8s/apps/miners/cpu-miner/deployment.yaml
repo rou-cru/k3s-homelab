@@ -19,6 +19,7 @@ spec:
         app: cpu-miner
     spec:
       hostNetwork: true  # Use host network for direct hardware access
+      automountServiceAccountToken: false
       dnsPolicy: ClusterFirstWithHostNet
       containers:
         - name: cpu-miner
@@ -102,10 +103,12 @@ spec:
               cpu: "8"  # Reserve 8 CPU cores for mining
               memory: 3Gi
               hugepages-2Mi: 2560Mi  # Allocate hugepages for RandomX algorithm
+              ephemeral-storage: 100Mi
             limits:
               cpu: "8"  # Limit to 8 CPU cores to prevent system overload
               memory: 3Gi
               hugepages-2Mi: 2560Mi
+              ephemeral-storage: 200Mi
           volumeMounts:
             - name: dev-cpu
               mountPath: /dev/cpu  # Access CPU devices for affinity control

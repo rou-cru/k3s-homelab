@@ -8,6 +8,7 @@
 # Use optimized settings if enabled
 {% if k3s_commonContainerdOptimized | default(true) %}
 [plugins."io.containerd.grpc.v1.cri"]
+  max_container_log_line_size = 16384
   [plugins."io.containerd.grpc.v1.cri".containerd]
     default_runtime_name = "{{ _default_runtime }}"
     [plugins."io.containerd.grpc.v1.cri".containerd.runtimes]
@@ -24,13 +25,6 @@
 
 # Custom runtimes
 [plugins."io.containerd.grpc.v1.cri".containerd.runtimes]
-{% if k3s_commonContainerdOptimized | default(true) %}
-  [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
-    runtime_type = "io.containerd.runc.v2"
-    [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc.options]
-      SystemdCgroup = true
-{% endif %}
-
 {% if 'nvidia' in (k3s_commonContainerdAdditionalRuntimes | default([])) %}
   [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.nvidia]
     runtime_type = "io.containerd.runc.v2"
@@ -44,8 +38,3 @@
     runtime_type = "io.containerd.runsc.v1"
 {% endif %}
 
-# High performance tuning
-{% if k3s_commonContainerdOptimized | default(true) %}
-[plugins."io.containerd.grpc.v1.cri"]
-  max_container_log_line_size = 16384
-{% endif %}

@@ -17,8 +17,8 @@ set -eu
 : "${GPU_TEMP_MEM_MIN:=70}"
 : "${GPU_TEMP_MEM_MAX:=82}"
 
-if [ "${POOL_TYPE}" = "custom" ]; then
-  if [ -z "${RIGEL_CMD:-}" ]; then
+if [[ "${POOL_TYPE}" = "custom" ]]; then
+  if [[ -z "${RIGEL_CMD:-}" ]]; then
     echo "RIGEL_CMD is required when POOL_TYPE=custom" >&2
     exit 1
   fi

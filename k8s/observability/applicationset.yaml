@@ -9,14 +9,14 @@ metadata:
 spec:
   generators:
     - git:
-        repoURL: https://github.com/YOUR_USERNAME/k3s-homelab.git  # TODO: Replace with your repo URL
+        repoURL: https://github.com/rou-cru/k3s-homelab.git
         revision: HEAD
         directories:
           - path: k8s/observability/*
           - path: k8s/observability/governance
-            exclude: true   # Governance deployed separately
+            exclude: true
           - path: k8s/observability/infrastructure
-            exclude: true   # Infrastructure deployed via bootstrap
+            exclude: true
   template:
     metadata:
       name: '{{path.basename}}'
@@ -25,7 +25,7 @@ spec:
     spec:
       project: observability
       source:
-        repoURL: https://github.com/YOUR_USERNAME/k3s-homelab.git  # TODO: Replace with your repo URL
+        repoURL: https://github.com/rou-cru/k3s-homelab.git
         targetRevision: HEAD
         path: '{{path}}'
       destination:

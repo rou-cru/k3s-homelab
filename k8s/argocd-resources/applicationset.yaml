@@ -10,14 +10,15 @@ metadata:
 spec:
   generators:
     - git:
-        repoURL: https://github.com/YOUR_USERNAME/k3s-homelab.git  # TODO: Replace with your repo URL
+        repoURL: https://github.com/rou-cru/k3s-homelab.git
         revision: HEAD
         directories:
-          - path: k8s/workloads/*
+          - path: k8s/apps/*/*  # Mining apps are nested in subfolders like miners/cpu-miner
+          - path: k8s/workloads/* # Keep for backward compatibility if folder reappears
           - path: k8s/workloads/governance
-            exclude: true   # Governance deployed separately
+            exclude: true
           - path: k8s/workloads/infrastructure
-            exclude: true   # Infrastructure deployed via bootstrap
+            exclude: true
   template:
     metadata:
       name: '{{path.basename}}'
@@ -26,7 +27,7 @@ spec:
     spec:
       project: workloads
       source:
-        repoURL: https://github.com/YOUR_USERNAME/k3s-homelab.git  # TODO: Replace with your repo URL
+        repoURL: https://github.com/rou-cru/k3s-homelab.git
         targetRevision: HEAD
         path: '{{path}}'
       destination:

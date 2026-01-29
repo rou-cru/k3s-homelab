@@ -16,6 +16,7 @@ spec:
         app: honeygain
     spec:
       hostNetwork: true
+      automountServiceAccountToken: false
       dnsPolicy: ClusterFirstWithHostNet
       tolerations:
         - key: "miner.network"
@@ -32,13 +33,21 @@ spec:
                     values: ["true"]
       containers:
         - name: honeygain
-          image: honeygain/honeygain:latest
+          image: honeygain/honeygain:0.6.6
           imagePullPolicy: IfNotPresent
           envFrom:
             - configMapRef:
                 name: honeygain-config
             - secretRef:
                 name: honeygain-secret
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+
           args:
             - "-tou-accept"
             - "-email"

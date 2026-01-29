@@ -4,6 +4,7 @@
 
 - name: Setup K3s VPS Agent Node
   hosts: vps
+  become: true
   vars_files:
     - "{{ secrets_file | default('secrets.yaml') }}"
   pre_tasks:
@@ -81,6 +82,13 @@
       delegate_to: "{{ groups['k3s_server'][0] }}"
       changed_when: false
       when: not ansible_check_mode
+
+    - name: Validate Master IP
+      ansible.builtin.fail:
+        msg: "Could not determine K3s Master Tailscale IP. Tailscale might be down or not authenticated."
+      when:
+        - not ansible_check_mode
+        - k3s_master_tailscale_ip.stdout | length == 0
 
     # @docsible Build k3s_agentServerUrl from master Tailscale IP
     - name: Set K3s agent server URL
