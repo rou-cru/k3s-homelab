@@ -114,6 +114,7 @@ containerd configuration, and registry authentication.
 | [Ensure CNI bin directory exists](tasks/main.yml#L73) | ansible.builtin.file | True | @docsible Create CNI binaries directory |
 | [Ensure K3s agent etc directory exists (for containerd)](tasks/main.yml#L81) | ansible.builtin.file | True | @docsible Create containerd configuration directory |
 | [Deploy containerd configuration template](tasks/main.yml#L90) | ansible.builtin.template | True | @docsible Deploy containerd configuration template |
+| [Remove containerd configuration template](tasks/main.yml#L99) | ansible.builtin.file | True | @docsible Remove containerd template when no extra runtimes are configured |
 
 
 ## Task Flow Graphs
@@ -145,7 +146,8 @@ classDef rescue stroke:#665352,stroke-width:2px;
   Ensure_CNI_config_directory_exists7-->|Task| Ensure_CNI_bin_directory_exists8[ensure cni bin directory exists<br>When: **k3s commoncontainerdadditionalruntimes   default  <br>    length   0**]:::task
   Ensure_CNI_bin_directory_exists8-->|Task| Ensure_K3s_agent_etc_directory_exists__for_containerd_9[ensure k3s agent etc directory exists  for<br>containerd <br>When: **k3s commoncontainerdadditionalruntimes   default  <br>    length   0**]:::task
   Ensure_K3s_agent_etc_directory_exists__for_containerd_9-->|Task| Deploy_containerd_configuration_template10[deploy containerd configuration template<br>When: **k3s commoncontainerdadditionalruntimes   default  <br>    length   0**]:::task
-  Deploy_containerd_configuration_template10-->End
+  Deploy_containerd_configuration_template10-->|Task| Remove_containerd_configuration_template11[remove containerd configuration template<br>When: **k3s commoncontainerdadditionalruntimes   default  <br>    length    0**]:::task
+  Remove_containerd_configuration_template11-->End
 ```
 
 

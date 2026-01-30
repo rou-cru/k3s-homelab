@@ -41,42 +41,45 @@
       no_log: true
 
   tasks:
+    # ==========================================================================
+    # PHASE 1: HOST (OS preparation - no cluster dependencies)
+    # ==========================================================================
     # @docsible Validate system requirements before installation
     - name: Run preflight role
       ansible.builtin.import_role:
         name: preflight
-      tags: ["host", "os"]
+      tags: ["host"]
     # @docsible Configure base OS settings and kernel parameters
     - name: Run common role
       ansible.builtin.import_role:
         name: common
-      tags: ["host", "os"]
+      tags: ["host"]
     # @docsible Deploy system monitoring with glances
     - name: Run glances monitoring
       ansible.builtin.import_role:
         name: glances
-      tags: ["host", "os"]
+      tags: ["host"]
     # @docsible Optimize network stack for cluster communication
     - name: Run common network optimizations
       ansible.builtin.import_role:
         name: common
         tasks_from: network_optimization.yml
       when: system_networkOptimize | default(true)
-      tags: ["host", "os", "network"]
+      tags: ["host"]
     # @docsible Install kubectl, helm, and other development tools
     - name: Run developer tools role
       ansible.builtin.import_role:
         name: developer_tools
-      tags: ["host", "os"]
+      tags: ["host"]
       when: devtools_enabled | default(true) | bool
-    # @docsible Setup gVisor in host
+    # @docsible Setup gVisor in host (optional sandbox runtime)
     - name: Run gvisor role
       ansible.builtin.import_role:
         name: gvisor
         tasks_from: host.yml
-      tags: ["host", "os", "security"]
+      tags: ["host", "gvisor"]
       when: not ansible_check_mode
-    # @docsible Setup NVIDIA GPU host drivers and toolkit
+    # @docsible Setup NVIDIA GPU host drivers and toolkit (optional GPU support)
     - name: Run NVIDIA GPU host role
       ansible.builtin.import_role:
         name: nvidia_gpu
@@ -86,37 +89,41 @@
     # @docsible Ensure all host-level changes are applied before cluster setup
     - name: Flush host handlers before cluster init
       ansible.builtin.meta: flush_handlers
-    # @docsible Setup the tailscale network
+
+    # ==========================================================================
+    # PHASE 2: CLUSTER (Tailscale + K8s + CNI = functional cluster)
+    # ==========================================================================
+    # @docsible Setup Tailscale VPN (FIRST step - required for node communication)
     - name: Run tailscale role
       ansible.builtin.import_role:
         name: tailscale
-      tags: ["host", "network"]
+      tags: ["cluster", "tailscale"]
     # @docsible Initialize K3s control plane on master node
     - name: Run k3s server role
       ansible.builtin.import_role:
         name: k3s_server
       tags: ["cluster"]
-    # @docsible Setup gVisor in cluster
+    # @docsible Setup gVisor RuntimeClass in cluster (optional sandbox runtime)
     - name: Run gvisor RuntimeClass
       ansible.builtin.import_role:
         name: gvisor
         tasks_from: runtimeclass.yml
-      tags: ["cluster", "security"]
+      tags: ["cluster", "gvisor"]
       when: not ansible_check_mode
     # @docsible Deploy CRDs for service monitors
     - name: Run crds_bootstrap role
       ansible.builtin.import_role:
         name: crds_bootstrap
-      tags: ["cluster", "infrastructure"]
+      tags: ["cluster"]
       when: not ansible_check_mode
     # @docsible Deploy Cilium CNI
     - name: Run cilium role
       ansible.builtin.import_role:
         name: cilium
-      tags: ["cluster", "network"]
+      tags: ["cluster"]
       become: false
       when: not ansible_check_mode
-    # @docsible Deploy NVIDIA GPU device plugin
+    # @docsible Deploy NVIDIA GPU device plugin (optional GPU support)
     - name: Run NVIDIA GPU cluster role
       ansible.builtin.import_role:
         name: nvidia_gpu
@@ -126,18 +133,22 @@
         - nvidia_active | default(false) | bool
         - not ansible_check_mode
       become: false
+
+    # ==========================================================================
+    # PHASE 3: INFRA (PKI + Secrets + Gateway)
+    # ==========================================================================
     # @docsible Deploy Cert Manager
     - name: Run cert-manager role
       ansible.builtin.import_role:
         name: cert_manager
-      tags: ["cluster", "infrastructure", "cert-manager"]
+      tags: ["infra"]
       become: false
       when: not ansible_check_mode
     # @docsible Deploy External Secrets Operator
     - name: Run external-secrets role
       ansible.builtin.import_role:
         name: external_secrets
-      tags: ["cluster", "infrastructure", "external-secrets"]
+      tags: ["infra"]
       become: false
       when: not ansible_check_mode
     # @docsible Deploy ACME/Let's Encrypt and public Gateway (requires external-secrets)
@@ -145,7 +156,7 @@
       ansible.builtin.import_role:
         name: cert_manager
         tasks_from: acme.yml
-      tags: ["cluster", "infrastructure", "acme", "gateway"]
+      tags: ["infra"]
       become: false
       when: not ansible_check_mode
 
@@ -181,7 +192,7 @@
             + (['miner.cpu=true'] if (mining_cpuEnabled | default(false) | bool) else [])
             + (['miner.gpu=true'] if (mining_gpuEnabled | default(false) | bool) else [])
           }}
-      tags: ["cluster", "apps", "miners"]
+      tags: ["miners"]
     # @docsible Label control plane for mining
     - name: Get control plane nodes for mining labeling
       kubernetes.core.k8s_info:
@@ -193,7 +204,7 @@
       when:
         - miner_control_plane_labels | length > 0
         - not ansible_check_mode
-      tags: ["cluster", "apps", "miners"]
+      tags: ["miners"]
 
     - name: Label control plane nodes for mining workloads
       kubernetes.core.k8s:
@@ -209,14 +220,14 @@
       when:
         - miner_control_plane_labels | length > 0
         - not ansible_check_mode
-      tags: ["cluster", "apps", "miners"]
+      tags: ["miners"]
 
     # @docsible Clean remote manifests directory
     - name: Clean remote manifests directory
       ansible.builtin.file:
         path: "{{ k8s_manifestsDir }}"
         state: absent
-      tags: ["apps"]
+      tags: ["miners"]
 
     # @docsible Copy Kustomize bases to remote
     - name: Copy Kustomize bases to remote
@@ -225,24 +236,24 @@
         dest: "{{ k8s_manifestsDir }}/"
         directory_mode: "0750"
         mode: "0640"
-      tags: ["apps"]
+      tags: ["miners"]
 
-    # @docsible Apply Kubernetes namespaces
-    - name: Find namespace manifests on remote
+    # @docsible Apply miner namespaces
+    - name: Find miner namespace manifests on remote
       ansible.builtin.find:
         paths: "{{ k8s_manifestsDir }}/bootstrap/namespaces"
-        patterns: "*.yaml"
-      register: k8s_namespace_manifests
-      tags: ["apps"]
+        patterns: "miners.yaml"
+      register: k8s_miner_namespace_manifests
+      tags: ["miners"]
       when: not ansible_check_mode
 
-    - name: Apply Namespaces
+    - name: Apply Miner Namespaces
       kubernetes.core.k8s:
         src: "{{ item.path }}"
         kubeconfig: "{{ kubeconfig }}"
         state: present
-      tags: ["apps"]
-      loop: "{{ k8s_namespace_manifests.files | sort(attribute='path') }}"
+      tags: ["miners"]
+      loop: "{{ k8s_miner_namespace_manifests.files | sort(attribute='path') }}"
       when: not ansible_check_mode
 
     # @docsible Generate Honeygain config
@@ -253,7 +264,7 @@
           HONEYGAIN_EMAIL={{ honeygainEmail }}
           HONEYGAIN_DEVICE={{ honeygainDevice | default('bandwidth-miner') }}
         mode: "0600"
-      tags: ["apps", "honeygain"]
+      tags: ["miners"]
 
     # @docsible Generate Honeygain secrets
     - name: Generate Honeygain Secrets (Kustomize Bridge)
@@ -262,7 +273,7 @@
         content: |
           HONEYGAIN_PASS={{ honeygainPass }}
         mode: "0600"
-      tags: ["apps", "honeygain"]
+      tags: ["miners"]
       no_log: true
 
     # @docsible Deploy Honeygain workload
@@ -272,7 +283,7 @@
         KUBECONFIG: "{{ kubeconfig }}"
       register: honeygain_apply
       changed_when: "'configured' in honeygain_apply.stdout or 'created' in honeygain_apply.stdout"
-      tags: ["apps", "honeygain"]
+      tags: ["miners"]
       when: not ansible_check_mode
 
     # @docsible Generate mining wallets secret
@@ -282,7 +293,7 @@
         content: |
           XEL_WALLET={{ wallet_cpu }}
         mode: "0600"
-      tags: ["apps", "miners"]
+      tags: ["miners"]
       no_log: true
 
     # @docsible Deploy mining secrets
@@ -292,7 +303,7 @@
         KUBECONFIG: "{{ kubeconfig }}"
       register: mining_secrets_apply
       changed_when: "'configured' in mining_secrets_apply.stdout or 'created' in mining_secrets_apply.stdout"
-      tags: ["apps", "miners"]
+      tags: ["miners"]
       when: not ansible_check_mode
 
     # @docsible Deploy mining pools ConfigMap
@@ -302,7 +313,7 @@
         KUBECONFIG: "{{ kubeconfig }}"
       register: mining_pools_apply
       changed_when: "'configured' in mining_pools_apply.stdout or 'created' in mining_pools_apply.stdout"
-      tags: ["apps", "miners"]
+      tags: ["miners"]
       when: not ansible_check_mode
 
     # @docsible Deploy CPU miner
@@ -312,7 +323,7 @@
         KUBECONFIG: "{{ kubeconfig }}"
       register: unmineable_cpu_tnn_apply
       changed_when: "'configured' in unmineable_cpu_tnn_apply.stdout or 'created' in unmineable_cpu_tnn_apply.stdout"
-      tags: ["apps", "miners", "cpu-miner"]
+      tags: ["miners"]
       when: not ansible_check_mode
 
     # @docsible Deploy GPU miner
@@ -326,7 +337,7 @@
       when:
         - nvidia_active | default(false) | bool
         - not ansible_check_mode
-      tags: ["apps", "miners", "gpu-miner"]
+      tags: ["miners"]
 
 # ==============================================================================
 # PLAY 3: VPS Agent Setup (Import)
@@ -347,5 +358,5 @@
     - name: Run argocd role
       ansible.builtin.import_role:
         name: argocd
-      tags: ["apps", "argocd"]
+      tags: ["gitops"]
       when: not ansible_check_mode

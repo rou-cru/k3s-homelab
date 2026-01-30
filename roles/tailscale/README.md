@@ -112,16 +112,17 @@ settings like DNS acceptance and SSH access.
 | [Start tailscaled](tasks/main.yml#L17) | ansible.builtin.systemd | True | @docsible Enable and start Tailscale daemon |
 | [Check status](tasks/main.yml#L25) | ansible.builtin.command | False | @docsible Check Tailscale connection status |
 | [Determine state](tasks/main.yml#L32) | ansible.builtin.set_fact | False | @docsible Parse connection state from status output |
-| [Logout Tailscale (reset state)](tasks/main.yml#L52) | ansible.builtin.command | True | @docsible Logout if in stale state |
-| [Configure Tailscale](tasks/main.yml#L59) | ansible.builtin.shell | True | @docsible Configure Tailscale with auth key and settings |
-| [Enable exit node advertisement](tasks/main.yml#L80) | ansible.builtin.command | True | @docsible Advertise as exit node |
-| [Advertise routes](tasks/main.yml#L90) | ansible.builtin.command | True | @docsible Advertise subnet routes |
-| [Wait for IP](tasks/main.yml#L99) | ansible.builtin.shell | True | @docsible Wait for Tailscale IP assignment |
-| [Set IP fact](tasks/main.yml#L117) | ansible.builtin.set_fact | True | @docsible Store Tailscale IP as fact |
-| [Set mock IP fact (check mode)](tasks/main.yml#L124) | ansible.builtin.set_fact | True | @docsible Provide mock IP in check mode |
-| [Validate connectivity](tasks/main.yml#L129) | ansible.builtin.wait_for | True | @docsible Test SSH connectivity via Tailscale |
-| [Warn connectivity](tasks/main.yml#L137) | ansible.builtin.debug | True | @docsible Warn if connectivity test fails |
-| [Exit node approval reminder](tasks/main.yml#L142) | ansible.builtin.debug | True | @docsible Remind about exit node approval in admin console |
+| [Logout Tailscale (reset state)](tasks/main.yml#L53) | ansible.builtin.command | True | @docsible Logout if in stale state |
+| [Configure Tailscale](tasks/main.yml#L60) | ansible.builtin.shell | True | @docsible Configure Tailscale with auth key and settings |
+| [Enable exit node advertisement](tasks/main.yml#L81) | ansible.builtin.command | True | @docsible Advertise as exit node |
+| [Advertise routes](tasks/main.yml#L91) | ansible.builtin.command | True | @docsible Advertise subnet routes |
+| [Wait for IP](tasks/main.yml#L100) | ansible.builtin.shell | True | @docsible Wait for Tailscale IP assignment |
+| [Set IP fact](tasks/main.yml#L118) | ansible.builtin.set_fact | True | @docsible Store Tailscale IP as fact |
+| [Set mock IP fact (check mode)](tasks/main.yml#L125) | ansible.builtin.set_fact | True | @docsible Provide mock IP in check mode |
+| [Validate connectivity](tasks/main.yml#L130) | ansible.builtin.wait_for | True | @docsible Test SSH connectivity via Tailscale |
+| [Warn connectivity](tasks/main.yml#L138) | ansible.builtin.debug | True | @docsible Warn if connectivity test fails |
+| [Exit node approval reminder](tasks/main.yml#L143) | ansible.builtin.debug | True | @docsible Remind about exit node approval in admin console |
+| [Configure exit node](tasks/main.yml#L152) | ansible.builtin.command | True | @docsible Configure exit node routing for non-exit-node hosts |
 
 
 ## Task Flow Graphs
@@ -157,7 +158,8 @@ classDef rescue stroke:#665352,stroke-width:2px;
   Set_mock_IP_fact__check_mode_11-->|Task| Validate_connectivity12[validate connectivity<br>When: **ip tailscale is defined and ip tailscale   length <br> 0**]:::task
   Validate_connectivity12-->|Task| Warn_connectivity13[warn connectivity<br>When: **tailscale connectivity check failed   default<br>false**]:::task
   Warn_connectivity13-->|Task| Exit_node_approval_reminder14[exit node approval reminder<br>When: **tailscale exitnodeenabled   bool**]:::task
-  Exit_node_approval_reminder14-->End
+  Exit_node_approval_reminder14-->|Task| Configure_exit_node15[configure exit node<br>When: **groups  vps   is defined and groups  vps    <br>length   0 and not tailscale exitnodeenabled  <br>bool and tailscale is running   bool and not<br>ansible check mode**]:::task
+  Configure_exit_node15-->End
 ```
 
 

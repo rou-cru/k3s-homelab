@@ -13,6 +13,7 @@
     release_namespace: "{{ argocd_namespace }}"
     update_repo_cache: true
     create_namespace: true
+    timeout: 10m0s
     chart_version: "{{ argocd_chartVersion | default(omit, true) }}"
     kubeconfig: "{{ kubeconfig }}"
     values:
@@ -123,7 +124,7 @@
           serviceMonitor:
             enabled: "{{ argocd_serviceMonitorEnabled }}"
   when: not ansible_check_mode
-  tags: ["apps", "argocd"]
+  tags: ["gitops"]
 
 # Note: TLS certificate is provided by wildcard cert at Gateway level (wildcard-roura-xyz-tls)
 # No per-service certificate needed since Gateway terminates TLS for *.roura.xyz
@@ -151,7 +152,7 @@
                 port: 80
     kubeconfig: "{{ kubeconfig }}"
   when: not ansible_check_mode
-  tags: ["apps", "argocd", "gateway"]
+  tags: ["gitops"]
 
 # @docsible Create ExternalSecret for admin password
 - name: Create ArgoCD Admin Password ExternalSecret
@@ -179,7 +180,7 @@
   register: argocd_es_created
   until: argocd_es_created is succeeded
   when: not ansible_check_mode
-  tags: ["apps", "argocd", "secrets"]
+  tags: ["gitops"]
 
 # @docsible Wait for admin password secret
 - name: Wait for argocd-secret to have admin.password
@@ -196,7 +197,7 @@
   when:
     - argocd_es_created.changed
     - not ansible_check_mode
-  tags: ["apps", "argocd", "secrets"]
+  tags: ["gitops"]
 
 # @docsible Restart ArgoCD server for password update
 - name: Restart ArgoCD Server to pick up new password
@@ -214,4 +215,4 @@
   when:
     - argocd_es_created.changed
     - not ansible_check_mode
-  tags: ["apps", "argocd", "secrets"]
+  tags: ["gitops"]

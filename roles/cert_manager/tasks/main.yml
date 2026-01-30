@@ -65,7 +65,7 @@
           limits:
             memory: 128Mi
   when: not ansible_check_mode
-  tags: ["cluster", "infrastructure", "cert-manager"]
+  tags: ["infra"]
 
 # @docsible Wait for webhook deployment readiness
 - name: Wait for cert-manager webhook to be available
@@ -81,7 +81,7 @@
     wait_timeout: 300
     kubeconfig: "{{ kubeconfig }}"
   when: not ansible_check_mode
-  tags: ["cluster", "infrastructure", "cert-manager"]
+  tags: ["infra"]
 
 # @docsible Create self-signed CA bootstrap issuer
 - name: Create cert-manager self-signed ClusterIssuer
@@ -96,7 +96,7 @@
         selfSigned: {}
     kubeconfig: "{{ kubeconfig }}"
   when: not ansible_check_mode
-  tags: ["cluster", "infrastructure", "cert-manager"]
+  tags: ["infra"]
 
 # @docsible Generate cluster-wide CA certificate
 - name: Create cert-manager CA certificate
@@ -123,7 +123,7 @@
           kind: ClusterIssuer
     kubeconfig: "{{ kubeconfig }}"
   when: not ansible_check_mode
-  tags: ["cluster", "infrastructure", "cert-manager"]
+  tags: ["infra"]
 
 # @docsible Wait for CA secret generation
 - name: Wait for cert-manager CA secret
@@ -139,7 +139,7 @@
   until:
     - secretCA.resources | length > 0
   when: not ansible_check_mode
-  tags: ["cluster", "infrastructure", "cert-manager"]
+  tags: ["infra"]
 
 # @docsible Create CA-based ClusterIssuer for workloads
 - name: Create cert-manager CA ClusterIssuer
@@ -155,7 +155,7 @@
           secretName: "{{ certManager_caSecretName }}"
     kubeconfig: "{{ kubeconfig }}"
   when: not ansible_check_mode
-  tags: ["cluster", "infrastructure", "cert-manager"]
+  tags: ["infra"]
 
 # NOTE: ACME/Let's Encrypt configuration is in acme.yml
 # It runs AFTER external_secrets to access ClusterSecretStore

@@ -86,14 +86,14 @@
     reload: true
   # 2 MiB per page; default 1280 ~= 2.5 GiB
   when: mining_cpuEnabled | default(false) or mining_gpuEnabled | default(false)
-  tags: ["os"]
+  tags: ["host"]
 - name: Load MSR module
   community.general.modprobe:
     name: msr
     state: present
     persistent: present
   when: mining_cpuEnabled | default(false)
-  tags: ["os"]
+  tags: ["host"]
 - name: Configure Nvidia modules load
   ansible.builtin.copy:
     dest: /etc/modules-load.d/nvidia.conf
@@ -103,4 +103,4 @@
       nvidia-modeset
     mode: "0644"
   when: mining_gpuEnabled | default(false)
-  tags: ["os", "nvidia"]
+  tags: ["host", "nvidia"]

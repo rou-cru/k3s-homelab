@@ -13,7 +13,7 @@ global_waitDelay: 10
 k3s_version: "v1.35.0+k3s1"
 k3s_cniBinDir: "/opt/cni/bin"
 k3s_cniConfDir: "/etc/cni/net.d"
-k3s_recreate: true
+k3s_recreate: false  # Set to true only for full cluster rebuild
 
 ### Containerd
 k3s_commonContainerdOptimized: true
@@ -143,6 +143,7 @@ tailscale_tags: ""
 tailscale_acceptDns: "true"
 tailscale_ssh: "true"
 tailscale_exitNodeEnabled: false
+tailscale_useExitNode: false
 tailscale_advertiseRoutes: ""
 
 # ---- GVISOR ------------------------------------------------------------------------

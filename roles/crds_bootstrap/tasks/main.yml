@@ -6,7 +6,7 @@
       https://github.com/kubernetes-sigs/gateway-api/releases/download/{{ gateway_apiVersion }}/standard-install.yaml
     kubeconfig: "{{ kubeconfig }}"
   when: not ansible_check_mode
-  tags: ["cluster", "infrastructure"]
+  tags: ["cluster"]
 
 # @docsible Wait for Gateway CRDs to be established
 - name: Wait for Gateway API CRDs to be established
@@ -21,7 +21,7 @@
       status: "True"
     wait_timeout: 60
   when: not ansible_check_mode
-  tags: ["cluster", "infrastructure"]
+  tags: ["cluster"]
 
 # @docsible Add Prometheus Community Helm repository
 - name: Add Prometheus Community Helm repo
@@ -30,7 +30,7 @@
     repo_url: https://prometheus-community.github.io/helm-charts
   check_mode: false
   when: not ansible_check_mode
-  tags: ["cluster", "infrastructure"]
+  tags: ["cluster"]
 
 # @docsible Install Prometheus Operator CRDs via Helm
 - name: Install Prometheus Operator CRDs
@@ -43,4 +43,4 @@
     chart_version: "{{ prometheus_operatorCrdsVersion }}"
     kubeconfig: "{{ kubeconfig }}"
   when: not ansible_check_mode
-  tags: ["cluster", "infrastructure"]
+  tags: ["cluster"]

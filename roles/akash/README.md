@@ -258,8 +258,5 @@ MIT
 
 ### Dependencies
 
-- **gvisor**
-  
-  
-
+No dependencies specified.
 <!-- DOCSIBLE END -->

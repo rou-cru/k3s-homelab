@@ -288,9 +288,10 @@ RoG hardware tweaks, and network optimizations.
 
 #### File: tasks/k8s_ansible_deps.yml
 
-| Name | Module | Has Conditions |
-| ---- | ------ | -------------- |
-| [Install kubernetes.core deps via uv](tasks/k8s_ansible_deps.yml#L5) | ansible.builtin.command | True |
+| Name | Module | Has Conditions | Tags |
+| ---- | ------ | -------------- | -----|
+| [Check if kubernetes package is installed](tasks/k8s_ansible_deps.yml#L5) | ansible.builtin.command | True |  |
+| [Install kubernetes.core deps via uv](tasks/k8s_ansible_deps.yml#L13) | ansible.builtin.command | True | k8s,deps |
 
 #### File: tasks/main.yml
 
@@ -472,8 +473,9 @@ classDef importRole stroke:#699ba7,stroke-width:2px;
 classDef includeVars stroke:#8e44ad,stroke-width:2px;
 classDef rescue stroke:#665352,stroke-width:2px;
 
-  Start-->|Task| Install_kubernetes_core_deps_via_uv0[install kubernetes core deps via uv<br>When: **not ansible check mode**]:::task
-  Install_kubernetes_core_deps_via_uv0-->End
+  Start-->|Task| Check_if_kubernetes_package_is_installed0[check if kubernetes package is installed<br>When: **not ansible check mode**]:::task
+  Check_if_kubernetes_package_is_installed0-->|Task| Install_kubernetes_core_deps_via_uv1[install kubernetes core deps via uv<br>When: **not ansible check mode and k8s check rc    0 or <br>kubernetes  not in k8s check stdout**]:::task
+  Install_kubernetes_core_deps_via_uv1-->End
 ```
 
 
@@ -563,7 +565,7 @@ classDef rescue stroke:#665352,stroke-width:2px;
 
   Start-->|Task| Configure_logind_to_ignore_Lid_Switch0[configure logind to ignore lid switch<br>When: **ansible facts  virtualization role       guest**]:::task
   Configure_logind_to_ignore_Lid_Switch0-->|Task| Mask_sleep_and_suspend_targets_to_prevent_accidental_suspension1[mask sleep and suspend targets to prevent<br>accidental suspension<br>When: **ansible facts  virtualization role       guest**]:::task
-  Mask_sleep_and_suspend_targets_to_prevent_accidental_suspension1-->|Task| Configure_Power_Efficiency_Tuning__tmpfiles_d_2[configure power efficiency tuning  tmpfiles d <br>When: **hardware powerefficiencytuningenabled   bool and<br>ansible facts  processor vendor   is defined and<br>ansible facts  processor vendor       genuineintel<br>**]:::task
+  Mask_sleep_and_suspend_targets_to_prevent_accidental_suspension1-->|Task| Configure_Power_Efficiency_Tuning__tmpfiles_d_2[configure power efficiency tuning  tmpfiles d <br>When: **hardware powerefficiencytuningenabled   default<br>false    bool and ansible facts  processor vendor <br> is defined and ansible facts  processor vendor   <br>   genuineintel**]:::task
   Configure_Power_Efficiency_Tuning__tmpfiles_d_2-->End
 ```
 

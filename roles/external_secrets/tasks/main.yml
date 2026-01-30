@@ -62,7 +62,7 @@
       grafanaDashboard:
         enabled: "{{ externalSecrets_grafanaDashboardEnabled }}"
   when: not ansible_check_mode
-  tags: ["cluster", "infrastructure", "external-secrets"]
+  tags: ["infra"]
 
 # @docsible Wait for webhook CA bundle population
 - name: Wait for external-secrets webhook CA bundle
@@ -83,7 +83,7 @@
        | first
        | default('')) | length > 0
   when: not ansible_check_mode
-  tags: ["cluster", "infrastructure", "external-secrets"]
+  tags: ["infra"]
 
 # @docsible Wait for webhook deployment readiness
 - name: Wait for external-secrets webhook to be ready
@@ -99,7 +99,7 @@
     wait_timeout: 300
     kubeconfig: "{{ kubeconfig }}"
   when: not ansible_check_mode
-  tags: ["cluster", "infrastructure", "external-secrets"]
+  tags: ["infra"]
 
 # @docsible Create OCI Vault authentication secret
 - name: Create OCI Auth Secret
@@ -120,7 +120,7 @@
     kubeconfig: "{{ kubeconfig }}"
   no_log: true
   when: not ansible_check_mode
-  tags: ["cluster", "infrastructure", "external-secrets", "oci"]
+  tags: ["infra"]
 
 # @docsible Create OCI Vault ClusterSecretStore
 - name: Create OCI ClusterSecretStore
@@ -152,4 +152,4 @@
     kubeconfig: "{{ kubeconfig }}"
   no_log: true
   when: not ansible_check_mode
-  tags: ["cluster", "infrastructure", "external-secrets", "oci"]
+  tags: ["infra"]

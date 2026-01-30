@@ -37,24 +37,26 @@
       tags: always
 
   tasks:
-    # Phase 1: OS-level configuration
+    # ==========================================================================
+    # PHASE 1: HOST (OS preparation)
+    # ==========================================================================
     # @docsible Validate system requirements for VPS node
     - name: Run preflight role
       ansible.builtin.import_role:
         name: preflight
-      tags: ["host", "os"]
+      tags: ["host"]
 
     # @docsible Configure base OS settings for VPS
     - name: Run common role
       ansible.builtin.import_role:
         name: common
-      tags: ["host", "os"]
+      tags: ["host"]
 
     # @docsible Deploy system monitoring on VPS
     - name: Run glances monitoring
       ansible.builtin.import_role:
         name: glances
-      tags: ["host", "os"]
+      tags: ["host"]
 
     # @docsible Optimize network stack for VPS connectivity
     - name: Run common network optimizations
@@ -62,19 +64,21 @@
         name: common
         tasks_from: network_optimization.yml
       when: system_networkOptimize | default(false)
-      tags: ["host", "os", "network"]
+      tags: ["host"]
 
-    # Phase 2: Network connectivity
+    # ==========================================================================
+    # PHASE 2: CLUSTER (VPS joins as agent node)
+    # ==========================================================================
     # @docsible Setup Tailscale VPN for secure cluster communication
     - name: Run tailscale role
       ansible.builtin.import_role:
         name: tailscale
-      tags: ["host", "network"]
+      tags: ["cluster", "tailscale"]
 
     - name: Flush host handlers before cluster join
       ansible.builtin.meta: flush_handlers
 
-    # Phase 4: K3s Agent join
+    # K3s Agent join
     # @docsible Resolve master Tailscale IP for agent join URL
     - name: Get master Tailscale IP
       ansible.builtin.command: tailscale ip -4
@@ -93,13 +97,13 @@
     # @docsible Build k3s_agentServerUrl from master Tailscale IP
     - name: Set K3s agent server URL
       vars:
-        _k3s_master_ts_ip: >-
+        k3s_masterTailscaleIp: >-
           {{
             (k3s_master_tailscale_ip.stdout_lines | default([]) | first)
             | default(k3s_master_tailscale_ip.stdout | trim)
           }}
       ansible.builtin.set_fact:
-        k3s_agentServerUrl: "https://{{ _k3s_master_ts_ip }}:6443"
+        k3s_agentServerUrl: "https://{{ k3s_masterTailscaleIp }}:6443"
       when: not ansible_check_mode
 
     # @docsible Mock server URL in check mode

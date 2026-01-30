@@ -81,12 +81,12 @@ required by various Helm charts and operators.
 
 #### File: tasks/main.yml
 
-| Name | Module | Has Conditions | Comments |
-| ---- | ------ | -------------- | -------- |
-| [Install Gateway API CRDs](tasks/main.yml#L2) | kubernetes.core.k8s | False | @docsible Install Gateway API standard CRDs |
-| [Wait for Gateway API CRDs to be established](tasks/main.yml#L10) | kubernetes.core.k8s_info | False | @docsible Wait for Gateway CRDs to be established |
-| [Add Prometheus Community Helm repo](tasks/main.yml#L23) | kubernetes.core.helm_repository | False | @docsible Add Prometheus Community Helm repository |
-| [Install Prometheus Operator CRDs](tasks/main.yml#L30) | kubernetes.core.helm | False | @docsible Install Prometheus Operator CRDs via Helm |
+| Name | Module | Has Conditions | Tags | Comments |
+| ---- | ------ | -------------- | -----| -------- |
+| [Install Gateway API CRDs](tasks/main.yml#L2) | kubernetes.core.k8s | True | cluster,infrastructure | @docsible Install Gateway API standard CRDs |
+| [Wait for Gateway API CRDs to be established](tasks/main.yml#L12) | kubernetes.core.k8s_info | True | cluster,infrastructure | @docsible Wait for Gateway CRDs to be established |
+| [Add Prometheus Community Helm repo](tasks/main.yml#L27) | kubernetes.core.helm_repository | True | cluster,infrastructure | @docsible Add Prometheus Community Helm repository |
+| [Install Prometheus Operator CRDs](tasks/main.yml#L36) | kubernetes.core.helm | True | cluster,infrastructure | @docsible Install Prometheus Operator CRDs via Helm |
 
 
 ## Task Flow Graphs
@@ -107,10 +107,10 @@ classDef importRole stroke:#699ba7,stroke-width:2px;
 classDef includeVars stroke:#8e44ad,stroke-width:2px;
 classDef rescue stroke:#665352,stroke-width:2px;
 
-  Start-->|Task| Install_Gateway_API_CRDs0[install gateway api crds]:::task
-  Install_Gateway_API_CRDs0-->|Task| Wait_for_Gateway_API_CRDs_to_be_established1[wait for gateway api crds to be established]:::task
-  Wait_for_Gateway_API_CRDs_to_be_established1-->|Task| Add_Prometheus_Community_Helm_repo2[add prometheus community helm repo]:::task
-  Add_Prometheus_Community_Helm_repo2-->|Task| Install_Prometheus_Operator_CRDs3[install prometheus operator crds]:::task
+  Start-->|Task| Install_Gateway_API_CRDs0[install gateway api crds<br>When: **not ansible check mode**]:::task
+  Install_Gateway_API_CRDs0-->|Task| Wait_for_Gateway_API_CRDs_to_be_established1[wait for gateway api crds to be established<br>When: **not ansible check mode**]:::task
+  Wait_for_Gateway_API_CRDs_to_be_established1-->|Task| Add_Prometheus_Community_Helm_repo2[add prometheus community helm repo<br>When: **not ansible check mode**]:::task
+  Add_Prometheus_Community_Helm_repo2-->|Task| Install_Prometheus_Operator_CRDs3[install prometheus operator crds<br>When: **not ansible check mode**]:::task
   Install_Prometheus_Operator_CRDs3-->End
 ```
 

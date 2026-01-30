@@ -27,7 +27,6 @@ tailscale_exitNodeEnabled: true
 # ------------------------------------------------------------------------------
 # K3S AGENT CONFIGURATION (VPS is agent, not server)
 # ------------------------------------------------------------------------------
-k3s_agentServerUrl: "https://{{ hostvars[groups['k3s_server'][0]].IP_tailscale }}:6443"
 
 k3s_agentKubeletArgs:
   - "--system-reserved=cpu=200m,memory=512Mi"

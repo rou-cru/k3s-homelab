@@ -28,7 +28,7 @@
               key: cloudflare-token
     kubeconfig: "{{ kubeconfig }}"
   when: not ansible_check_mode
-  tags: ["cluster", "infrastructure", "cert-manager", "acme"]
+  tags: ["infra"]
 
 # NOTE: No wait for Cloudflare secret - ClusterIssuer and Certificate are
 # declarative resources. cert-manager will retry until dependencies are ready.
@@ -60,7 +60,7 @@
                   - "{{ wildcard_domain }}"
     kubeconfig: "{{ kubeconfig }}"
   when: not ansible_check_mode
-  tags: ["cluster", "infrastructure", "cert-manager", "acme"]
+  tags: ["infra"]
 
 # @docsible Request wildcard certificate for public exposure
 - name: Create wildcard Certificate for {{ wildcard_domain }}
@@ -82,7 +82,7 @@
           - "{{ wildcard_domain }}"
     kubeconfig: "{{ kubeconfig }}"
   when: not ansible_check_mode
-  tags: ["cluster", "infrastructure", "cert-manager", "acme"]
+  tags: ["infra"]
 
 # NOTE: No wait needed here - ArgoCD deploys in Play 4 after VPS setup,
 # giving plenty of time for Let's Encrypt DNS-01 challenge (~2 min).
@@ -125,4 +125,4 @@
                 from: All
     kubeconfig: "{{ kubeconfig }}"
   when: not ansible_check_mode
-  tags: ["cluster", "infrastructure", "gateway", "acme"]
+  tags: ["infra"]

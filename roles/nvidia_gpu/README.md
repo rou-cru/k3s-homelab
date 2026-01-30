@@ -163,16 +163,14 @@ Supports host setup, cluster setup, and headless X11 configurations.
 | Name | Module | Has Conditions | Tags | Comments |
 | ---- | ------ | -------------- | -----| -------- |
 | [NVIDIA GPU cluster setup](tasks/cluster.yml#L2) | block | True | cluster,nvidia | @docsible Configure NVIDIA GPU in Kubernetes cluster |
-| [Check if Helm is installed](tasks/cluster.yml#L6) | ansible.builtin.command | False |  | @docsible Verify Helm availability |
-| [Warn if Helm is not available](tasks/cluster.yml#L13) | ansible.builtin.debug | True |  | @docsible Warn when Helm is missing |
-| [Ensure NVIDIA Helm repo](tasks/cluster.yml#L19) | kubernetes.core.helm_repository | True |  | @docsible Add NVIDIA device plugin Helm repository |
-| [Create temp values](tasks/cluster.yml#L26) | ansible.builtin.tempfile | True |  | @docsible Create temporary values file |
-| [Copy values](tasks/cluster.yml#L34) | ansible.builtin.copy | True |  | @docsible Copy device plugin values template |
-| [Install device plugin](tasks/cluster.yml#L42) | kubernetes.core.helm | True |  | @docsible Install NVIDIA device plugin via Helm |
-| [Wait for daemonset](tasks/cluster.yml#L55) | kubernetes.core.k8s_info | True |  | @docsible Wait for device plugin DaemonSet readiness |
-| [Check GPU resources](tasks/cluster.yml#L71) | kubernetes.core.k8s_info | True |  | @docsible Query node GPU capacity |
-| [Extract GPU capacities from nodes](tasks/cluster.yml#L80) | ansible.builtin.set_fact | True |  | @docsible Parse GPU resource allocation |
-| [Debug GPU resources](tasks/cluster.yml#L90) | ansible.builtin.debug | True |  | @docsible Display detected GPU resources |
+| [Ensure NVIDIA Helm repo](tasks/cluster.yml#L6) | kubernetes.core.helm_repository | False |  | @docsible Add NVIDIA device plugin Helm repository |
+| [Create temp values](tasks/cluster.yml#L12) | ansible.builtin.tempfile | False |  | @docsible Create temporary values file |
+| [Copy values](tasks/cluster.yml#L19) | ansible.builtin.copy | False |  | @docsible Copy device plugin values template |
+| [Install device plugin](tasks/cluster.yml#L26) | kubernetes.core.helm | False |  | @docsible Install NVIDIA device plugin via Helm |
+| [Wait for daemonset](tasks/cluster.yml#L38) | kubernetes.core.k8s_info | False |  | @docsible Wait for device plugin DaemonSet readiness |
+| [Check GPU resources](tasks/cluster.yml#L53) | kubernetes.core.k8s_info | False |  | @docsible Query node GPU capacity |
+| [Extract GPU capacities from nodes](tasks/cluster.yml#L61) | ansible.builtin.set_fact | False |  | @docsible Parse GPU resource allocation |
+| [Debug GPU resources](tasks/cluster.yml#L70) | ansible.builtin.debug | False |  | @docsible Display detected GPU resources |
 
 #### File: tasks/headless_optimization.yml
 
@@ -238,18 +236,16 @@ classDef includeVars stroke:#8e44ad,stroke-width:2px;
 classDef rescue stroke:#665352,stroke-width:2px;
 
   Start-->|Block Start| NVIDIA_GPU_cluster_setup0_block_start_0[[nvidia gpu cluster setup<br>When: **not ansible check mode**]]:::block
-  NVIDIA_GPU_cluster_setup0_block_start_0-->|Task| Check_if_Helm_is_installed0[check if helm is installed]:::task
-  Check_if_Helm_is_installed0-->|Task| Warn_if_Helm_is_not_available1[warn if helm is not available<br>When: **helm binary check rc    0**]:::task
-  Warn_if_Helm_is_not_available1-->|Task| Ensure_NVIDIA_Helm_repo2[ensure nvidia helm repo<br>When: **helm binary check rc    0**]:::task
-  Ensure_NVIDIA_Helm_repo2-->|Task| Create_temp_values3[create temp values<br>When: **helm binary check rc    0**]:::task
-  Create_temp_values3-->|Task| Copy_values4[copy values<br>When: **helm binary check rc    0**]:::task
-  Copy_values4-->|Task| Install_device_plugin5[install device plugin<br>When: **helm binary check rc    0**]:::task
-  Install_device_plugin5-->|Task| Wait_for_daemonset6[wait for daemonset<br>When: **helm binary check rc    0**]:::task
-  Wait_for_daemonset6-->|Task| Check_GPU_resources7[check gpu resources<br>When: **helm binary check rc    0**]:::task
-  Check_GPU_resources7-->|Task| Extract_GPU_capacities_from_nodes8[extract gpu capacities from nodes<br>When: **helm binary check rc    0**]:::task
-  Extract_GPU_capacities_from_nodes8-->|Task| Debug_GPU_resources9[debug gpu resources<br>When: **helm binary check rc    0**]:::task
-  Debug_GPU_resources9-.->|End of Block| NVIDIA_GPU_cluster_setup0_block_start_0
-  Debug_GPU_resources9-->|Rescue Start| NVIDIA_GPU_cluster_setup0_rescue_start_0[nvidia gpu cluster setup<br>When: **not ansible check mode**]:::rescue
+  NVIDIA_GPU_cluster_setup0_block_start_0-->|Task| Ensure_NVIDIA_Helm_repo0[ensure nvidia helm repo]:::task
+  Ensure_NVIDIA_Helm_repo0-->|Task| Create_temp_values1[create temp values]:::task
+  Create_temp_values1-->|Task| Copy_values2[copy values]:::task
+  Copy_values2-->|Task| Install_device_plugin3[install device plugin]:::task
+  Install_device_plugin3-->|Task| Wait_for_daemonset4[wait for daemonset]:::task
+  Wait_for_daemonset4-->|Task| Check_GPU_resources5[check gpu resources]:::task
+  Check_GPU_resources5-->|Task| Extract_GPU_capacities_from_nodes6[extract gpu capacities from nodes]:::task
+  Extract_GPU_capacities_from_nodes6-->|Task| Debug_GPU_resources7[debug gpu resources]:::task
+  Debug_GPU_resources7-.->|End of Block| NVIDIA_GPU_cluster_setup0_block_start_0
+  Debug_GPU_resources7-->|Rescue Start| NVIDIA_GPU_cluster_setup0_rescue_start_0[nvidia gpu cluster setup<br>When: **not ansible check mode**]:::rescue
   NVIDIA_GPU_cluster_setup0_rescue_start_0-->|Task| Report_NVIDIA_GPU_cluster_setup_failure0[report nvidia gpu cluster setup failure]:::task
   Report_NVIDIA_GPU_cluster_setup_failure0-->|Task| Fail_NVIDIA_GPU_cluster_setup1[fail nvidia gpu cluster setup]:::task
   Fail_NVIDIA_GPU_cluster_setup1-.->|End of Rescue Block| NVIDIA_GPU_cluster_setup0_block_start_0
@@ -312,7 +308,7 @@ classDef rescue stroke:#665352,stroke-width:2px;
   Set_driver_version11-->|Task| Set_driver_fallback12[set driver fallback<br>When: **nvidia driverpackage     auto  and  nvidia<br>detecteddriver skipped is defined and nvidia<br>detecteddriver skipped  or  nvidia detecteddriver<br>stdout   length    0  and nvidia active   default<br>false    bool**]:::task
   Set_driver_fallback12-->|Task| Set_manual_driver13[set manual driver<br>When: **nvidia active   default false    bool and nvidia<br>driverpackage     auto**]:::task
   Set_manual_driver13-->|Task| Blacklist_nouveau14[blacklist nouveau<br>When: **nvidia active   default false    bool**]:::task
-  Blacklist_nouveau14-->|Task| Update_initramfs15[update initramfs<br>When: **nvidia blacklistnouveau changed and not ansible<br>check mode**]:::task
+  Blacklist_nouveau14-->|Task| Update_initramfs15[update initramfs<br>When: **nvidia blacklistnouveau is changed and not ansible<br>check mode**]:::task
   Update_initramfs15-->|Task| Set_utils_package16[set utils package<br>When: **nvidia active   default false    bool**]:::task
   Set_utils_package16-->|Task| Check_broken_packages17[check broken packages<br>When: **nvidia active   default false    bool**]:::task
   Check_broken_packages17-->|Task| Fix_broken_packages18[fix broken packages<br>When: **nvidia active   default false    bool and nvidia<br>brokencheck stdout   int   0 and not ansible check<br>mode**]:::task
