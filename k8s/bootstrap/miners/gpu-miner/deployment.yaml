@@ -1,0 +1,153 @@
+# GPU cryptocurrency miner deployment with NVIDIA runtime support
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: miners
+  name: gpu-miner
+  labels:
+    app: gpu-miner
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate  # Clean restart for GPU device allocation
+  selector:
+    matchLabels:
+      app: gpu-miner
+  template:
+    metadata:
+      labels:
+        app: gpu-miner
+    spec:
+      hostNetwork: true  # Direct network access for optimal performance
+      automountServiceAccountToken: false
+      dnsPolicy: ClusterFirstWithHostNet
+      runtimeClassName: nvidia  # Use NVIDIA container runtime
+      # Ensure pod runs only on nodes with NVIDIA GPU hardware
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: nvidia.com/gpu.present
+                    operator: In
+                    values: ["true"]
+              - matchExpressions:
+                  - key: feature.node.kubernetes.io/pci-10de.present
+                    operator: In
+                    values: ["true"]  # PCI vendor ID for NVIDIA
+      containers:
+        - name: gpu-miner
+          securityContext:
+            privileged: true  # Required for GPU overclocking and monitoring
+          image: roucru/k3s-gpu-miner:rigel
+          imagePullPolicy: Always
+          env:
+            # Wallet address for mining rewards from secure Secret
+            - name: WALLET_ADDRESS
+              valueFrom:
+                secretKeyRef:
+                  name: mining-wallets
+                  key: XEL_WALLET
+            # Worker identification for pool statistics
+            - name: MINING_WORKER_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: gpu-miner-config
+                  key: MINING_WORKER_NAME
+            # Mining pool hostname for XEL cryptocurrency
+            - name: MINING_POOL_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: mining-pools
+                  key: KRYPTEX_XEL_HOST
+            # Pool port for stratum connection
+            - name: MINING_POOL_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: mining-pools
+                  key: KRYPTEX_XEL_PORT
+            # Connection scheme (stratum) for mining pool
+            - name: MINING_POOL_SCHEME
+              valueFrom:
+                configMapKeyRef:
+                  name: mining-pools
+                  key: KRYPTEX_XEL_SCHEME
+            # Pool type identifier for configuration
+            - name: POOL_TYPE
+              value: "kryptex"
+            # GPU mining algorithm (KawPow for Ravencoin)
+            - name: MINING_ALGO
+              valueFrom:
+                configMapKeyRef:
+                  name: gpu-miner-config
+                  key: MINING_ALGO
+            # Target cryptocurrency for GPU mining
+            - name: MINING_COIN
+              valueFrom:
+                configMapKeyRef:
+                  name: gpu-miner-config
+                  key: MINING_COIN
+            # Referral code for mining pool rewards
+            - name: REFERRAL_CODE
+              valueFrom:
+                configMapKeyRef:
+                  name: gpu-miner-config
+                  key: REFERRAL_CODE
+            # Pool password (typically 'x' for most pools)
+            - name: MINING_PASS
+              valueFrom:
+                configMapKeyRef:
+                  name: gpu-miner-config
+                  key: MINING_PASS
+            # GPU core clock offset for overclocking
+            - name: GPU_CORE_OFFSET
+              valueFrom:
+                configMapKeyRef:
+                  name: gpu-miner-config
+                  key: GPU_CORE_OFFSET
+            # GPU memory clock offset for performance tuning
+            - name: GPU_MEM_OFFSET
+              valueFrom:
+                configMapKeyRef:
+                  name: gpu-miner-config
+                  key: GPU_MEM_OFFSET
+            # Minimum GPU core temperature for operation
+            - name: GPU_TEMP_CORE_MIN
+              valueFrom:
+                configMapKeyRef:
+                  name: gpu-miner-config
+                  key: GPU_TEMP_CORE_MIN
+            # Maximum GPU core temperature before throttling
+            - name: GPU_TEMP_CORE_MAX
+              valueFrom:
+                configMapKeyRef:
+                  name: gpu-miner-config
+                  key: GPU_TEMP_CORE_MAX
+            # Minimum GPU memory temperature
+            - name: GPU_TEMP_MEM_MIN
+              valueFrom:
+                configMapKeyRef:
+                  name: gpu-miner-config
+                  key: GPU_TEMP_MEM_MIN
+            # Maximum GPU memory temperature before throttling
+            - name: GPU_TEMP_MEM_MAX
+              valueFrom:
+                configMapKeyRef:
+                  name: gpu-miner-config
+                  key: GPU_TEMP_MEM_MAX
+            # Expose all NVIDIA GPUs to container
+            - name: NVIDIA_VISIBLE_DEVICES
+              value: "all"
+            # Enable all NVIDIA driver capabilities
+            - name: NVIDIA_DRIVER_CAPABILITIES
+              value: "all"
+          resources:
+            requests:
+              cpu: 500m
+              memory: 512Mi
+              ephemeral-storage: 100Mi
+            limits:
+              nvidia.com/gpu: "1"  # Request exactly 1 GPU device
+              cpu: 2000m
+              memory: 1Gi
+              ephemeral-storage: 200Mi
