@@ -1,36 +1,53 @@
-# Install Gateway API CRDs
+# @docsible Installs Experimental Gateway API CRDs (v{{ gateway_apiVersion }})
 - name: Install Gateway API CRDs
   kubernetes.core.k8s:
     state: present
-    src: >-
-      https://github.com/kubernetes-sigs/gateway-api/releases/download/{{ gateway_api_version }}/standard-install.yaml
-    kubeconfig: "/home/{{ ansible_user }}/.kube/config"
+    src: "https://github.com/kubernetes-sigs/gateway-api/releases/download/{{ gateway_apiVersion }}/experimental-install.yaml"
+    kubeconfig: "{{ kubeconfig }}"
+  when: not ansible_check_mode
+  tags: ["cluster"]
 
+# @docsible Waits for Gateway CRDs to be registered in API
 - name: Wait for Gateway API CRDs to be established
   kubernetes.core.k8s_info:
     api_version: apiextensions.k8s.io/v1
     kind: CustomResourceDefinition
     name: gateways.gateway.networking.k8s.io
-    kubeconfig: "/home/{{ ansible_user }}/.kube/config"
+    kubeconfig: "{{ kubeconfig }}"
     wait: true
     wait_condition:
       type: Established
       status: "True"
     wait_timeout: 60
+  when: not ansible_check_mode
+  tags: ["cluster"]
 
-# Install Prometheus Operator CRDs via Helm
+# @docsible Registers Prometheus Community Helm repository
 - name: Add Prometheus Community Helm repo
   kubernetes.core.helm_repository:
     name: prometheus-community
     repo_url: https://prometheus-community.github.io/helm-charts
   check_mode: false
+  when: not ansible_check_mode
+  tags: ["cluster"]
 
+# @docsible Creates 'monitoring' namespace for CRDs
+- name: Create monitoring namespace
+  kubernetes.core.k8s:
+    state: present
+    src: "{{ k8s_manifestsDir }}/bootstrap/namespaces/monitoring.yaml"
+    kubeconfig: "{{ kubeconfig }}"
+  when: not ansible_check_mode
+
+# @docsible Installs Prometheus Operator CRDs (ServiceMonitor, etc.)
 - name: Install Prometheus Operator CRDs
   kubernetes.core.helm:
     release_name: prometheus-operator-crds
     chart_ref: prometheus-community/prometheus-operator-crds
-    release_namespace: "{{ prometheus_operator_crds_namespace }}"
-    create_namespace: true
+    release_namespace: "{{ prometheus_operatorCrdsNamespace }}"
+    create_namespace: false
     update_repo_cache: true
-    chart_version: "{{ prometheus_operator_crds_version }}"
-    kubeconfig: "/home/{{ ansible_user }}/.kube/config"
+    chart_version: "{{ prometheus_operatorCrdsVersion }}"
+    kubeconfig: "{{ kubeconfig }}"
+  when: not ansible_check_mode
+  tags: ["cluster"]

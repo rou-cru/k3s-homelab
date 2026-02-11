@@ -1,11 +1,5 @@
-# Title: gVisor Install
-# Description: Enable gVisor installation and RuntimeClass deployment.
-# Type: bool
-# Required: false
-gvisor_install: true
-
-# Title: gVisor Version
-# Description: Version of gVisor runtime to install.
-# Type: str
-# Required: false
-gvisor_version: "20231204.0"
+# Role defaults moved to group_vars/all.yml
+# See: group_vars/all.yml for all project variables
+# This file intentionally left empty to maintain single source of truth
+---
+{}

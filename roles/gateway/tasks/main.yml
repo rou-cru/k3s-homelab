@@ -1,0 +1,34 @@
+# @docsible Creates 'networking' namespace (Privileged for Gateway)
+- name: Create networking namespace
+  kubernetes.core.k8s:
+    name: networking
+    api_version: v1
+    kind: Namespace
+    state: present
+    definition:
+      metadata:
+        labels:
+          pod-security.kubernetes.io/enforce: privileged
+          pod-security.kubernetes.io/audit: privileged
+          pod-security.kubernetes.io/warn: privileged
+    kubeconfig: "{{ kubeconfig }}"
+  when: not ansible_check_mode
+  tags: ["infra", "networking"]
+
+# @docsible Deploys Public Gateway (Static Manifest)
+- name: Deploy public Gateway
+  kubernetes.core.k8s:
+    state: present
+    src: "{{ k8s_manifestsDir }}/bootstrap/gateway/public-gateway.yaml"
+    kubeconfig: "{{ kubeconfig }}"
+  when: not ansible_check_mode
+  tags: ["infra", "networking"]
+
+# @docsible Deploys Cloudflare Origin CA ExternalSecret
+- name: Deploy Cloudflare Origin CA ExternalSecret
+  kubernetes.core.k8s:
+    state: present
+    src: "{{ k8s_manifestsDir }}/bootstrap/gateway/cloudflare-origin-ca.yaml"
+    kubeconfig: "{{ kubeconfig }}"
+  when: not ansible_check_mode
+  tags: ["infra", "networking"]

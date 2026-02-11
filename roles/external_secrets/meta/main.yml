@@ -9,12 +9,10 @@ galaxy_info:
   platforms:
     - name: Ubuntu
       versions:
-        - jammy
         - noble
   galaxy_tags:
     - kubernetes
     - k3s
     - external-secrets
 
-dependencies:
-  - role: cert_manager
+dependencies: []

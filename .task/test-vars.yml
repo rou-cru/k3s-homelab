@@ -1,3 +1,6 @@
-# Test variables for Task validation only
-# These override defaults during template rendering for validation
-common_primary_interface: eth0
+system_primaryInterface: eth0
+hardware_rogServer: true
+hardware_radioBlockEnabled: true
+hardware_audioOptimizationEnabled: true
+hardware_batteryChargeThreshold: 80
+hardware_thermalPolicy: 1

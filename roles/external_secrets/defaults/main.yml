@@ -1,5 +1,5 @@
-# Title: OCI Configuration File
-# Description: Path to Oracle Cloud Infrastructure configuration file.
-# Type: str
-# Required: false
-oci_config_file: "{{ playbook_dir }}/.oci"
+# Role defaults moved to group_vars/all.yml
+# See: group_vars/all.yml for all project variables
+# This file intentionally left empty to maintain single source of truth
+---
+{}

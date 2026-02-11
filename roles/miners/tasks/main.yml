@@ -1,0 +1,122 @@
+# @docsible Validates mining wallet when CPU or GPU miners are enabled
+- name: Validate mining wallet configuration
+  ansible.builtin.assert:
+    that:
+      - miningWallet is defined
+      - miningWallet | length > 0
+    fail_msg: "ERROR: Configure 'miningWallet' in 'secrets.yaml' or inventory variables."
+    success_msg: "Mining wallet configuration validated successfully."
+  when:
+    - (mining_cpuEnabled | default(false) | bool) or (mining_gpuEnabled | default(false) | bool)
+
+# @docsible Builds control-plane node labels for miner scheduling
+- name: Build control plane miner labels
+  ansible.builtin.set_fact:
+    miner_control_plane_labels: >-
+      {{
+        []
+        + (['miner.network=true'] if (minerLabelNetwork | default(true) | bool) else [])
+        + (['miner.cpu=true'] if (mining_cpuEnabled | default(false) | bool) else [])
+        + (['miner.gpu=true'] if (mining_gpuEnabled | default(false) | bool) else [])
+      }}
+
+# @docsible Collects control-plane nodes for miner label application
+- name: Get control plane nodes for mining labeling
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ kubeconfig }}"
+    kind: Node
+    label_selectors:
+      - node-role.kubernetes.io/control-plane
+  register: control_plane_nodes
+  when:
+    - miner_control_plane_labels | length > 0
+    - not ansible_check_mode
+
+# @docsible Applies miner labels to control-plane nodes
+- name: Label control plane nodes for mining workloads
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig }}"
+    kind: Node
+    name: "{{ item.metadata.name }}"
+    definition:
+      metadata:
+        labels: "{{ dict(miner_control_plane_labels | map('split', '=') | map('list')) }}"
+  loop: "{{ control_plane_nodes.resources | default([]) }}"
+  loop_control:
+    label: "{{ item.metadata.name }}"
+  when:
+    - miner_control_plane_labels | length > 0
+    - not ansible_check_mode
+
+# @docsible Ensures miners namespace exists before workload deployment
+- name: Apply miners namespace
+  kubernetes.core.k8s:
+    src: "{{ k8s_manifestsDir }}/bootstrap/namespaces/miners.yaml"
+    kubeconfig: "{{ kubeconfig }}"
+    state: present
+  when: not ansible_check_mode
+
+# @docsible Renders Honeygain non-secret Kustomize env bridge
+- name: Generate Honeygain config env
+  ansible.builtin.copy:
+    dest: "{{ k8s_manifestsDir }}/bootstrap/miners/honeygain/config.env"
+    content: |
+      HONEYGAIN_EMAIL={{ honeygainEmail }}
+      HONEYGAIN_DEVICE={{ honeygainDevice }}
+    mode: "0600"
+  when: miners_deployHoneygain | default(true) | bool
+
+# @docsible Renders Honeygain secret Kustomize env bridge
+- name: Generate Honeygain secret env
+  ansible.builtin.copy:
+    dest: "{{ k8s_manifestsDir }}/bootstrap/miners/honeygain/secret.env"
+    content: |
+      HONEYGAIN_PASS={{ honeygainPass }}
+    mode: "0600"
+  no_log: true
+  when: miners_deployHoneygain | default(true) | bool
+
+# @docsible Renders mining wallet secret bridge for Kustomize
+- name: Generate mining wallets env
+  ansible.builtin.copy:
+    dest: "{{ k8s_manifestsDir }}/bootstrap/miners/mining-secrets/wallets.env"
+    content: |
+      XEL_WALLET={{ miningWallet }}
+    mode: "0600"
+  no_log: true
+  when:
+    - (mining_cpuEnabled | default(false) | bool) or (mining_gpuEnabled | default(false) | bool)
+
+# @docsible Builds enabled Kustomize deployment targets for miner stack
+- name: Build miner deployment targets
+  ansible.builtin.set_fact:
+    miners_kustomize_targets:
+      - name: honeygain
+        path: "{{ k8s_manifestsDir }}/bootstrap/miners/honeygain"
+        enabled: "{{ miners_deployHoneygain | default(true) | bool }}"
+      - name: mining-secrets
+        path: "{{ k8s_manifestsDir }}/bootstrap/miners/mining-secrets"
+        enabled: "{{ (mining_cpuEnabled | default(false) | bool) or (mining_gpuEnabled | default(false) | bool) }}"
+      - name: mining-pools
+        path: "{{ k8s_manifestsDir }}/bootstrap/miners/mining-pools"
+        enabled: "{{ (mining_cpuEnabled | default(false) | bool) or (mining_gpuEnabled | default(false) | bool) }}"
+      - name: cpu-miner
+        path: "{{ k8s_manifestsDir }}/bootstrap/miners/cpu-miner"
+        enabled: "{{ mining_cpuEnabled | default(false) | bool }}"
+      - name: gpu-miner
+        path: "{{ k8s_manifestsDir }}/bootstrap/miners/gpu-miner"
+        enabled: "{{ (mining_gpuEnabled | default(false) | bool) and (nvidia_active | default(false) | bool) }}"
+
+# @docsible Applies enabled miner Kustomize overlays
+- name: Deploy miner overlays via Kustomize
+  ansible.builtin.command: kubectl apply -k {{ item.path }}
+  environment:
+    KUBECONFIG: "{{ kubeconfig }}"
+  register: miners_kustomize_apply
+  changed_when: >-
+    'configured' in (miners_kustomize_apply.stdout | default('')) or
+    'created' in (miners_kustomize_apply.stdout | default(''))
+  loop: "{{ miners_kustomize_targets | selectattr('enabled', 'equalto', true) | list }}"
+  loop_control:
+    label: "{{ item.name }}"
+  when: not ansible_check_mode

@@ -1,8 +1,8 @@
 [Unit]
 Description=NVIDIA X Server for headless GPU management
 After=multi-user.target
-Requires=nvidia-persistenced.service
-After=nvidia-persistenced.service
+Requires=nvidia-persistence.service
+After=nvidia-persistence.service
 
 [Service]
 Type=simple

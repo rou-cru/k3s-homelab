@@ -1,0 +1,47 @@
+---
+argument_specs:
+  main:
+    short_description: Install cert-manager and bootstrap a self-signed CA
+    description: |
+      Deploys cert-manager via Helm with CRDs enabled and bootstraps
+      a self-signed CA with ClusterIssuers for cluster-wide TLS.
+    author: rc
+    options:
+      certManager_namespace:
+        type: str
+        required: false
+        default: "cert-manager"
+        description: Namespace for cert-manager deployment.
+      certManager_chartVersion:
+        type: str
+        required: false
+        description: cert-manager Helm chart version (omit for latest).
+      certManager_selfsignedIssuerName:
+        type: str
+        required: false
+        default: "selfsigned-issuer"
+        description: Name for the self-signed ClusterIssuer.
+      certManager_caCertificateName:
+        type: str
+        required: false
+        default: "ca-certificate"
+        description: Name for the CA Certificate resource.
+      certManager_caSecretName:
+        type: str
+        required: false
+        default: "ca-secret"
+        description: Secret name for storing the CA certificate.
+      certManager_caIssuerName:
+        type: str
+        required: false
+        default: "ca-issuer"
+        description: Name for the CA ClusterIssuer.
+      certManager_prometheusEnabled:
+        type: bool
+        required: false
+        default: false
+        description: Enable Prometheus ServiceMonitor for metrics.
+      kubeconfig:
+        type: str
+        required: true
+        description: Path to kubeconfig for cluster access.

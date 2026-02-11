@@ -1,70 +1,62 @@
-# Download and verify GitHub CLI repository keyring for secure package installation
+# @docsible Downloads GitHub CLI GPG keyring
 - name: Download GitHub CLI keyring
   ansible.builtin.get_url:
     url: https://cli.github.com/packages/githubcli-archive-keyring.gpg
     dest: /usr/share/keyrings/githubcli-archive-keyring.gpg
     mode: '0644'
     force: true
-  when: common_install_github_cli_repo | bool
-# Verify GPG key fingerprint for GitHub CLI repository security
+  when: system_installGithubCliRepo | bool
+
+# @docsible Verifies GPG keyring fingerprint against official ID
 - name: Verify GitHub CLI keyring fingerprint
   ansible.builtin.command: >-
     gpg --show-keys --with-colons /usr/share/keyrings/githubcli-archive-keyring.gpg
   register: githubcli_keyring_fingerprint
   changed_when: false
   when:
-    - common_install_github_cli_repo | bool
+    - system_installGithubCliRepo | bool
     - not ansible_check_mode
-# Ensure GitHub CLI keyring matches expected fingerprint for security
+
+# @docsible Enforces GPG fingerprint match
 - name: Assert GitHub CLI keyring fingerprint
   ansible.builtin.assert:
     that:
       - "'fpr:::::::::2C6106201985B60E6C7AC87323F3D4EA75716059:' in githubcli_keyring_fingerprint.stdout"
     fail_msg: "GitHub CLI keyring fingerprint mismatch."
   when:
-    - common_install_github_cli_repo | bool
+    - system_installGithubCliRepo | bool
     - not ansible_check_mode
     - githubcli_keyring_fingerprint is defined
-# Add GitHub CLI repository with signed-by option for package verification
+
+# @docsible Adds signed GitHub CLI APT repository
 - name: Add GitHub CLI repository
   ansible.builtin.apt_repository:
     repo: >-
       {{
-
-
         'deb [arch=' ~ ansible_facts['architecture'] ~
         ' signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] ' ~
         'https://cli.github.com/packages stable main'
       }}
     filename: github-cli
     state: present
-  when: common_install_github_cli_repo | bool
-# Install Python modules for Kubernetes Ansible integration
-- name: Install Python dependencies for K8s Ansible modules
-  ansible.builtin.apt:
-    name:
-      - python3-kubernetes
-      - python3-pip
-      - python3-yaml
-      - python3-jsonpatch
-    state: present
-    update_cache: true
-  when: common_install_k8s_python | bool
-# Install lightweight debug packages
+  when: system_installGithubCliRepo | bool
+
+# @docsible Installs network diagnostic tools (tcpdump, net-tools)
 - name: Install debug packages
   ansible.builtin.apt:
-    name: "{{ common_debug_packages }}"
+    name: "{{ packages_debug }}"
     state: present
     update_cache: true
   when:
-    - common_install_debug_packages | bool
-    - common_debug_packages | default([]) | length > 0
-# Install developer/workstation packages
+    - system_installDebugPackages | bool
+    - packages_debug | default([]) | length > 0
+
+# @docsible Installs development tools (make, gcc) if enabled
 - name: Install dev packages
   ansible.builtin.apt:
-    name: "{{ common_dev_packages }}"
+    name: "{{ packages_dev }}"
     state: present
     update_cache: true
   when:
-    - common_install_dev_packages | bool
-    - common_dev_packages | default([]) | length > 0
+    - system_installDevPackages | bool
+    - packages_dev | default([]) | length > 0

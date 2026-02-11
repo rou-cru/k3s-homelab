@@ -1,3 +1,4 @@
+# @docsible Installs pciutils to detect hardware IDs
 - name: Install pciutils
   ansible.builtin.apt:
     name: pciutils
@@ -5,18 +6,21 @@
     update_cache: true
     cache_valid_time: 3600
 
+# @docsible Normalizes nvidia_setupMode fact
 - name: Normalize setup mode
   ansible.builtin.set_fact:
-    nvidia_gpu_setup_mode: "{{ nvidia_gpu_setup | default('auto') | string | lower }}"
+    nvidia_setupMode: "{{ nvidia_setup | default('auto') | string | lower }}"
 
+# @docsible Scans PCI bus for vendor IDs
 - name: Get PCI vendors
   ansible.builtin.shell: cat /sys/bus/pci/devices/*/vendor
   register: pci_vendor_ids_output
   changed_when: false
 
+# @docsible Detects NVIDIA GPU (Vendor ID 0x10de)
 - name: Detect GPU
   ansible.builtin.set_fact:
-    nvidia_gpu_present: >-
+    nvidia_present: >-
       {{
         '0x10de' in (
           pci_vendor_ids_output.stdout_lines
@@ -27,35 +31,41 @@
         )
       }}
 
+# @docsible Activates NVIDIA setup if GPU found (Auto Mode)
 - name: Set GPU active (auto)
   ansible.builtin.set_fact:
-    nvidia_gpu_active: "{{ nvidia_gpu_present | default(false) }}"
+    nvidia_active: "{{ nvidia_present | default(false) }}"
     cacheable: yes
-  when: nvidia_gpu_setup_mode == 'auto'
+  when: nvidia_setupMode == 'auto'
 
+# @docsible Forces NVIDIA setup enabled
 - name: Set GPU active (forced)
   ansible.builtin.set_fact:
-    nvidia_gpu_active: true
+    nvidia_active: true
     cacheable: yes
-  when: nvidia_gpu_setup_mode == 'true'
+  when: nvidia_setupMode == 'true'
 
+# @docsible Fails if GPU missing when forced
 - name: Fail if GPU missing
   ansible.builtin.fail:
     msg: "GPU Setup forced but no NVIDIA GPU detected"
   when:
-    - nvidia_gpu_setup_mode == 'true'
-    - not (nvidia_gpu_present | default(false))
+    - nvidia_setupMode == 'true'
+    - not (nvidia_present | default(false))
 
+# @docsible Disables NVIDIA setup explicitly
 - name: Set GPU active (disabled)
   ansible.builtin.set_fact:
-    nvidia_gpu_active: false
+    nvidia_active: false
     cacheable: yes
-  when: nvidia_gpu_setup_mode == 'false'
+  when: nvidia_setupMode == 'false'
 
+# @docsible Debugs NVIDIA detection state
 - name: Debug NVIDIA facts
   ansible.builtin.debug:
-    msg: "Setup: {{ nvidia_gpu_setup_mode }}, Active: {{ nvidia_gpu_active }}"
+    msg: "Setup: {{ nvidia_setupMode }}, Active: {{ nvidia_active }}"
 
+# @docsible Installs kernel headers and driver dependencies
 - name: Install driver deps
   ansible.builtin.apt:
     name:
@@ -64,8 +74,9 @@
       - software-properties-common
     state: present
     update_cache: true
-  when: nvidia_gpu_active | default(false) | bool
+  when: nvidia_active | default(false) | bool
 
+# @docsible Queries ubuntu-drivers for recommended version
 - name: Detect driver
   ansible.builtin.shell: |
     set -o pipefail
@@ -73,35 +84,39 @@
     grep -oP 'driver\s+:\s+\K(nvidia-driver-\d+)(?=\s.*recommended)'
   args:
     executable: /bin/bash
-  register: nvidia_gpu_detected_driver
+  register: nvidia_detectedDriver
   changed_when: false
   failed_when: false
-  when: nvidia_gpu_active | default(false) | bool and nvidia_gpu_driver_package == "auto"
+  when: nvidia_active | default(false) | bool and nvidia_driverPackage == "auto"
 
+# @docsible Sets target driver version from auto-detection
 - name: Set driver version
   ansible.builtin.set_fact:
-    nvidia_gpu_driver_target: "{{ nvidia_gpu_detected_driver.stdout | trim }}"
+    nvidia_driverTarget: "{{ nvidia_detectedDriver.stdout | trim }}"
   when:
-    - nvidia_gpu_active | default(false) | bool
-    - nvidia_gpu_driver_package == "auto"
-    - nvidia_gpu_detected_driver.stdout | length > 0
+    - nvidia_active | default(false) | bool
+    - nvidia_driverPackage == "auto"
+    - nvidia_detectedDriver.stdout | length > 0
 
+# @docsible Sets fallback driver version if detection fails
 - name: Set driver fallback
   ansible.builtin.set_fact:
-    nvidia_gpu_driver_target: "{{ nvidia_gpu_driver_fallback }}"
+    nvidia_driverTarget: "{{ nvidia_driverFallback }}"
   when:
-    - nvidia_gpu_driver_package == "auto"
-    - (nvidia_gpu_detected_driver.skipped is defined and nvidia_gpu_detected_driver.skipped) or
-      (nvidia_gpu_detected_driver.stdout | length == 0)
-    - nvidia_gpu_active | default(false) | bool
+    - nvidia_driverPackage == "auto"
+    - (nvidia_detectedDriver.skipped is defined and nvidia_detectedDriver.skipped) or
+      (nvidia_detectedDriver.stdout | length == 0)
+    - nvidia_active | default(false) | bool
 
+# @docsible Sets manual driver version override
 - name: Set manual driver
   ansible.builtin.set_fact:
-    nvidia_gpu_driver_target: "{{ nvidia_gpu_driver_package }}"
+    nvidia_driverTarget: "{{ nvidia_driverPackage }}"
   when:
-    - nvidia_gpu_active | default(false) | bool
-    - nvidia_gpu_driver_package != "auto"
+    - nvidia_active | default(false) | bool
+    - nvidia_driverPackage != "auto"
 
+# @docsible Blacklists open-source Nouveau driver
 - name: Blacklist nouveau
   ansible.builtin.copy:
     dest: /etc/modprobe.d/blacklist-nouveau.conf
@@ -109,27 +124,31 @@
       blacklist nouveau
       options nouveau modeset=0
     mode: "0640"
-  when: nvidia_gpu_active | default(false) | bool
-  register: nvidia_gpu_blacklist_nouveau
+  when: nvidia_active | default(false) | bool
+  register: nvidia_blacklistNouveau
 
+# @docsible Regenerates initramfs after Nouveau blacklist changes
 - name: Update initramfs # noqa: no-handler
   ansible.builtin.command: update-initramfs -u
   when:
-    - nvidia_gpu_blacklist_nouveau.changed
+    - nvidia_blacklistNouveau is changed
     - not ansible_check_mode
   changed_when: true
 
+# @docsible Resolves nvidia-utils package name
 - name: Set utils package
   ansible.builtin.set_fact:
-    nvidia_gpu_utils_package: "nvidia-utils-{{ nvidia_gpu_driver_target | regex_replace('^nvidia-driver-', '') }}"
-  when: nvidia_gpu_active | default(false) | bool
+    nvidia_utilsPackage: "nvidia-utils-{{ nvidia_driverTarget | regex_replace('^nvidia-driver-', '') }}"
+  when: nvidia_active | default(false) | bool
 
+# @docsible Checks for partially installed (broken) packages
 - name: Check broken packages
   ansible.builtin.shell: dpkg -l | grep nvidia | grep -c ^iU || true
-  register: nvidia_gpu_broken_check
+  register: nvidia_brokenCheck
   changed_when: false
-  when: nvidia_gpu_active | default(false) | bool
+  when: nvidia_active | default(false) | bool
 
+# @docsible Purges broken NVIDIA packages to allow clean install
 - name: Fix broken packages
   ansible.builtin.shell: |
     REMOVED=$(dpkg -l | grep '^iU' | grep nvidia | awk '{print $2}' |
@@ -138,39 +157,43 @@
     apt-get autoremove -y
     apt-get autoclean
   when:
-    - nvidia_gpu_active | default(false) | bool
-    - nvidia_gpu_broken_check.stdout | int > 0
+    - nvidia_active | default(false) | bool
+    - nvidia_brokenCheck.stdout | int > 0
     - not ansible_check_mode
   changed_when: true
 
+# @docsible Installs NVIDIA Driver and Utils
 - name: Install NVIDIA driver
   ansible.builtin.apt:
     name:
-      - "{{ nvidia_gpu_driver_target }}"
-      - "{{ nvidia_gpu_utils_package }}"
+      - "{{ nvidia_driverTarget }}"
+      - "{{ nvidia_utilsPackage }}"
     state: present
     update_cache: true
-  register: nvidia_gpu_driver_install
-  when: nvidia_gpu_active | default(false) | bool
+  register: nvidia_driverInstall
+  when: nvidia_active | default(false) | bool
 
+# @docsible Reboots system to load new kernel modules
 - name: Reboot system (nvidia)
   ansible.builtin.reboot:
     msg: "Rebooting to load NVIDIA drivers"
-    reboot_timeout: "{{ nvidia_gpu_reboot_timeout }}"
+    reboot_timeout: "{{ nvidia_rebootTimeout }}"
   when:
-    - nvidia_gpu_active | default(false) | bool
-    - nvidia_gpu_driver_install.changed or nvidia_gpu_blacklist_nouveau.changed
+    - nvidia_active | default(false) | bool
+    - nvidia_driverInstall.changed or nvidia_blacklistNouveau.changed
     - not ansible_check_mode
 
+# @docsible Creates APT keyrings directory
 - name: Ensure APT keyrings dir
   ansible.builtin.file:
     path: /etc/apt/keyrings
     state: directory
     owner: root
-    group: _apt
-    mode: "0750"
-  when: nvidia_gpu_active | default(false) | bool
+    group: root
+    mode: "0755"
+  when: nvidia_active | default(false) | bool
 
+# @docsible Adds NVIDIA Container Toolkit repository
 - name: Write toolkit repo
   ansible.builtin.copy:
     dest: /etc/apt/sources.list.d/nvidia-container-toolkit.list
@@ -181,25 +204,76 @@
         ' /'
       }}
     mode: "0640"
-  when: nvidia_gpu_active | default(false) | bool
+  when: nvidia_active | default(false) | bool
 
+# @docsible Installs NVIDIA Container Toolkit
 - name: Install toolkit
   ansible.builtin.apt:
     name: nvidia-container-toolkit
     state: present
     update_cache: true
     cache_valid_time: 3600
-  when: nvidia_gpu_active | default(false) | bool
+  when: nvidia_active | default(false) | bool
+  register: nvidia_toolkitInstall
 
+# @docsible Creates CDI directory
+- name: Ensure CDI directory exists
+  ansible.builtin.file:
+    path: /etc/cdi
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  when: nvidia_active | default(false) | bool
+
+# @docsible Verifies nvidia-smi functionality
+- name: Check NVIDIA driver status
+  ansible.builtin.command: nvidia-smi --query-gpu=driver_version --format=csv,noheader
+  register: nvidia_smi_check
+  changed_when: false
+  failed_when: false
+  when:
+    - nvidia_active | default(false) | bool
+    - not ansible_check_mode
+
+# @docsible Reboots if driver version mismatch detected
+- name: Reboot to fix driver mismatch
+  ansible.builtin.reboot:
+    msg: "Rebooting to fix NVIDIA driver mismatch"
+    reboot_timeout: "{{ nvidia_rebootTimeout | default(600) }}"
+  when:
+    - nvidia_active | default(false) | bool
+    - not ansible_check_mode
+    - nvidia_smi_check.rc != 0
+
+# @docsible Generates CDI specification
+- name: Generate NVIDIA CDI specification
+  ansible.builtin.command: nvidia-ctk cdi generate --output=/etc/cdi/nvidia.yaml
+  args:
+    creates: /etc/cdi/nvidia.yaml
+  when:
+    - nvidia_active | default(false) | bool
+    - not ansible_check_mode
+  changed_when: false
+
+# @docsible Registers 'nvidia' runtime for Containerd
 - name: Register NVIDIA as an available runtime
   ansible.builtin.set_fact:
-    k3s_common_containerd_additional_runtimes: >-
-      {{ (k3s_common_containerd_additional_runtimes | default([])) | union(['nvidia']) }}
-  when: nvidia_gpu_active | default(false) | bool
+    _current_runtimes: "{{ ansible_facts['k3s_commonContainerdAdditionalRuntimes'] | default([]) }}"
+  when: nvidia_active | default(false) | bool
   tags: ["host", "nvidia"]
 
+# @docsible Adds NVIDIA runtime to k3s_commonContainerdAdditionalRuntimes
+- name: Update runtime list with NVIDIA
+  ansible.builtin.set_fact:
+    k3s_commonContainerdAdditionalRuntimes: "{{ _current_runtimes | union(['nvidia']) }}"
+    cacheable: yes
+  when: nvidia_active | default(false) | bool
+  tags: ["host", "nvidia"]
+
+# @docsible Imports Headless X11 configuration tasks
 - name: Import headless optimization
   ansible.builtin.import_tasks: headless_optimization.yml
   when:
-    - nvidia_gpu_active | default(false) | bool
-    - nvidia_gpu_headless_x11_enabled | default(true) | bool
+    - nvidia_active | default(false) | bool
+    - nvidia_headlessX11Enabled | default(true) | bool

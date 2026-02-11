@@ -1,0 +1,24 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: observability
+  namespace: argocd
+spec:
+  description: Observability stack - monitoring, logging, alerting
+  sourceRepos:
+    - '*'
+  destinations:
+    - namespace: monitoring
+      name: in-cluster
+  clusterResourceWhitelist:
+    - group: monitoring.coreos.com
+      kind: '*'
+    - group: ''
+      kind: ServiceAccount
+    - group: rbac.authorization.k8s.io
+      kind: '*'
+    - group: admissionregistration.k8s.io
+      kind: '*'
+  namespaceResourceWhitelist:
+    - group: '*'
+      kind: '*'

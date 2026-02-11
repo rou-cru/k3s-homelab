@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: honeygain
+  namespace: miners
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: honeygain
+  template:
+    metadata:
+      labels:
+        app: honeygain
+    spec:
+      hostNetwork: true
+      automountServiceAccountToken: false
+      dnsPolicy: ClusterFirstWithHostNet
+      tolerations:
+        - key: "miner.network"
+          operator: "Equal"
+          value: "true"
+          effect: "NoSchedule"
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: miner.network
+                    operator: In
+                    values: ["true"]
+      containers:
+        - name: honeygain
+          image: honeygain/honeygain:0.6.6
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - configMapRef:
+                name: honeygain-config
+            - secretRef:
+                name: honeygain-secret
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          args:
+            - "-tou-accept"
+            - "-email"
+            - "$(HONEYGAIN_EMAIL)"
+            - "-pass"
+            - "$(HONEYGAIN_PASS)"
+            - "-device"
+            - "$(HONEYGAIN_DEVICE)"

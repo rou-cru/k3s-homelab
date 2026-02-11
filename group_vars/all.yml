@@ -1,0 +1,232 @@
+# ---- ANSIBLE TARGETS CONNECTION ----------------------------------------------------
+ansible_user: rc
+ansible_ssh_pipelining: true
+# NOTE: become is controlled at play level, not globally
+
+# ---- KUBERNETES --------------------------------------------------------------------
+kubeconfig: "/home/{{ ansible_user }}/.kube/config"
+k8s_manifestsDir: "/home/{{ ansible_user }}/k8s-manifests"
+global_waitRetries: 60
+global_waitDelay: 10
+
+## K3s
+k3s_version: "v1.35.0+k3s1"
+k3s_cniBinDir: "/opt/cni/bin"
+k3s_cniConfDir: "/etc/cni/net.d"
+k3s_recreate: false  # Set to true only for full cluster rebuild
+
+### Containerd
+k3s_commonContainerdOptimized: true
+k3s_commonContainerdDefaultRuntime: "runc"
+k3s_commonContainerdSandboxImage: "registry.k8s.io/pause:3.10.1"
+k3s_commonContainerdAdditionalRuntimes: []
+k3s_commonRestartHandler: "Restart k3s"
+
+# ---- INSTALLATION FLAGS ------------------------------------------------------------
+system_installUv: true
+system_installCloudBinaries: true
+system_installHweKernel: true
+system_installNetworkManager: true
+system_installAcpid: true
+system_installDebugPackages: true
+system_installDevPackages: true
+system_installGithubCliRepo: true
+system_installK8sAnsibleDeps: false  # Only k3s_server needs this
+
+# ---- HARDWARE OPTIMIZATION ---------------------------------------------------------
+system_networkOptimize: true
+hardware_powerEfficiencyTuningEnabled: false  # Only specific hardware
+
+# System limits (all nodes benefit)
+system_fileDescriptorsSoft: 100000
+system_fileDescriptorsHard: 100000
+system_fsFileMax: 2097152
+system_inotifyMaxInstances: 8192
+system_inotifyMaxWatches: 524288
+system_watchdogTimeoutSec: 120
+
+# ---- MINING (Global defaults) ------------------------------------------------------
+mining_cpuEnabled: false
+mining_gpuEnabled: false
+system_hugepagesCount: 1280
+
+# ---- PACKAGES ----------------------------------------------------------------------
+packages_debug:
+  - dnsutils
+  - htop
+  - iotop
+  - jq
+  - lsof
+  - net-tools
+  - ripgrep
+  - sysstat
+  - tcpdump
+  - tmux
+  - traceroute
+  - tree
+  - git
+
+packages_dev:
+  - gh
+  - imagemagick
+  - s-tui
+  - fbi
+  - nvtop
+  - make
+  - cmake
+  - ninja-build
+  - timeshift
+  - xvfb
+  - sqlite3
+
+system_helmRepositories:
+  - name: cilium
+    repo_url: "https://helm.cilium.io/"
+  - name: nvdp
+    repo_url: "https://nvidia.github.io/k8s-device-plugin"
+
+# ---- CONSTANTS - VERSIONS -----------------------------------------------------------
+# Chart versions
+cilium_chartVersion: "1.19.0"
+gateway_apiVersion: "v1.2.0"
+prometheus_operatorCrdsVersion: "26.0.0"
+gvisor_version: "20231204.0"
+
+# ---- K3S SERVER ROLE ---------------------------------------------------------------
+k3s_serverVersion: "{{ k3s_version }}"
+k3s_serverDisableTraefik: true
+k3s_serverDisableServicelb: true
+k3s_serverKubeconfigMode: "0600"
+k3s_serverNodeTokenTimeout: 180
+k3s_serverReadyzRetries: 30
+k3s_serverReadyzDelay: 2
+k3s_serverRecreate: false
+k3s_serverCopyKubeconfigLocal: true
+k3s_serverLocalKubeconfigPath: "{{ lookup('env', 'HOME') }}/.kube/config"
+k3s_serverContextName: "{{ inventory_hostname }}"
+k3s_serverNodeLabels:
+  - "node.kubernetes.io/exclude-from-external-load-balancers=true"
+
+# ---- K3S AGENT ROLE ----------------------------------------------------------------
+k3s_agentVersion: "{{ k3s_version }}"
+k3s_agentServerUrl: ""
+k3s_agentToken: ""
+k3s_agentNodeLabels:
+  - "node.kubernetes.io/exclude-from-external-load-balancers=true"
+k3s_agentNodeTaints: []
+k3s_agentKubeletArgs: []
+k3s_agentReadyzRetries: 30
+k3s_agentReadyzDelay: 5
+k3s_agentRecreate: false
+
+# ---- CILIUM ------------------------------------------------------------------------
+cilium_chartName: "cilium"
+cilium_namespace: "kube-system"
+cilium_rolloutTimeout: 300
+cilium_waitRetries: 60
+cilium_waitDelay: 5
+# cilium_devices: "tailscale+"
+# Global PodCIDR for Native Routing (must match across all nodes and Helm chart)
+cilium_native_routing_cidr: "10.0.0.0/8"
+
+# ---- TAILSCALE ---------------------------------------------------------------------
+tailnetName: "genet-wyvern.ts.net"
+tailscale_exitNodeEnabled: false
+tailscale_useExitNode: false
+# Disable SNAT to preserve source IPs (required for Cilium native routing visibility)
+tailscale_snatSubnetRoutes: false
+# Static routes to advertise (pod CIDRs are advertised dynamically after Cilium deployment)
+tailscale_advertiseRoutes: ""
+# Service CIDR for reference (not advertised by default)
+tailscale_serviceCidr: "10.43.0.0/16"
+# Control de anuncio de Service CIDR (solo el servidor autorizado debe anunciarlo)
+tailscale_advertiseServiceCidr: false
+
+
+
+# ---- GVISOR ------------------------------------------------------------------------
+gvisor_install: true
+
+# ---- DEVELOPER TOOLS ---------------------------------------------------------------
+devtools_enabled: true
+devtools_nvmVersion: "v0.39.7"
+devtools_installDocker: false
+devtools_installVagrant: true
+
+# ---- CERT MANAGER ------------------------------------------------------------------
+certManager_namespace: "cert-manager"
+certManager_chartVersion: ""
+certManager_selfsignedIssuerName: "k3s-selfsigned-issuer"
+certManager_caCertificateName: "k3s-ca"
+certManager_caSecretName: "k3s-ca-secret"
+certManager_caIssuerName: "k3s-ca-issuer"
+certManager_prometheusEnabled: true
+
+# ---- ACME / LET'S ENCRYPT ----------------------------------------------------------
+acme_email: "rc@roura.xyz"
+acme_clusterIssuerName: "letsencrypt-prod"
+cloudflare_apiTokenSecretName: "cloudflare-token-secret"
+wildcard_tlsSecretName: "cloudflare-ca-roura-xyz"
+wildcard_domain: "roura.xyz"
+
+# ---- ARGOCD ------------------------------------------------------------------------
+argocd_namespace: "argocd"
+argocd_chartVersion: ""
+argocd_installCrds: true
+argocd_haEnabled: false
+argocd_dexEnabled: false
+argocd_serviceMonitorEnabled: true
+argocd_publicHostname: "argocd.roura.xyz"
+public_gateway_ip: "74.208.250.178"
+
+# ---- EXTERNAL SECRETS --------------------------------------------------------------
+oci_configFile: "{{ playbook_dir }}/.oci"
+externalSecrets_namespace: "external-secrets"
+externalSecrets_serviceMonitorEnabled: true
+externalSecrets_grafanaDashboardEnabled: false
+externalSecrets_webhookIssuerName: "k3s-ca-issuer"
+
+# ---- CRDS BOOTSTRAP ----------------------------------------------------------------
+prometheus_operatorCrdsNamespace: "monitoring"
+
+# ---- PREFLIGHT -----------------------------------------------------------------------
+preflight_minRamMb: 2048
+preflight_minDiskGb: 20
+
+# ---- AKASH (disabled by default - specialized use case) ----------------------------
+akash_nodeMoniker: "homelab-provider"
+akash_walletAddress: ""
+akash_keyringBackend: "os"
+akash_chainId: "akashnet-2"
+akash_nodeRpc: "https://rpc.akashnet.net:443"
+akash_providerDomain: ""
+akash_bidPriceScript: ""
+akash_providerAttributes:
+  - key: host
+    value: akash
+  - key: tier
+    value: community
+  - key: organization
+    value: homelab
+akash_gpuVendor: "nvidia"
+akash_gpuModel: "rtx4070"
+akash_ingressNginxVersion: "4.11.3"
+akash_hostnameOperatorVersion: "1.0.0"
+akash_inventoryOperatorVersion: "1.0.0"
+akash_providerVersion: "6.0.0"
+akash_gpuEnabled: true
+
+# ---- MINING CONFIGURATION ------------------------------------------------------------
+honeygainDevice: "bandwidth-miner"
+
+# ---- REGISTRY AUTH (from secrets.yaml) -----------------------------------------------
+k3s_commonRegistryAuths:
+  - name: "docker.io"
+    endpoint: "https://registry-1.docker.io"
+    auth_hosts:
+      - "docker.io"
+      - "index.docker.io"
+      - "registry-1.docker.io"
+      - "registry.docker.io"
+    username: "{{ dockerhub_username }}"
+    password: "{{ dockerhub_token }}"

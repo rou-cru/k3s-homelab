@@ -32,24 +32,24 @@ RUN curl -fsSL https://apt.kitware.com/kitware-archive.sh | bash \
 # Install LLVM/Clang 20
 RUN curl -fsSL https://apt.llvm.org/llvm.sh -o /tmp/llvm.sh \
     && chmod +x /tmp/llvm.sh \
-    && /tmp/llvm.sh ${LLVM_VER} \
+    && /tmp/llvm.sh "${LLVM_VER}" \
     && rm -f /tmp/llvm.sh
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
-      clang-${LLVM_VER} \
-      lld-${LLVM_VER} \
-      llvm-${LLVM_VER} \
-      llvm-${LLVM_VER}-tools \
+      "clang-${LLVM_VER}" \
+      "lld-${LLVM_VER}" \
+      "llvm-${LLVM_VER}" \
+      "llvm-${LLVM_VER}-tools" \
     && rm -rf /var/lib/apt/lists/*
 
 # Set Clang 20 as default
-RUN update-alternatives --install /usr/bin/clang clang /usr/bin/clang-${LLVM_VER} 100 \
-    && update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-${LLVM_VER} 100 \
-    && update-alternatives --install /usr/bin/ld.lld ld.lld /usr/bin/ld.lld-${LLVM_VER} 100
+RUN update-alternatives --install /usr/bin/clang clang "/usr/bin/clang-${LLVM_VER}" 100 \
+    && update-alternatives --install /usr/bin/clang++ clang++ "/usr/bin/clang++-${LLVM_VER}" 100 \
+    && update-alternatives --install /usr/bin/ld.lld ld.lld "/usr/bin/ld.lld-${LLVM_VER}" 100
 
 # Clone tnn-miner
-RUN git clone --depth 1 --branch ${TNN_REF} https://github.com/Tritonn204/tnn-miner.git /src
+RUN git clone --depth 1 --branch "${TNN_REF}" https://github.com/Tritonn204/tnn-miner.git /src
 
 WORKDIR /src
 

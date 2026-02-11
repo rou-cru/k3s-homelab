@@ -2,33 +2,36 @@
 # Declarative configuration for K3s Agent
 
 # Server connection
-server: "{{ k3s_agent_server_url }}"
-token: "{{ k3s_agent_token }}"
+server: "{{ k3s_agentServerUrl }}"
+token: "{{ k3s_agentToken }}"
 
 # Network - Bind to Tailscale IP for secure inter-node communication
-node-ip: "{{ tailscale_ip }}"
-disable-kube-proxy: {{ (k3s_agent_disable_kube_proxy | default(false) | bool) | ternary('true', 'false') }}
+node-ip: "{{ IP_tailscale }}"
 
-{% if k3s_agent_node_labels | length > 0 %}
+{% if k3s_agentNodeExternalIp is defined %}
+node-external-ip: "{{ k3s_agentNodeExternalIp }}"
+{% endif %}
+
+{% if k3s_agentNodeLabels | length > 0 %}
 # Node labels
 node-label:
-{%     for label in k3s_agent_node_labels %}
+{%     for label in k3s_agentNodeLabels %}
   - "{{ label }}"
 {%     endfor %}
 {% endif %}
 
-{% if k3s_agent_node_taints | length > 0 %}
+{% if k3s_agentNodeTaints | length > 0 %}
 # Node taints
 node-taint:
-{%     for taint in k3s_agent_node_taints %}
+{%     for taint in k3s_agentNodeTaints %}
   - "{{ taint }}"
 {%     endfor %}
 {% endif %}
 
-{% if k3s_agent_kubelet_args is defined and k3s_agent_kubelet_args | length > 0 %}
+{% if k3s_agentKubeletArgs is defined and k3s_agentKubeletArgs | length > 0 %}
 # Kubelet arguments
 kubelet-arg:
-{%     for arg in k3s_agent_kubelet_args %}
+{%     for arg in k3s_agentKubeletArgs %}
   - "{{ arg }}"
 {%     endfor %}
 {% endif %}

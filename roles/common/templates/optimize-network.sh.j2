@@ -1,27 +1,50 @@
 #!/bin/bash
 set -euo pipefail
 
-INTERFACE="{{ common_primary_interface | default('') }}"
+# Network Optimization Script
+# Purpose: Tune physical network interfaces for low latency and high throughput.
 
+INTERFACE="{{ system_primaryInterface | default('') }}"
+
+# Exit if no interface was detected by Ansible
 if [ -z "$INTERFACE" ]; then
     logger -t network-optimization -p info "No interface detected"
     exit 0
 fi
 
+# 1. Disable EEE (Energy Efficient Ethernet)
+# Why: EEE puts the NIC to sleep during low traffic, causing latency spikes and micro-disconnects.
 if ethtool --show-eee "$INTERFACE" 2>/dev/null | grep -q "EEE is enabled"; then
     ethtool --set-eee "$INTERFACE" eee off
-    logger -t network-optimization -p info "EEE disabled"
+    logger -t network-optimization -p info "EEE disabled on $INTERFACE"
 fi
 
+# 2. Disable Wake-on-LAN (WoL)
+# Why: Prevents the NIC from staying in a low-power state or interfering with system power management.
 ethtool -s "$INTERFACE" wol d 2>/dev/null || true
 
+# 3. Disable UDP Checksum Offloading (Critical for WireGuard/Tailscale)
+# Why: Virtualized NICs often corrupt UDP packets when offloading is enabled, causing tunnel stalls.
+ethtool -K "$INTERFACE" tx-udp off rx-udp off 2>/dev/null || true
+
+# 4. Enable UDP GRO Forwarding (Tailscale Performance - Linux 6.2+)
+# Why: Improves UDP throughput for subnet routers and exit nodes by enabling transport layer offloads.
+# Ref: https://tailscale.com/kb/1320/performance-best-practices
+if ethtool -K "$INTERFACE" rx-udp-gro-forwarding on rx-gro-list off 2>/dev/null; then
+    logger -t network-optimization -p info "UDP GRO forwarding enabled on $INTERFACE"
+fi
+
+# 5. Maximize Ring Buffers (RX/TX)
+# Why: Larger buffers allow the hardware to handle traffic bursts without dropping packets.
+# We retrieve the maximum values supported by the specific hardware.
 MAX_RX=$(ethtool -g "$INTERFACE" | grep -m1 "RX:" | awk '{print $2}')
 MAX_TX=$(ethtool -g "$INTERFACE" | grep -m1 "TX:" | awk '{print $2}')
 
+# Only apply if values are valid and reasonably large (to avoid tuning virtual devices that return small/null values)
 if [ -n "$MAX_RX" ] && [ "$MAX_RX" -gt 256 ] && [ -n "$MAX_TX" ] && [ "$MAX_TX" -gt 256 ]; then
     if ethtool -G "$INTERFACE" rx "$MAX_RX" tx "$MAX_TX" 2>/dev/null; then
-        logger -t network-optimization -p info "Ring buffers optimized: RX/TX=$MAX_RX/$MAX_TX"
+        logger -t network-optimization -p info "Ring buffers optimized on $INTERFACE: RX/TX=$MAX_RX/$MAX_TX"
     else
-        logger -t network-optimization -p err "Ring buffers failed"
+        logger -t network-optimization -p err "Ring buffers failed on $INTERFACE"
     fi
 fi

@@ -1,0 +1,17 @@
+- name: Restart tailscaled
+  ansible.builtin.service:
+    name: tailscaled
+    state: restarted
+
+- name: Restart tailscale-cilium-routing
+  ansible.builtin.systemd:
+    name: tailscale-cilium-routing.service
+    state: restarted
+    daemon_reload: true
+  become: true
+
+- name: Restart systemd-networkd
+  ansible.builtin.service:
+    name: systemd-networkd
+    state: restarted
+  ignore_errors: true # Ignore if service doesn't exist/isn't running

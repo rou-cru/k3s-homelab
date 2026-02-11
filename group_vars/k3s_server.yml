@@ -1,18 +1,46 @@
-# group_vars/k3s_server.yml - Configuration for K3s Master Nodes
-# These nodes are physical machines managed by a non-root user (rc), requiring sudo.
+# group_vars/k3s_server.yml - K3s Master Node Overrides
+# Only values that DIFFER from group_vars/all.yml
 
-# Privilege Escalation
-ansible_become: true
-ansible_user: rc
+# ---- HARDWARE SPECIFIC: ASUS ROG SERVER & INTEL POWER -----------------------------
+hardware_rogServer: true
+hardware_radioBlockEnabled: true
+hardware_audioOptimizationEnabled: true
+hardware_batteryChargeThreshold: 80
+hardware_thermalPolicy: 1
 
-# Hardware & Performance Optimizations (Physical Server)
-# Enable Realtek r8168 driver and sysctl network tuning
-common_network_optimization_enabled: true
-# Enable ASUS RoG specific drivers/leds
-common_rog_server: true
-# Enable WiFi/BT radio blocking
-common_radio_block_enabled: true
-# Enable ALSA and realtime audio limits
-common_audio_optimization_enabled: true
-# Enable Mining Optimizations (Hugepages, MSR)
-common_mining_enabled: true
+# Intel-specific
+hardware_intelRaplPl1LimitMicrowatts: 100000000
+hardware_intelRaplPl2LimitMicrowatts: 140000000
+hardware_intelPstateMaxPerfPct: 80
+hardware_intelPstateNoTurbo: 1
+
+# ---- NVIDIA GPU --------------------------------------------------------------------
+nvidia_setup: "auto"
+nvidia_driverPackage: "auto"
+nvidia_driverFallback: "nvidia-driver-535"
+nvidia_devicePluginVersion: "0.14.3"
+nvidia_toolkitRepoUrl: "https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list"
+nvidia_toolkitGpgUrl: "https://nvidia.github.io/libnvidia-container/gpgkey"
+nvidia_devicePluginRepo: "https://nvidia.github.io/k8s-device-plugin"
+nvidia_rebootTimeout: 600
+nvidia_headlessX11Enabled: true
+nvidia_pciBusId: "1:0:0"
+nvidia_coolbits: "28"
+
+# ---- MINING ------------------------------------------------------------------------
+mining_cpuEnabled: true
+mining_gpuEnabled: true
+
+# ---- SERVER CONFIG -----------------------------------------------------------------
+# K3s server needs Ansible K8s modules
+system_installK8sAnsibleDeps: true
+
+# Server lifecycle
+k3s_serverRecreate: true
+
+tailscale_advertiseServiceCidr: true
+
+# Tailscale peer IPs workaround kept disabled until connectivity baseline is recovered
+# tailscale_peerRoutes:
+#   - "100.108.70.45/32"   # VPS Tailscale IP
+#   - "10.0.1.0/24"        # VPS pod CIDR

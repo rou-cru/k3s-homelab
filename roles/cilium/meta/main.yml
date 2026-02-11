@@ -1,6 +1,6 @@
 galaxy_info:
   role_name: cilium
-  author: Roura
+  author: rc
   description: Installs and configures Cilium CNI for K3s clusters.
   company: Personal
   license: MIT

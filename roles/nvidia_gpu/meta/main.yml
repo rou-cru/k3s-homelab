@@ -1,6 +1,6 @@
 galaxy_info:
   role_name: nvidia_gpu
-  author: Roura
+  author: rc
   description: Configures NVIDIA GPUs for K3s, including drivers, container toolkit, and device plugin.
   company: Personal
   license: MIT

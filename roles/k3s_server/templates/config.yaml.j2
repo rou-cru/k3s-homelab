@@ -2,12 +2,15 @@
 # Declarative configuration for K3s
 
 # Network - Bind to Tailscale IP
-node-ip: "{{ tailscale_ip }}"
-advertise-address: "{{ tailscale_ip }}"
+node-ip: "{{ IP_tailscale }}"
+advertise-address: "{{ IP_tailscale }}"
 
 # TLS - Add Tailscale IP to SANs
 tls-san:
-  - "{{ tailscale_ip }}"
+  - "{{ IP_tailscale }}"
+
+# Egress selector - disabled, Tailscale already provides encrypted tunnel
+egress-selector-mode: "disabled"
 
 # CNI - We use Cilium, so disable Flannel
 flannel-backend: "none"
@@ -15,13 +18,22 @@ disable-network-policy: true
 disable-kube-proxy: true
 
 # Components
-disable: {{ (['traefik'] if k3s_server_disable_traefik | bool else []) + (['servicelb'] if k3s_server_disable_servicelb | bool else []) }}
+disable: {{ (['traefik'] if k3s_serverDisableTraefik | bool else []) + (['servicelb'] if k3s_serverDisableServicelb | bool else []) }}
 
 # Security / Access
-write-kubeconfig-mode: "{{ k3s_server_kubeconfig_mode }}"
+write-kubeconfig-mode: "{{ k3s_serverKubeconfigMode }}"
 
 # Security - Hardening
 secrets-encryption: true
+
+{% if k3s_serverNodeLabels | length > 0 %}
+# Node labels
+node-label:
+{%     for label in k3s_serverNodeLabels %}
+  - "{{ label }}"
+{%     endfor %}
+{% endif %}
+
 kube-apiserver-arg:
   - "audit-policy-file=/etc/rancher/k3s/audit-policy.yaml"
   - "audit-log-path=/var/log/k3s/audit.log"

@@ -1,4 +1,4 @@
-# Install system tools for hardware optimization - IRQ balancing and radio frequency management
+# @docsible Installs irqbalance for interrupt distribution
 - name: Install tuning tools
   ansible.builtin.apt:
     name:
@@ -7,15 +7,15 @@
     state: present
   when: ansible_facts['virtualization_role'] != 'guest'
 
-# Install ALSA utilities for audio optimization when enabled
+# @docsible Installs ALSA tools for audio tuning
 - name: Install audio tools
   ansible.builtin.apt:
     name:
       - alsa-utils
     state: present
-  when: common_audio_optimization_enabled | bool
+  when: hardware_audioOptimizationEnabled | default(false) | bool
 
-# Enable IRQ balancing service for better CPU utilization across cores
+# @docsible Starts irqbalance service
 - name: Start irqbalance
   ansible.builtin.systemd:
     name: irqbalance
@@ -24,19 +24,20 @@
   when: ansible_facts['virtualization_role'] != 'guest'
   ignore_errors: "{{ ansible_check_mode }}"
 
-# Disable WiFi and Bluetooth radios to reduce power consumption and interference
+# @docsible Blocks WiFi/Bluetooth via rfkill (Server Mode)
 - name: Block wireless radios
   ansible.builtin.command: rfkill block {{ item }}
   loop:
     - wifi
     - bluetooth
   when:
-    - common_radio_block_enabled | bool
+    - hardware_radioBlockEnabled | default(false) | bool
     - ansible_facts['virtualization_role'] != 'guest'
     - not ansible_check_mode
   changed_when: false
   failed_when: false
-# Configure PAM limits for real-time audio processing and unlimited memory locking
+
+# @docsible Sets realtime priority limits for audio
 - name: Optimize audio limits
   community.general.pam_limits:
     domain: "*"
@@ -46,11 +47,44 @@
   loop:
     - {type: "-", item: "memlock", value: "unlimited"}
     - {type: "-", item: "rtprio", value: "95"}
-  when: common_audio_optimization_enabled | bool
-# Enable automatic SSD trimming for optimal storage performance and longevity
+  when: hardware_audioOptimizationEnabled | default(false) | bool
+
+# @docsible Enables fstrim timer for SSD maintenance
 - name: Enable fstrim
   ansible.builtin.systemd:
     name: fstrim.timer
     enabled: true
     state: started
   ignore_errors: "{{ ansible_check_mode }}"
+
+# @docsible Deploys custom ASUS RoG hardware tuning script
+- name: Deploy RoG Hardware Tweaks Script
+  ansible.builtin.template:
+    src: apply-rog-tweaks.sh.j2
+    dest: /usr/local/bin/apply-rog-tweaks.sh
+    mode: "0755"
+  when:
+    - hardware_rogServer | default(false) | bool
+    - ansible_facts['virtualization_role'] | default('guest') != 'guest'
+
+# @docsible Installs systemd service for RoG tuning
+- name: Deploy systemd service for RoG Tweaks
+  ansible.builtin.copy:
+    src: rog-server-tweaks.service
+    dest: /etc/systemd/system/rog-server-tweaks.service
+    mode: "0640"
+  when:
+    - hardware_rogServer | default(false) | bool
+    - ansible_facts['virtualization_role'] | default('guest') != 'guest'
+
+# @docsible Starts RoG tuning service
+- name: Enable and start RoG Tweaks service
+  ansible.builtin.systemd:
+    name: rog-server-tweaks
+    enabled: true
+    state: started
+    daemon_reload: true
+  ignore_errors: "{{ ansible_check_mode }}"
+  when:
+    - hardware_rogServer | default(false) | bool
+    - ansible_facts['virtualization_role'] | default('guest') != 'guest'

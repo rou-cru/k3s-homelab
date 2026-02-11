@@ -13,35 +13,64 @@ Description: Bootstrap cluster-wide CRDs (Gateway API and Prometheus Operator) f
 
 
 
-
-
-
-
-### Defaults
-
-**These are static variables with lower priority**
-
-#### File: defaults/main.yml
-
-| Var          | Type         | Value       |Required    | Title       |
-|--------------|--------------|-------------|------------|-------------|
-| [gateway_api_version](defaults/main.yml#L5)   | str | `v1.2.0` |    false  |  Gateway API Version |
-| [prometheus_operator_crds_version](defaults/main.yml#L11)   | str | `26.0.0` |    false  |  Prometheus Operator CRDs Chart Version |
-| [prometheus_operator_crds_namespace](defaults/main.yml#L17)   | str | `monitoring` |    false  |  Prometheus Operator CRDs Namespace |
-
-
-
 <details>
-<summary><b>🖇️ Full descriptions for vars in defaults/main.yml</b></summary>
-<br>
-<table>
-<th>Var</th><th>Description</th>
-<tr><td><b>gateway_api_version</b></td><td>Version tag for Gateway API standard install manifest.</td></tr>
-<tr><td><b>prometheus_operator_crds_version</b></td><td>Version of the prometheus-operator-crds Helm chart.</td></tr>
-<tr><td><b>prometheus_operator_crds_namespace</b></td><td>Namespace where CRDs chart metadata will be installed (CRDs are global).</td></tr>
-</table>
-<br>
+<summary><b> Argument Specifications in meta/argument_specs</b></summary>
+
+#### Key: main
+
+**Description**: Installs Gateway API standard CRDs and Prometheus Operator CRDs
+required by various Helm charts and operators.
+
+
+**Options**:
+
+
+  - **gateway_apiVersion**
+    - **Required**: False
+    - **Type**: str
+    - **Default**: v1.2.0
+  
+    - **Description**: Gateway API CRDs version to install.
+  
+  
+  
+
+  - **prometheus_operatorCrdsNamespace**
+    - **Required**: False
+    - **Type**: str
+    - **Default**: monitoring
+  
+    - **Description**: Namespace for Prometheus Operator CRDs.
+  
+  
+  
+
+  - **prometheus_operatorCrdsVersion**
+    - **Required**: True
+    - **Type**: str
+    - **Default**: none
+  
+    - **Description**: Prometheus Operator CRDs Helm chart version.
+  
+  
+  
+
+  - **kubeconfig**
+    - **Required**: True
+    - **Type**: str
+    - **Default**: none
+  
+    - **Description**: Path to kubeconfig for cluster access.
+  
+  
+  
+
+
+
 </details>
+
+
+
 
 
 
@@ -52,12 +81,13 @@ Description: Bootstrap cluster-wide CRDs (Gateway API and Prometheus Operator) f
 
 #### File: tasks/main.yml
 
-| Name | Module | Has Conditions | Comments |
-| ---- | ------ | -------------- | -------- |
-| [Install Gateway API CRDs](tasks/main.yml#L2) | kubernetes.core.k8s | False | Install Gateway API CRDs |
-| [Wait for Gateway API CRDs to be established](tasks/main.yml#L9) | kubernetes.core.k8s_info | False |  |
-| [Add Prometheus Community Helm repo](tasks/main.yml#L22) | kubernetes.core.helm_repository | False | Install Prometheus Operator CRDs via Helm |
-| [Install Prometheus Operator CRDs](tasks/main.yml#L28) | kubernetes.core.helm | False |  |
+| Name | Module | Has Conditions | Tags | Comments |
+| ---- | ------ | -------------- | -----| -------- |
+| [Install Gateway API CRDs](tasks/main.yml#L2) | kubernetes.core.k8s | True | cluster | @docsible Installs Experimental Gateway API CRDs (v{{ gateway_apiVersion }}) |
+| [Wait for Gateway API CRDs to be established](tasks/main.yml#L11) | kubernetes.core.k8s_info | True | cluster | @docsible Waits for Gateway CRDs to be registered in API |
+| [Add Prometheus Community Helm repo](tasks/main.yml#L26) | kubernetes.core.helm_repository | True | cluster | @docsible Registers Prometheus Community Helm repository |
+| [Create monitoring namespace](tasks/main.yml#L35) | kubernetes.core.k8s | True |  | @docsible Creates 'monitoring' namespace for CRDs |
+| [Install Prometheus Operator CRDs](tasks/main.yml#L43) | kubernetes.core.helm | True | cluster | @docsible Installs Prometheus Operator CRDs (ServiceMonitor, etc.) |
 
 
 ## Task Flow Graphs
@@ -78,11 +108,12 @@ classDef importRole stroke:#699ba7,stroke-width:2px;
 classDef includeVars stroke:#8e44ad,stroke-width:2px;
 classDef rescue stroke:#665352,stroke-width:2px;
 
-  Start-->|Task| Install_Gateway_API_CRDs0[install gateway api crds]:::task
-  Install_Gateway_API_CRDs0-->|Task| Wait_for_Gateway_API_CRDs_to_be_established1[wait for gateway api crds to be established]:::task
-  Wait_for_Gateway_API_CRDs_to_be_established1-->|Task| Add_Prometheus_Community_Helm_repo2[add prometheus community helm repo]:::task
-  Add_Prometheus_Community_Helm_repo2-->|Task| Install_Prometheus_Operator_CRDs3[install prometheus operator crds]:::task
-  Install_Prometheus_Operator_CRDs3-->End
+  Start-->|Task| Install_Gateway_API_CRDs0[install gateway api crds<br>When: **not ansible check mode**]:::task
+  Install_Gateway_API_CRDs0-->|Task| Wait_for_Gateway_API_CRDs_to_be_established1[wait for gateway api crds to be established<br>When: **not ansible check mode**]:::task
+  Wait_for_Gateway_API_CRDs_to_be_established1-->|Task| Add_Prometheus_Community_Helm_repo2[add prometheus community helm repo<br>When: **not ansible check mode**]:::task
+  Add_Prometheus_Community_Helm_repo2-->|Task| Create_monitoring_namespace3[create monitoring namespace<br>When: **not ansible check mode**]:::task
+  Create_monitoring_namespace3-->|Task| Install_Prometheus_Operator_CRDs4[install prometheus operator crds<br>When: **not ansible check mode**]:::task
+  Install_Prometheus_Operator_CRDs4-->End
 ```
 
 
@@ -102,7 +133,7 @@ MIT
 
 ### Platforms
 
-- **Ubuntu**: ['jammy', 'noble']
+- **Ubuntu**: ['noble']
 
 
 ### Dependencies

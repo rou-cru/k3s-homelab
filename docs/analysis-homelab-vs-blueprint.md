@@ -490,7 +490,6 @@ Ver backlog por fases más abajo.
 - [ ] **8.3** Multi-Node Preparation
   - Taints en master node: `node-role.kubernetes.io/control-plane:NoSchedule`
   - Affinity rules: platform en master, workloads en workers
-  - Longhorn para storage distribuido (sustituir local-path)
 
 - [ ] **8.4** Falco Runtime Security
   - Rules para detectar:
@@ -639,19 +638,16 @@ namespaces:
 
 ---
 
-### 6. Storage - ¿Local-path o Longhorn?
 
 **Opción A: Mantener local-path-provisioner**
 - ✅ Pros: Simple, suficiente para single-node, ya funciona
 - ❌ Contras: No replicación, no snapshots, no multi-node ready
 
-**Opción B: Migrar a Longhorn**
 - ✅ Pros: Replicación, snapshots, backups, multi-node ready
 - ❌ Contras: Overhead (CPU/RAM), complejidad, overkill para single-node
 
 **Opción C: Híbrido**
 - Local-path: Para workloads ephemeral (logs, cache)
-- Longhorn: Para workloads stateful (Prometheus, Loki, Grafana)
 
 **Pregunta**: ¿Opción A (keep it simple) o B/C (preparar futuro)?
 

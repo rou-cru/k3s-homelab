@@ -1,6 +1,6 @@
 galaxy_info:
   role_name: developer_tools
-  author: Roura
+  author: rc
   description: Installs development tools and useful CLIs for K3s environments.
   company: Personal
   license: MIT

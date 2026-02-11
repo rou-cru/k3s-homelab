@@ -76,7 +76,7 @@ Description: {{ role.meta.galaxy_info.description or 'Not available.' }}
   {{ indent }}  - **Type**: {{ details.type }}
   {{ indent }}  - **Default**: {{ details.default | default('none') }}
   {% if details.description is iterable and (details.description is not string and details.description is not mapping) -%}
-  {{ indent }}  - **Description**: 
+  {{ indent }}  - **Description**:
   {% for details_desc in details.description -%}
       {{ indent }} - {{ details_desc }}
   {% endfor -%}
@@ -109,11 +109,11 @@ Description: {{ role.meta.galaxy_info.description or 'Not available.' }}
 
 {% if role.argument_specs %}
 <details>
-<summary><b>🧩 Argument Specifications in meta/argument_specs</b></summary>
+<summary><b> Argument Specifications in meta/argument_specs</b></summary>
 {% for section, specs in role.argument_specs.argument_specs.items() %}
 #### Key: {{ section }}
 {% if specs.description is iterable and (specs.description is not string and specs.description is not mapping) %}
-**Description**: 
+**Description**:
 {% for desc in specs.description -%}
   - {{ desc }}
 {% endfor -%}
@@ -187,7 +187,7 @@ Description: {{ role.meta.galaxy_info.description or 'Not available.' }}
 {% if ns.has_descriptions %}
 
 <details>
-<summary><b>🖇️ Full descriptions for vars in defaults/{{ defaultfile.file }}</b></summary>
+<summary><b>Full descriptions for vars in defaults/{{ defaultfile.file }}</b></summary>
 <br>
 <table>
 <th>Var</th><th>Description</th>
@@ -203,7 +203,6 @@ Description: {{ role.meta.galaxy_info.description or 'Not available.' }}
 {%- endfor %}
 {%- else %}
 {%- endif %}
-
 
 {% if role.vars|length > 0 -%}
 ### Vars
@@ -237,7 +236,7 @@ Description: {{ role.meta.galaxy_info.description or 'Not available.' }}
 {%- endfor %}
 {%- if ns.has_descriptions %}
 <details>
-<summary><b>🖇️ Full Descriptions for vars in vars/{{ varsfile.file }}</b></summary>
+<summary><b>Full Descriptions for vars in vars/{{ varsfile.file }}</b></summary>
 <br>
 <table>
 <th>Var</th><th>Description</th>
@@ -253,7 +252,6 @@ Description: {{ role.meta.galaxy_info.description or 'Not available.' }}
 {%- endfor %}
 {%- else %}
 {%- endif %}
-
 
 ### Tasks
 

@@ -1,0 +1,59 @@
+---
+argument_specs:
+  main:
+    short_description: Deploy mining workloads with Kustomize overlays
+    description: |
+      Labels eligible nodes for mining and deploys Honeygain/CPU/GPU miner
+      resources from bootstrap manifests using kubectl kustomize apply.
+    author: rc
+    options:
+      kubeconfig:
+        type: str
+        required: true
+        description: Path to kubeconfig for cluster access.
+      k8s_manifestsDir:
+        type: str
+        required: true
+        description: Remote path where bootstrap manifests are synchronized.
+      mining_cpuEnabled:
+        type: bool
+        required: false
+        default: false
+        description: Enable CPU miner deployment.
+      mining_gpuEnabled:
+        type: bool
+        required: false
+        default: false
+        description: Enable GPU miner deployment.
+      miners_deployHoneygain:
+        type: bool
+        required: false
+        default: true
+        description: Enable Honeygain deployment.
+      minerLabelNetwork:
+        type: bool
+        required: false
+        default: true
+        description: Add network mining eligibility label to control-plane nodes.
+      miningWallet:
+        type: str
+        required: false
+        description: Wallet identifier used by mining secret generation.
+      honeygainEmail:
+        type: str
+        required: false
+        description: Honeygain account email.
+      honeygainPass:
+        type: str
+        required: false
+        description: Honeygain account password.
+      honeygainDevice:
+        type: str
+        required: false
+        default: bandwidth-miner
+        description: Honeygain device name.
+      nvidia_active:
+        type: bool
+        required: false
+        default: false
+        description: Indicates whether NVIDIA stack is active for GPU miner scheduling.

@@ -8,8 +8,8 @@ set -e
 : "${POOL_TYPE:?POOL_TYPE is required}"
 : "${MINING_POOL_SCHEME:=stratum+tcp}"
 
-if [ -z "$WALLET_ADDRESS" ]; then
-    echo "Error: WALLET_ADDRESS is required"
+if [[ -z "$WALLET_ADDRESS" ]]; then
+    echo "Error: WALLET_ADDRESS is required" >&2
     exit 1
 fi
 

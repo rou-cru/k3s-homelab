@@ -1,0 +1,14 @@
+mirrors:
+{% for reg in k3s_commonRegistryAuths %}
+  "{{ reg.name }}":
+    endpoint:
+      - "{{ reg.endpoint }}"
+{% endfor %}
+
+configs:
+{% for reg in k3s_commonRegistryAuths %}
+  "{{ reg.auth_hosts | first }}":
+    auth:
+      username: "{{ reg.username }}"
+      password: "{{ reg.password }}"
+{% endfor %}

@@ -1,196 +1,106 @@
-# Verify Helm binary is available for ArgoCD deployment
-- name: Check if Helm is installed
-  ansible.builtin.command: which helm
-  register: helm_binary_check
-  changed_when: false
-  failed_when: false
-
-# Add ArgoCD Helm repository for chart installation
+# @docsible Registers ArgoCD Helm repository
 - name: Ensure ArgoCD Helm repo
   kubernetes.core.helm_repository:
     name: argo
     repo_url: https://argoproj.github.io/argo-helm
-  when:
-    - helm_binary_check.rc == 0
-    - not ansible_check_mode
+  when: not ansible_check_mode
 
-# Deploy ArgoCD using Helm with custom configuration
+# @docsible Creates 'argocd' namespace
+- name: Create argocd namespace
+  kubernetes.core.k8s:
+    state: present
+    src: "{{ k8s_manifestsDir }}/bootstrap/argocd/namespace.yaml"
+    kubeconfig: "{{ kubeconfig }}"
+  when: not ansible_check_mode
+
+# @docsible Installs ArgoCD (Helm)
 - name: Deploy ArgoCD
   kubernetes.core.helm:
     name: argocd
     chart_ref: argo/argo-cd
     release_namespace: "{{ argocd_namespace }}"
     update_repo_cache: true
-    create_namespace: true
-    chart_version: "{{ argocd_chart_version | default(omit, true) }}"
-    kubeconfig: "/home/{{ ansible_user }}/.kube/config"
-    values:
-      crds:
-        install: "{{ argocd_install_crds }}"
-        keep: true
+    create_namespace: false
+    timeout: 10m0s
+    chart_version: "{{ argocd_chartVersion | default(omit, true) }}"
+    kubeconfig: "{{ kubeconfig }}"
+    values_files:
+      - "{{ k8s_manifestsDir }}/bootstrap/argocd/values.yaml"
+    values: "{{ lookup('template', playbook_dir + '/k8s/bootstrap/argocd/values-override.yaml.j2') | from_yaml }}"
+  when: not ansible_check_mode
+  tags: ["gitops"]
 
-      configs:
-        cm:
-          statusbadge.enabled: true
-          resource.customizations.ignoreResourceUpdates.external-secrets.io_ExternalSecret: |
-            jqPathExpressions:
-              - '.status'
-          resource.exclusions: |
-            - apiGroups:
-              - external-secrets.io
-              kinds:
-              - PushSecret
-        cmp:
-          create: true
-          plugins:
-            kustomize-with-helm:
-              generate:
-                command: [sh, -c]
-                args: ["kustomize build --enable-helm"]
-
-      global:
-        logging:
-          level: warning
-
-      dex:
-        enabled: "{{ argocd_dex_enabled }}"
-
-      redis-ha:
-        enabled: "{{ argocd_ha_enabled }}"
-
-      controller:
-        replicas: 1
-        pdb:
-          enabled: false
-        resources:
-          requests:
-            cpu: 100m
-            memory: 256Mi
-          limits:
-            memory: 512Mi
-        metrics:
-          enabled: true
-          serviceMonitor:
-            enabled: "{{ argocd_servicemonitor_enabled }}"
-
-      server:
-        replicas: 1
-        pdb:
-          enabled: false
-        resources:
-          requests:
-            cpu: 50m
-            memory: 128Mi
-          limits:
-            memory: 256Mi
-        metrics:
-          enabled: true
-          serviceMonitor:
-            enabled: "{{ argocd_servicemonitor_enabled }}"
-
-      repoServer:
-        replicas: 1
-        pdb:
-          enabled: false
-        resources:
-          requests:
-            cpu: 50m
-            memory: 128Mi
-          limits:
-            memory: 256Mi
-        metrics:
-          enabled: true
-          serviceMonitor:
-            enabled: "{{ argocd_servicemonitor_enabled }}"
-
-      applicationSet:
-        enabled: true
-        replicaCount: 1
-        pdb:
-          enabled: false
-        resources:
-          requests:
-            cpu: 50m
-            memory: 128Mi
-          limits:
-            memory: 256Mi
-        metrics:
-          enabled: true
-          serviceMonitor:
-            enabled: "{{ argocd_servicemonitor_enabled }}"
-
-      notifications:
-        enabled: true
-        pdb:
-          enabled: false
-        resources:
-          requests:
-            cpu: 50m
-            memory: 64Mi
-          limits:
-            memory: 128Mi
-        metrics:
-          enabled: true
-          serviceMonitor:
-            enabled: "{{ argocd_servicemonitor_enabled }}"
-  become: false
-  when:
-    - helm_binary_check.rc == 0
-    - not ansible_check_mode
-  tags: ["apps", "argocd"]
-
-# Create ExternalSecret for ArgoCD admin password from vault
+# @docsible Syncs Admin Password from Vault (ExternalSecret)
 - name: Create ArgoCD Admin Password ExternalSecret
   kubernetes.core.k8s:
     state: present
-    definition:
-      apiVersion: external-secrets.io/v1
-      kind: ExternalSecret
-      metadata:
-        name: argocd-admin-pass
-        namespace: "{{ argocd_namespace }}"
-      spec:
-        refreshInterval: 1h
-        secretStoreRef:
-          name: oci-vault
-          kind: ClusterSecretStore
-        target:
-          name: argocd-secret
-          creationPolicy: Merge
-        data:
-          - secretKey: admin.password
-            remoteRef:
-              key: argocd-admin-pass
-    kubeconfig: "/home/{{ ansible_user }}/.kube/config"
+    src: "{{ k8s_manifestsDir }}/bootstrap/argocd/admin-password.yaml"
+    kubeconfig: "{{ kubeconfig }}"
   register: argocd_es_created
-  become: false
-  when:
-    - helm_binary_check.rc == 0
-    - not ansible_check_mode
-  tags: ["apps", "argocd", "secrets"]
+  until: argocd_es_created is succeeded
+  when: not ansible_check_mode
+  tags: ["gitops"]
 
-# Wait for ExternalSecret controller to populate admin password
+# @docsible Waits for Admin Password Secret sync
 - name: Wait for argocd-secret to have admin.password
   kubernetes.core.k8s_info:
     api_version: v1
     kind: Secret
     name: argocd-secret
     namespace: "{{ argocd_namespace }}"
-    kubeconfig: "/home/{{ ansible_user }}/.kube/config"
+    kubeconfig: "{{ kubeconfig }}"
   register: argocd_secret_check
-  retries: 12
-  delay: 5
   until:
     - argocd_secret_check.resources | length > 0
     - "'admin.password' in (argocd_secret_check.resources[0].data | default({}))"
   when:
-    - helm_binary_check.rc == 0
     - argocd_es_created.changed
     - not ansible_check_mode
-  become: false
-  tags: ["apps", "argocd", "secrets"]
+  tags: ["gitops"]
 
-# Restart ArgoCD server to load new admin password from secret
+# @docsible Discovers ArgoCD project manifests in remote bootstrap directory
+- name: Find ArgoCD project manifests
+  ansible.builtin.find:
+    paths: "{{ k8s_manifestsDir }}/bootstrap/argocd/projects"
+    patterns: "*.yaml"
+    file_type: file
+  register: argocd_project_manifests
+  tags: ["gitops"]
+
+# @docsible Discovers ArgoCD ApplicationSet manifests in remote bootstrap directory
+- name: Find ArgoCD ApplicationSet manifests
+  ansible.builtin.find:
+    paths: "{{ k8s_manifestsDir }}/bootstrap/argocd/applicationsets"
+    patterns: "*.yaml"
+    file_type: file
+  register: argocd_appset_manifests
+  tags: ["gitops"]
+
+# @docsible Applies ArgoCD AppProjects from bootstrap manifests
+- name: Apply ArgoCD projects
+  kubernetes.core.k8s:
+    state: present
+    src: "{{ item.path }}"
+    kubeconfig: "{{ kubeconfig }}"
+  loop: "{{ argocd_project_manifests.files | sort(attribute='path') }}"
+  loop_control:
+    label: "{{ item.path | basename }}"
+  when: not ansible_check_mode
+  tags: ["gitops"]
+
+# @docsible Applies ArgoCD ApplicationSets from bootstrap manifests
+- name: Apply ArgoCD ApplicationSets
+  kubernetes.core.k8s:
+    state: present
+    src: "{{ item.path }}"
+    kubeconfig: "{{ kubeconfig }}"
+  loop: "{{ argocd_appset_manifests.files | sort(attribute='path') }}"
+  loop_control:
+    label: "{{ item.path | basename }}"
+  when: not ansible_check_mode
+  tags: ["gitops"]
+
+# @docsible Restarts ArgoCD Server (Applies new password)
 - name: Restart ArgoCD Server to pick up new password
   kubernetes.core.k8s:
     state: present
@@ -202,10 +112,8 @@
         namespace: "{{ argocd_namespace }}"
         annotations:
           kubectl.kubernetes.io/restartedAt: "{{ ansible_facts['date_time']['iso8601'] }}"
-    kubeconfig: "/home/{{ ansible_user }}/.kube/config"
+    kubeconfig: "{{ kubeconfig }}"
   when:
-    - helm_binary_check.rc == 0
     - argocd_es_created.changed
     - not ansible_check_mode
-  become: false
-  tags: ["apps", "argocd", "secrets"]
+  tags: ["gitops"]

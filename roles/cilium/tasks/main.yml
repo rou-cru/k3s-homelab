@@ -1,72 +1,51 @@
-# Create temporary file for Cilium Helm values configuration
-- name: Create temporary values file
-  ansible.builtin.tempfile:
-    state: file
-    suffix: "-cilium-values.yaml"
-  register: cilium_values_tmp
-  check_mode: no
-  when: not ansible_check_mode
-# Add Cilium Helm repository for CNI installation
+# @docsible Registers Cilium Helm repository
 - name: Ensure Cilium Helm repo
-  ansible.builtin.command: helm repo add cilium https://helm.cilium.io/
+  kubernetes.core.helm_repository:
+    name: cilium
+    repo_url: https://helm.cilium.io/
   register: cilium_repo_add
-  changed_when: "'has been added' in cilium_repo_add.stdout"
-  failed_when: cilium_repo_add.rc != 0 and 'exists' not in cilium_repo_add.stderr
   when: not ansible_check_mode
-# Generate Cilium configuration from Jinja2 template
-- name: Template Cilium values file
-  ansible.builtin.template:
-    src: cilium-values.yaml.j2
-    dest: "{{ cilium_values_tmp.path }}"
-    mode: "0600"
-  check_mode: no
-  when: not ansible_check_mode
-# Deploy Cilium CNI using Helm with custom configuration
+
+# @docsible Installs Cilium (values.yaml + dynamic overrides)
 - name: Install Cilium via Helm
   kubernetes.core.helm:
     release_name: cilium
-    chart_ref: cilium/{{ cilium_chart_name }}
+    chart_ref: cilium/{{ cilium_chartName }}
     release_namespace: "{{ cilium_namespace }}"
-    create_namespace: true
+    create_namespace: false
     values_files:
-      - "{{ cilium_values_tmp.path }}"
-    chart_version: "{{ cilium_version }}"
-    kubeconfig: "/home/{{ ansible_user }}/.kube/config"
-    update_repo_cache: true # Ensure latest chart information
+      - "{{ k8s_manifestsDir }}/bootstrap/cilium/values.yaml"
+    values: "{{ lookup('template', playbook_dir + '/k8s/bootstrap/cilium/values-override.yaml.j2') | from_yaml }}"
+    chart_version: "{{ cilium_chartVersion }}"
+    kubeconfig: "{{ kubeconfig }}"
+    update_repo_cache: true
   when: not ansible_check_mode
-# Verify Cilium DaemonSet creation before proceeding
+
+# @docsible Waits for Cilium DaemonSet existence
 - name: Wait for Cilium DaemonSet to be created
-  ansible.builtin.command: kubectl -n {{ cilium_namespace }} get ds cilium
+  kubernetes.core.k8s_info:
+    kind: DaemonSet
+    name: cilium
+    namespace: "{{ cilium_namespace }}"
+    kubeconfig: "{{ kubeconfig }}"
   register: cilium_ds_check
-  until: cilium_ds_check.rc == 0
-  retries: "{{ cilium_wait_retries | default(60) }}"
-  delay: "{{ cilium_wait_delay | default(5) }}"
-  changed_when: false
-  environment:
-    KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
+  until: cilium_ds_check.resources | default([]) | length > 0
+  retries: "{{ cilium_waitRetries }}"
+  delay: "{{ cilium_waitDelay }}"
   when: not ansible_check_mode
-# Wait for cilium pods
+
+# @docsible Waits for full Cilium DaemonSet rollout
 - name: Wait for cilium pods
-  ansible.builtin.command: >-
-    kubectl -n {{ cilium_namespace }} rollout status ds/cilium --timeout="{{ cilium_rollout_timeout }}s"
-  register: cilium_rollout
-  changed_when: false
-  failed_when: cilium_rollout.rc != 0
-  environment:
-    KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
-  when: not ansible_check_mode
-
-# Deploy General Cluster Gateway
-- name: Deploy Cluster Gateway
-  ansible.builtin.import_tasks: gateway.yml
-  become: false
-  tags: ["cluster", "network", "gateway"]
-  when: not ansible_check_mode
-
-# Clean up temporary configuration file
-- name: Remove temporary values file
-  ansible.builtin.file:
-    path: "{{ cilium_values_tmp.path }}"
-    state: absent
-  changed_when: false
+  kubernetes.core.k8s_info:
+    kind: DaemonSet
+    name: cilium
+    namespace: "{{ cilium_namespace }}"
+    kubeconfig: "{{ kubeconfig }}"
+  register: cilium_ds
+  until: >-
+    cilium_ds.resources | default([]) | length > 0 and
+    cilium_ds.resources[0].status.numberReady == cilium_ds.resources[0].status.desiredNumberScheduled and
+    cilium_ds.resources[0].status.updatedNumberScheduled == cilium_ds.resources[0].status.desiredNumberScheduled
+  retries: "{{ cilium_waitRetries }}"
+  delay: "{{ cilium_waitDelay }}"
   when: not ansible_check_mode

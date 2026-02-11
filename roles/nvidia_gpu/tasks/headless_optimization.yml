@@ -1,13 +1,15 @@
+# @docsible Installs Xorg for headless fan control
 - name: Install X11 deps
   ansible.builtin.apt:
     name:
       - xserver-xorg-core
-      - xserver-xorg-video-nvidia-{{ nvidia_gpu_driver_target | regex_replace('^nvidia-driver-', '') }}
+      - xserver-xorg-video-nvidia-{{ nvidia_driverTarget | regex_replace('^nvidia-driver-', '') }}
     state: present
     update_cache: true
     cache_valid_time: 3600
-  when: nvidia_gpu_active | default(false) | bool
+  when: nvidia_active | default(false) | bool
 
+# @docsible Configures Xorg with Coolbits (Fan Control)
 - name: Configure xorg
   ansible.builtin.template:
     src: xorg.conf.j2
@@ -15,9 +17,10 @@
     mode: "0640"
     owner: root
     group: root
-  register: nvidia_gpu_xorg_conf
-  when: nvidia_gpu_active | default(false) | bool
+  register: nvidia_xorgConf
+  when: nvidia_active | default(false) | bool
 
+# @docsible Deploys nvidia-persistenced service
 - name: Deploy persistence svc
   ansible.builtin.copy:
     src: nvidia-persistence.service
@@ -25,9 +28,10 @@
     mode: "0640"
     owner: root
     group: root
-  register: nvidia_gpu_persistence_service
-  when: nvidia_gpu_active | default(false) | bool
+  register: nvidia_persistenceService
+  when: nvidia_active | default(false) | bool
 
+# @docsible Deploys Headless Xorg service
 - name: Deploy Xorg svc
   ansible.builtin.copy:
     src: nvidia-xorg.service
@@ -35,36 +39,40 @@
     mode: "0640"
     owner: root
     group: root
-  register: nvidia_gpu_xorg_service
-  when: nvidia_gpu_active | default(false) | bool
+  register: nvidia_xorgService
+  when: nvidia_active | default(false) | bool
 
+# @docsible Reloads systemd daemon
 - name: Reload systemd (nvidia)
   ansible.builtin.systemd:
     daemon_reload: true
   when:
-    - nvidia_gpu_active | default(false) | bool
-    - nvidia_gpu_persistence_service.changed or nvidia_gpu_xorg_service.changed
+    - nvidia_active | default(false) | bool
+    - nvidia_persistenceService.changed or nvidia_xorgService.changed
 
+# @docsible Starts nvidia-persistenced
 - name: Start persistence svc
   ansible.builtin.systemd:
     name: nvidia-persistence.service
     enabled: true
     state: started
-  when: nvidia_gpu_active | default(false) | bool
+  when: nvidia_active | default(false) | bool
 
+# @docsible Starts Headless Xorg on Display :1
 - name: Start Xorg svc
   ansible.builtin.systemd:
     name: nvidia-xorg.service
     enabled: true
     state: started
   when:
-    - nvidia_gpu_active | default(false) | bool
-    - nvidia_gpu_headless_x11_enabled | default(true) | bool
+    - nvidia_active | default(false) | bool
+    - nvidia_headlessX11Enabled | default(true) | bool
 
+# @docsible Waits for X11 socket availability
 - name: Wait for X server
   ansible.builtin.wait_for:
     path: /tmp/.X1-lock
     timeout: 30
   when:
-    - nvidia_gpu_active | default(false) | bool
-    - nvidia_gpu_headless_x11_enabled | default(true) | bool
+    - nvidia_active | default(false) | bool
+    - nvidia_headlessX11Enabled | default(true) | bool

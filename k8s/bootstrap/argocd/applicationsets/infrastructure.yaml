@@ -1,0 +1,35 @@
+---
+# ApplicationSet for the Infrastructure Stack
+# Manages storage, workflow engines, and events (Rook, Argo Workflows, etc.)
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: infrastructure-stack
+  namespace: argocd
+spec:
+  generators:
+    - git:
+        repoURL: https://github.com/rou-cru/k3s-homelab.git
+        revision: main
+        directories:
+          - path: k8s/gitops/infrastructure/*
+  template:
+    metadata:
+      name: 'infra-{{path.basename}}'
+      labels:
+        stack: infrastructure
+    spec:
+      project: infrastructure
+      source:
+        repoURL: https://github.com/rou-cru/k3s-homelab.git
+        targetRevision: main
+        path: '{{path}}'
+      destination:
+        name: in-cluster
+        namespace: kube-system
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=false

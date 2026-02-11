@@ -1,0 +1,359 @@
+---
+# kube-prometheus-stack values for k3s bare-metal production
+# Adapted from idp-blueprint for single-node ASUS ROG with Cilium CNI
+
+# ---------------------------------------------------------------------------
+# CRDs - installed separately via Ansible (PHASE 2)
+# ---------------------------------------------------------------------------
+crds:
+  enabled: false
+
+# ---------------------------------------------------------------------------
+# Default PrometheusRules
+# ---------------------------------------------------------------------------
+defaultRules:
+  create: true
+  rules:
+    etcd: false              # K3s single-node uses embedded SQLite, not etcd
+    kubeProxy: false         # Cilium replaces kube-proxy
+    kubeSchedulerAlerting: true
+    kubeSchedulerRecording: true
+
+# ---------------------------------------------------------------------------
+# Alertmanager
+# ---------------------------------------------------------------------------
+alertmanager:
+  enabled: true
+  alertmanagerSpec:
+    priorityClassName: observability
+    retention: 120h
+    storage:
+      volumeClaimTemplate:
+        spec:
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 1Gi
+  config:
+    global:
+      resolve_timeout: 5m
+    route:
+      group_by: ['alertname', 'namespace', 'job']
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 4h
+      receiver: 'null'
+      routes:
+        - match:
+            severity: critical
+          receiver: 'null'
+    receivers:
+      - name: 'null'
+    inhibit_rules:
+      - source_matchers:
+          - severity = critical
+        target_matchers:
+          - severity =~ warning|info
+        equal: ['alertname', 'namespace']
+
+# ---------------------------------------------------------------------------
+# Prometheus Operator
+# ---------------------------------------------------------------------------
+prometheusOperator:
+  priorityClassName: observability
+  admissionWebhooks:
+    certManager:
+      enabled: true
+      issuerRef:
+        name: ca-issuer
+        kind: ClusterIssuer
+    failurePolicy: Fail
+    patch:
+      enabled: false
+
+# ---------------------------------------------------------------------------
+# Prometheus
+# ---------------------------------------------------------------------------
+prometheus:
+  prometheusSpec:
+    priorityClassName: observability
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: node.kubernetes.io/instance-type
+                  operator: NotIn
+                  values:
+                    - vps
+    # Discover ServiceMonitors/PodMonitors from ALL namespaces
+    serviceMonitorSelectorNilUsesHelmValues: false
+    podMonitorSelectorNilUsesHelmValues: false
+    ruleSelectorNilUsesHelmValues: false
+    probeSelectorNilUsesHelmValues: false
+    scrapeInterval: 30s
+    scrapeTimeout: 25s
+    evaluationInterval: 30s
+    retention: 15d
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 20Gi
+
+    # -----------------------------------------------------------------------
+    # Additional scrape configs for K3s components
+    # -----------------------------------------------------------------------
+    additionalScrapeConfigs:
+      # K3s embeds kube-scheduler, accessible on localhost
+      - job_name: 'kube-scheduler'
+        kubernetes_sd_configs:
+          - role: node
+        scheme: https
+        tls_config:
+          insecure_skip_verify: true
+        bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_node_address_InternalIP]
+            replacement: ${1}:10259
+            target_label: __address__
+
+      # K3s embeds kube-controller-manager
+      - job_name: 'kube-controller-manager'
+        kubernetes_sd_configs:
+          - role: node
+        scheme: https
+        tls_config:
+          insecure_skip_verify: true
+        bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_node_address_InternalIP]
+            replacement: ${1}:10257
+            target_label: __address__
+
+# ---------------------------------------------------------------------------
+# Disabled exporters (handled by Cilium or not applicable)
+# ---------------------------------------------------------------------------
+kubeProxy:
+  enabled: false
+
+kubeEtcd:
+  enabled: false
+
+kubeControllerManager:
+  enabled: false
+
+kubeScheduler:
+  enabled: false
+
+# ---------------------------------------------------------------------------
+# Kube State Metrics
+# ---------------------------------------------------------------------------
+kube-state-metrics:
+  priorityClassName: observability
+  extraArgs:
+    - --metric-labels-allowlist=nodes=[*],namespaces=[*],pods=[*],deployments=[app.kubernetes.io/name,app.kubernetes.io/component]
+  metricLabelsAllowlist:
+    - nodes=[*]
+    - namespaces=[*]
+    - pods=[*]
+    - deployments=[app.kubernetes.io/name,app.kubernetes.io/component]
+  collectors:
+    - configmaps
+    - cronjobs
+    - daemonsets
+    - deployments
+    - endpoints
+    - horizontalpodautoscalers
+    - jobs
+    - namespaces
+    - nodes
+    - persistentvolumeclaims
+    - persistentvolumes
+    - pods
+    - replicasets
+    - resourcequotas
+    - secrets
+    - services
+    - statefulsets
+
+# ---------------------------------------------------------------------------
+# Node Exporter - Extended collectors for bare-metal hardware monitoring
+# ---------------------------------------------------------------------------
+prometheus-node-exporter:
+  priorityClassName: observability
+  extraArgs:
+    - --collector.disable-defaults
+    # Standard system metrics
+    - --collector.cpu
+    - --collector.cpufreq
+    - --collector.meminfo
+    - --collector.diskstats
+    - --collector.filesystem
+    - --collector.netdev
+    - --collector.loadavg
+    - --collector.pressure
+    - --collector.vmstat
+    - --collector.stat
+    - --collector.uname
+    # Bare-metal hardware monitoring (CRITICAL for ASUS ROG laptop)
+    - --collector.hwmon
+    - --collector.thermal_zone
+    - --collector.powersupplyclass
+    - --collector.edac
+    - --collector.schedstat
+    - --collector.conntrack
+    - --collector.entropy
+    - --collector.timex
+    - --collector.sockstat
+    # Filesystem filter to reduce noise
+    - --collector.filesystem.mount-points-exclude=^/(dev|proc|sys|var/lib/docker/.+|var/lib/kubelet/.+)($|/)
+    - --collector.filesystem.fs-types-exclude=^(autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|iso9660|mqueue|nsfs|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|selinuxfs|squashfs|sysfs|tracefs)$
+
+# ---------------------------------------------------------------------------
+# Grafana
+# ---------------------------------------------------------------------------
+grafana:
+  enabled: true
+  priorityClassName: observability
+
+  admin:
+    existingSecret: grafana-admin-credentials
+    userKey: admin-user
+    passwordKey: admin-password
+
+  persistence:
+    enabled: true
+    size: 5Gi
+
+  plugins:
+    - grafana-clock-panel
+    - grafana-piechart-panel
+
+  sidecar:
+    dashboards:
+      enabled: true
+      searchNamespace: ALL
+      label: grafana_dashboard
+      labelValue: "1"
+      folderAnnotation: grafana_folder
+      provider:
+        foldersFromFilesStructure: true
+    datasources:
+      enabled: true
+      searchNamespace: ALL
+
+  additionalDataSources:
+    - name: Loki
+      type: loki
+      url: http://loki-gateway.monitoring.svc.cluster.local:80
+      access: proxy
+      isDefault: false
+
+  grafana.ini:
+    server:
+      root_url: "%(protocol)s://%(domain)s/"
+    auth:
+      disable_signout_menu: false
+    auth.anonymous:
+      enabled: false
+    users:
+      allow_sign_up: false
+    security:
+      disable_initial_admin_creation: false
+
+  # -------------------------------------------------------------------------
+  # Dashboards from Grafana.com
+  # -------------------------------------------------------------------------
+  dashboardProviders:
+    dashboardproviders.yaml:
+      apiVersion: 1
+      providers:
+        - name: 'grafana-dashboards'
+          orgId: 1
+          folder: 'Imported'
+          type: file
+          disableDeletion: false
+          editable: true
+          options:
+            path: /var/lib/grafana/dashboards/grafana-dashboards
+
+  dashboards:
+    grafana-dashboards:
+      # -- Kubernetes cluster dashboards --
+      k8s-deployment:
+        gnetId: 17685
+        revision: 1
+        datasource: Prometheus
+      k8s-statefulset:
+        gnetId: 7581
+        revision: 1
+        datasource: Prometheus
+      k8s-daemonset:
+        gnetId: 14982
+        revision: 1
+        datasource: Prometheus
+      k8s-resource:
+        gnetId: 21839
+        revision: 1
+        datasource: Prometheus
+      k8s-namespace:
+        gnetId: 15758
+        revision: 1
+        datasource: Prometheus
+      k8s-overview:
+        gnetId: 22082
+        revision: 1
+        datasource: Prometheus
+
+      # -- Bare-metal hardware --
+      node-exporter-full:
+        gnetId: 1860
+        revision: 37
+        datasource: Prometheus
+      node-exporter-hardware:
+        gnetId: 11074
+        revision: 9
+        datasource: Prometheus
+
+      # -- NVIDIA GPU --
+      nvidia-dcgm:
+        gnetId: 12239
+        revision: 2
+        datasource: Prometheus
+
+      # -- Cilium & Hubble --
+      cilium-operator:
+        gnetId: 17660
+        revision: 1
+        datasource: Prometheus
+      cilium-agent:
+        gnetId: 16611
+        revision: 1
+        datasource: Prometheus
+      cilium-hubble:
+        gnetId: 16613
+        revision: 1
+        datasource: Prometheus
+
+      # -- Infrastructure components --
+      cert-manager:
+        gnetId: 20842
+        revision: 3
+        datasource: Prometheus
+      argocd:
+        gnetId: 14584
+        revision: 1
+        datasource: Prometheus
+
+      # -- Logs (ready for Loki deployment) --
+      loki-logs:
+        gnetId: 15141
+        revision: 1
+        datasource: Loki
+      loki-logs-pod:
+        gnetId: 16976
+        revision: 1
+        datasource: Loki

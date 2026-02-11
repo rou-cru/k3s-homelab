@@ -1,37 +1,21 @@
+# @docsible Block: NVIDIA GPU Cluster Integration
 - name: NVIDIA GPU cluster setup
   tags: ["cluster", "nvidia"]
   block:
-    - name: Check if Helm is installed
-      ansible.builtin.command: which helm
-      register: helm_binary_check
-      changed_when: false
-      failed_when: false
-
-    - name: Warn if Helm is not available
-      ansible.builtin.debug:
-        msg: "⚠️ Helm not found - skipping NVIDIA device plugin installation"
-      when: helm_binary_check.rc != 0
-
+    # @docsible Registers NVIDIA Device Plugin Helm Repo
     - name: Ensure NVIDIA Helm repo
       kubernetes.core.helm_repository:
         name: nvdp
         repo_url: https://nvidia.github.io/k8s-device-plugin
-      when: helm_binary_check.rc == 0
 
-    - name: Create temp values
-      ansible.builtin.tempfile:
-        state: file
-        suffix: "-nvidia-device-plugin-values.yaml"
-      register: nvidia_device_plugin_values_tmp
-      when: helm_binary_check.rc == 0
+    # @docsible Registers 'nvidia' RuntimeClass
+    - name: Apply NVIDIA RuntimeClass
+      kubernetes.core.k8s:
+        src: "{{ k8s_manifestsDir }}/bootstrap/runtimes/nvidia/runtime-class.yaml"
+        kubeconfig: "{{ kubeconfig }}"
+        state: present
 
-    - name: Copy values
-      ansible.builtin.copy:
-        src: nvidia-device-plugin-values.yaml
-        dest: "{{ nvidia_device_plugin_values_tmp.path }}"
-        mode: "0600"
-      when: helm_binary_check.rc == 0
-
+    # @docsible Installs NVIDIA Device Plugin (Helm)
     - name: Install device plugin
       kubernetes.core.helm:
         release_name: nvidia-device-plugin
@@ -39,48 +23,57 @@
         release_namespace: kube-system
         update_repo_cache: true
         values_files:
-          - "{{ nvidia_device_plugin_values_tmp.path }}"
-        chart_version: "{{ nvidia_gpu_device_plugin_version }}"
-        kubeconfig: "/home/{{ ansible_user }}/.kube/config"
-      when: helm_binary_check.rc == 0
+          - "{{ k8s_manifestsDir }}/bootstrap/nvidia/values.yaml"
+        chart_version: "{{ nvidia_devicePluginVersion }}"
+        kubeconfig: "{{ kubeconfig }}"
 
+    # @docsible Waits for Device Plugin DaemonSet
     - name: Wait for daemonset
-      ansible.builtin.command: >-
-        kubectl -n kube-system rollout status ds/nvidia-device-plugin --timeout=300s
-      register: nvidia_device_plugin_rollout
-      changed_when: false
-      environment:
-        KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
-      when: helm_binary_check.rc == 0
+      kubernetes.core.k8s_info:
+        kind: DaemonSet
+        namespace: kube-system
+        kubeconfig: "{{ kubeconfig }}"
+        label_selectors:
+          - app.kubernetes.io/name=nvidia-device-plugin
+      register: nvdp_ds
+      until: >-
+        nvdp_ds.resources | length > 0 and
+        (nvdp_ds.resources[0].status.desiredNumberScheduled | default(0)) > 0 and
+        (nvdp_ds.resources[0].status.numberReady | default(0)) >=
+        (nvdp_ds.resources[0].status.desiredNumberScheduled | default(0))
+      retries: "{{ global_waitRetries }}"
+      delay: "{{ global_waitDelay }}"
 
+    # @docsible Queries Node status for GPU capacity
     - name: Check GPU resources
-      ansible.builtin.shell: >-
-        kubectl get nodes -o json | jq -r '.items[].status.capacity["nvidia.com/gpu"]'
-      register: gpu_resources_check
-      changed_when: false
-      failed_when: gpu_resources_check.rc != 0 and 'not found' not in gpu_resources_check.stderr
-      environment:
-        KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
-      when: helm_binary_check.rc == 0
+      kubernetes.core.k8s_info:
+        api_version: v1
+        kind: Node
+        kubeconfig: "{{ kubeconfig }}"
+      register: gpu_nodes_info
 
+    # @docsible Parses GPU capacity from Node status
+    - name: Extract GPU capacities from nodes
+      ansible.builtin.set_fact:
+        gpu_resources: >-
+          {{ gpu_nodes_info.resources | default([])
+             | map(attribute='status.capacity', default={})
+             | map(attribute='nvidia.com/gpu', default='0')
+             | list }}
+
+    # @docsible Displays detected GPU count
     - name: Debug GPU resources
       ansible.builtin.debug:
-        msg: "✅ GPU resources detected: {{ gpu_resources_check.stdout_lines | join(', ') }}"
+        msg: "GPU resources detected: {{ gpu_resources | join(', ') }}"
         verbosity: 1
-      when: helm_binary_check.rc == 0
   when: not ansible_check_mode
   rescue:
+    # @docsible Reports Cluster Setup Failure
     - name: Report NVIDIA GPU cluster setup failure
       ansible.builtin.debug:
         msg: >-
           NVIDIA GPU cluster setup failed at {{ ansible_failed_task.name }}: {{ ansible_failed_result | to_json }}
+    # @docsible Fails execution on error
     - name: Fail NVIDIA GPU cluster setup
       ansible.builtin.fail:
         msg: "NVIDIA GPU cluster setup failed"
-  always:
-    - name: Remove temporary values file
-      ansible.builtin.file:
-        path: "{{ nvidia_device_plugin_values_tmp.path }}"
-        state: absent
-      when: (nvidia_device_plugin_values_tmp | default({})).path is defined
-      changed_when: false

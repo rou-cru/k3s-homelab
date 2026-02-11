@@ -1,2 +1,17 @@
-- name: Install gVisor runtime (host)
-  ansible.builtin.include_tasks: host.yml
+---
+# @docsible Downloads 'runsc' binary (latest release)
+- name: Download runsc
+  ansible.builtin.get_url:
+    url: https://storage.googleapis.com/gvisor/releases/release/latest/x86_64/runsc
+    dest: /usr/local/bin/runsc
+    mode: "0755"
+    owner: root
+    group: root
+    checksum: sha512:https://storage.googleapis.com/gvisor/releases/release/latest/x86_64/runsc.sha512
+
+# @docsible Removes 'runsc' binary (Cleanup Task)
+- name: Remove runsc (cleanup)
+  ansible.builtin.file:
+    path: /usr/local/bin/runsc
+    state: absent
+  tags: ["cleanup", "never"]

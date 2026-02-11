@@ -1,10 +1,5 @@
-# Title: Install Docker
-# Description: Installs Docker CLI (not recommended for K3s nodes which use containerd).
-# Type: bool
-# Required: false
-devtools_install_docker: false
-# Title: Install Vagrant and libvirt
-# Description: Installs Vagrant with libvirt provider for Molecule testing and VM management.
-# Type: bool
-# Required: false
-devtools_install_vagrant: true
+# Role defaults moved to group_vars/all.yml
+# See: group_vars/all.yml for all project variables
+# This file intentionally left empty to maintain single source of truth
+---
+{}

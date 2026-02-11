@@ -1,0 +1,19 @@
+---
+argument_specs:
+  main:
+    short_description: Install gVisor sandboxed runtime
+    description: |
+      Downloads and installs gVisor runsc runtime and deploys
+      a RuntimeClass for sandboxed workloads in K3s.
+    author: rc
+    options:
+      gvisor_version:
+        type: str
+        required: false
+        default: "latest"
+        description: gVisor version to install.
+      gvisor_install:
+        type: bool
+        required: false
+        default: true
+        description: Enable gVisor installation.

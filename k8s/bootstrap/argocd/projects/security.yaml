@@ -1,0 +1,24 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: security
+  namespace: argocd
+spec:
+  description: Security stack - policy enforcement, network segmentation
+  sourceRepos:
+    - 'https://github.com/rou-cru/k3s-homelab.git'
+  destinations:
+    - namespace: security
+      name: in-cluster
+    - namespace: kyverno
+      name: in-cluster
+  clusterResourceWhitelist:
+    - group: kyverno.io
+      kind: '*'
+    - group: cilium.io
+      kind: '*'
+    - group: ''
+      kind: Namespace
+  namespaceResourceWhitelist:
+    - group: '*'
+      kind: '*'

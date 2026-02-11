@@ -1,0 +1,41 @@
+---
+argument_specs:
+  main:
+    short_description: Install External Secrets Operator with OCI Vault
+    description: |
+      Deploys External Secrets Operator and configures an OCI Vault-backed
+      ClusterSecretStore for external secret management.
+    author: rc
+    options:
+      externalSecrets_namespace:
+        type: str
+        required: false
+        default: "external-secrets"
+        description: Namespace for External Secrets Operator.
+      externalSecrets_chartVersion:
+        type: str
+        required: false
+        description: Helm chart version (omit for latest).
+      externalSecrets_webhookIssuerName:
+        type: str
+        required: false
+        default: "selfsigned-issuer"
+        description: ClusterIssuer for webhook certificates.
+      externalSecrets_serviceMonitorEnabled:
+        type: bool
+        required: false
+        default: false
+        description: Enable Prometheus ServiceMonitor.
+      externalSecrets_grafanaDashboardEnabled:
+        type: bool
+        required: false
+        default: false
+        description: Enable Grafana dashboard ConfigMap.
+      kubeconfig:
+        type: str
+        required: true
+        description: Path to kubeconfig for cluster access.
+      oci_configFile:
+        type: str
+        required: true
+        description: Path to OCI CLI configuration file.

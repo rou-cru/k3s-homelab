@@ -1,0 +1,11 @@
+# @docsible Deploys Cloudflare Token and Let's Encrypt ClusterIssuer
+- name: Deploy Cloudflare ACME manifests
+  kubernetes.core.k8s:
+    state: present
+    src: "{{ k8s_manifestsDir }}/bootstrap/cert-manager/{{ item }}"
+    kubeconfig: "{{ kubeconfig }}"
+  loop:
+    - cloudflare-token.yaml
+    - letsencrypt.yaml
+  when: not ansible_check_mode
+  tags: ["infra"]

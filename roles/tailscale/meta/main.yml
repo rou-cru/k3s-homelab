@@ -1,6 +1,6 @@
 galaxy_info:
   role_name: tailscale
-  author: Roura
+  author: rc
   description: Installs and configures Tailscale VPN client.
   company: Personal
   license: MIT

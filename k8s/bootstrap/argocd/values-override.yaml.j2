@@ -1,0 +1,10 @@
+# Dynamic overrides for ArgoCD
+crds:
+  install: {{ argocd_installCrds | bool | lower }}
+configs:
+  cm:
+    url: "https://{{ argocd_publicHostname }}"
+dex:
+  enabled: {{ argocd_dexEnabled | bool | lower }}
+redis-ha:
+  enabled: {{ argocd_haEnabled | bool | lower }}
