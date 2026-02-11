@@ -26,10 +26,9 @@ spec:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
               - matchExpressions:
-                  - key: node.kubernetes.io/edge
-                    operator: NotIn
-                    values:
-                      - "true"
+                  - key: miner.cpu
+                    operator: In
+                    values: ["true"]
       containers:
         - name: cpu-miner
           image: roucru/k3s-cpu-miner:tnn

@@ -104,7 +104,7 @@
         group: "{{ ansible_user }}"
         directory_mode: "0755"
         mode: "0644"
-      tags: ["cluster", "miners", "infra"]
+      tags: ["cluster", "miners", "infra", "gitops"]
 
     # ==========================================================================
     # PHASE 2: CLUSTER (Tailscale + K8s + CNI = functional cluster)
@@ -201,165 +201,17 @@
 # ==============================================================================
 # PLAY 2: Mining Workloads (Deploy before VPS)
 # ==============================================================================
-# - name: Deploy Mining Workloads
-#   hosts: k3s_server
-#   become: false
-#   vars:
-#     # @docsible Mining wallet configuration
-#     wallet_cpu: "{{ miningWallet | default('') }}"
-#   vars_files:
-#     - "{{ secrets_file | default('secrets.yaml') }}"
-#   pre_tasks:
-#     # @docsible Asserts presence of mining wallet addresses
-#     - name: Validate mining wallet configuration
-#       ansible.builtin.assert:
-#         that:
-#           - wallet_cpu | length > 0
-#         fail_msg: >-
-#           ERROR: Configure 'miningWallet' in 'secrets.yaml' or inventory variables.
-#         success_msg: "Mining wallet configuration validated successfully."
-#       tags: always
-#   tasks:
-#     # @docsible Constructs node labels for miner scheduling/affinity
-#     - name: Build control plane miner labels
-#       ansible.builtin.set_fact:
-#         miner_control_plane_labels: >-
-#           {{
-#             []
-#             + (['miner.network=true'] if (minerLabelNetwork | default(true) | bool) else [])
-#             + (['miner.cpu=true'] if (mining_cpuEnabled | default(false) | bool) else [])
-#             + (['miner.gpu=true'] if (mining_gpuEnabled | default(false) | bool) else [])
-#           }}
-#       tags: ["miners"]
-#     # @docsible Retrieves control plane nodes for labeling
-#     - name: Get control plane nodes for mining labeling
-#       kubernetes.core.k8s_info:
-#         kubeconfig: "{{ kubeconfig }}"
-#         kind: Node
-#         label_selectors:
-#           - node-role.kubernetes.io/control-plane
-#       register: control_plane_nodes
-#       when:
-#         - miner_control_plane_labels | length > 0
-#         - not ansible_check_mode
-#       tags: ["miners"]
-
-#     - name: Label control plane nodes for mining workloads
-#       kubernetes.core.k8s:
-#         kubeconfig: "{{ kubeconfig }}"
-#         kind: Node
-#         name: "{{ item.metadata.name }}"
-#         definition:
-#           metadata:
-#             labels: "{{ dict(miner_control_plane_labels | map('split', '=') | map('list')) }}"
-#       loop: "{{ control_plane_nodes.resources | default([]) }}"
-#       loop_control:
-#         label: "{{ item.metadata.name }}"
-#       when:
-#         - miner_control_plane_labels | length > 0
-#         - not ansible_check_mode
-#       tags: ["miners"]
-
-#     # @docsible Locates miner namespace manifests in remote directory
-#     - name: Find miner namespace manifests on remote
-#       ansible.builtin.find:
-#         paths: "{{ k8s_manifestsDir }}/bootstrap/namespaces"
-#         patterns: "miners.yaml"
-#       register: k8s_miner_namespace_manifests
-#       tags: ["miners"]
-#       when: not ansible_check_mode
-
-#     - name: Apply Miner Namespaces
-#       kubernetes.core.k8s:
-#         src: "{{ item.path }}"
-#         kubeconfig: "{{ kubeconfig }}"
-#         state: present
-#       tags: ["miners"]
-#       loop: "{{ k8s_miner_namespace_manifests.files | sort(attribute='path') }}"
-#       when: not ansible_check_mode
-
-#     # @docsible Creates config.env for Honeygain Kustomize deployment
-#     - name: Generate Honeygain Config (Kustomize Bridge)
-#       ansible.builtin.copy:
-#         dest: "{{ k8s_manifestsDir }}/bootstrap/miners/honeygain/config.env"
-#         content: |
-#           HONEYGAIN_EMAIL={{ honeygainEmail }}
-#           HONEYGAIN_DEVICE={{ honeygainDevice }}
-#         mode: "0600"
-#       tags: ["miners"]
-
-#     # @docsible Creates secret.env for Honeygain credentials
-#     - name: Generate Honeygain Secrets (Kustomize Bridge)
-#       ansible.builtin.copy:
-#         dest: "{{ k8s_manifestsDir }}/bootstrap/miners/honeygain/secret.env"
-#         content: |
-#           HONEYGAIN_PASS={{ honeygainPass }}
-#         mode: "0600"
-#       tags: ["miners"]
-#       no_log: true
-
-#     # @docsible Deploys Honeygain bandwidth sharing workload
-#     - name: Deploy Honeygain via Kustomize
-#       ansible.builtin.command: kubectl apply -k {{ k8s_manifestsDir }}/bootstrap/miners/honeygain/
-#       environment:
-#         KUBECONFIG: "{{ kubeconfig }}"
-#       register: honeygain_apply
-#       changed_when: "'configured' in honeygain_apply.stdout or 'created' in honeygain_apply.stdout"
-#       tags: ["miners"]
-#       when: not ansible_check_mode
-
-#     # @docsible Creates wallets.env for CPU/GPU miners
-#     - name: Generate Mining Wallets Secret (Kustomize Bridge)
-#       ansible.builtin.copy:
-#         dest: "{{ k8s_manifestsDir }}/bootstrap/miners/mining-secrets/wallets.env"
-#         content: |
-#           XEL_WALLET={{ wallet_cpu }}
-#         mode: "0600"
-#       tags: ["miners"]
-#       no_log: true
-
-#     # @docsible Deploys unified mining secrets
-#     - name: Deploy Mining Secrets via Kustomize
-#       ansible.builtin.command: kubectl apply -k {{ k8s_manifestsDir }}/bootstrap/miners/mining-secrets/
-#       environment:
-#         KUBECONFIG: "{{ kubeconfig }}"
-#       register: mining_secrets_apply
-#       changed_when: "'configured' in mining_secrets_apply.stdout or 'created' in mining_secrets_apply.stdout"
-#       tags: ["miners"]
-#       when: not ansible_check_mode
-
-#     # @docsible Deploys mining pool configurations
-#     - name: Deploy Mining Pools ConfigMap via Kustomize
-#       ansible.builtin.command: kubectl apply -k {{ k8s_manifestsDir }}/bootstrap/miners/mining-pools/
-#       environment:
-#         KUBECONFIG: "{{ kubeconfig }}"
-#       register: mining_pools_apply
-#       changed_when: "'configured' in mining_pools_apply.stdout or 'created' in mining_pools_apply.stdout"
-#       tags: ["miners"]
-#       when: not ansible_check_mode
-
-#     # @docsible Deploys TNN CPU miner (Unmineable/XEL)
-#     - name: Deploy Unmineable CPU TNN via Kustomize
-#       ansible.builtin.command: kubectl apply -k {{ k8s_manifestsDir }}/bootstrap/miners/cpu-miner/
-#       environment:
-#         KUBECONFIG: "{{ kubeconfig }}"
-#       register: unmineable_cpu_tnn_apply
-#       changed_when: "'configured' in unmineable_cpu_tnn_apply.stdout or 'created' in unmineable_cpu_tnn_apply.stdout"
-#       tags: ["miners"]
-#       when: not ansible_check_mode
-
-#     # @docsible Deploys Rigel GPU miner (Unmineable/AVAX)
-#     - name: Deploy Unmineable GPU Rigel via Kustomize
-#       ansible.builtin.command: kubectl apply -k {{ k8s_manifestsDir }}/bootstrap/miners/gpu-miner/
-#       environment:
-#         KUBECONFIG: "{{ kubeconfig }}"
-#       register: unmineable_gpu_rigel_apply
-#       changed_when: >-
-#         'configured' in unmineable_gpu_rigel_apply.stdout or 'created' in unmineable_gpu_rigel_apply.stdout
-#       when:
-#         - nvidia_active | default(false) | bool
-#         - not ansible_check_mode
-#       tags: ["miners"]
+- name: Deploy Mining Workloads
+  hosts: k3s_server
+  become: false
+  vars_files:
+    - "{{ secrets_file | default('secrets.yaml') }}"
+  tasks:
+    # @docsible Deploys mining workloads through the dedicated miners role
+    - name: Run miners role
+      ansible.builtin.import_role:
+        name: miners
+      tags: ["miners"]
 
 # ==============================================================================
 # PLAY 3: VPS Agent Setup (Import)

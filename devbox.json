@@ -22,7 +22,8 @@
     "trufflehog@latest",
     "helm-ls@latest",
     "helm-docs@latest",
-    "cilium-cli@latest"
+    "cilium-cli@latest",
+    "argocd@latest"
   ],
   "shell": {
     "init_hook": [

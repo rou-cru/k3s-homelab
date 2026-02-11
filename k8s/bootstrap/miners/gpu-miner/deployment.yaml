@@ -22,19 +22,14 @@ spec:
       automountServiceAccountToken: false
       dnsPolicy: ClusterFirstWithHostNet
       runtimeClassName: nvidia  # Use NVIDIA container runtime
-      # Ensure pod runs only on nodes with NVIDIA GPU hardware
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
               - matchExpressions:
-                  - key: nvidia.com/gpu.present
+                  - key: miner.gpu
                     operator: In
                     values: ["true"]
-              - matchExpressions:
-                  - key: feature.node.kubernetes.io/pci-10de.present
-                    operator: In
-                    values: ["true"]  # PCI vendor ID for NVIDIA
       containers:
         - name: gpu-miner
           securityContext:

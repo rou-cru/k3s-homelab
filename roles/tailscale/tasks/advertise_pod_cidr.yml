@@ -57,4 +57,3 @@
     - not ansible_check_mode
   register: tailscale_advertise_result
   changed_when: false
-

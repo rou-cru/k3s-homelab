@@ -1,0 +1,18 @@
+---
+galaxy_info:
+  description: >-
+    Deploy mining workloads (Honeygain, CPU miner, GPU miner) on K3s using
+    Kustomize overlays synchronized to the target node.
+  author: rc
+  license: MIT
+  min_ansible_version: "2.14"
+  platforms:
+    - name: Ubuntu
+      versions:
+        - noble
+  galaxy_tags:
+    - kubernetes
+    - k3s
+    - miners
+
+dependencies: []

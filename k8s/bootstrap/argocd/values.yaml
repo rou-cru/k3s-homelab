@@ -68,10 +68,20 @@ controller:
     enabled: false
   resources:
     requests:
-      cpu: 100m
-      memory: 256Mi
+      cpu: 200m
+      memory: 384Mi
     limits:
-      memory: 512Mi
+      memory: 768Mi
+  # Keep Argo CD control-plane components off the VPS networking node.
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: node.kubernetes.io/instance-type
+                operator: NotIn
+                values:
+                  - vps
   ## Application controller metrics configuration
   metrics:
     # -- Deploy metrics service
@@ -96,6 +106,22 @@ controller:
 redis:
   # -- Enable redis
   enabled: true
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      memory: 512Mi
+  # Keep Argo CD control-plane components off the VPS networking node.
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: node.kubernetes.io/instance-type
+                operator: NotIn
+                values:
+                  - vps
   metrics:
     # -- Deploy metrics service
     enabled: true
@@ -103,6 +129,9 @@ redis:
       # -- Enable a prometheus ServiceMonitor
       enabled: true
       # -- Interval at which metrics should be scraped
+  exporter:
+    # -- Enable redis-exporter sidecar to expose Redis metrics endpoint.
+    enabled: true
 
 ## Server
 server:
@@ -115,10 +144,10 @@ server:
   # -- Resource limits and requests for the Argo CD server
   resources:
     requests:
-      cpu: 50m
-      memory: 128Mi
-    limits:
+      cpu: 100m
       memory: 256Mi
+    limits:
+      memory: 512Mi
 
   # Server container ports
   containerPorts:
@@ -372,10 +401,20 @@ repoServer:
     enabled: false
   resources:
     requests:
-      cpu: 50m
-      memory: 128Mi
-    limits:
+      cpu: 150m
       memory: 256Mi
+    limits:
+      memory: 512Mi
+  # Keep Argo CD control-plane components off the VPS networking node.
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: node.kubernetes.io/instance-type
+                operator: NotIn
+                values:
+                  - vps
   # -- Runtime class name for the repo server
   # @default -- `""` (defaults to global.runtimeClassName)
   runtimeClassName: ""
@@ -463,10 +502,20 @@ applicationSet:
     enabled: false
   resources:
     requests:
-      cpu: 50m
-      memory: 128Mi
+      cpu: 100m
+      memory: 192Mi
     limits:
-      memory: 256Mi
+      memory: 384Mi
+  # Keep Argo CD control-plane components off the VPS networking node.
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: node.kubernetes.io/instance-type
+                operator: NotIn
+                values:
+                  - vps
   ## Metrics service configuration
   metrics:
     # -- Deploy metrics service
@@ -553,10 +602,20 @@ notifications:
     enabled: false
   resources:
     requests:
-      cpu: 50m
-      memory: 64Mi
-    limits:
+      cpu: 100m
       memory: 128Mi
+    limits:
+      memory: 256Mi
+  # Keep Argo CD control-plane components off the VPS networking node.
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: node.kubernetes.io/instance-type
+                operator: NotIn
+                values:
+                  - vps
   # -- Argo CD dashboard url; used in place of {{.context.argocdUrl}} in templates
   # @default -- `""` (defaults to https://`global.domain`)
   argocdUrl: "argocd.roura.xyz"

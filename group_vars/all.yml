@@ -160,7 +160,7 @@ certManager_selfsignedIssuerName: "k3s-selfsigned-issuer"
 certManager_caCertificateName: "k3s-ca"
 certManager_caSecretName: "k3s-ca-secret"
 certManager_caIssuerName: "k3s-ca-issuer"
-certManager_prometheusEnabled: false
+certManager_prometheusEnabled: true
 
 # ---- ACME / LET'S ENCRYPT ----------------------------------------------------------
 acme_email: "rc@roura.xyz"
@@ -182,7 +182,7 @@ public_gateway_ip: "74.208.250.178"
 # ---- EXTERNAL SECRETS --------------------------------------------------------------
 oci_configFile: "{{ playbook_dir }}/.oci"
 externalSecrets_namespace: "external-secrets"
-externalSecrets_serviceMonitorEnabled: false
+externalSecrets_serviceMonitorEnabled: true
 externalSecrets_grafanaDashboardEnabled: false
 externalSecrets_webhookIssuerName: "k3s-ca-issuer"
 

@@ -77,6 +77,15 @@ prometheusOperator:
 prometheus:
   prometheusSpec:
     priorityClassName: observability
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: node.kubernetes.io/instance-type
+                  operator: NotIn
+                  values:
+                    - vps
     # Discover ServiceMonitors/PodMonitors from ALL namespaces
     serviceMonitorSelectorNilUsesHelmValues: false
     podMonitorSelectorNilUsesHelmValues: false

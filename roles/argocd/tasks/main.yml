@@ -58,6 +58,48 @@
     - not ansible_check_mode
   tags: ["gitops"]
 
+# @docsible Discovers ArgoCD project manifests in remote bootstrap directory
+- name: Find ArgoCD project manifests
+  ansible.builtin.find:
+    paths: "{{ k8s_manifestsDir }}/bootstrap/argocd/projects"
+    patterns: "*.yaml"
+    file_type: file
+  register: argocd_project_manifests
+  tags: ["gitops"]
+
+# @docsible Discovers ArgoCD ApplicationSet manifests in remote bootstrap directory
+- name: Find ArgoCD ApplicationSet manifests
+  ansible.builtin.find:
+    paths: "{{ k8s_manifestsDir }}/bootstrap/argocd/applicationsets"
+    patterns: "*.yaml"
+    file_type: file
+  register: argocd_appset_manifests
+  tags: ["gitops"]
+
+# @docsible Applies ArgoCD AppProjects from bootstrap manifests
+- name: Apply ArgoCD projects
+  kubernetes.core.k8s:
+    state: present
+    src: "{{ item.path }}"
+    kubeconfig: "{{ kubeconfig }}"
+  loop: "{{ argocd_project_manifests.files | sort(attribute='path') }}"
+  loop_control:
+    label: "{{ item.path | basename }}"
+  when: not ansible_check_mode
+  tags: ["gitops"]
+
+# @docsible Applies ArgoCD ApplicationSets from bootstrap manifests
+- name: Apply ArgoCD ApplicationSets
+  kubernetes.core.k8s:
+    state: present
+    src: "{{ item.path }}"
+    kubeconfig: "{{ kubeconfig }}"
+  loop: "{{ argocd_appset_manifests.files | sort(attribute='path') }}"
+  loop_control:
+    label: "{{ item.path | basename }}"
+  when: not ansible_check_mode
+  tags: ["gitops"]
+
 # @docsible Restarts ArgoCD Server (Applies new password)
 - name: Restart ArgoCD Server to pick up new password
   kubernetes.core.k8s:

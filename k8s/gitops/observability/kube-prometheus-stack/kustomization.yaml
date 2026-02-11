@@ -13,4 +13,5 @@ helmCharts:
 
 resources:
   - grafana-admin-externalsecret.yaml
+  - grafana-httproute.yaml
   - vpa.yaml
