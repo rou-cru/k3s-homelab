@@ -15,6 +15,10 @@ spec:
       kind: '*'
     - group: ''
       kind: ServiceAccount
+    - group: rbac.authorization.k8s.io
+      kind: '*'
+    - group: admissionregistration.k8s.io
+      kind: '*'
   namespaceResourceWhitelist:
     - group: '*'
       kind: '*'
