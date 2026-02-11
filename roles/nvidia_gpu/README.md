@@ -203,22 +203,22 @@ Supports host setup, cluster setup, and headless X11 configurations.
 | [Set driver fallback](tasks/host.yml#L102) | ansible.builtin.set_fact | True |  | @docsible Sets fallback driver version if detection fails |
 | [Set manual driver](tasks/host.yml#L112) | ansible.builtin.set_fact | True |  | @docsible Sets manual driver version override |
 | [Blacklist nouveau](tasks/host.yml#L120) | ansible.builtin.copy | True |  | @docsible Blacklists open-source Nouveau driver |
-| [Update initramfs](tasks/host.yml#L130) | ansible.builtin.command | True |  |  |
-| [Set utils package](tasks/host.yml#L138) | ansible.builtin.set_fact | True |  | @docsible Resolves nvidia-utils package name |
-| [Check broken packages](tasks/host.yml#L144) | ansible.builtin.shell | True |  | @docsible Checks for partially installed (broken) packages |
-| [Fix broken packages](tasks/host.yml#L151) | ansible.builtin.shell | True |  | @docsible Purges broken NVIDIA packages to allow clean install |
-| [Install NVIDIA driver](tasks/host.yml#L165) | ansible.builtin.apt | True |  | @docsible Installs NVIDIA Driver and Utils |
-| [Reboot system (nvidia)](tasks/host.yml#L176) | ansible.builtin.reboot | True |  | @docsible Reboots system to load new kernel modules |
-| [Ensure APT keyrings dir](tasks/host.yml#L186) | ansible.builtin.file | True |  | @docsible Creates APT keyrings directory |
-| [Write toolkit repo](tasks/host.yml#L196) | ansible.builtin.copy | True |  | @docsible Adds NVIDIA Container Toolkit repository |
-| [Install toolkit](tasks/host.yml#L209) | ansible.builtin.apt | True |  | @docsible Installs NVIDIA Container Toolkit |
-| [Ensure CDI directory exists](tasks/host.yml#L219) | ansible.builtin.file | True |  | @docsible Creates CDI directory |
-| [Check NVIDIA driver status](tasks/host.yml#L229) | ansible.builtin.command | True |  | @docsible Verifies nvidia-smi functionality |
-| [Reboot to fix driver mismatch](tasks/host.yml#L239) | ansible.builtin.reboot | True |  | @docsible Reboots if driver version mismatch detected |
-| [Generate NVIDIA CDI specification](tasks/host.yml#L249) | ansible.builtin.command | True |  | @docsible Generates CDI specification |
-| [Register NVIDIA as an available runtime](tasks/host.yml#L257) | ansible.builtin.set_fact | True | host,nvidia | @docsible Registers 'nvidia' runtime for Containerd |
-| [Update runtime list with NVIDIA](tasks/host.yml#L263) | ansible.builtin.set_fact | True | host,nvidia |  |
-| [Import headless optimization](tasks/host.yml#L271) | ansible.builtin.import_tasks | True |  | @docsible Imports Headless X11 configuration tasks |
+| [Update initramfs](tasks/host.yml#L131) | ansible.builtin.command | True |  | @docsible Regenerates initramfs after Nouveau blacklist changes |
+| [Set utils package](tasks/host.yml#L139) | ansible.builtin.set_fact | True |  | @docsible Resolves nvidia-utils package name |
+| [Check broken packages](tasks/host.yml#L145) | ansible.builtin.shell | True |  | @docsible Checks for partially installed (broken) packages |
+| [Fix broken packages](tasks/host.yml#L152) | ansible.builtin.shell | True |  | @docsible Purges broken NVIDIA packages to allow clean install |
+| [Install NVIDIA driver](tasks/host.yml#L166) | ansible.builtin.apt | True |  | @docsible Installs NVIDIA Driver and Utils |
+| [Reboot system (nvidia)](tasks/host.yml#L177) | ansible.builtin.reboot | True |  | @docsible Reboots system to load new kernel modules |
+| [Ensure APT keyrings dir](tasks/host.yml#L187) | ansible.builtin.file | True |  | @docsible Creates APT keyrings directory |
+| [Write toolkit repo](tasks/host.yml#L197) | ansible.builtin.copy | True |  | @docsible Adds NVIDIA Container Toolkit repository |
+| [Install toolkit](tasks/host.yml#L210) | ansible.builtin.apt | True |  | @docsible Installs NVIDIA Container Toolkit |
+| [Ensure CDI directory exists](tasks/host.yml#L220) | ansible.builtin.file | True |  | @docsible Creates CDI directory |
+| [Check NVIDIA driver status](tasks/host.yml#L230) | ansible.builtin.command | True |  | @docsible Verifies nvidia-smi functionality |
+| [Reboot to fix driver mismatch](tasks/host.yml#L240) | ansible.builtin.reboot | True |  | @docsible Reboots if driver version mismatch detected |
+| [Generate NVIDIA CDI specification](tasks/host.yml#L250) | ansible.builtin.command | True |  | @docsible Generates CDI specification |
+| [Register NVIDIA as an available runtime](tasks/host.yml#L258) | ansible.builtin.set_fact | True | host,nvidia | @docsible Registers 'nvidia' runtime for Containerd |
+| [Update runtime list with NVIDIA](tasks/host.yml#L265) | ansible.builtin.set_fact | True | host,nvidia | @docsible Adds NVIDIA runtime to k3s_commonContainerdAdditionalRuntimes |
+| [Import headless optimization](tasks/host.yml#L273) | ansible.builtin.import_tasks | True |  | @docsible Imports Headless X11 configuration tasks |
 
 
 ## Task Flow Graphs

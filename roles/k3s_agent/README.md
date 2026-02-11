@@ -120,19 +120,19 @@ Description: Install and configure K3s agent node to join existing cluster
 | [Check for runsc binary](tasks/main.yml#L21) | ansible.builtin.stat | False | @docsible Checks for gVisor (runsc) binary |
 | [Check for nvidia-container-runtime](tasks/main.yml#L27) | ansible.builtin.stat | False | @docsible Checks for NVIDIA Container Runtime |
 | [Build containerd runtime list](tasks/main.yml#L33) | ansible.builtin.set_fact | False | @docsible Constructs list of Containerd runtimes (runsc, nvidia) |
-| [Update containerd runtime list](tasks/main.yml#L37) | ansible.builtin.set_fact | False |  |
-| [Run K3s Common](tasks/main.yml#L47) | ansible.builtin.import_role | False | @docsible Imports K3s Common role (binaries, systemd) |
-| [Deploy agent config](tasks/main.yml#L55) | ansible.builtin.template | True | @docsible Deploys K3s Agent config (config.yaml) |
-| [Install K3s agent](tasks/main.yml#L64) | ansible.builtin.shell | True | @docsible Executes K3s Agent installation |
-| [Create override dir](tasks/main.yml#L80) | ansible.builtin.file | False | @docsible Creates systemd override directory |
-| [Create override](tasks/main.yml#L87) | ansible.builtin.copy | False | @docsible Deploys systemd ExecStart override |
-| [Reload systemd](tasks/main.yml#L98) | ansible.builtin.systemd | False | @docsible Reloads systemd daemon |
-| [Start K3s agent](tasks/main.yml#L103) | ansible.builtin.systemd | True | @docsible Starts k3s-agent.service |
-| [Flush handlers](tasks/main.yml#L111) | ansible.builtin.meta | False | @docsible Flushes handlers |
-| [Wait for node to be ready](tasks/main.yml#L115) | kubernetes.core.k8s_info | True | @docsible Waits for Node "Ready" status in API |
-| [Apply node labels](tasks/main.yml#L134) | kubernetes.core.k8s | True | @docsible Applies Node Labels |
-| [Apply node taints](tasks/main.yml#L149) | kubernetes.core.k8s_taint | True | @docsible Applies Node Taints |
-| [Show agent join status](tasks/main.yml#L166) | ansible.builtin.debug | False | @docsible Displays Join Status |
+| [Update containerd runtime list](tasks/main.yml#L38) | ansible.builtin.set_fact | False | @docsible Merges detected runtimes into k3s_commonContainerdAdditionalRuntimes |
+| [Run K3s Common](tasks/main.yml#L48) | ansible.builtin.import_role | False | @docsible Imports K3s Common role (binaries, systemd) |
+| [Deploy agent config](tasks/main.yml#L56) | ansible.builtin.template | True | @docsible Deploys K3s Agent config (config.yaml) |
+| [Install K3s agent](tasks/main.yml#L65) | ansible.builtin.shell | True | @docsible Executes K3s Agent installation |
+| [Create override dir](tasks/main.yml#L81) | ansible.builtin.file | False | @docsible Creates systemd override directory |
+| [Create override](tasks/main.yml#L88) | ansible.builtin.copy | False | @docsible Deploys systemd ExecStart override |
+| [Reload systemd](tasks/main.yml#L99) | ansible.builtin.systemd | False | @docsible Reloads systemd daemon |
+| [Start K3s agent](tasks/main.yml#L104) | ansible.builtin.systemd | True | @docsible Starts k3s-agent.service |
+| [Flush handlers](tasks/main.yml#L112) | ansible.builtin.meta | False | @docsible Flushes handlers |
+| [Wait for node to be ready](tasks/main.yml#L116) | kubernetes.core.k8s_info | True | @docsible Waits for Node "Ready" status in API |
+| [Apply node labels](tasks/main.yml#L135) | kubernetes.core.k8s | True | @docsible Applies Node Labels |
+| [Apply node taints](tasks/main.yml#L150) | kubernetes.core.k8s_taint | True | @docsible Applies Node Taints |
+| [Show agent join status](tasks/main.yml#L167) | ansible.builtin.debug | False | @docsible Displays Join Status |
 
 
 ## Task Flow Graphs

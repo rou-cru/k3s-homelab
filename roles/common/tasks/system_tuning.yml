@@ -28,12 +28,10 @@
   loop:
     - {key: "net.core.default_qdisc", value: "fq_codel"}
     - {key: "net.ipv4.tcp_congestion_control", value: "bbr"}
-    # Cilium / Tailscale requirements
     - {key: "net.ipv4.ip_forward", value: "1"}
     - {key: "net.ipv6.conf.all.forwarding", value: "1"}
     - {key: "net.ipv4.conf.default.rp_filter", value: "0"}
     - {key: "net.ipv4.conf.all.rp_filter", value: "0"}
-    # Elastic / Logging requirement
     - {key: "vm.max_map_count", value: "1048576"}
   notify: Reload sysctl
 
@@ -102,7 +100,6 @@
     value: "{{ system_hugepagesCount }}"
     state: present
     reload: true
-  # Default 1280 pages = ~2.5 GiB
   when: mining_cpuEnabled | default(false) or mining_gpuEnabled | default(false)
   tags: ["host"]
 

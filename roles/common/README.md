@@ -327,15 +327,15 @@ RoG hardware tweaks, and network optimizations.
 | [Install performance tools](tasks/system_tuning.yml#L2) | ansible.builtin.apt | True |  | @docsible Installs cpufrequtils for governor control |
 | [Set CPU governor](tasks/system_tuning.yml#L10) | ansible.builtin.lineinfile | True |  | @docsible Sets CPU governor to 'schedutil' |
 | [Enable BBR and Network Tuning](tasks/system_tuning.yml#L21) | ansible.posix.sysctl | False |  | @docsible Enables TCP BBR congestion control and optimizations |
-| [Akash Provider sysctl tuning](tasks/system_tuning.yml#L41) | ansible.posix.sysctl | True |  | @docsible Tunes sysctl for high-concurrency Akash workloads |
-| [Increase FD limits](tasks/system_tuning.yml#L56) | community.general.pam_limits | False |  | @docsible Increases PAM file descriptor limits (soft/hard) |
-| [Increase file-max](tasks/system_tuning.yml#L67) | ansible.posix.sysctl | False |  | @docsible Increases system-wide fs.file-max |
-| [Increase inotify watches](tasks/system_tuning.yml#L75) | ansible.posix.sysctl | False |  | @docsible Increases fs.inotify.max_user_instances |
-| [Increase user watches](tasks/system_tuning.yml#L83) | ansible.posix.sysctl | False |  | @docsible Increases fs.inotify.max_user_watches |
-| [Enable watchdog](tasks/system_tuning.yml#L91) | ansible.builtin.lineinfile | False |  | @docsible Enables RuntimeWatchdogSec for system recovery |
-| [Configure hugepages](tasks/system_tuning.yml#L99) | ansible.posix.sysctl | True | host | @docsible Allocates HugePages for mining efficiency |
-| [Load MSR module](tasks/system_tuning.yml#L110) | community.general.modprobe | True | host | @docsible Loads msr kernel module for CPU mining (RandomX) |
-| [Configure Nvidia modules load](tasks/system_tuning.yml#L119) | ansible.builtin.copy | True | host,nvidia | @docsible Pre-loads NVIDIA kernel modules |
+| [Akash Provider sysctl tuning](tasks/system_tuning.yml#L39) | ansible.posix.sysctl | True |  | @docsible Tunes sysctl for high-concurrency Akash workloads |
+| [Increase FD limits](tasks/system_tuning.yml#L54) | community.general.pam_limits | False |  | @docsible Increases PAM file descriptor limits (soft/hard) |
+| [Increase file-max](tasks/system_tuning.yml#L65) | ansible.posix.sysctl | False |  | @docsible Increases system-wide fs.file-max |
+| [Increase inotify watches](tasks/system_tuning.yml#L73) | ansible.posix.sysctl | False |  | @docsible Increases fs.inotify.max_user_instances |
+| [Increase user watches](tasks/system_tuning.yml#L81) | ansible.posix.sysctl | False |  | @docsible Increases fs.inotify.max_user_watches |
+| [Enable watchdog](tasks/system_tuning.yml#L89) | ansible.builtin.lineinfile | False |  | @docsible Enables RuntimeWatchdogSec for system recovery |
+| [Configure hugepages](tasks/system_tuning.yml#L97) | ansible.posix.sysctl | True | host | @docsible Allocates HugePages for mining efficiency |
+| [Load MSR module](tasks/system_tuning.yml#L107) | community.general.modprobe | True | host | @docsible Loads msr kernel module for CPU mining (RandomX) |
+| [Configure Nvidia modules load](tasks/system_tuning.yml#L116) | ansible.builtin.copy | True | host,nvidia | @docsible Pre-loads NVIDIA kernel modules |
 
 
 ## Task Flow Graphs

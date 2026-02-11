@@ -89,5 +89,3 @@
     dest: /var/lib/rancher/k3s/agent/etc/containerd/config.toml.tmpl
     mode: "0640"
   notify: "{{ k3s_commonRestartHandler | default('Restart k3s') }}"
-
-# NOTE: Systemd overrides are created by specific roles (k3s vs k3s-agent have different service names)

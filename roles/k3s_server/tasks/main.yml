@@ -32,6 +32,7 @@
   ansible.builtin.set_fact:
     _current_runtimes: "{{ ansible_facts['k3s_commonContainerdAdditionalRuntimes'] | default([]) }}"
 
+# @docsible Merges detected runtimes into k3s_commonContainerdAdditionalRuntimes
 - name: Update containerd runtime list
   ansible.builtin.set_fact:
     k3s_commonContainerdAdditionalRuntimes: >-

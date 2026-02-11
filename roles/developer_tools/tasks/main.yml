@@ -129,10 +129,12 @@
       ansible.builtin.debug:
         msg: "⚠️  Docker CLI installed (containerd used by K3s)"
   rescue:
+    # @docsible Reports Docker block failure context for troubleshooting
     - name: Report Docker installation failure
       ansible.builtin.debug:
         msg: >-
           Docker installation failed at {{ ansible_failed_task.name }}: {{ ansible_failed_result | to_json }}
+    # @docsible Fails play when Docker CLI installation block errors
     - name: Fail Docker installation
       ansible.builtin.fail:
         msg: "Docker installation failed"
@@ -252,10 +254,12 @@
       ansible.builtin.debug:
         msg: "✅ Vagrant + libvirt installed successfully"
   rescue:
+    # @docsible Reports Vagrant/libvirt block failure context for troubleshooting
     - name: Report Vagrant installation failure
       ansible.builtin.debug:
         msg: >-
           Vagrant installation failed at {{ ansible_failed_task.name }}: {{ ansible_failed_result | to_json }}
+    # @docsible Fails play when Vagrant/libvirt installation block errors
     - name: Fail Vagrant installation
       ansible.builtin.fail:
         msg: "Vagrant installation failed"

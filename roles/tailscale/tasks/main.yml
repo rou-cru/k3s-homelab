@@ -1,15 +1,3 @@
-# ============================================================================
-# TAILSCALE SETUP - IDEMPOTENT REFACTOR
-# ============================================================================
-# Separates authentication (tailscale up) from configuration (tailscale set)
-# for full idempotency. Using tailscale up only for initial auth without
-# --reset flag, and tailscale set for all configuration settings.
-# ============================================================================
-
-# =============================================================================
-# PHASE 1: STATE DETECTION (always)
-# =============================================================================
-
 # @docsible Check if tailscaled binary is installed at expected path
 - name: Check tailscale exists
   ansible.builtin.stat:
@@ -62,10 +50,6 @@
       - "Authenticated: {{ tailscale_is_authenticated }}"
       - "Backend State: {{ tailscale_backend_state }}"
 
-# =============================================================================
-# PHASE 2: INSTALLATION (conditional: only if not installed)
-# =============================================================================
-
 # @docsible Download official Tailscale install script
 - name: Download Tailscale installer
   ansible.builtin.get_url:
@@ -97,10 +81,6 @@
     - not tailscale_daemon_running | bool
     - not ansible_check_mode
 
-# =============================================================================
-# PHASE 3: AUTHENTICATION (conditional: only if not authenticated)
-# =============================================================================
-
 # @docsible Logout if backend state is inconsistent (Running but not Online)
 - name: Logout Tailscale (reset state if inconsistent)
   ansible.builtin.command: tailscale logout
@@ -123,10 +103,6 @@
     - not tailscale_is_authenticated | bool
     - not ansible_check_mode
   changed_when: tailscale_up.rc == 0
-
-# =============================================================================
-# PHASE 4: CONFIGURATION (always - idempotent via tailscale set)
-# =============================================================================
 
 # @docsible Configure DNS acceptance from admin console
 - name: Configure accept-dns
@@ -196,10 +172,6 @@
     - not ansible_check_mode
   changed_when: false
 
-# =============================================================================
-# PHASE 5: VALIDATION (always)
-# =============================================================================
-
 # @docsible Wait for valid CGNAT IP (100.x.x.x) assignment
 - name: Wait for Tailscale IP
   ansible.builtin.shell: |
@@ -250,21 +222,3 @@
   ansible.builtin.debug:
     msg: "⚠️  Tailscale connectivity failed: {{ IP_tailscale }}:22"
   when: tailscale_connectivity_check.failed | default(false)
-
-# =============================================================================
-# PHASE 6: ROUTING FIX (fwmark collision mitigation)
-# Disabled intentionally while restoring the known connectivity baseline.
-# =============================================================================
-#
-# @docsible Add main table routes for Tailscale peers to fix Cilium fwmark collision
-# - name: Add main table routes for Tailscale peers
-#   ansible.builtin.command: ip route replace {{ item }} dev tailscale0
-#   loop: "{{ tailscale_peerRoutes | default([]) }}"
-#   become: true
-#   register: _route_add
-#   failed_when: false
-#   changed_when: _route_add.rc == 0
-#   when:
-#     - tailscale_peerRoutes | default([]) | length > 0
-#     - tailscale_is_running | default(false) | bool
-#     - not ansible_check_mode

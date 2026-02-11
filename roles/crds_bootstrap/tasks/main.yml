@@ -1,6 +1,3 @@
-# NOTE: Gateway API version is pinned in group_vars/all.yml but manual updates
-# are required. Consider automating version checks or adding a changelog entry
-# when upgrading.
 # @docsible Installs Experimental Gateway API CRDs (v{{ gateway_apiVersion }})
 - name: Install Gateway API CRDs
   kubernetes.core.k8s:

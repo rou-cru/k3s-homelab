@@ -83,13 +83,11 @@ required by various Helm charts and operators.
 
 | Name | Module | Has Conditions | Tags | Comments |
 | ---- | ------ | -------------- | -----| -------- |
-| [Install Gateway API CRDs](tasks/main.yml#L4) | kubernetes.core.k8s | True | cluster | NOTE: Gateway API version is pinned in group_vars/all.yml but manual updates are required.
-Consider automating version checks or adding a changelog entry when upgrading.
-@docsible Installs Experimental Gateway API CRDs (v{{ gateway_apiVersion }}) |
-| [Wait for Gateway API CRDs to be established](tasks/main.yml#L14) | kubernetes.core.k8s_info | True | cluster | @docsible Waits for Gateway CRDs to be registered in API |
-| [Add Prometheus Community Helm repo](tasks/main.yml#L29) | kubernetes.core.helm_repository | True | cluster | @docsible Registers Prometheus Community Helm repository |
-| [Create monitoring namespace](tasks/main.yml#L38) | kubernetes.core.k8s | True |  | @docsible Creates 'monitoring' namespace for CRDs |
-| [Install Prometheus Operator CRDs](tasks/main.yml#L46) | kubernetes.core.helm | True | cluster | @docsible Installs Prometheus Operator CRDs (ServiceMonitor, etc.) |
+| [Install Gateway API CRDs](tasks/main.yml#L2) | kubernetes.core.k8s | True | cluster | @docsible Installs Experimental Gateway API CRDs (v{{ gateway_apiVersion }}) |
+| [Wait for Gateway API CRDs to be established](tasks/main.yml#L11) | kubernetes.core.k8s_info | True | cluster | @docsible Waits for Gateway CRDs to be registered in API |
+| [Add Prometheus Community Helm repo](tasks/main.yml#L26) | kubernetes.core.helm_repository | True | cluster | @docsible Registers Prometheus Community Helm repository |
+| [Create monitoring namespace](tasks/main.yml#L35) | kubernetes.core.k8s | True |  | @docsible Creates 'monitoring' namespace for CRDs |
+| [Install Prometheus Operator CRDs](tasks/main.yml#L43) | kubernetes.core.helm | True | cluster | @docsible Installs Prometheus Operator CRDs (ServiceMonitor, etc.) |
 
 
 ## Task Flow Graphs

@@ -116,10 +116,9 @@ via External Secrets OCI Vault integration.
 | [Ensure ArgoCD Helm repo](tasks/main.yml#L2) | kubernetes.core.helm_repository | True |  | @docsible Registers ArgoCD Helm repository |
 | [Create argocd namespace](tasks/main.yml#L9) | kubernetes.core.k8s | True |  | @docsible Creates 'argocd' namespace |
 | [Deploy ArgoCD](tasks/main.yml#L17) | kubernetes.core.helm | True | gitops | @docsible Installs ArgoCD (Helm) |
-| [Create ArgoCD GRPCRoute](tasks/main.yml#L34) | kubernetes.core.k8s | True | gitops | @docsible Deploys GRPCRoute for ArgoCD CLI |
-| [Create ArgoCD Admin Password ExternalSecret](tasks/main.yml#L43) | kubernetes.core.k8s | True | gitops | @docsible Syncs Admin Password from Vault (ExternalSecret) |
-| [Wait for argocd-secret to have admin.password](tasks/main.yml#L54) | kubernetes.core.k8s_info | True | gitops | @docsible Waits for Admin Password Secret sync |
-| [Restart ArgoCD Server to pick up new password](tasks/main.yml#L71) | kubernetes.core.k8s | True | gitops | @docsible Restarts ArgoCD Server (Applies new password) |
+| [Create ArgoCD Admin Password ExternalSecret](tasks/main.yml#L34) | kubernetes.core.k8s | True | gitops | @docsible Syncs Admin Password from Vault (ExternalSecret) |
+| [Wait for argocd-secret to have admin.password](tasks/main.yml#L45) | kubernetes.core.k8s_info | True | gitops | @docsible Waits for Admin Password Secret sync |
+| [Restart ArgoCD Server to pick up new password](tasks/main.yml#L62) | kubernetes.core.k8s | True | gitops | @docsible Restarts ArgoCD Server (Applies new password) |
 
 
 ## Task Flow Graphs
@@ -143,11 +142,10 @@ classDef rescue stroke:#665352,stroke-width:2px;
   Start-->|Task| Ensure_ArgoCD_Helm_repo0[ensure argocd helm repo<br>When: **not ansible check mode**]:::task
   Ensure_ArgoCD_Helm_repo0-->|Task| Create_argocd_namespace1[create argocd namespace<br>When: **not ansible check mode**]:::task
   Create_argocd_namespace1-->|Task| Deploy_ArgoCD2[deploy argocd<br>When: **not ansible check mode**]:::task
-  Deploy_ArgoCD2-->|Task| Create_ArgoCD_GRPCRoute3[create argocd grpcroute<br>When: **not ansible check mode**]:::task
-  Create_ArgoCD_GRPCRoute3-->|Task| Create_ArgoCD_Admin_Password_ExternalSecret4[create argocd admin password externalsecret<br>When: **not ansible check mode**]:::task
-  Create_ArgoCD_Admin_Password_ExternalSecret4-->|Task| Wait_for_argocd_secret_to_have_admin_password5[wait for argocd secret to have admin password<br>When: **argocd es created changed and not ansible check<br>mode**]:::task
-  Wait_for_argocd_secret_to_have_admin_password5-->|Task| Restart_ArgoCD_Server_to_pick_up_new_password6[restart argocd server to pick up new password<br>When: **argocd es created changed and not ansible check<br>mode**]:::task
-  Restart_ArgoCD_Server_to_pick_up_new_password6-->End
+  Deploy_ArgoCD2-->|Task| Create_ArgoCD_Admin_Password_ExternalSecret3[create argocd admin password externalsecret<br>When: **not ansible check mode**]:::task
+  Create_ArgoCD_Admin_Password_ExternalSecret3-->|Task| Wait_for_argocd_secret_to_have_admin_password4[wait for argocd secret to have admin password<br>When: **argocd es created changed and not ansible check<br>mode**]:::task
+  Wait_for_argocd_secret_to_have_admin_password4-->|Task| Restart_ArgoCD_Server_to_pick_up_new_password5[restart argocd server to pick up new password<br>When: **argocd es created changed and not ansible check<br>mode**]:::task
+  Restart_ArgoCD_Server_to_pick_up_new_password5-->End
 ```
 
 

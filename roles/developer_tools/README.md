@@ -76,20 +76,20 @@ Kubernetes CLIs (kubectl, helm, k9s), Python tools (uv, pipx), and AI CLIs.
 | [Add Docker repo](tasks/main.yml#L102) | ansible.builtin.apt_repository | False | @docsible Adds Docker APT repository |
 | [Install Docker CLI](tasks/main.yml#L119) | ansible.builtin.apt | False | @docsible Installs Docker CLI packages |
 | [Show Docker warning](tasks/main.yml#L128) | ansible.builtin.debug | False | @docsible Warns about Docker/containerd co-existence |
-| [Install Vagrant and libvirt](tasks/main.yml#L140) | block | True | @docsible Block: Install Vagrant & Libvirt (Test Environment) |
-| [Set HashiCorp repo release](tasks/main.yml#L146) | ansible.builtin.set_fact | False | @docsible Resolves HashiCorp repo release codename |
-| [Set HashiCorp repo architecture](tasks/main.yml#L151) | ansible.builtin.set_fact | False | @docsible Resolves HashiCorp repo architecture |
-| [Validate HashiCorp repo architecture](tasks/main.yml#L162) | ansible.builtin.assert | False | @docsible Validates architecture support |
-| [Ensure APT keyrings dir (HashiCorp)](tasks/main.yml#L168) | ansible.builtin.file | True | @docsible Creates keyring directory |
-| [Install HashiCorp keyring](tasks/main.yml#L175) | ansible.builtin.shell | True | @docsible Installs HashiCorp GPG key |
-| [Add HashiCorp APT repo](tasks/main.yml#L185) | ansible.builtin.apt_repository | True | @docsible Adds HashiCorp APT repository |
-| [Install libvirt and dependencies](tasks/main.yml#L199) | ansible.builtin.apt | False | @docsible Installs libvirt, qemu, and build deps |
-| [Ensure libvirtd service is enabled and started](tasks/main.yml#L219) | ansible.builtin.systemd | False | @docsible Starts libvirtd service |
-| [Add ansible_user to libvirt group](tasks/main.yml#L225) | ansible.builtin.user | False | @docsible Adds ansible user to libvirt group |
-| [Add root to libvirt group](tasks/main.yml#L231) | ansible.builtin.user | False | @docsible Adds root user to libvirt group |
-| [Check installed Vagrant plugins](tasks/main.yml#L237) | ansible.builtin.command | False | @docsible Checks for installed Vagrant plugins |
-| [Install vagrant-libvirt plugin](tasks/main.yml#L242) | ansible.builtin.command | True | @docsible Installs vagrant-libvirt plugin |
-| [Show Vagrant installation success](tasks/main.yml#L251) | ansible.builtin.debug | False | @docsible Confirms Vagrant installation |
+| [Install Vagrant and libvirt](tasks/main.yml#L142) | block | True | @docsible Block: Install Vagrant & Libvirt (Test Environment) |
+| [Set HashiCorp repo release](tasks/main.yml#L148) | ansible.builtin.set_fact | False | @docsible Resolves HashiCorp repo release codename |
+| [Set HashiCorp repo architecture](tasks/main.yml#L153) | ansible.builtin.set_fact | False | @docsible Resolves HashiCorp repo architecture |
+| [Validate HashiCorp repo architecture](tasks/main.yml#L164) | ansible.builtin.assert | False | @docsible Validates architecture support |
+| [Ensure APT keyrings dir (HashiCorp)](tasks/main.yml#L170) | ansible.builtin.file | True | @docsible Creates keyring directory |
+| [Install HashiCorp keyring](tasks/main.yml#L177) | ansible.builtin.shell | True | @docsible Installs HashiCorp GPG key |
+| [Add HashiCorp APT repo](tasks/main.yml#L187) | ansible.builtin.apt_repository | True | @docsible Adds HashiCorp APT repository |
+| [Install libvirt and dependencies](tasks/main.yml#L201) | ansible.builtin.apt | False | @docsible Installs libvirt, qemu, and build deps |
+| [Ensure libvirtd service is enabled and started](tasks/main.yml#L221) | ansible.builtin.systemd | False | @docsible Starts libvirtd service |
+| [Add ansible_user to libvirt group](tasks/main.yml#L227) | ansible.builtin.user | False | @docsible Adds ansible user to libvirt group |
+| [Add root to libvirt group](tasks/main.yml#L233) | ansible.builtin.user | False | @docsible Adds root user to libvirt group |
+| [Check installed Vagrant plugins](tasks/main.yml#L239) | ansible.builtin.command | False | @docsible Checks for installed Vagrant plugins |
+| [Install vagrant-libvirt plugin](tasks/main.yml#L244) | ansible.builtin.command | True | @docsible Installs vagrant-libvirt plugin |
+| [Show Vagrant installation success](tasks/main.yml#L253) | ansible.builtin.debug | False | @docsible Confirms Vagrant installation |
 
 
 ## Task Flow Graphs

@@ -149,37 +149,38 @@ and local context merging.
 | [Check for runsc binary](tasks/main.yml#L19) | ansible.builtin.stat | False | @docsible Checks for gVisor (runsc) binary |
 | [Check for nvidia-container-runtime](tasks/main.yml#L25) | ansible.builtin.stat | False | @docsible Checks for NVIDIA Container Runtime |
 | [Build containerd runtime list](tasks/main.yml#L31) | ansible.builtin.set_fact | False | @docsible Constructs list of Containerd runtimes (runsc, nvidia) |
-| [Update containerd runtime list](tasks/main.yml#L35) | ansible.builtin.set_fact | False |  |
-| [Run K3s Common](tasks/main.yml#L45) | ansible.builtin.import_role | False | @docsible Imports K3s Common role (binaries, systemd) |
-| [Ensure K3s log directory exists](tasks/main.yml#L53) | ansible.builtin.file | False | @docsible Creates K3s log directory structure |
-| [Ensure K3s audit log file exists with restrictive permissions](tasks/main.yml#L60) | ansible.builtin.file | False | @docsible Creates empty audit log file (0600) |
-| [Deploy K3s audit policy](tasks/main.yml#L70) | ansible.builtin.template | False | @docsible Deploys K8s Audit Policy configuration |
-| [Deploy server config](tasks/main.yml#L77) | ansible.builtin.template | True | @docsible Deploys K3s Server config (config.yaml) |
-| [Download K3s install script](tasks/main.yml#L86) | ansible.builtin.get_url | True | @docsible Downloads K3s official install script |
-| [Install K3s server](tasks/main.yml#L94) | ansible.builtin.shell | True | @docsible Executes K3s Server installation |
-| [Create override dir](tasks/main.yml#L107) | ansible.builtin.file | False | @docsible Creates systemd override directory |
-| [Create override](tasks/main.yml#L114) | ansible.builtin.copy | False | @docsible Deploys systemd ExecStart override |
-| [Reload systemd (k3s)](tasks/main.yml#L125) | ansible.builtin.systemd | False | @docsible Reloads systemd daemon |
-| [Start K3s](tasks/main.yml#L130) | ansible.builtin.systemd | True | @docsible Starts k3s.service |
-| [Flush handlers](tasks/main.yml#L138) | ansible.builtin.meta | False | @docsible Flushes handlers (restarts services) |
-| [Wait for node-token](tasks/main.yml#L142) | ansible.builtin.wait_for | True | @docsible Waits for K3s node-token generation |
-| [Wait for kubeconfig](tasks/main.yml#L149) | ansible.builtin.wait_for | True | @docsible Waits for K3s kubeconfig generation |
-| [Read kubeconfig](tasks/main.yml#L156) | ansible.builtin.slurp | True | @docsible Reads raw kubeconfig |
-| [Build canonical config](tasks/main.yml#L164) | ansible.builtin.set_fact | True | @docsible Generates Tailscale-aware kubeconfig (Replaces 127.0.0.1) |
-| [Write server config](tasks/main.yml#L172) | ansible.builtin.copy | True | @docsible Writes canonical kubeconfig to /etc/rancher/k3s/k3s-tailscale.yaml |
-| [Create user kube dir](tasks/main.yml#L182) | ansible.builtin.file | True | @docsible Creates ~/.kube directory for ansible user |
-| [Write user config](tasks/main.yml#L192) | ansible.builtin.copy | True | @docsible Deploys kubeconfig to ansible user home |
-| [Read node-token](tasks/main.yml#L202) | ansible.builtin.slurp | True | @docsible Reads node-token |
-| [Set node-token fact](tasks/main.yml#L209) | ansible.builtin.set_fact | True | @docsible Sets k3s_server_node_token fact |
-| [Wait for apiserver](tasks/main.yml#L215) | kubernetes.core.k8s_info | True | @docsible Waits for API Server readiness |
-| [Label master node](tasks/main.yml#L228) | kubernetes.core.k8s | True | @docsible Labels node as control-plane/master |
-| [Remove Traefik resources if disabled](tasks/main.yml#L242) | kubernetes.core.k8s | True | @docsible Purges Traefik HelmChart if disabled |
-| [Copy local config](tasks/main.yml#L258) | block | True | @docsible Block: Download Kubeconfig to Controller |
-| [Create local dir](tasks/main.yml#L267) | ansible.builtin.file | False | @docsible Creates local .kube directory |
-| [Fetch config](tasks/main.yml#L274) | ansible.builtin.slurp | False | @docsible Fetches k3s-tailscale.yaml |
-| [Parse config](tasks/main.yml#L282) | ansible.builtin.set_fact | False | @docsible Renames context to k3s-{{ hostname }} |
-| [Write local config](tasks/main.yml#L293) | ansible.builtin.copy | False | @docsible Saves final kubeconfig locally |
-| [Show config info](tasks/main.yml#L300) | ansible.builtin.debug | False | @docsible Displays local kubeconfig path |
+| [Update containerd runtime list](tasks/main.yml#L36) | ansible.builtin.set_fact | False | @docsible Merges detected runtimes into k3s_commonContainerdAdditionalRuntimes |
+| [Run K3s Common](tasks/main.yml#L46) | ansible.builtin.import_role | False | @docsible Imports K3s Common role (binaries, systemd) |
+| [Ensure K3s log directory exists](tasks/main.yml#L54) | ansible.builtin.file | False | @docsible Creates K3s log directory structure |
+| [Ensure K3s audit log file exists with restrictive permissions](tasks/main.yml#L61) | ansible.builtin.file | False | @docsible Creates empty audit log file (0600) |
+| [Deploy K3s audit policy](tasks/main.yml#L71) | ansible.builtin.template | False | @docsible Deploys K8s Audit Policy configuration |
+| [Deploy server config](tasks/main.yml#L78) | ansible.builtin.template | True | @docsible Deploys K3s Server config (config.yaml) |
+| [Download K3s install script](tasks/main.yml#L87) | ansible.builtin.get_url | True | @docsible Downloads K3s official install script |
+| [Install K3s server](tasks/main.yml#L95) | ansible.builtin.shell | True | @docsible Executes K3s Server installation |
+| [Create override dir](tasks/main.yml#L108) | ansible.builtin.file | False | @docsible Creates systemd override directory |
+| [Create override](tasks/main.yml#L115) | ansible.builtin.copy | False | @docsible Deploys systemd ExecStart override |
+| [Reload systemd (k3s)](tasks/main.yml#L126) | ansible.builtin.systemd | False | @docsible Reloads systemd daemon |
+| [Start K3s](tasks/main.yml#L131) | ansible.builtin.systemd | True | @docsible Starts k3s.service |
+| [Flush handlers](tasks/main.yml#L139) | ansible.builtin.meta | False | @docsible Flushes handlers (restarts services) |
+| [Wait for node-token](tasks/main.yml#L143) | ansible.builtin.wait_for | True | @docsible Waits for K3s node-token generation |
+| [Wait for kubeconfig](tasks/main.yml#L150) | ansible.builtin.wait_for | True | @docsible Waits for K3s kubeconfig generation |
+| [Read kubeconfig](tasks/main.yml#L157) | ansible.builtin.slurp | True | @docsible Reads raw kubeconfig |
+| [Build canonical config](tasks/main.yml#L165) | ansible.builtin.set_fact | True | @docsible Generates Tailscale-aware kubeconfig (Replaces 127.0.0.1) |
+| [Write server config](tasks/main.yml#L173) | ansible.builtin.copy | True | @docsible Writes canonical kubeconfig to /etc/rancher/k3s/k3s-tailscale.yaml |
+| [Create user kube dir](tasks/main.yml#L183) | ansible.builtin.file | True | @docsible Creates ~/.kube directory for ansible user |
+| [Write user config](tasks/main.yml#L193) | ansible.builtin.copy | True | @docsible Deploys kubeconfig to ansible user home |
+| [Read node-token](tasks/main.yml#L203) | ansible.builtin.slurp | True | @docsible Reads node-token |
+| [Set node-token fact](tasks/main.yml#L210) | ansible.builtin.set_fact | True | @docsible Sets k3s_server_node_token fact |
+| [Wait for apiserver](tasks/main.yml#L216) | kubernetes.core.k8s_info | True | @docsible Waits for API Server readiness |
+| [Label master node](tasks/main.yml#L229) | kubernetes.core.k8s | True | @docsible Labels node as control-plane/master |
+| [Remove Traefik resources if disabled](tasks/main.yml#L243) | kubernetes.core.k8s | True | @docsible Purges Traefik HelmChart if disabled |
+| [Apply CoreDNS custom ConfigMap](tasks/main.yml#L259) | kubernetes.core.k8s | True | @docsible Applies CoreDNS custom configuration (upstream DNS + Tailscale MagicDNS) |
+| [Copy local config](tasks/main.yml#L268) | block | True | @docsible Block: Download Kubeconfig to Controller |
+| [Create local dir](tasks/main.yml#L277) | ansible.builtin.file | False | @docsible Creates local .kube directory |
+| [Fetch config](tasks/main.yml#L284) | ansible.builtin.slurp | False | @docsible Fetches k3s-tailscale.yaml |
+| [Parse config](tasks/main.yml#L292) | ansible.builtin.set_fact | False | @docsible Renames context to k3s-{{ hostname }} |
+| [Write local config](tasks/main.yml#L303) | ansible.builtin.copy | False | @docsible Saves final kubeconfig locally |
+| [Show config info](tasks/main.yml#L310) | ansible.builtin.debug | False | @docsible Displays local kubeconfig path |
 
 
 ## Task Flow Graphs
@@ -230,17 +231,18 @@ classDef rescue stroke:#665352,stroke-width:2px;
   Set_node_token_fact26-->|Task| Wait_for_apiserver27[wait for apiserver<br>When: **not ansible check mode**]:::task
   Wait_for_apiserver27-->|Task| Label_master_node28[label master node<br>When: **not ansible check mode**]:::task
   Label_master_node28-->|Task| Remove_Traefik_resources_if_disabled29[remove traefik resources if disabled<br>When: **k3s serverdisabletraefik   bool and not ansible<br>check mode**]:::task
-  Remove_Traefik_resources_if_disabled29-->|Block Start| Copy_local_config30_block_start_0[[copy local config<br>When: **k3s servercopykubeconfiglocal   default true   <br>bool and not ansible check mode**]]:::block
-  Copy_local_config30_block_start_0-->|Task| Create_local_dir0[create local dir]:::task
+  Remove_Traefik_resources_if_disabled29-->|Task| Apply_CoreDNS_custom_ConfigMap30[apply coredns custom configmap<br>When: **not ansible check mode**]:::task
+  Apply_CoreDNS_custom_ConfigMap30-->|Block Start| Copy_local_config31_block_start_0[[copy local config<br>When: **k3s servercopykubeconfiglocal   default true   <br>bool and not ansible check mode**]]:::block
+  Copy_local_config31_block_start_0-->|Task| Create_local_dir0[create local dir]:::task
   Create_local_dir0-->|Task| Fetch_config1[fetch config]:::task
   Fetch_config1-->|Task| Parse_config2[parse config]:::task
   Parse_config2-->|Task| Write_local_config3[write local config]:::task
   Write_local_config3-->|Task| Show_config_info4[show config info]:::task
-  Show_config_info4-.->|End of Block| Copy_local_config30_block_start_0
-  Show_config_info4-->|Rescue Start| Copy_local_config30_rescue_start_0[copy local config<br>When: **k3s servercopykubeconfiglocal   default true   <br>bool and not ansible check mode**]:::rescue
-  Copy_local_config30_rescue_start_0-->|Task| Report_kubeconfig_copy_failure0[report kubeconfig copy failure]:::task
+  Show_config_info4-.->|End of Block| Copy_local_config31_block_start_0
+  Show_config_info4-->|Rescue Start| Copy_local_config31_rescue_start_0[copy local config<br>When: **k3s servercopykubeconfiglocal   default true   <br>bool and not ansible check mode**]:::rescue
+  Copy_local_config31_rescue_start_0-->|Task| Report_kubeconfig_copy_failure0[report kubeconfig copy failure]:::task
   Report_kubeconfig_copy_failure0-->|Task| Fail_kubeconfig_copy1[fail kubeconfig copy]:::task
-  Fail_kubeconfig_copy1-.->|End of Rescue Block| Copy_local_config30_block_start_0
+  Fail_kubeconfig_copy1-.->|End of Rescue Block| Copy_local_config31_block_start_0
   Fail_kubeconfig_copy1-->End
 ```
 

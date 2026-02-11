@@ -49,6 +49,3 @@
   retries: "{{ cilium_waitRetries }}"
   delay: "{{ cilium_waitDelay }}"
   when: not ansible_check_mode
-
-# LB-IPAM Pool removed: Not needed with hostNetwork mode for edge nodes
-# Traffic reaches cilium-envoy directly via node's public IP (74.208.250.178)

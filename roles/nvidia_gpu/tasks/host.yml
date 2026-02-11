@@ -127,6 +127,7 @@
   when: nvidia_active | default(false) | bool
   register: nvidia_blacklistNouveau
 
+# @docsible Regenerates initramfs after Nouveau blacklist changes
 - name: Update initramfs # noqa: no-handler
   ansible.builtin.command: update-initramfs -u
   when:
@@ -260,6 +261,7 @@
   when: nvidia_active | default(false) | bool
   tags: ["host", "nvidia"]
 
+# @docsible Adds NVIDIA runtime to k3s_commonContainerdAdditionalRuntimes
 - name: Update runtime list with NVIDIA
   ansible.builtin.set_fact:
     k3s_commonContainerdAdditionalRuntimes: "{{ _current_runtimes | union(['nvidia']) }}"

@@ -307,7 +307,7 @@ server:
   # Refer to https://gateway-api.sigs.k8s.io/implementations/ for controller-specific details
   grpcroute:
     # -- Enable GRPCRoute resource for Argo CD server (Gateway API)
-    # Disabled: Using manual GRPCRoute to avoid bug #3550 and allow proper port configuration
+    # Disabled: HTTPRoute exposure is used for UI/API to keep a single public entrypoint.
     enabled: false
     # -- Additional GRPCRoute labels
     labels: {}

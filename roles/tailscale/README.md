@@ -53,74 +53,37 @@ settings like DNS acceptance and SSH access.
 
 | Name | Module | Has Conditions | Comments |
 | ---- | ------ | -------------- | -------- |
-| [Wait for CiliumNode with CiliumInternalIP](tasks/advertise_pod_cidr.yml#L9) | kubernetes.core.k8s_info | True | @docsible Waits for CiliumNode with CiliumInternalIP assigned
-Must wait for CiliumInternalIP, not just CiliumNode existence, as IPAM assigns IPs asynchronously |
-| [Extract CiliumInternalIP from CiliumNode](tasks/advertise_pod_cidr.yml#L29) | ansible.builtin.set_fact | True | @docsible Parses CiliumInternalIP to determine Pod CIDR
-The CiliumInternalIP is used to determine the pod CIDR block assigned to this node.
-Cilium assigns a /24 block per node from the cluster pool (10.0.0.0/8). |
-| [Calculate pod CIDR from CiliumInternalIP](tasks/advertise_pod_cidr.yml#L43) | ansible.builtin.set_fact | True | @docsible Calculates /24 Pod CIDR from internal IP
-Example: If CiliumInternalIP is 10.0.0.5, the pod CIDR is 10.0.0.0/24
-Example: If CiliumInternalIP is 10.0.1.8, the pod CIDR is 10.0.1.0/24 |
-| [Advertise pod and service CIDR routes via Tailscale](tasks/advertise_pod_cidr.yml#L51) | ansible.builtin.command | True | @docsible Updates Tailscale route advertisement with Pod CIDR and Service CIDR |
+| [Wait for CiliumNode with CiliumInternalIP](tasks/advertise_pod_cidr.yml#L4) | kubernetes.core.k8s_info | True | @docsible Waits for CiliumNode with CiliumInternalIP assigned |
+| [Extract CiliumInternalIP from CiliumNode](tasks/advertise_pod_cidr.yml#L22) | ansible.builtin.set_fact | True | @docsible Parses CiliumInternalIP to determine Pod CIDR |
+| [Calculate pod CIDR from CiliumInternalIP](tasks/advertise_pod_cidr.yml#L34) | ansible.builtin.set_fact | True | @docsible Calculates /24 Pod CIDR from internal IP |
+| [Advertise pod and service CIDR routes via Tailscale](tasks/advertise_pod_cidr.yml#L42) | ansible.builtin.command | True | @docsible Updates Tailscale route advertisement with Pod CIDR and Service CIDR |
 
 #### File: tasks/main.yml
 
 | Name | Module | Has Conditions | Comments |
 | ---- | ------ | -------------- | -------- |
-| [Check tailscale exists](tasks/main.yml#L14) | ansible.builtin.stat | False | @docsible Check if tailscaled binary is installed at expected path |
-| [Check Tailscale status](tasks/main.yml#L21) | ansible.builtin.command | True | @docsible Get tailscale status JSON (only when binary exists) |
-| [Determine Tailscale state](tasks/main.yml#L30) | ansible.builtin.set_fact | False | @docsible Parse Tailscale state: installed, daemon_running, is_authenticated |
-| [Display detected state](tasks/main.yml#L57) | ansible.builtin.debug | False | @docsible Display parsed state for debugging |
-| [Download Tailscale installer](tasks/main.yml#L70) | ansible.builtin.get_url | True | @docsible Download official Tailscale install script |
-| [Run Tailscale installer](tasks/main.yml#L81) | ansible.builtin.command | True | @docsible Execute install script (creates /usr/sbin/tailscaled) |
-| [Start tailscaled service](tasks/main.yml#L90) | ansible.builtin.systemd | True | @docsible Enable and start tailscaled systemd service |
-| [Logout Tailscale (reset state if inconsistent)](tasks/main.yml#L105) | ansible.builtin.command | True | @docsible Logout if backend state is inconsistent (Running but not Online) |
-| [Authenticate Tailscale](tasks/main.yml#L112) | ansible.builtin.shell | True | @docsible Authenticate with tailscale up (NO --reset to preserve routes) |
-| [Configure accept-dns](tasks/main.yml#L132) | ansible.builtin.command | True | @docsible Configure DNS acceptance from admin console |
-| [Configure accept-routes](tasks/main.yml#L140) | ansible.builtin.command | True | @docsible Enable route acceptance for Cilium Native Routing mesh |
-| [Configure SSH](tasks/main.yml#L148) | ansible.builtin.command | True | @docsible Enable Tailscale SSH server on the node |
-| [Configure exit node advertisement](tasks/main.yml#L156) | ansible.builtin.command | True | @docsible Advertise as exit node if enabled in variables |
-| [Disable exit node advertisement](tasks/main.yml#L164) | ansible.builtin.command | True | @docsible Disable exit node advertisement when not enabled |
-| [Unset exit node](tasks/main.yml#L173) | ansible.builtin.command | True | @docsible Unset exit node usage when not using an exit node |
-| [Configure static routes](tasks/main.yml#L182) | ansible.builtin.command | True | @docsible Advertise static subnet routes from inventory |
-| [Clear static routes](tasks/main.yml#L191) | ansible.builtin.command | True | @docsible Clear static routes when none defined |
-| [Wait for Tailscale IP](tasks/main.yml#L204) | ansible.builtin.shell | True | @docsible Wait for valid CGNAT IP (100.x.x.x) assignment |
-| [Set Tailscale IP fact](tasks/main.yml#L222) | ansible.builtin.set_fact | True | @docsible Set IP_tailscale fact for use by other roles |
-| [Set mock IP fact (check mode)](tasks/main.yml#L231) | ansible.builtin.set_fact | True | @docsible Provide mock IP for check mode execution |
-| [Validate connectivity](tasks/main.yml#L237) | ansible.builtin.wait_for | True | @docsible Verify SSH connectivity over Tailscale network |
-| [Warn connectivity](tasks/main.yml#L249) | ansible.builtin.debug | True | @docsible Warn if Tailscale SSH is not reachable |
-| [Apply Tailscale-Cilium routing fix](tasks/main.yml#L261) | ansible.builtin.include_tasks | True | @docsible Apply the Tailscale-Cilium routing fix (Policy Routing).
-This prevents packet loss for Pod-to-Host traffic across nodes by prioritizing
-routing to Table 52 (Tailscale) over the main table when Cilium fwmarks collide. |
-
-#### File: tasks/routing_fix.yml
-
-| Name | Module | Has Conditions | Comments |
-| ---- | ------ | -------------- | -------- |
-| [Install routing fix script](tasks/routing_fix.yml#L18) | ansible.builtin.template | False | @docsible Deploy the 'fix-tailscale-cilium-routing.sh' script.
-This script is the core logic that:
-1. Checks if Tailscale is active and Table 52 exists.
-2. Idempotently adds an 'ip rule' for the Pod CIDR (default 10.0.0.0/8).
-3. Sets priority to 200 to ensure it is evaluated BEFORE Tailscale's rule 5210. |
-| [Install routing fix service](tasks/routing_fix.yml#L30) | ansible.builtin.template | False | @docsible Install the systemd service unit.
-Defines a 'Type=oneshot' service that executes the routing script.
-It includes 'After=tailscaled.service' to manage dependency order. |
-| [Install routing fix timer](tasks/routing_fix.yml#L42) | ansible.builtin.template | False | @docsible Install the systemd timer unit for self-healing.
-Configures the service to run periodically (e.g., every 1 min) to re-apply
-the rule if Tailscale restarts or flushes the routing table. |
-| [Check if systemd-networkd directory exists](tasks/routing_fix.yml#L54) | ansible.builtin.stat | False | Handle systemd-networkd if present (e.g. Ubuntu/Debian modern)
-@docsible Detect if systemd-networkd is in use.
-Needed because systemd-networkd often deletes "foreign" manual IP rules. |
-| [Ensure systemd-networkd directory exists](tasks/routing_fix.yml#L60) | ansible.builtin.file | True | @docsible Ensure configuration directory for networkd overrides exists. |
-| [Configure systemd-networkd to ignore foreign rules](tasks/routing_fix.yml#L70) | ansible.builtin.copy | True | @docsible Apply 'ManageForeignRoutes=no' override to systemd-networkd.
-This critical setting prevents the OS network manager from removing our
-custom policy routing rules during network changes or restarts. |
-| [Force systemd daemon reload](tasks/routing_fix.yml#L82) | ansible.builtin.systemd | False | @docsible Reload systemd daemon to recognize new service/timer units. |
-| [Enable and start routing fix timer](tasks/routing_fix.yml#L90) | ansible.builtin.systemd | True | @docsible Enable and start the timer (Self-Healing).
-The timer is the primary entry point; it will trigger the service immediately
-and then periodically. |
-| [Ensure routing fix service is enabled](tasks/routing_fix.yml#L99) | ansible.builtin.systemd | True | @docsible Enable the service unit.
-Ensures the service can be invoked by the timer or manually. |
+| [Check tailscale exists](tasks/main.yml#L2) | ansible.builtin.stat | False | @docsible Check if tailscaled binary is installed at expected path |
+| [Check Tailscale status](tasks/main.yml#L9) | ansible.builtin.command | True | @docsible Get tailscale status JSON (only when binary exists) |
+| [Determine Tailscale state](tasks/main.yml#L18) | ansible.builtin.set_fact | False | @docsible Parse Tailscale state: installed, daemon_running, is_authenticated |
+| [Display detected state](tasks/main.yml#L45) | ansible.builtin.debug | False | @docsible Display parsed state for debugging |
+| [Download Tailscale installer](tasks/main.yml#L54) | ansible.builtin.get_url | True | @docsible Download official Tailscale install script |
+| [Run Tailscale installer](tasks/main.yml#L65) | ansible.builtin.command | True | @docsible Execute install script (creates /usr/sbin/tailscaled) |
+| [Start tailscaled service](tasks/main.yml#L74) | ansible.builtin.systemd | True | @docsible Enable and start tailscaled systemd service |
+| [Logout Tailscale (reset state if inconsistent)](tasks/main.yml#L85) | ansible.builtin.command | True | @docsible Logout if backend state is inconsistent (Running but not Online) |
+| [Authenticate Tailscale](tasks/main.yml#L92) | ansible.builtin.shell | True | @docsible Authenticate with tailscale up (NO --reset to preserve routes) |
+| [Configure accept-dns](tasks/main.yml#L108) | ansible.builtin.command | True | @docsible Configure DNS acceptance from admin console |
+| [Configure accept-routes](tasks/main.yml#L116) | ansible.builtin.command | True | @docsible Enable route acceptance for Cilium Native Routing mesh |
+| [Configure SSH](tasks/main.yml#L124) | ansible.builtin.command | True | @docsible Enable Tailscale SSH server on the node |
+| [Configure exit node advertisement](tasks/main.yml#L132) | ansible.builtin.command | True | @docsible Advertise as exit node if enabled in variables |
+| [Disable exit node advertisement](tasks/main.yml#L140) | ansible.builtin.command | True | @docsible Disable exit node advertisement when not enabled |
+| [Unset exit node](tasks/main.yml#L149) | ansible.builtin.command | True | @docsible Unset exit node usage when not using an exit node |
+| [Configure static routes](tasks/main.yml#L158) | ansible.builtin.command | True | @docsible Advertise static subnet routes from inventory |
+| [Clear static routes](tasks/main.yml#L167) | ansible.builtin.command | True | @docsible Clear static routes when none defined |
+| [Wait for Tailscale IP](tasks/main.yml#L176) | ansible.builtin.shell | True | @docsible Wait for valid CGNAT IP (100.x.x.x) assignment |
+| [Set Tailscale IP fact](tasks/main.yml#L194) | ansible.builtin.set_fact | True | @docsible Set IP_tailscale fact for use by other roles |
+| [Set mock IP fact (check mode)](tasks/main.yml#L203) | ansible.builtin.set_fact | True | @docsible Provide mock IP for check mode execution |
+| [Validate connectivity](tasks/main.yml#L209) | ansible.builtin.wait_for | True | @docsible Verify SSH connectivity over Tailscale network |
+| [Warn connectivity](tasks/main.yml#L221) | ansible.builtin.debug | True | @docsible Warn if Tailscale SSH is not reachable |
 
 
 ## Task Flow Graphs
@@ -185,35 +148,7 @@ classDef rescue stroke:#665352,stroke-width:2px;
   Set_Tailscale_IP_fact18-->|Task| Set_mock_IP_fact__check_mode_19[set mock ip fact  check mode <br>When: **ansible check mode**]:::task
   Set_mock_IP_fact__check_mode_19-->|Task| Validate_connectivity20[validate connectivity<br>When: **ip tailscale is defined and ip tailscale   length <br> 0 and not ansible check mode**]:::task
   Validate_connectivity20-->|Task| Warn_connectivity21[warn connectivity<br>When: **tailscale connectivity check failed   default<br>false**]:::task
-  Warn_connectivity21-->|Include task| Apply_Tailscale_Cilium_routing_fix_routing_fix_yml_22[apply tailscale cilium routing fix<br>When: **tailscale cilium routing enabled   default false  <br> bool**<br>include_task: routing fix yml]:::includeTasks
-  Apply_Tailscale_Cilium_routing_fix_routing_fix_yml_22-->End
-```
-
-
-### Graph for routing_fix.yml
-
-```mermaid
-flowchart TD
-Start
-classDef block stroke:#3498db,stroke-width:2px;
-classDef task stroke:#4b76bb,stroke-width:2px;
-classDef includeTasks stroke:#16a085,stroke-width:2px;
-classDef importTasks stroke:#34495e,stroke-width:2px;
-classDef includeRole stroke:#2980b9,stroke-width:2px;
-classDef importRole stroke:#699ba7,stroke-width:2px;
-classDef includeVars stroke:#8e44ad,stroke-width:2px;
-classDef rescue stroke:#665352,stroke-width:2px;
-
-  Start-->|Task| Install_routing_fix_script0[install routing fix script]:::task
-  Install_routing_fix_script0-->|Task| Install_routing_fix_service1[install routing fix service]:::task
-  Install_routing_fix_service1-->|Task| Install_routing_fix_timer2[install routing fix timer]:::task
-  Install_routing_fix_timer2-->|Task| Check_if_systemd_networkd_directory_exists3[check if systemd networkd directory exists]:::task
-  Check_if_systemd_networkd_directory_exists3-->|Task| Ensure_systemd_networkd_directory_exists4[ensure systemd networkd directory exists<br>When: **networkd conf dir stat exists**]:::task
-  Ensure_systemd_networkd_directory_exists4-->|Task| Configure_systemd_networkd_to_ignore_foreign_rules5[configure systemd networkd to ignore foreign rules<br>When: **networkd conf dir stat exists**]:::task
-  Configure_systemd_networkd_to_ignore_foreign_rules5-->|Task| Force_systemd_daemon_reload6[force systemd daemon reload]:::task
-  Force_systemd_daemon_reload6-->|Task| Enable_and_start_routing_fix_timer7[enable and start routing fix timer<br>When: **not ansible check mode**]:::task
-  Enable_and_start_routing_fix_timer7-->|Task| Ensure_routing_fix_service_is_enabled8[ensure routing fix service is enabled<br>When: **not ansible check mode**]:::task
-  Ensure_routing_fix_service_is_enabled8-->End
+  Warn_connectivity21-->End
 ```
 
 

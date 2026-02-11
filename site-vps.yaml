@@ -69,10 +69,10 @@
         name: tailscale
       tags: ["cluster", "tailscale"]
 
+    # @docsible Flushes host-level handlers before K3s agent bootstrap
     - name: Flush host handlers before cluster join
       ansible.builtin.meta: flush_handlers
 
-    # K3s Agent join
     # @docsible Resolves K3s Master Tailscale IP (100.x) for secure join
     - name: Get master Tailscale IP
       ansible.builtin.command: tailscale ip -4
@@ -81,6 +81,7 @@
       changed_when: false
       when: not ansible_check_mode
 
+    # @docsible Fails early when master Tailscale IP cannot be resolved
     - name: Validate Master IP
       ansible.builtin.fail:
         msg: "Could not determine K3s Master Tailscale IP. Tailscale might be down or not authenticated."

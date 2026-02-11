@@ -1,11 +1,6 @@
 # @docsible Advertises node-specific Pod CIDR via Tailscale for Hybrid Routing
-# This task file must be called AFTER Cilium is deployed and the node has
-# a CiliumNode resource assigned. It detects the CiliumNode, infers the /24
-# pod CIDR block from the CiliumInternalIP, and advertises it via Tailscale.
-# The Cilium IPAM uses cluster-pool mode with /24 blocks per node.
 
 # @docsible Waits for CiliumNode with CiliumInternalIP assigned
-# Must wait for CiliumInternalIP, not just CiliumNode existence, as IPAM assigns IPs asynchronously
 - name: Wait for CiliumNode with CiliumInternalIP
   kubernetes.core.k8s_info:
     api_version: cilium.io/v2
@@ -24,8 +19,6 @@
   become: false
 
 # @docsible Parses CiliumInternalIP to determine Pod CIDR
-# The CiliumInternalIP is used to determine the pod CIDR block assigned to this node.
-# Cilium assigns a /24 block per node from the cluster pool (10.0.0.0/8).
 - name: Extract CiliumInternalIP from CiliumNode
   vars:
     _cilium_addresses: "{{ cilium_node_result.resources[0].spec.addresses | default([]) }}"
@@ -38,8 +31,6 @@
     - cilium_node_result.resources | default([]) | length > 0
 
 # @docsible Calculates /24 Pod CIDR from internal IP
-# Example: If CiliumInternalIP is 10.0.0.5, the pod CIDR is 10.0.0.0/24
-# Example: If CiliumInternalIP is 10.0.1.8, the pod CIDR is 10.0.1.0/24
 - name: Calculate pod CIDR from CiliumInternalIP
   ansible.builtin.set_fact:
     _cilium_pod_cidr: "{{ (_cilium_internal_ip ~ '/24') | ansible.utils.ipaddr('subnet') }}"
@@ -50,7 +41,6 @@
 # @docsible Updates Tailscale route advertisement with Pod CIDR and Service CIDR
 - name: Advertise pod and service CIDR routes via Tailscale
   vars:
-    # Merge static inventory routes, dynamic Cilium pod CIDR, and Service CIDR
     _combined_routes: >-
       {{
         ((tailscale_advertiseRoutes | default('') | split(',') | select | list)
@@ -67,5 +57,4 @@
     - not ansible_check_mode
   register: tailscale_advertise_result
   changed_when: false
-
 
