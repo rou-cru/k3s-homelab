@@ -58,3 +58,7 @@ molecule/**/__pycache__/
 .oci
 oci-key.pem
 oci-key-public.pem
+.codex/sessions/2026/02/11
+.codex/tmp/arg0/codex-arg0Enr7fc
+.gemini
+.mcp.json

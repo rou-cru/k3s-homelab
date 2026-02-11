@@ -56,6 +56,21 @@ tasks:
             --md-role-template docs/docsible-role-template.md.j2
         done
       - echo "✅ Documentation generated."
+  k8s:bootstrap:cilium:
+    desc: "Deploy/Upgrade Cilium CNI directly via Helm"
+    cmds:
+      - echo "Deploying Cilium"
+      - |
+        helm upgrade --install cilium cilium/cilium \
+          --version 1.19.0 \
+          --namespace kube-system \
+          --values k8s/bootstrap/cilium/values.yaml \
+          --set k8sServiceHost=100.96.136.51 \
+          --wait \
+          --timeout 10m
+      - echo "✅ Cilium deployment updated."
+      # -           --set ipv4NativeRoutingCIDR=10.0.0.0/8 \
+
   validate:
     desc: "Validate all files (YAML, Ansible, Jinja2, Bash)"
     cmds:

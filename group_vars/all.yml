@@ -85,14 +85,9 @@ system_helmRepositories:
   - name: nvdp
     repo_url: "https://nvidia.github.io/k8s-device-plugin"
 
-# ---- CONSTANTS - CHECKSUMS & VERSIONS ----------------------------------------------
-system_uvInstallScriptChecksum: "6a2da893cd56f9e2d1c9140d0c434fd1de097358bedeb89add559ef3179c932e"
-system_helmInstallScriptChecksum: "38b65f882d9cae3891755bdb03becc6a01ae6f9cb24826c191f219ddfee70a5d"
-tailscale_installScriptChecksum: "39e5b9185e9329955b324a48c13d4863c3a93f814260336cf0d4ad92a0aac3d3"
-
+# ---- CONSTANTS - VERSIONS -----------------------------------------------------------
 # Chart versions
-cilium_chartVersion: "1.18.5"
-longhorn_chartVersion: "1.7.2"
+cilium_chartVersion: "1.19.0"
 gateway_apiVersion: "v1.2.0"
 prometheus_operatorCrdsVersion: "26.0.0"
 gvisor_version: "20231204.0"
@@ -109,12 +104,15 @@ k3s_serverRecreate: false
 k3s_serverCopyKubeconfigLocal: true
 k3s_serverLocalKubeconfigPath: "{{ lookup('env', 'HOME') }}/.kube/config"
 k3s_serverContextName: "{{ inventory_hostname }}"
+k3s_serverNodeLabels:
+  - "node.kubernetes.io/exclude-from-external-load-balancers=true"
 
 # ---- K3S AGENT ROLE ----------------------------------------------------------------
 k3s_agentVersion: "{{ k3s_version }}"
 k3s_agentServerUrl: ""
 k3s_agentToken: ""
-k3s_agentNodeLabels: []
+k3s_agentNodeLabels:
+  - "node.kubernetes.io/exclude-from-external-load-balancers=true"
 k3s_agentNodeTaints: []
 k3s_agentKubeletArgs: []
 k3s_agentReadyzRetries: 30
@@ -127,24 +125,24 @@ cilium_namespace: "kube-system"
 cilium_rolloutTimeout: 300
 cilium_waitRetries: 60
 cilium_waitDelay: 5
-cilium_devices: "tailscale+"
-
-# ---- GLANCES -----------------------------------------------------------------------
-glances_state: "present"
-glances_port: 61208
-glances_bindAddress: "127.0.0.1"
-glances_venvPath: "/opt/glances"
-glances_packages:
-  - "glances[all]"
+# cilium_devices: "tailscale+"
+# Global PodCIDR for Native Routing (must match across all nodes and Helm chart)
+cilium_native_routing_cidr: "10.0.0.0/8"
 
 # ---- TAILSCALE ---------------------------------------------------------------------
-tailscale_hostnamePrefix: "k3s"
-tailscale_tags: ""
-tailscale_acceptDns: "true"
-tailscale_ssh: "true"
+tailnetName: "genet-wyvern.ts.net"
 tailscale_exitNodeEnabled: false
 tailscale_useExitNode: false
+# Disable SNAT to preserve source IPs (required for Cilium native routing visibility)
+tailscale_snatSubnetRoutes: false
+# Static routes to advertise (pod CIDRs are advertised dynamically after Cilium deployment)
 tailscale_advertiseRoutes: ""
+# Service CIDR for reference (not advertised by default)
+tailscale_serviceCidr: "10.43.0.0/16"
+# Control de anuncio de Service CIDR (solo el servidor autorizado debe anunciarlo)
+tailscale_advertiseServiceCidr: false
+
+
 
 # ---- GVISOR ------------------------------------------------------------------------
 gvisor_install: true
@@ -158,17 +156,17 @@ devtools_installVagrant: true
 # ---- CERT MANAGER ------------------------------------------------------------------
 certManager_namespace: "cert-manager"
 certManager_chartVersion: ""
-certManager_selfsignedIssuerName: "homelab-selfsigned-issuer"
-certManager_caCertificateName: "homelab-ca"
-certManager_caSecretName: "homelab-ca-secret"
-certManager_caIssuerName: "homelab-ca-issuer"
+certManager_selfsignedIssuerName: "k3s-selfsigned-issuer"
+certManager_caCertificateName: "k3s-ca"
+certManager_caSecretName: "k3s-ca-secret"
+certManager_caIssuerName: "k3s-ca-issuer"
 certManager_prometheusEnabled: false
 
 # ---- ACME / LET'S ENCRYPT ----------------------------------------------------------
 acme_email: "rc@roura.xyz"
 acme_clusterIssuerName: "letsencrypt-prod"
 cloudflare_apiTokenSecretName: "cloudflare-token-secret"
-wildcard_tlsSecretName: "wildcard-roura-xyz-tls"
+wildcard_tlsSecretName: "cloudflare-ca-roura-xyz"
 wildcard_domain: "roura.xyz"
 
 # ---- ARGOCD ------------------------------------------------------------------------
@@ -178,7 +176,7 @@ argocd_installCrds: true
 argocd_haEnabled: false
 argocd_dexEnabled: false
 argocd_serviceMonitorEnabled: true
-argocd_publicHostname: "argo.roura.xyz"
+argocd_publicHostname: "argocd.roura.xyz"
 public_gateway_ip: "74.208.250.178"
 
 # ---- EXTERNAL SECRETS --------------------------------------------------------------
@@ -186,19 +184,7 @@ oci_configFile: "{{ playbook_dir }}/.oci"
 externalSecrets_namespace: "external-secrets"
 externalSecrets_serviceMonitorEnabled: false
 externalSecrets_grafanaDashboardEnabled: false
-externalSecrets_webhookIssuerName: "homelab-ca-issuer"
-
-# ---- LONGHORN ----------------------------------------------------------------------
-longhorn_defaultReplicaCount: 1
-longhorn_dataLocality: "best-effort"
-longhorn_storageOverProvisioning: 100
-longhorn_storageMinimalAvailable: 25
-longhorn_defaultClass: true
-longhorn_backupTarget: ""
-longhorn_backupCredentialSecret: ""
-longhorn_guaranteedEngineManagerCpu: 12
-longhorn_guaranteedReplicaManagerCpu: 12
-longhorn_priorityClass: "priority-ops-critical"
+externalSecrets_webhookIssuerName: "k3s-ca-issuer"
 
 # ---- CRDS BOOTSTRAP ----------------------------------------------------------------
 prometheus_operatorCrdsNamespace: "monitoring"
@@ -229,6 +215,9 @@ akash_hostnameOperatorVersion: "1.0.0"
 akash_inventoryOperatorVersion: "1.0.0"
 akash_providerVersion: "6.0.0"
 akash_gpuEnabled: true
+
+# ---- MINING CONFIGURATION ------------------------------------------------------------
+honeygainDevice: "bandwidth-miner"
 
 # ---- REGISTRY AUTH (from secrets.yaml) -----------------------------------------------
 k3s_commonRegistryAuths:

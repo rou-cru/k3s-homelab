@@ -12,14 +12,17 @@
     "j2lint@1.2.0",
     "j2cli@0.3.10",
     "go-task@3.45.5",
-    "helm@latest",
+    "kubernetes-helm@latest",
     "k9s@latest",
     "ripgrep@latest",
     "checkov@latest",
     "ansible@latest",
     "python@3.12",
     "uv@latest",
-    "trufflehog@latest"
+    "trufflehog@latest",
+    "helm-ls@latest",
+    "helm-docs@latest",
+    "cilium-cli@latest"
   ],
   "shell": {
     "init_hook": [

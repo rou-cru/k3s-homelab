@@ -12,6 +12,7 @@ dependencies = [
   "kubernetes>=24.2.0",
   "PyYAML>=3.11",
   "jsonpatch",
+  "netaddr>=1.3.0",
 ]
 
 requires-python = ">=3.12"
