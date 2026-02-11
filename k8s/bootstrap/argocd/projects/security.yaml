@@ -6,7 +6,7 @@ metadata:
 spec:
   description: Security stack - policy enforcement, network segmentation
   sourceRepos:
-    - '*'
+    - 'https://github.com/rou-cru/k3s-homelab.git'
   destinations:
     - namespace: security
       name: in-cluster

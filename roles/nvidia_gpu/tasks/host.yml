@@ -249,10 +249,12 @@
 # @docsible Generates CDI specification
 - name: Generate NVIDIA CDI specification
   ansible.builtin.command: nvidia-ctk cdi generate --output=/etc/cdi/nvidia.yaml
+  args:
+    creates: /etc/cdi/nvidia.yaml
   when:
     - nvidia_active | default(false) | bool
     - not ansible_check_mode
-  changed_when: true
+  changed_when: false
 
 # @docsible Registers 'nvidia' runtime for Containerd
 - name: Register NVIDIA as an available runtime

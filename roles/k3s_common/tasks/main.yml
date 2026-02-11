@@ -61,6 +61,15 @@
     - k3s_commonRegistryAuths is defined
     - k3s_commonRegistryAuths | length > 0
 
+# @docsible Removes stale registry auth file when no registry auths are configured
+- name: Remove K3s registry auth when unset
+  ansible.builtin.file:
+    path: /etc/rancher/k3s/registries.yaml
+    state: absent
+  notify: "{{ k3s_commonRestartHandler | default('Restart k3s') }}"
+  when:
+    - k3s_commonRegistryAuths is not defined or k3s_commonRegistryAuths | length == 0
+
 # @docsible Create CNI configuration directory
 - name: Ensure CNI config directory exists
   ansible.builtin.file:

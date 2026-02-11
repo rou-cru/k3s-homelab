@@ -205,6 +205,22 @@
     IP_tailscale: "100.64.0.1"
   when: ansible_check_mode
 
+# @docsible Verifies Tailscale ended in authenticated online state after bootstrap
+- name: Validate authenticated Tailscale state
+  ansible.builtin.command: tailscale status --json
+  register: tailscale_status_final
+  changed_when: false
+  when: not ansible_check_mode
+
+# @docsible Fails bootstrap when Tailscale is not online/authenticated
+- name: Assert Tailscale is online
+  ansible.builtin.assert:
+    that:
+      - "(tailscale_status_final.stdout | from_json).BackendState == 'Running'"
+      - "(tailscale_status_final.stdout | from_json).Self.Online | default(false)"
+    fail_msg: "Tailscale bootstrap failed: node is not authenticated/online in tailnet."
+  when: not ansible_check_mode
+
 # @docsible Verify SSH connectivity over Tailscale network
 - name: Validate connectivity
   ansible.builtin.wait_for:

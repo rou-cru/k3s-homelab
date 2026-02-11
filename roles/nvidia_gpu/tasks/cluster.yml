@@ -38,7 +38,9 @@
       register: nvdp_ds
       until: >-
         nvdp_ds.resources | length > 0 and
-        nvdp_ds.resources[0].status.numberReady | default(0) > 0
+        (nvdp_ds.resources[0].status.desiredNumberScheduled | default(0)) > 0 and
+        (nvdp_ds.resources[0].status.numberReady | default(0)) >=
+        (nvdp_ds.resources[0].status.desiredNumberScheduled | default(0))
       retries: "{{ global_waitRetries }}"
       delay: "{{ global_waitDelay }}"
 

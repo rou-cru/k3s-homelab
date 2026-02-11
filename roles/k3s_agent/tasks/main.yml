@@ -123,10 +123,10 @@
   register: node_info
   until: >-
     node_info.resources | length > 0 and
-    (node_info.resources[0].status.conditions |
+    ((node_info.resources[0].status.conditions | default([])) |
      selectattr('type', 'equalto', 'Ready') |
      map(attribute='status') |
-     first) == 'True'
+     first | default('')) == 'True'
   retries: "{{ k3s_agentReadyzRetries }}"
   delay: "{{ k3s_agentReadyzDelay }}"
   when: not ansible_check_mode

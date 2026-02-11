@@ -10,7 +10,7 @@ spec:
   generators:
     - git:
         repoURL: https://github.com/rou-cru/k3s-homelab.git
-        revision: HEAD
+        revision: main
         directories:
           - path: k8s/gitops/observability/*
   template:
@@ -22,7 +22,7 @@ spec:
       project: observability
       source:
         repoURL: https://github.com/rou-cru/k3s-homelab.git
-        targetRevision: HEAD
+        targetRevision: main
         path: '{{path}}'
       destination:
         name: in-cluster
