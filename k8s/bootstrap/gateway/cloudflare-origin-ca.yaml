@@ -1,0 +1,26 @@
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: cloudflare-origin-ca
+  namespace: networking
+spec:
+  refreshInterval: 24h
+  secretStoreRef:
+    name: oci-vault
+    kind: ClusterSecretStore
+  target:
+    name: cloudflare-ca-roura-xyz
+    creationPolicy: Owner
+    deletionPolicy: Retain
+    template:
+      type: kubernetes.io/tls
+      data:
+        tls.crt: "{{ .pub }}"
+        tls.key: "{{ .priv }}"
+  data:
+    - secretKey: pub
+      remoteRef:
+        key: cloudflare-ca-pub
+    - secretKey: priv
+      remoteRef:
+        key: cloudflare-ca-priv

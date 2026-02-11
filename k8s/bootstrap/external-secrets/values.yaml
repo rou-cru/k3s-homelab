@@ -1,0 +1,34 @@
+# Base values for external-secrets
+installCRDs: true
+replicaCount: 1
+podDisruptionBudget:
+  enabled: false
+
+resources:
+  requests:
+    cpu: 200m
+    memory: 256Mi
+  limits:
+    memory: 512Mi
+
+securityContext:
+  readOnlyRootFilesystem: false
+
+log:
+  level: warn
+
+genericTargets:
+  enabled: true
+
+webhook:
+  replicaCount: 1
+  podDisruptionBudget:
+    enabled: false
+  certManager:
+    enabled: true
+    addInjectorAnnotations: true
+    cert:
+      create: true
+
+certController:
+  enabled: false

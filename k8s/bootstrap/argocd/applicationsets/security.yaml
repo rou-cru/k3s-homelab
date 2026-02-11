@@ -1,0 +1,36 @@
+---
+# ApplicationSet for the Security Stack
+# Manages security-related workloads (Kyverno, Network Policies, etc.)
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: security-stack
+  namespace: argocd
+spec:
+  generators:
+    - git:
+        repoURL: https://github.com/rou-cru/k3s-homelab.git
+        revision: HEAD
+        directories:
+          - path: k8s/gitops/security/*
+  template:
+    metadata:
+      name: 'security-{{path.basename}}'
+      labels:
+        stack: security
+    spec:
+      project: security
+      source:
+        repoURL: https://github.com/rou-cru/k3s-homelab.git
+        targetRevision: HEAD
+        path: '{{path}}'
+      destination:
+        name: in-cluster
+        # Default namespace, but components can override via Kustomize/Helm
+        namespace: security
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=false

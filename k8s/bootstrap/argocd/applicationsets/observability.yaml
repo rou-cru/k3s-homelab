@@ -1,0 +1,35 @@
+---
+# ApplicationSet for the Observability Stack
+# Manages monitoring, logging, and tracing (Prometheus, Loki, etc.)
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: observability-stack
+  namespace: argocd
+spec:
+  generators:
+    - git:
+        repoURL: https://github.com/rou-cru/k3s-homelab.git
+        revision: HEAD
+        directories:
+          - path: k8s/gitops/observability/*
+  template:
+    metadata:
+      name: 'obs-{{path.basename}}'
+      labels:
+        stack: observability
+    spec:
+      project: observability
+      source:
+        repoURL: https://github.com/rou-cru/k3s-homelab.git
+        targetRevision: HEAD
+        path: '{{path}}'
+      destination:
+        name: in-cluster
+        namespace: monitoring
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=false

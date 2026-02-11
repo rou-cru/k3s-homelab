@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: infrastructure
+  namespace: argocd
+spec:
+  description: Core infrastructure components (bootstrap-managed)
+  sourceRepos:
+    - '*'
+  destinations:
+    - namespace: kube-system
+      name: in-cluster
+    - namespace: cert-manager
+      name: in-cluster
+    - namespace: external-secrets
+      name: in-cluster
+  clusterResourceWhitelist:
+    - group: '*'
+      kind: '*'
+  namespaceResourceWhitelist:
+    - group: '*'
+      kind: '*'

@@ -83,10 +83,13 @@ required by various Helm charts and operators.
 
 | Name | Module | Has Conditions | Tags | Comments |
 | ---- | ------ | -------------- | -----| -------- |
-| [Install Gateway API CRDs](tasks/main.yml#L2) | kubernetes.core.k8s | True | cluster,infrastructure | @docsible Install Gateway API standard CRDs |
-| [Wait for Gateway API CRDs to be established](tasks/main.yml#L12) | kubernetes.core.k8s_info | True | cluster,infrastructure | @docsible Wait for Gateway CRDs to be established |
-| [Add Prometheus Community Helm repo](tasks/main.yml#L27) | kubernetes.core.helm_repository | True | cluster,infrastructure | @docsible Add Prometheus Community Helm repository |
-| [Install Prometheus Operator CRDs](tasks/main.yml#L36) | kubernetes.core.helm | True | cluster,infrastructure | @docsible Install Prometheus Operator CRDs via Helm |
+| [Install Gateway API CRDs](tasks/main.yml#L4) | kubernetes.core.k8s | True | cluster | NOTE: Gateway API version is pinned in group_vars/all.yml but manual updates are required.
+Consider automating version checks or adding a changelog entry when upgrading.
+@docsible Installs Experimental Gateway API CRDs (v{{ gateway_apiVersion }}) |
+| [Wait for Gateway API CRDs to be established](tasks/main.yml#L14) | kubernetes.core.k8s_info | True | cluster | @docsible Waits for Gateway CRDs to be registered in API |
+| [Add Prometheus Community Helm repo](tasks/main.yml#L29) | kubernetes.core.helm_repository | True | cluster | @docsible Registers Prometheus Community Helm repository |
+| [Create monitoring namespace](tasks/main.yml#L38) | kubernetes.core.k8s | True |  | @docsible Creates 'monitoring' namespace for CRDs |
+| [Install Prometheus Operator CRDs](tasks/main.yml#L46) | kubernetes.core.helm | True | cluster | @docsible Installs Prometheus Operator CRDs (ServiceMonitor, etc.) |
 
 
 ## Task Flow Graphs
@@ -110,8 +113,9 @@ classDef rescue stroke:#665352,stroke-width:2px;
   Start-->|Task| Install_Gateway_API_CRDs0[install gateway api crds<br>When: **not ansible check mode**]:::task
   Install_Gateway_API_CRDs0-->|Task| Wait_for_Gateway_API_CRDs_to_be_established1[wait for gateway api crds to be established<br>When: **not ansible check mode**]:::task
   Wait_for_Gateway_API_CRDs_to_be_established1-->|Task| Add_Prometheus_Community_Helm_repo2[add prometheus community helm repo<br>When: **not ansible check mode**]:::task
-  Add_Prometheus_Community_Helm_repo2-->|Task| Install_Prometheus_Operator_CRDs3[install prometheus operator crds<br>When: **not ansible check mode**]:::task
-  Install_Prometheus_Operator_CRDs3-->End
+  Add_Prometheus_Community_Helm_repo2-->|Task| Create_monitoring_namespace3[create monitoring namespace<br>When: **not ansible check mode**]:::task
+  Create_monitoring_namespace3-->|Task| Install_Prometheus_Operator_CRDs4[install prometheus operator crds<br>When: **not ansible check mode**]:::task
+  Install_Prometheus_Operator_CRDs4-->End
 ```
 
 
@@ -131,7 +135,7 @@ MIT
 
 ### Platforms
 
-- **Ubuntu**: ['jammy', 'noble']
+- **Ubuntu**: ['noble']
 
 
 ### Dependencies

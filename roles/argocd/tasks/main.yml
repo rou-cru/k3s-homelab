@@ -1,188 +1,56 @@
-# @docsible Add ArgoCD Helm repository
+# @docsible Registers ArgoCD Helm repository
 - name: Ensure ArgoCD Helm repo
   kubernetes.core.helm_repository:
     name: argo
     repo_url: https://argoproj.github.io/argo-helm
   when: not ansible_check_mode
 
-# @docsible Deploy ArgoCD via Helm
+# @docsible Creates 'argocd' namespace
+- name: Create argocd namespace
+  kubernetes.core.k8s:
+    state: present
+    src: "{{ k8s_manifestsDir }}/bootstrap/argocd/namespace.yaml"
+    kubeconfig: "{{ kubeconfig }}"
+  when: not ansible_check_mode
+
+# @docsible Installs ArgoCD (Helm)
 - name: Deploy ArgoCD
   kubernetes.core.helm:
     name: argocd
     chart_ref: argo/argo-cd
     release_namespace: "{{ argocd_namespace }}"
     update_repo_cache: true
-    create_namespace: true
+    create_namespace: false
     timeout: 10m0s
     chart_version: "{{ argocd_chartVersion | default(omit, true) }}"
     kubeconfig: "{{ kubeconfig }}"
-    values:
-      crds:
-        install: "{{ argocd_installCrds }}"
-        keep: true
-      configs:
-        cm:
-          statusbadge.enabled: true
-          url: "https://{{ argocd_publicHostname }}"
-          resource.customizations.ignoreResourceUpdates.external-secrets.io_ExternalSecret: |
-            jqPathExpressions:
-              - '.status'
-          resource.exclusions: |
-            - apiGroups:
-              - external-secrets.io
-              kinds:
-              - PushSecret
-        cmp:
-          create: true
-          plugins:
-            kustomize-with-helm:
-              generate:
-                command: [sh, -c]
-                args: ["kustomize build --enable-helm"]
-
-      global:
-        logging:
-          level: warning
-      dex:
-        enabled: "{{ argocd_dexEnabled }}"
-      redis-ha:
-        enabled: "{{ argocd_haEnabled }}"
-      controller:
-        replicas: 1
-        pdb:
-          enabled: false
-        resources:
-          requests:
-            cpu: 100m
-            memory: 256Mi
-          limits:
-            memory: 512Mi
-        metrics:
-          enabled: true
-          serviceMonitor:
-            enabled: "{{ argocd_serviceMonitorEnabled }}"
-
-      server:
-        replicas: 1
-        insecure: true
-        pdb:
-          enabled: false
-        resources:
-          requests:
-            cpu: 50m
-            memory: 128Mi
-          limits:
-            memory: 256Mi
-        metrics:
-          enabled: true
-          serviceMonitor:
-            enabled: "{{ argocd_serviceMonitorEnabled }}"
-
-      repoServer:
-        replicas: 1
-        pdb:
-          enabled: false
-        resources:
-          requests:
-            cpu: 50m
-            memory: 128Mi
-          limits:
-            memory: 256Mi
-        metrics:
-          enabled: true
-          serviceMonitor:
-            enabled: "{{ argocd_serviceMonitorEnabled }}"
-
-      applicationSet:
-        enabled: true
-        replicaCount: 1
-        pdb:
-          enabled: false
-        resources:
-          requests:
-            cpu: 50m
-            memory: 128Mi
-          limits:
-            memory: 256Mi
-        metrics:
-          enabled: true
-          serviceMonitor:
-            enabled: "{{ argocd_serviceMonitorEnabled }}"
-
-      notifications:
-        enabled: true
-        pdb:
-          enabled: false
-        resources:
-          requests:
-            cpu: 50m
-            memory: 64Mi
-          limits:
-            memory: 128Mi
-        metrics:
-          enabled: true
-          serviceMonitor:
-            enabled: "{{ argocd_serviceMonitorEnabled }}"
+    values_files:
+      - "{{ k8s_manifestsDir }}/bootstrap/argocd/values.yaml"
+    values: "{{ lookup('template', playbook_dir + '/k8s/bootstrap/argocd/values-override.yaml.j2') | from_yaml }}"
   when: not ansible_check_mode
   tags: ["gitops"]
 
-# Note: TLS certificate is provided by wildcard cert at Gateway level (wildcard-roura-xyz-tls)
-# No per-service certificate needed since Gateway terminates TLS for *.roura.xyz
-
-# @docsible Expose ArgoCD via Gateway API
-- name: Create ArgoCD HTTPRoute
+# @docsible Deploys GRPCRoute for ArgoCD CLI
+- name: Create ArgoCD GRPCRoute
   kubernetes.core.k8s:
     state: present
-    definition:
-      apiVersion: gateway.networking.k8s.io/v1
-      kind: HTTPRoute
-      metadata:
-        name: argocd-server
-        namespace: "{{ argocd_namespace }}"
-      spec:
-        parentRefs:
-          - name: public-gateway
-            namespace: kube-system
-            sectionName: https
-        hostnames:
-          - "{{ argocd_publicHostname }}"
-        rules:
-          - backendRefs:
-              - name: argocd-server
-                port: 80
+    src: "{{ k8s_manifestsDir }}/bootstrap/argocd/grpc-route.yaml"
     kubeconfig: "{{ kubeconfig }}"
   when: not ansible_check_mode
   tags: ["gitops"]
 
-# @docsible Create ExternalSecret for admin password
+# @docsible Syncs Admin Password from Vault (ExternalSecret)
 - name: Create ArgoCD Admin Password ExternalSecret
   kubernetes.core.k8s:
     state: present
-    definition:
-      apiVersion: external-secrets.io/v1
-      kind: ExternalSecret
-      metadata:
-        name: argocd-admin-pass
-        namespace: "{{ argocd_namespace }}"
-      spec:
-        refreshInterval: 1h
-        secretStoreRef:
-          name: oci-vault
-          kind: ClusterSecretStore
-        target:
-          name: argocd-secret
-          creationPolicy: Merge
-        data:
-          - secretKey: admin.password
-            remoteRef:
-              key: argocd-admin-pass
+    src: "{{ k8s_manifestsDir }}/bootstrap/argocd/admin-password.yaml"
     kubeconfig: "{{ kubeconfig }}"
   register: argocd_es_created
   until: argocd_es_created is succeeded
   when: not ansible_check_mode
   tags: ["gitops"]
 
-# @docsible Wait for admin password secret
+# @docsible Waits for Admin Password Secret sync
 - name: Wait for argocd-secret to have admin.password
   kubernetes.core.k8s_info:
     api_version: v1
@@ -199,7 +67,7 @@
     - not ansible_check_mode
   tags: ["gitops"]
 
-# @docsible Restart ArgoCD server for password update
+# @docsible Restarts ArgoCD Server (Applies new password)
 - name: Restart ArgoCD Server to pick up new password
   kubernetes.core.k8s:
     state: present

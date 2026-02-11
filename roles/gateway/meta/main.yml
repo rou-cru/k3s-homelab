@@ -1,7 +1,8 @@
 ---
 galaxy_info:
-  description: Bootstrap cluster-wide CRDs (Gateway API and Prometheus Operator) for add-on charts.
+  role_name: gateway
   author: rc
+  description: Deploys Kubernetes Gateway API resources including namespace, ReferenceGrant, and public Gateway.
   license: MIT
   min_ansible_version: "2.14"
   platforms:
@@ -11,6 +12,8 @@ galaxy_info:
   galaxy_tags:
     - kubernetes
     - k3s
-    - crds
+    - gateway-api
+    - networking
+    - ingress
 
 dependencies: []

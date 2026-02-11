@@ -1,0 +1,33 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: akash-stack
+  namespace: argocd
+spec:
+  generators:
+    - git:
+        repoURL: https://github.com/rou-cru/k3s-homelab.git
+        revision: HEAD
+        directories:
+          - path: k8s/gitops/akash/*
+  template:
+    metadata:
+      name: 'akash-{{path.basename}}'
+      labels:
+        stack: akash
+    spec:
+      project: akash
+      source:
+        repoURL: https://github.com/rou-cru/k3s-homelab.git
+        targetRevision: HEAD
+        path: '{{path}}'
+      destination:
+        name: in-cluster
+        namespace: akash-services
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true

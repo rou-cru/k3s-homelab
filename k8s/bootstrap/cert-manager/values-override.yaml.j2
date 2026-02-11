@@ -1,0 +1,7 @@
+# Dynamic overrides for cert-manager (Prometheus toggle)
+prometheus:
+  enabled: {{ certManager_prometheusEnabled | default(false) | bool | lower }}
+  servicemonitor:
+    enabled: {{ certManager_prometheusEnabled | default(false) | bool | lower }}
+    interval: 60s
+    scrapeTimeout: 30s
