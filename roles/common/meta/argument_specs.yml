@@ -105,14 +105,4 @@ argument_specs:
         type: bool
         required: false
         default: true
-        description: Install uv Python package manager (required by glances and other Python roles).
-      system_uvInstallScriptChecksum:
-        type: str
-        required: false
-        default: "10fb1f54d56f3eb60622006797339d4ea0bfda9b358d07db635f73cf89f7094c"
-        description: SHA256 checksum for uv install script verification.
-      system_helmInstallScriptChecksum:
-        type: str
-        required: false
-        default: "38b65f882d9cae3891755bdb03becc6a01ae6f9cb24826c191f219ddfee70a5d"
-        description: SHA256 checksum for Helm install script verification.
+        description: Install uv Python package manager (required by Python roles).

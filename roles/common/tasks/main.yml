@@ -1,26 +1,26 @@
-# @docsible Disable swap for Kubernetes compatibility
+# @docsible Disables swap immediately (required for Kubelet)
 - name: Disable swap
   ansible.builtin.command: swapoff -a
   changed_when: true
   when:
     - ansible_facts['swaptotal_mb'] > 0
     - not ansible_check_mode
-# @docsible Permanently disable swap in fstab
+# @docsible Persists swap disablement in /etc/fstab
 - name: Disable swap (fstab)
   ansible.builtin.replace:
     path: /etc/fstab
     regexp: "^(.*\\sswap\\s.*)$"
     replace: "# \\1"
-# @docsible Detect Ubuntu version for kernel selection
+# @docsible Detects Ubuntu version for HWE kernel selection
 - name: Detect Ubuntu version
   ansible.builtin.set_fact:
     ubuntu_version: "{{ ansible_facts['distribution_version'] }}"
-# @docsible Set HWE kernel package name
+# @docsible Resolves appropriate HWE kernel package name
 - name: Define kernel package
   ansible.builtin.set_fact:
     hwe_kernel_package: "linux-generic-hwe-{{ ubuntu_version }}"
   when: ubuntu_version is version('20.04', '>=') and ubuntu_version is version('24.04', '<=')
-# @docsible Install essential system utilities
+# @docsible Installs core utilities (curl, iptables, ethtool)
 - name: Install system base tools
   ansible.builtin.apt:
     name:
@@ -30,22 +30,22 @@
       - ethtool
       - rsync
     state: present
-# @docsible Install NetworkManager if enabled
+# @docsible Installs NetworkManager (if enabled in vars)
 - name: Install NetworkManager
   ansible.builtin.apt:
     name: network-manager
     state: present
   when: system_installNetworkManager | bool
-# @docsible Install ACPI daemon if enabled
+# @docsible Installs ACPI daemon for power event handling
 - name: Install ACPI daemon
   ansible.builtin.apt:
     name: acpid
     state: present
   when: system_installAcpid | bool
-# @docsible Install additional system dependencies
+# @docsible Imports additional package dependencies
 - name: Install dependencies
   ansible.builtin.include_tasks: dependencies.yml
-# @docsible Install HWE kernel for newer hardware
+# @docsible Installs Hardware Enablement (HWE) Kernel
 - name: Install HWE kernel
   ansible.builtin.apt:
     name: "{{ hwe_kernel_package }}"
@@ -55,7 +55,7 @@
     - system_installHweKernel | bool
   register: common_hwe_kernel_install
   failed_when: false
-# @docsible Fallback to generic kernel if HWE fails
+# @docsible Falls back to generic kernel if HWE is unavailable
 - name: Install generic kernel
   ansible.builtin.apt:
     name: linux-generic
@@ -65,27 +65,27 @@
     (common_hwe_kernel_install is failed) or
     (hwe_kernel_package is not defined)
   register: common_generic_kernel_install
-# @docsible Track kernel installation changes
+# @docsible Flags reboot requirement if kernel changed
 - name: Register kernel change
   ansible.builtin.set_fact:
     system_kernelChanged: >-
       {{ (common_hwe_kernel_install.changed | default(false))
         or (common_generic_kernel_install.changed | default(false))
       }}
-# @docsible Configure power management settings
+# @docsible Configures power management (lid switch, sleep masks)
 - name: Configure power
   ansible.builtin.include_tasks: power_management.yml
-# @docsible Apply hardware-specific optimizations
+# @docsible Applies hardware tuning (irqbalance, audio, RoG)
 - name: Apply hardware tuning
   ansible.builtin.include_tasks: hardware_tuning.yml
-# @docsible Apply system-level kernel tuning
+# @docsible Applies sysctl kernel tuning and limits
 - name: System Tuning
   ansible.builtin.include_tasks: system_tuning.yml
-# @docsible Install cloud-native binaries (Helm, kubectl, etc.)
+# @docsible Installs kubectl, helm, and uv
 - name: Install Cloud-Native Binaries
   ansible.builtin.include_tasks: binaries.yml
 
-# @docsible Create Helm configuration directory
+# @docsible Creates Helm config directory structure
 - name: Ensure Helm config directory exists
   ansible.builtin.file:
     path: "/home/{{ ansible_user }}/.config/helm"
@@ -94,7 +94,7 @@
   become: false
   when: system_installCloudBinaries | bool
 
-# @docsible Add configured Helm repositories
+# @docsible Registers upstream Helm repositories
 - name: Add Helm Repositories
   kubernetes.core.helm_repository:
     name: "{{ item.name }}"
@@ -103,7 +103,7 @@
   become: false
   when: system_installCloudBinaries | bool
 
-# @docsible Install Python dependencies for K8s modules
+# @docsible Installs python-kubernetes via uv
 - name: Install K8s Ansible deps
   ansible.builtin.include_tasks: k8s_ansible_deps.yml
   when:

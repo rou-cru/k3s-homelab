@@ -1,4 +1,4 @@
-# @docsible Install X11 server for headless GPU control
+# @docsible Installs Xorg for headless fan control
 - name: Install X11 deps
   ansible.builtin.apt:
     name:
@@ -9,7 +9,7 @@
     cache_valid_time: 3600
   when: nvidia_active | default(false) | bool
 
-# @docsible Generate xorg.conf with Coolbits for fan/clocks control
+# @docsible Configures Xorg with Coolbits (Fan Control)
 - name: Configure xorg
   ansible.builtin.template:
     src: xorg.conf.j2
@@ -20,7 +20,7 @@
   register: nvidia_xorgConf
   when: nvidia_active | default(false) | bool
 
-# @docsible Deploy persistence daemon service
+# @docsible Deploys nvidia-persistenced service
 - name: Deploy persistence svc
   ansible.builtin.copy:
     src: nvidia-persistence.service
@@ -31,7 +31,7 @@
   register: nvidia_persistenceService
   when: nvidia_active | default(false) | bool
 
-# @docsible Deploy X11 service for headless operation
+# @docsible Deploys Headless Xorg service
 - name: Deploy Xorg svc
   ansible.builtin.copy:
     src: nvidia-xorg.service
@@ -42,7 +42,7 @@
   register: nvidia_xorgService
   when: nvidia_active | default(false) | bool
 
-# @docsible Reload systemd after service changes
+# @docsible Reloads systemd daemon
 - name: Reload systemd (nvidia)
   ansible.builtin.systemd:
     daemon_reload: true
@@ -50,7 +50,7 @@
     - nvidia_active | default(false) | bool
     - nvidia_persistenceService.changed or nvidia_xorgService.changed
 
-# @docsible Start persistence daemon
+# @docsible Starts nvidia-persistenced
 - name: Start persistence svc
   ansible.builtin.systemd:
     name: nvidia-persistence.service
@@ -58,7 +58,7 @@
     state: started
   when: nvidia_active | default(false) | bool
 
-# @docsible Start X11 service on display :1
+# @docsible Starts Headless Xorg on Display :1
 - name: Start Xorg svc
   ansible.builtin.systemd:
     name: nvidia-xorg.service
@@ -68,7 +68,7 @@
     - nvidia_active | default(false) | bool
     - nvidia_headlessX11Enabled | default(true) | bool
 
-# @docsible Wait for X server socket readiness
+# @docsible Waits for X11 socket availability
 - name: Wait for X server
   ansible.builtin.wait_for:
     path: /tmp/.X1-lock

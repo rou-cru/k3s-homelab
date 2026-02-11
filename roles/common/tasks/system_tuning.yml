@@ -1,10 +1,12 @@
-# Kernel optimization: CPU, networking, and system limits
+# @docsible Installs cpufrequtils for governor control
 - name: Install performance tools
   ansible.builtin.apt:
     name:
       - cpufrequtils
     state: present
   when: ansible_facts['virtualization_role'] != 'guest'
+
+# @docsible Sets CPU governor to 'schedutil'
 - name: Set CPU governor
   ansible.builtin.lineinfile:
     path: /etc/default/cpufrequtils
@@ -14,6 +16,8 @@
     mode: "0644"
   notify: Restart cpufrequtils
   when: ansible_facts['virtualization_role'] != 'guest'
+
+# @docsible Enables TCP BBR congestion control and optimizations
 - name: Enable BBR and Network Tuning
   ansible.posix.sysctl:
     name: "{{ item.key }}"
@@ -25,12 +29,15 @@
     - {key: "net.core.default_qdisc", value: "fq_codel"}
     - {key: "net.ipv4.tcp_congestion_control", value: "bbr"}
     # Cilium / Tailscale requirements
+    - {key: "net.ipv4.ip_forward", value: "1"}
+    - {key: "net.ipv6.conf.all.forwarding", value: "1"}
     - {key: "net.ipv4.conf.default.rp_filter", value: "0"}
     - {key: "net.ipv4.conf.all.rp_filter", value: "0"}
     # Elastic / Logging requirement
     - {key: "vm.max_map_count", value: "1048576"}
   notify: Reload sysctl
 
+# @docsible Tunes sysctl for high-concurrency Akash workloads
 - name: Akash Provider sysctl tuning
   ansible.posix.sysctl:
     name: "{{ item.key }}"
@@ -45,6 +52,7 @@
   when: akash_provider_enabled | default(false)
   notify: Reload sysctl
 
+# @docsible Increases PAM file descriptor limits (soft/hard)
 - name: Increase FD limits
   community.general.pam_limits:
     domain: "*"
@@ -54,39 +62,51 @@
   loop:
     - {type: "soft", item: "nofile", value: "{{ system_fileDescriptorsSoft }}"}
     - {type: "hard", item: "nofile", value: "{{ system_fileDescriptorsHard }}"}
+
+# @docsible Increases system-wide fs.file-max
 - name: Increase file-max
   ansible.posix.sysctl:
     name: fs.file-max
     value: "{{ system_fsFileMax }}"
     state: present
     reload: true
+
+# @docsible Increases fs.inotify.max_user_instances
 - name: Increase inotify watches
   ansible.posix.sysctl:
     name: fs.inotify.max_user_instances
     value: "{{ system_inotifyMaxInstances }}"
     state: present
     reload: true
+
+# @docsible Increases fs.inotify.max_user_watches
 - name: Increase user watches
   ansible.posix.sysctl:
     name: fs.inotify.max_user_watches
     value: "{{ system_inotifyMaxWatches }}"
     state: present
     reload: true
+
+# @docsible Enables RuntimeWatchdogSec for system recovery
 - name: Enable watchdog
   ansible.builtin.lineinfile:
     path: /etc/systemd/system.conf
     regexp: "^#?RuntimeWatchdogSec="
     line: "RuntimeWatchdogSec={{ system_watchdogTimeoutSec }}"
     state: present
+
+# @docsible Allocates HugePages for mining efficiency
 - name: Configure hugepages
   ansible.posix.sysctl:
     name: vm.nr_hugepages
     value: "{{ system_hugepagesCount }}"
     state: present
     reload: true
-  # 2 MiB per page; default 1280 ~= 2.5 GiB
+  # Default 1280 pages = ~2.5 GiB
   when: mining_cpuEnabled | default(false) or mining_gpuEnabled | default(false)
   tags: ["host"]
+
+# @docsible Loads msr kernel module for CPU mining (RandomX)
 - name: Load MSR module
   community.general.modprobe:
     name: msr
@@ -94,6 +114,8 @@
     persistent: present
   when: mining_cpuEnabled | default(false)
   tags: ["host"]
+
+# @docsible Pre-loads NVIDIA kernel modules
 - name: Configure Nvidia modules load
   ansible.builtin.copy:
     dest: /etc/modules-load.d/nvidia.conf

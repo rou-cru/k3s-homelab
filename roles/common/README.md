@@ -202,27 +202,7 @@ RoG hardware tweaks, and network optimizations.
     - **Type**: bool
     - **Default**: True
   
-    - **Description**: Install uv Python package manager (required by glances and other Python roles).
-  
-  
-  
-
-  - **system_uvInstallScriptChecksum**
-    - **Required**: False
-    - **Type**: str
-    - **Default**: 10fb1f54d56f3eb60622006797339d4ea0bfda9b358d07db635f73cf89f7094c
-  
-    - **Description**: SHA256 checksum for uv install script verification.
-  
-  
-  
-
-  - **system_helmInstallScriptChecksum**
-    - **Required**: False
-    - **Type**: str
-    - **Default**: 38b65f882d9cae3891755bdb03becc6a01ae6f9cb24826c191f219ddfee70a5d
-  
-    - **Description**: SHA256 checksum for Helm install script verification.
+    - **Description**: Install uv Python package manager (required by Python roles).
   
   
   
@@ -243,120 +223,119 @@ RoG hardware tweaks, and network optimizations.
 
 #### File: tasks/binaries.yml
 
-| Name | Module | Has Conditions |
-| ---- | ------ | -------------- |
-| [Install uv (Python Tool Manager)](tasks/binaries.yml#L1) | block | True |
-| [Check if uv is installed](tasks/binaries.yml#L3) | ansible.builtin.stat | False |
-| [Download and install uv](tasks/binaries.yml#L7) | ansible.builtin.get_url | True |
-| [Run uv installer](tasks/binaries.yml#L16) | ansible.builtin.command | True |
-| [Install Kubectl (Official Binary)](tasks/binaries.yml#L29) | block | True |
-| [Get latest stable kubectl version](tasks/binaries.yml#L31) | ansible.builtin.uri | False |
-| [Set kubectl version fact](tasks/binaries.yml#L37) | ansible.builtin.set_fact | False |
-| [Get kubectl checksum](tasks/binaries.yml#L40) | ansible.builtin.uri | False |
-| [Check current kubectl version](tasks/binaries.yml#L46) | ansible.builtin.command | False |
-| [Download and install kubectl](tasks/binaries.yml#L51) | ansible.builtin.get_url | True |
-| [Install Helm (Official Script)](tasks/binaries.yml#L67) | block | True |
-| [Check if helm is installed](tasks/binaries.yml#L69) | ansible.builtin.stat | False |
-| [Install Helm](tasks/binaries.yml#L73) | ansible.builtin.get_url | True |
-| [Run helm installer](tasks/binaries.yml#L84) | ansible.builtin.command | True |
-| [Install helm-diff plugin](tasks/binaries.yml#L90) | ansible.builtin.command | True |
+| Name | Module | Has Conditions | Comments |
+| ---- | ------ | -------------- | -------- |
+| [Install uv (Python Tool Manager)](tasks/binaries.yml#L2) | block | True | @docsible Block: Install uv (Fast Python Package Manager) |
+| [Check if uv is installed](tasks/binaries.yml#L5) | ansible.builtin.stat | False | @docsible Checks for existing uv binary |
+| [Download and install uv](tasks/binaries.yml#L10) | ansible.builtin.get_url | True | @docsible Downloads uv installer |
+| [Run uv installer](tasks/binaries.yml#L19) | ansible.builtin.command | True | @docsible Executes uv installer |
+| [Install Kubectl (Official Binary)](tasks/binaries.yml#L34) | block | True | @docsible Block: Install kubectl |
+| [Get latest stable kubectl version](tasks/binaries.yml#L37) | ansible.builtin.uri | False | @docsible Resolves latest stable kubectl version |
+| [Set kubectl version fact](tasks/binaries.yml#L44) | ansible.builtin.set_fact | False | @docsible Sets kubectl version fact |
+| [Get kubectl checksum](tasks/binaries.yml#L48) | ansible.builtin.uri | False | @docsible Fetches kubectl SHA256 checksum |
+| [Check current kubectl version](tasks/binaries.yml#L55) | ansible.builtin.command | False | @docsible Checks currently installed kubectl version |
+| [Download and install kubectl](tasks/binaries.yml#L61) | ansible.builtin.get_url | True | @docsible Downloads and installs kubectl binary |
+| [Install Helm (Official Script)](tasks/binaries.yml#L79) | block | True | @docsible Block: Install Helm 3 |
+| [Check if helm is installed](tasks/binaries.yml#L82) | ansible.builtin.stat | False | @docsible Checks for existing helm binary |
+| [Install Helm](tasks/binaries.yml#L87) | ansible.builtin.get_url | True | @docsible Downloads Helm installer script |
+| [Run helm installer](tasks/binaries.yml#L98) | ansible.builtin.command | True | @docsible Executes Helm installer |
+| [Install helm-diff plugin](tasks/binaries.yml#L105) | ansible.builtin.command | True | @docsible Installs helm-diff plugin |
 
 #### File: tasks/dependencies.yml
 
 | Name | Module | Has Conditions | Comments |
 | ---- | ------ | -------------- | -------- |
-| [Download GitHub CLI keyring](tasks/dependencies.yml#L2) | ansible.builtin.get_url | True | Download and verify GitHub CLI repository keyring for secure package installation |
-| [Verify GitHub CLI keyring fingerprint](tasks/dependencies.yml#L10) | ansible.builtin.command | True | Verify GPG key fingerprint for GitHub CLI repository security |
-| [Assert GitHub CLI keyring fingerprint](tasks/dependencies.yml#L19) | ansible.builtin.assert | True | Ensure GitHub CLI keyring matches expected fingerprint for security |
-| [Add GitHub CLI repository](tasks/dependencies.yml#L29) | ansible.builtin.apt_repository | True | Add GitHub CLI repository with signed-by option for package verification |
-| [Install debug packages](tasks/dependencies.yml#L43) | ansible.builtin.apt | True | Install lightweight debug packages |
-| [Install dev packages](tasks/dependencies.yml#L52) | ansible.builtin.apt | True | Install developer/workstation packages |
+| [Download GitHub CLI keyring](tasks/dependencies.yml#L2) | ansible.builtin.get_url | True | @docsible Downloads GitHub CLI GPG keyring |
+| [Verify GitHub CLI keyring fingerprint](tasks/dependencies.yml#L11) | ansible.builtin.command | True | @docsible Verifies GPG keyring fingerprint against official ID |
+| [Assert GitHub CLI keyring fingerprint](tasks/dependencies.yml#L21) | ansible.builtin.assert | True | @docsible Enforces GPG fingerprint match |
+| [Add GitHub CLI repository](tasks/dependencies.yml#L32) | ansible.builtin.apt_repository | True | @docsible Adds signed GitHub CLI APT repository |
+| [Install debug packages](tasks/dependencies.yml#L45) | ansible.builtin.apt | True | @docsible Installs network diagnostic tools (tcpdump, net-tools) |
+| [Install dev packages](tasks/dependencies.yml#L55) | ansible.builtin.apt | True | @docsible Installs development tools (make, gcc) if enabled |
 
 #### File: tasks/hardware_tuning.yml
 
 | Name | Module | Has Conditions | Comments |
 | ---- | ------ | -------------- | -------- |
-| [Install tuning tools](tasks/hardware_tuning.yml#L2) | ansible.builtin.apt | True | Install system tools for hardware optimization - IRQ balancing and radio frequency management |
-| [Install audio tools](tasks/hardware_tuning.yml#L11) | ansible.builtin.apt | True | Install ALSA utilities for audio optimization when enabled |
-| [Start irqbalance](tasks/hardware_tuning.yml#L19) | ansible.builtin.systemd | True | Enable IRQ balancing service for better CPU utilization across cores |
-| [Block wireless radios](tasks/hardware_tuning.yml#L28) | ansible.builtin.command | True | Disable WiFi and Bluetooth radios to reduce power consumption and interference |
-| [Optimize audio limits](tasks/hardware_tuning.yml#L40) | community.general.pam_limits | True | Configure PAM limits for real-time audio processing and unlimited memory locking |
-| [Enable fstrim](tasks/hardware_tuning.yml#L51) | ansible.builtin.systemd | False | Enable automatic SSD trimming for optimal storage performance and longevity |
-| [Deploy RoG Hardware Tweaks Script](tasks/hardware_tuning.yml#L59) | ansible.builtin.template | True | ASUS RoG specific hardware configuration |
-| [Deploy systemd service for RoG Tweaks](tasks/hardware_tuning.yml#L68) | ansible.builtin.copy | True |  |
-| [Enable and start RoG Tweaks service](tasks/hardware_tuning.yml#L77) | ansible.builtin.systemd | True |  |
+| [Install tuning tools](tasks/hardware_tuning.yml#L2) | ansible.builtin.apt | True | @docsible Installs irqbalance for interrupt distribution |
+| [Install audio tools](tasks/hardware_tuning.yml#L11) | ansible.builtin.apt | True | @docsible Installs ALSA tools for audio tuning |
+| [Start irqbalance](tasks/hardware_tuning.yml#L19) | ansible.builtin.systemd | True | @docsible Starts irqbalance service |
+| [Block wireless radios](tasks/hardware_tuning.yml#L28) | ansible.builtin.command | True | @docsible Blocks WiFi/Bluetooth via rfkill (Server Mode) |
+| [Optimize audio limits](tasks/hardware_tuning.yml#L41) | community.general.pam_limits | True | @docsible Sets realtime priority limits for audio |
+| [Enable fstrim](tasks/hardware_tuning.yml#L53) | ansible.builtin.systemd | False | @docsible Enables fstrim timer for SSD maintenance |
+| [Deploy RoG Hardware Tweaks Script](tasks/hardware_tuning.yml#L61) | ansible.builtin.template | True | @docsible Deploys custom ASUS RoG hardware tuning script |
+| [Deploy systemd service for RoG Tweaks](tasks/hardware_tuning.yml#L71) | ansible.builtin.copy | True | @docsible Installs systemd service for RoG tuning |
+| [Enable and start RoG Tweaks service](tasks/hardware_tuning.yml#L81) | ansible.builtin.systemd | True | @docsible Starts RoG tuning service |
 
 #### File: tasks/k8s_ansible_deps.yml
 
-| Name | Module | Has Conditions | Tags |
-| ---- | ------ | -------------- | -----|
-| [Check if kubernetes package is installed](tasks/k8s_ansible_deps.yml#L5) | ansible.builtin.command | True |  |
-| [Install kubernetes.core deps via uv](tasks/k8s_ansible_deps.yml#L13) | ansible.builtin.command | True | k8s,deps |
+| Name | Module | Has Conditions | Tags | Comments |
+| ---- | ------ | -------------- | -----| -------- |
+| [Check if kubernetes package is installed](tasks/k8s_ansible_deps.yml#L2) | ansible.builtin.command | True |  | @docsible Checks for python-kubernetes package |
+| [Install kubernetes.core deps via uv](tasks/k8s_ansible_deps.yml#L11) | ansible.builtin.command | True | k8s,deps | @docsible Installs kubernetes python library via uv |
 
 #### File: tasks/main.yml
 
 | Name | Module | Has Conditions | Comments |
 | ---- | ------ | -------------- | -------- |
-| [Disable swap](tasks/main.yml#L2) | ansible.builtin.command | True | @docsible Disable swap for Kubernetes compatibility |
-| [Disable swap (fstab)](tasks/main.yml#L9) | ansible.builtin.replace | False | @docsible Permanently disable swap in fstab |
-| [Detect Ubuntu version](tasks/main.yml#L15) | ansible.builtin.set_fact | False | @docsible Detect Ubuntu version for kernel selection |
-| [Define kernel package](tasks/main.yml#L19) | ansible.builtin.set_fact | True | @docsible Set HWE kernel package name |
-| [Install system base tools](tasks/main.yml#L24) | ansible.builtin.apt | False | @docsible Install essential system utilities |
-| [Install NetworkManager](tasks/main.yml#L34) | ansible.builtin.apt | True | @docsible Install NetworkManager if enabled |
-| [Install ACPI daemon](tasks/main.yml#L40) | ansible.builtin.apt | True | @docsible Install ACPI daemon if enabled |
-| [Install dependencies](tasks/main.yml#L46) | ansible.builtin.include_tasks | False | @docsible Install additional system dependencies |
-| [Install HWE kernel](tasks/main.yml#L49) | ansible.builtin.apt | True | @docsible Install HWE kernel for newer hardware |
-| [Install generic kernel](tasks/main.yml#L59) | ansible.builtin.apt | True | @docsible Fallback to generic kernel if HWE fails |
-| [Register kernel change](tasks/main.yml#L69) | ansible.builtin.set_fact | False | @docsible Track kernel installation changes |
-| [Configure power](tasks/main.yml#L76) | ansible.builtin.include_tasks | False | @docsible Configure power management settings |
-| [Apply hardware tuning](tasks/main.yml#L79) | ansible.builtin.include_tasks | False | @docsible Apply hardware-specific optimizations |
-| [System Tuning](tasks/main.yml#L82) | ansible.builtin.include_tasks | False | @docsible Apply system-level kernel tuning |
-| [Install Cloud-Native Binaries](tasks/main.yml#L85) | ansible.builtin.include_tasks | False | @docsible Install cloud-native binaries (Helm, kubectl, etc.) |
-| [Ensure Helm config directory exists](tasks/main.yml#L89) | ansible.builtin.file | True | @docsible Create Helm configuration directory |
-| [Add Helm Repositories](tasks/main.yml#L98) | kubernetes.core.helm_repository | True | @docsible Add configured Helm repositories |
-| [Install K8s Ansible deps](tasks/main.yml#L107) | ansible.builtin.include_tasks | True | @docsible Install Python dependencies for K8s modules |
+| [Disable swap](tasks/main.yml#L2) | ansible.builtin.command | True | @docsible Disables swap immediately (required for Kubelet) |
+| [Disable swap (fstab)](tasks/main.yml#L9) | ansible.builtin.replace | False | @docsible Persists swap disablement in /etc/fstab |
+| [Detect Ubuntu version](tasks/main.yml#L15) | ansible.builtin.set_fact | False | @docsible Detects Ubuntu version for HWE kernel selection |
+| [Define kernel package](tasks/main.yml#L19) | ansible.builtin.set_fact | True | @docsible Resolves appropriate HWE kernel package name |
+| [Install system base tools](tasks/main.yml#L24) | ansible.builtin.apt | False | @docsible Installs core utilities (curl, iptables, ethtool) |
+| [Install NetworkManager](tasks/main.yml#L34) | ansible.builtin.apt | True | @docsible Installs NetworkManager (if enabled in vars) |
+| [Install ACPI daemon](tasks/main.yml#L40) | ansible.builtin.apt | True | @docsible Installs ACPI daemon for power event handling |
+| [Install dependencies](tasks/main.yml#L46) | ansible.builtin.include_tasks | False | @docsible Imports additional package dependencies |
+| [Install HWE kernel](tasks/main.yml#L49) | ansible.builtin.apt | True | @docsible Installs Hardware Enablement (HWE) Kernel |
+| [Install generic kernel](tasks/main.yml#L59) | ansible.builtin.apt | True | @docsible Falls back to generic kernel if HWE is unavailable |
+| [Register kernel change](tasks/main.yml#L69) | ansible.builtin.set_fact | False | @docsible Flags reboot requirement if kernel changed |
+| [Configure power](tasks/main.yml#L76) | ansible.builtin.include_tasks | False | @docsible Configures power management (lid switch, sleep masks) |
+| [Apply hardware tuning](tasks/main.yml#L79) | ansible.builtin.include_tasks | False | @docsible Applies hardware tuning (irqbalance, audio, RoG) |
+| [System Tuning](tasks/main.yml#L82) | ansible.builtin.include_tasks | False | @docsible Applies sysctl kernel tuning and limits |
+| [Install Cloud-Native Binaries](tasks/main.yml#L85) | ansible.builtin.include_tasks | False | @docsible Installs kubectl, helm, and uv |
+| [Ensure Helm config directory exists](tasks/main.yml#L89) | ansible.builtin.file | True | @docsible Creates Helm config directory structure |
+| [Add Helm Repositories](tasks/main.yml#L98) | kubernetes.core.helm_repository | True | @docsible Registers upstream Helm repositories |
+| [Install K8s Ansible deps](tasks/main.yml#L107) | ansible.builtin.include_tasks | True | @docsible Installs python-kubernetes via uv |
 
 #### File: tasks/network_optimization.yml
 
 | Name | Module | Has Conditions | Comments |
 | ---- | ------ | -------------- | -------- |
-| [Realtek optimizations](tasks/network_optimization.yml#L3) | block | True | Network optimization: Realtek drivers and network configuration
-Optimize Realtek network drivers for ASUS RoG hardware |
-| [Install Realtek driver](tasks/network_optimization.yml#L7) | ansible.builtin.apt | False | Install optimized Realtek r8168 driver for better performance |
-| [Blacklist generic driver](tasks/network_optimization.yml#L13) | ansible.builtin.copy | False | Prevent r8169 generic driver from loading to avoid conflicts |
-| [Ensure pcie_aspm=off in GRUB](tasks/network_optimization.yml#L21) | ansible.builtin.replace | False | Disable PCIe Active State Power Management for network stability |
-| [Update GRUB](tasks/network_optimization.yml#L28) | ansible.builtin.command | True | Apply GRUB configuration changes for next boot |
-| [Register driver change](tasks/network_optimization.yml#L35) | ansible.builtin.set_fact | False | Track if network driver changes require reboot |
-| [Detect primary ethernet interface](tasks/network_optimization.yml#L52) | ansible.builtin.set_fact | True | Identify primary network interface for optimization targeting |
-| [Deploy optimization script](tasks/network_optimization.yml#L57) | ansible.builtin.template | False | Deploy network optimization script with interface-specific settings |
-| [Deploy optimization service](tasks/network_optimization.yml#L63) | ansible.builtin.copy | False | Install systemd service for network optimization at boot |
-| [Reload systemd daemon for network optimization](tasks/network_optimization.yml#L69) | ansible.builtin.systemd | True | Ensure systemd sees the new unit before enabling it |
-| [Start optimization service](tasks/network_optimization.yml#L76) | ansible.builtin.systemd | True | Enable and start network optimization service |
+| [Realtek optimizations](tasks/network_optimization.yml#L2) | block | True | @docsible Block: Realtek NIC driver replacement (r8169 -> r8168-dkms) |
+| [Install Realtek driver](tasks/network_optimization.yml#L6) | ansible.builtin.apt | False | @docsible Installs r8168-dkms driver |
+| [Blacklist generic driver](tasks/network_optimization.yml#L12) | ansible.builtin.copy | False | @docsible Blacklists kernel r8169 driver |
+| [Ensure pcie_aspm=off in GRUB](tasks/network_optimization.yml#L20) | ansible.builtin.replace | False | @docsible Disables PCIe ASPM in GRUB to prevent NIC drops |
+| [Update GRUB](tasks/network_optimization.yml#L27) | ansible.builtin.command | True | @docsible Regenerates GRUB configuration |
+| [Register driver change](tasks/network_optimization.yml#L34) | ansible.builtin.set_fact | False | @docsible Flags reboot requirement for driver switch |
+| [Detect primary ethernet interface](tasks/network_optimization.yml#L53) | ansible.builtin.set_fact | True | @docsible Identifies primary physical ethernet interface (skips Virtual/CNI) |
+| [Deploy optimization script](tasks/network_optimization.yml#L83) | ansible.builtin.template | False | @docsible Deploys ethtool network optimization script |
+| [Deploy optimization service](tasks/network_optimization.yml#L90) | ansible.builtin.copy | False | @docsible Installs network optimization systemd service |
+| [Reload systemd daemon for network optimization](tasks/network_optimization.yml#L97) | ansible.builtin.systemd | True | @docsible Reloads systemd |
+| [Start optimization service](tasks/network_optimization.yml#L105) | ansible.builtin.systemd | True | @docsible Starts network optimization service |
 
 #### File: tasks/power_management.yml
 
 | Name | Module | Has Conditions | Comments |
 | ---- | ------ | -------------- | -------- |
-| [Configure logind to ignore Lid Switch](tasks/power_management.yml#L2) | ansible.builtin.lineinfile | True | Power management: disable suspension and lid switch handling |
-| [Mask sleep and suspend targets to prevent accidental suspension](tasks/power_management.yml#L14) | ansible.builtin.systemd | True |  |
-| [Configure Power Efficiency Tuning (tmpfiles.d)](tasks/power_management.yml#L26) | ansible.builtin.template | True |  |
+| [Configure logind to ignore Lid Switch](tasks/power_management.yml#L2) | ansible.builtin.lineinfile | True | @docsible Configures logind to ignore Lid Switch events |
+| [Mask sleep and suspend targets](tasks/power_management.yml#L16) | ansible.builtin.systemd | True | @docsible Masks sleep/suspend systemd targets |
+| [Configure Power Efficiency Tuning](tasks/power_management.yml#L30) | ansible.builtin.template | True | @docsible Deploys Intel RAPL energy tuning config |
 
 #### File: tasks/system_tuning.yml
 
 | Name | Module | Has Conditions | Tags | Comments |
 | ---- | ------ | -------------- | -----| -------- |
-| [Install performance tools](tasks/system_tuning.yml#L2) | ansible.builtin.apt | True |  | Kernel optimization: CPU, networking, and system limits |
-| [Set CPU governor](tasks/system_tuning.yml#L8) | ansible.builtin.lineinfile | True |  |  |
-| [Enable BBR and Network Tuning](tasks/system_tuning.yml#L17) | ansible.posix.sysctl | False |  |  |
-| [Akash Provider sysctl tuning](tasks/system_tuning.yml#L34) | ansible.posix.sysctl | True |  |  |
-| [Increase FD limits](tasks/system_tuning.yml#L48) | community.general.pam_limits | False |  |  |
-| [Increase file-max](tasks/system_tuning.yml#L57) | ansible.posix.sysctl | False |  |  |
-| [Increase inotify watches](tasks/system_tuning.yml#L63) | ansible.posix.sysctl | False |  |  |
-| [Increase user watches](tasks/system_tuning.yml#L69) | ansible.posix.sysctl | False |  |  |
-| [Enable watchdog](tasks/system_tuning.yml#L75) | ansible.builtin.lineinfile | False |  |  |
-| [Configure hugepages](tasks/system_tuning.yml#L81) | ansible.posix.sysctl | True | os |  |
-| [Load MSR module](tasks/system_tuning.yml#L90) | community.general.modprobe | True | os |  |
-| [Configure Nvidia modules load](tasks/system_tuning.yml#L97) | ansible.builtin.copy | True | os,nvidia |  |
+| [Install performance tools](tasks/system_tuning.yml#L2) | ansible.builtin.apt | True |  | @docsible Installs cpufrequtils for governor control |
+| [Set CPU governor](tasks/system_tuning.yml#L10) | ansible.builtin.lineinfile | True |  | @docsible Sets CPU governor to 'schedutil' |
+| [Enable BBR and Network Tuning](tasks/system_tuning.yml#L21) | ansible.posix.sysctl | False |  | @docsible Enables TCP BBR congestion control and optimizations |
+| [Akash Provider sysctl tuning](tasks/system_tuning.yml#L41) | ansible.posix.sysctl | True |  | @docsible Tunes sysctl for high-concurrency Akash workloads |
+| [Increase FD limits](tasks/system_tuning.yml#L56) | community.general.pam_limits | False |  | @docsible Increases PAM file descriptor limits (soft/hard) |
+| [Increase file-max](tasks/system_tuning.yml#L67) | ansible.posix.sysctl | False |  | @docsible Increases system-wide fs.file-max |
+| [Increase inotify watches](tasks/system_tuning.yml#L75) | ansible.posix.sysctl | False |  | @docsible Increases fs.inotify.max_user_instances |
+| [Increase user watches](tasks/system_tuning.yml#L83) | ansible.posix.sysctl | False |  | @docsible Increases fs.inotify.max_user_watches |
+| [Enable watchdog](tasks/system_tuning.yml#L91) | ansible.builtin.lineinfile | False |  | @docsible Enables RuntimeWatchdogSec for system recovery |
+| [Configure hugepages](tasks/system_tuning.yml#L99) | ansible.posix.sysctl | True | host | @docsible Allocates HugePages for mining efficiency |
+| [Load MSR module](tasks/system_tuning.yml#L110) | community.general.modprobe | True | host | @docsible Loads msr kernel module for CPU mining (RandomX) |
+| [Configure Nvidia modules load](tasks/system_tuning.yml#L119) | ansible.builtin.copy | True | host,nvidia | @docsible Pre-loads NVIDIA kernel modules |
 
 
 ## Task Flow Graphs
@@ -540,7 +519,7 @@ classDef rescue stroke:#665352,stroke-width:2px;
   Realtek_optimizations0_rescue_start_0-->|Task| Report_RoG_Realtek_optimization_failure0[report rog realtek optimization failure]:::task
   Report_RoG_Realtek_optimization_failure0-->|Task| Fail_RoG_Realtek_optimization1[fail rog realtek optimization]:::task
   Fail_RoG_Realtek_optimization1-.->|End of Rescue Block| Realtek_optimizations0_block_start_0
-  Fail_RoG_Realtek_optimization1-->|Task| Detect_primary_ethernet_interface1[detect primary ethernet interface<br>When: **ansible facts  default ipv4    interface   is<br>defined**]:::task
+  Fail_RoG_Realtek_optimization1-->|Task| Detect_primary_ethernet_interface1[detect primary ethernet interface<br>When: **ansible facts  interfaces   is defined**]:::task
   Detect_primary_ethernet_interface1-->|Task| Deploy_optimization_script2[deploy optimization script]:::task
   Deploy_optimization_script2-->|Task| Deploy_optimization_service3[deploy optimization service]:::task
   Deploy_optimization_service3-->|Task| Reload_systemd_daemon_for_network_optimization4[reload systemd daemon for network optimization<br>When: **ansible facts  service mgr       systemd  and not<br>ansible check mode**]:::task
@@ -564,9 +543,9 @@ classDef includeVars stroke:#8e44ad,stroke-width:2px;
 classDef rescue stroke:#665352,stroke-width:2px;
 
   Start-->|Task| Configure_logind_to_ignore_Lid_Switch0[configure logind to ignore lid switch<br>When: **ansible facts  virtualization role       guest**]:::task
-  Configure_logind_to_ignore_Lid_Switch0-->|Task| Mask_sleep_and_suspend_targets_to_prevent_accidental_suspension1[mask sleep and suspend targets to prevent<br>accidental suspension<br>When: **ansible facts  virtualization role       guest**]:::task
-  Mask_sleep_and_suspend_targets_to_prevent_accidental_suspension1-->|Task| Configure_Power_Efficiency_Tuning__tmpfiles_d_2[configure power efficiency tuning  tmpfiles d <br>When: **hardware powerefficiencytuningenabled   default<br>false    bool and ansible facts  processor vendor <br> is defined and ansible facts  processor vendor   <br>   genuineintel**]:::task
-  Configure_Power_Efficiency_Tuning__tmpfiles_d_2-->End
+  Configure_logind_to_ignore_Lid_Switch0-->|Task| Mask_sleep_and_suspend_targets1[mask sleep and suspend targets<br>When: **ansible facts  virtualization role       guest**]:::task
+  Mask_sleep_and_suspend_targets1-->|Task| Configure_Power_Efficiency_Tuning2[configure power efficiency tuning<br>When: **hardware powerefficiencytuningenabled   default<br>false    bool and ansible facts  processor vendor <br> is defined and ansible facts  processor vendor   <br>   genuineintel**]:::task
+  Configure_Power_Efficiency_Tuning2-->End
 ```
 
 
@@ -604,7 +583,7 @@ classDef rescue stroke:#665352,stroke-width:2px;
 
 
 ## Author Information
-Roura
+rc
 
 ### License
 

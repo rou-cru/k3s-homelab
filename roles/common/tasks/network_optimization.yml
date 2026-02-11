@@ -1,15 +1,14 @@
-# Network optimization: Realtek drivers and network configuration
-# Optimize Realtek network drivers for ASUS RoG hardware
+# @docsible Block: Realtek NIC driver replacement (r8169 -> r8168-dkms)
 - name: Realtek optimizations
   when: hardware_rogServer | default(false) | bool
   block:
-    # Install optimized Realtek r8168 driver for better performance
+    # @docsible Installs r8168-dkms driver
     - name: Install Realtek driver
       ansible.builtin.apt:
         name: r8168-dkms
         state: present
       register: common_r8168_install
-    # Prevent r8169 generic driver from loading to avoid conflicts
+    # @docsible Blacklists kernel r8169 driver
     - name: Blacklist generic driver
       ansible.builtin.copy:
         dest: /etc/modprobe.d/blacklist-r8169.conf
@@ -17,21 +16,21 @@
           blacklist r8169
         mode: "0640"
       register: common_r8169_blacklist
-    # Disable PCIe Active State Power Management for network stability
+    # @docsible Disables PCIe ASPM in GRUB to prevent NIC drops
     - name: Ensure pcie_aspm=off in GRUB
       ansible.builtin.replace:
         path: /etc/default/grub
         regexp: '^GRUB_CMDLINE_LINUX_DEFAULT="(?!.*pcie_aspm=off)(.*)"'
         replace: 'GRUB_CMDLINE_LINUX_DEFAULT="\1 pcie_aspm=off"'
       register: common_grub_aspm
-    # Apply GRUB configuration changes for next boot
+    # @docsible Regenerates GRUB configuration
     - name: Update GRUB # noqa: no-handler
       ansible.builtin.command: update-grub
       when:
         - common_grub_aspm.changed
         - not ansible_check_mode
       changed_when: true
-    # Track if network driver changes require reboot
+    # @docsible Flags reboot requirement for driver switch
     - name: Register driver change
       ansible.builtin.set_fact:
         system_networkDriverChanged: >-
@@ -39,40 +38,70 @@
              common_r8169_blacklist.changed or
              common_grub_aspm.changed }}
 
-  # Handle Realtek optimization failures gracefully
   rescue:
+    # @docsible Debugs Realtek optimization failures
     - name: Report RoG/Realtek optimization failure
       ansible.builtin.debug:
         msg: >-
           RoG/Realtek optimization failed at {{ ansible_failed_task.name }}: {{ ansible_failed_result | to_json }}
+    # @docsible Fails execution if NIC tuning fails
     - name: Fail RoG/Realtek optimization
       ansible.builtin.fail:
         msg: "RoG/Realtek optimization failed"
-# Identify primary network interface for optimization targeting
+
+# @docsible Identifies primary physical ethernet interface (skips Virtual/CNI)
 - name: Detect primary ethernet interface
+  vars:
+    _physical_interfaces: >-
+      {{
+        ansible_facts.interfaces |
+        map('extract', ansible_facts) |
+        selectattr('active', 'defined') |
+        selectattr('active', 'equalto', true) |
+        selectattr('device', 'search', '^(en|eth|em)') |
+        rejectattr('device', 'search', '^tailscale') |
+        rejectattr('device', 'search', '^cilium') |
+        rejectattr('device', 'search', '^lxc') |
+        rejectattr('device', 'search', '^cni') |
+        rejectattr('device', 'search', '^flannel') |
+        rejectattr('device', 'search', '^veth') |
+        rejectattr('device', 'search', '^docker') |
+        rejectattr('device', 'search', '^br-') |
+        rejectattr('device', 'search', '^lo$') |
+        rejectattr('device', 'search', '^virbr') |
+        sort(attribute='device')
+      }}
   ansible.builtin.set_fact:
-    system_primaryInterface: "{{ ansible_facts['default_ipv4']['interface'] }}"
-  when: ansible_facts['default_ipv4']['interface'] is defined
-# Deploy network optimization script with interface-specific settings
+    system_primaryInterface: >-
+      {{
+        (_physical_interfaces | map(attribute='device') | first)
+        | default(ansible_facts['default_ipv4']['interface'] | default('eth0'))
+      }}
+  when: ansible_facts['interfaces'] is defined
+
+# @docsible Deploys ethtool network optimization script
 - name: Deploy optimization script
   ansible.builtin.template:
     src: optimize-network.sh.j2
     dest: /usr/local/bin/optimize-network.sh
     mode: "0755"
-# Install systemd service for network optimization at boot
+
+# @docsible Installs network optimization systemd service
 - name: Deploy optimization service
   ansible.builtin.copy:
     src: network-optimization.service
     dest: /etc/systemd/system/network-optimization.service
     mode: "0640"
-# Ensure systemd sees the new unit before enabling it
+
+# @docsible Reloads systemd
 - name: Reload systemd daemon for network optimization
   ansible.builtin.systemd:
     daemon_reload: true
   when:
     - ansible_facts['service_mgr'] == 'systemd'
     - not ansible_check_mode
-# Enable and start network optimization service
+
+# @docsible Starts network optimization service
 - name: Start optimization service
   ansible.builtin.systemd:
     name: network-optimization.service

@@ -9,6 +9,9 @@ advertise-address: "{{ IP_tailscale }}"
 tls-san:
   - "{{ IP_tailscale }}"
 
+# Egress selector - disabled, Tailscale already provides encrypted tunnel
+egress-selector-mode: "disabled"
+
 # CNI - We use Cilium, so disable Flannel
 flannel-backend: "none"
 disable-network-policy: true
@@ -22,6 +25,15 @@ write-kubeconfig-mode: "{{ k3s_serverKubeconfigMode }}"
 
 # Security - Hardening
 secrets-encryption: true
+
+{% if k3s_serverNodeLabels | length > 0 %}
+# Node labels
+node-label:
+{%     for label in k3s_serverNodeLabels %}
+  - "{{ label }}"
+{%     endfor %}
+{% endif %}
+
 kube-apiserver-arg:
   - "audit-policy-file=/etc/rancher/k3s/audit-policy.yaml"
   - "audit-log-path=/var/log/k3s/audit.log"

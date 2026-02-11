@@ -1,6 +1,6 @@
 galaxy_info:
   role_name: common
-  author: Roura
+  author: rc
   description: Common system configurations and optimizations for K3s homelab.
   company: Personal
   license: MIT

@@ -1,4 +1,4 @@
-# @docsible Validate Tailscale IP format (100.x.x.x)
+# @docsible Asserts IP_tailscale follows CGNAT range (100.x.x.x)
 - name: Validate Tailscale IP
   ansible.builtin.assert:
     that:
@@ -7,7 +7,7 @@
       - IP_tailscale is match('^100\.')
     fail_msg: "ERROR: Invalid IP_tailscale ({{ IP_tailscale | default('undefined') }}). Must be 100.x.x.x"
 
-# @docsible Verify required variables are defined
+# @docsible Asserts presence of K3s URL and Token
 - name: Verify K3s agent requirements
   ansible.builtin.assert:
     that:
@@ -17,29 +17,33 @@
       - k3s_agentToken | length > 0
     fail_msg: "ERROR: k3s_agentServerUrl and k3s_agentToken are required"
 
-# @docsible Check for gVisor runtime
+# @docsible Checks for gVisor (runsc) binary
 - name: Check for runsc binary
   ansible.builtin.stat:
     path: /usr/local/bin/runsc
   register: k3s_runsc_stat
 
-# @docsible Check for NVIDIA runtime
+# @docsible Checks for NVIDIA Container Runtime
 - name: Check for nvidia-container-runtime
   ansible.builtin.stat:
     path: /usr/bin/nvidia-container-runtime
   register: k3s_nvidia_runtime_stat
 
-# @docsible Build list of additional containerd runtimes
+# @docsible Constructs list of Containerd runtimes (runsc, nvidia)
 - name: Build containerd runtime list
+  ansible.builtin.set_fact:
+    _current_runtimes: "{{ ansible_facts['k3s_commonContainerdAdditionalRuntimes'] | default([]) }}"
+
+- name: Update containerd runtime list
   ansible.builtin.set_fact:
     k3s_commonContainerdAdditionalRuntimes: >-
       {{
-        []
-        + (['runsc'] if k3s_runsc_stat.stat.exists else [])
-        + (['nvidia'] if k3s_nvidia_runtime_stat.stat.exists else [])
+        _current_runtimes
+        | union(['runsc'] if k3s_runsc_stat.stat.exists else [])
+        | union(['nvidia'] if k3s_nvidia_runtime_stat.stat.exists else [])
       }}
 
-# @docsible Import common K3s setup tasks
+# @docsible Imports K3s Common role (binaries, systemd)
 - name: Run K3s Common
   ansible.builtin.import_role:
     name: k3s_common
@@ -47,7 +51,7 @@
     k3s_recreate: "{{ k3s_agentRecreate }}"
     k3s_commonRestartHandler: "Restart k3s-agent"
 
-# @docsible Deploy agent configuration file
+# @docsible Deploys K3s Agent config (config.yaml)
 - name: Deploy agent config
   ansible.builtin.template:
     src: config.yaml.j2
@@ -56,7 +60,7 @@
   notify: Restart k3s-agent
   when: not ansible_check_mode
 
-# @docsible Install K3s agent binary
+# @docsible Executes K3s Agent installation
 - name: Install K3s agent
   ansible.builtin.shell: |
     set -o pipefail
@@ -72,14 +76,14 @@
   no_log: true
   when: not ansible_check_mode
 
-# @docsible Create systemd override directory
+# @docsible Creates systemd override directory
 - name: Create override dir
   ansible.builtin.file:
     path: /etc/systemd/system/k3s-agent.service.d
     state: directory
     mode: "0750"
 
-# @docsible Deploy systemd service override
+# @docsible Deploys systemd ExecStart override
 - name: Create override
   ansible.builtin.copy:
     dest: /etc/systemd/system/k3s-agent.service.d/override.conf
@@ -90,12 +94,12 @@
     mode: "0640"
   notify: Restart k3s-agent
 
-# @docsible Reload systemd daemon
+# @docsible Reloads systemd daemon
 - name: Reload systemd
   ansible.builtin.systemd:
     daemon_reload: true
 
-# @docsible Enable and start K3s agent service
+# @docsible Starts k3s-agent.service
 - name: Start K3s agent
   ansible.builtin.systemd:
     name: k3s-agent
@@ -103,17 +107,18 @@
     state: started
   when: not ansible_check_mode
 
-# @docsible Apply pending handler restarts
+# @docsible Flushes handlers
 - name: Flush handlers
   ansible.builtin.meta: flush_handlers
 
-# @docsible Wait for node Ready condition
+# @docsible Waits for Node "Ready" status in API
 - name: Wait for node to be ready
   kubernetes.core.k8s_info:
     kind: Node
     name: "{{ ansible_facts['hostname'] }}"
     kubeconfig: "{{ kubeconfig }}"
   delegate_to: "{{ groups['k3s_server'][0] }}"
+  become: false
   register: node_info
   until: >-
     node_info.resources | length > 0 and
@@ -125,7 +130,7 @@
   delay: "{{ k3s_agentReadyzDelay }}"
   when: not ansible_check_mode
 
-# @docsible Apply custom node labels
+# @docsible Applies Node Labels
 - name: Apply node labels
   kubernetes.core.k8s:
     kind: Node
@@ -135,11 +140,12 @@
       metadata:
         labels: "{{ dict(k3s_agentNodeLabels | map('split', '=') | map('list')) }}"
   delegate_to: "{{ groups['k3s_server'][0] }}"
+  become: false
   when:
     - k3s_agentNodeLabels | length > 0
     - not ansible_check_mode
 
-# @docsible Apply custom node taints
+# @docsible Applies Node Taints
 - name: Apply node taints
   kubernetes.core.k8s_taint:
     name: "{{ ansible_facts['hostname'] }}"
@@ -150,12 +156,13 @@
         effect: "{{ item.split(':')[1] }}"
     state: present
   delegate_to: "{{ groups['k3s_server'][0] }}"
+  become: false
   loop: "{{ k3s_agentNodeTaints }}"
   when:
     - k3s_agentNodeTaints | length > 0
     - not ansible_check_mode
 
-# @docsible Display join confirmation
+# @docsible Displays Join Status
 - name: Show agent join status
   ansible.builtin.debug:
     msg: "✅ K3s agent {{ ansible_facts['hostname'] }} joined cluster at {{ k3s_agentServerUrl }}"

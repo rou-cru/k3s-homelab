@@ -1,7 +1,4 @@
-# Install Python dependencies for kubernetes.core Ansible collection
-# Uses uv (installed via binaries.yml) to install modern versions
-# The apt python3-kubernetes package is too old (<24.2.0)
-
+# @docsible Checks for python-kubernetes package
 - name: Check if kubernetes package is installed
   ansible.builtin.command:
     cmd: /usr/local/bin/uv pip show kubernetes
@@ -10,6 +7,7 @@
   failed_when: false
   when: not ansible_check_mode
 
+# @docsible Installs kubernetes python library via uv
 - name: Install kubernetes.core deps via uv
   ansible.builtin.command:
     cmd: /usr/local/bin/uv pip install --system --break-system-packages kubernetes>=24.2.0 requests-oauthlib jsonpatch

@@ -63,23 +63,20 @@ a RuntimeClass for sandboxed workloads in K3s.
 
 | Name | Module | Has Conditions | Comments |
 | ---- | ------ | -------------- | -------- |
-| [Install runsc binary](tasks/host.yml#L2) | ansible.builtin.get_url | True | @docsible Download and install gVisor runsc binary |
+| [Install runsc binary](tasks/host.yml#L2) | ansible.builtin.get_url | True | @docsible Installs 'runsc' (gVisor Runtime) version {{ gvisor_version }} |
 
 #### File: tasks/main.yml
 
 | Name | Module | Has Conditions | Tags | Comments |
 | ---- | ------ | -------------- | -----| -------- |
-| [Download runsc](tasks/main.yml#L3) | ansible.builtin.get_url | False |  | @docsible Download gVisor runtime binary |
-| [Ensure K3s manifests directory exists](tasks/main.yml#L13) | ansible.builtin.file | False |  | @docsible Use K3s auto-deploy manifests directory for the RuntimeClass |
-| [Deploy RuntimeClass manifest](tasks/main.yml#L20) | ansible.builtin.template | False |  | @docsible Deploy gVisor RuntimeClass manifest |
-| [Remove runsc (cleanup)](tasks/main.yml#L27) | ansible.builtin.file | False | cleanup,never | @docsible Remove gVisor runtime binary (cleanup) |
+| [Download runsc](tasks/main.yml#L3) | ansible.builtin.get_url | False |  | @docsible Downloads 'runsc' binary (latest release) |
+| [Remove runsc (cleanup)](tasks/main.yml#L13) | ansible.builtin.file | False | cleanup,never | @docsible Removes 'runsc' binary (Cleanup Task) |
 
 #### File: tasks/runtimeclass.yml
 
 | Name | Module | Has Conditions | Comments |
 | ---- | ------ | -------------- | -------- |
-| [Ensure K3s manifests directory exists](tasks/runtimeclass.yml#L2) | ansible.builtin.file | True | @docsible Create K3s auto-deploy manifests directory |
-| [Deploy gVisor RuntimeClass manifest](tasks/runtimeclass.yml#L12) | ansible.builtin.copy | True | @docsible Deploy gVisor RuntimeClass manifest |
+| [Apply gVisor RuntimeClass](tasks/runtimeclass.yml#L2) | kubernetes.core.k8s | True | @docsible Registers gVisor RuntimeClass (requires runsc on nodes) |
 
 
 ## Task Flow Graphs
@@ -100,7 +97,7 @@ classDef importRole stroke:#699ba7,stroke-width:2px;
 classDef includeVars stroke:#8e44ad,stroke-width:2px;
 classDef rescue stroke:#665352,stroke-width:2px;
 
-  Start-->|Task| Install_runsc_binary0[install runsc binary<br>When: **k3s server  in group names and  gvisor install  <br>default true    bool**]:::task
+  Start-->|Task| Install_runsc_binary0[install runsc binary<br>When: **gvisor install   default true    bool**]:::task
   Install_runsc_binary0-->End
 ```
 
@@ -120,10 +117,8 @@ classDef includeVars stroke:#8e44ad,stroke-width:2px;
 classDef rescue stroke:#665352,stroke-width:2px;
 
   Start-->|Task| Download_runsc0[download runsc]:::task
-  Download_runsc0-->|Task| Ensure_K3s_manifests_directory_exists1[ensure k3s manifests directory exists]:::task
-  Ensure_K3s_manifests_directory_exists1-->|Task| Deploy_RuntimeClass_manifest2[deploy runtimeclass manifest]:::task
-  Deploy_RuntimeClass_manifest2-->|Task| Remove_runsc__cleanup_3[remove runsc  cleanup ]:::task
-  Remove_runsc__cleanup_3-->End
+  Download_runsc0-->|Task| Remove_runsc__cleanup_1[remove runsc  cleanup ]:::task
+  Remove_runsc__cleanup_1-->End
 ```
 
 
@@ -141,9 +136,8 @@ classDef importRole stroke:#699ba7,stroke-width:2px;
 classDef includeVars stroke:#8e44ad,stroke-width:2px;
 classDef rescue stroke:#665352,stroke-width:2px;
 
-  Start-->|Task| Ensure_K3s_manifests_directory_exists0[ensure k3s manifests directory exists<br>When: **k3s server  in group names and  gvisor install  <br>default true    bool**]:::task
-  Ensure_K3s_manifests_directory_exists0-->|Task| Deploy_gVisor_RuntimeClass_manifest1[deploy gvisor runtimeclass manifest<br>When: **k3s server  in group names and  gvisor install  <br>default true    bool**]:::task
-  Deploy_gVisor_RuntimeClass_manifest1-->End
+  Start-->|Task| Apply_gVisor_RuntimeClass0[apply gvisor runtimeclass<br>When: **gvisor install   default true    bool**]:::task
+  Apply_gVisor_RuntimeClass0-->End
 ```
 
 
@@ -163,7 +157,7 @@ MIT
 
 ### Platforms
 
-- **Ubuntu**: ['jammy', 'noble']
+- **Ubuntu**: ['noble']
 
 
 ### Dependencies

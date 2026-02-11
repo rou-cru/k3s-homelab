@@ -1,32 +1,18 @@
-# @docsible Set system hostname
+# @docsible Sets persistent system hostname to match inventory
 - name: Set system hostname
   ansible.builtin.hostname:
     name: "{{ inventory_hostname }}"
   when: not ansible_check_mode
 
-# @docsible Verify network connectivity to K3s download endpoint
-- name: Check connectivity
-  ansible.builtin.uri:
-    url: https://get.k3s.io
-    method: HEAD
-    timeout: 10
-  register: preflight_network_check
-  failed_when: false
-  changed_when: false
-  check_mode: false
-# @docsible Fail if network is unreachable
-- name: Fail on disconnect
-  ansible.builtin.fail:
-    msg: "No network connectivity detected. Cannot proceed with installation."
-  when: preflight_network_check.status is not defined or preflight_network_check.status != 200
-# @docsible Check available disk space on root filesystem
+# @docsible Retrieves available space on root filesystem (KB)
 - name: Check disk space
   ansible.builtin.shell:
     cmd: df --output=avail / | tail -1
   register: root_disk_space
   changed_when: false
   check_mode: false
-# @docsible Validate minimum disk space requirement
+
+# @docsible Enforces minimum disk space requirement (Default: 20GB)
 - name: Assert disk space
   ansible.builtin.assert:
     that:
@@ -37,7 +23,8 @@
         ~ ((root_disk_space.stdout | int / 1024 / 1024) | round(2))
         ~ 'GB'
       }}
-# @docsible Validate minimum memory requirement
+
+# @docsible Enforces minimum RAM requirement (Default: 2GB)
 - name: Assert memory
   ansible.builtin.assert:
     that:
@@ -45,7 +32,8 @@
     fail_msg: >-
       Insufficient memory. Required: {{ preflight_minRamMb }}MB, Available:
       {{ ansible_facts['memtotal_mb'] }}MB
-# @docsible Validate x86_64 architecture
+
+# @docsible Enforces x86_64 CPU architecture
 - name: Assert architecture
   ansible.builtin.assert:
     that:

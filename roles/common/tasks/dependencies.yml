@@ -1,4 +1,4 @@
-# Download and verify GitHub CLI repository keyring for secure package installation
+# @docsible Downloads GitHub CLI GPG keyring
 - name: Download GitHub CLI keyring
   ansible.builtin.get_url:
     url: https://cli.github.com/packages/githubcli-archive-keyring.gpg
@@ -6,7 +6,8 @@
     mode: '0644'
     force: true
   when: system_installGithubCliRepo | bool
-# Verify GPG key fingerprint for GitHub CLI repository security
+
+# @docsible Verifies GPG keyring fingerprint against official ID
 - name: Verify GitHub CLI keyring fingerprint
   ansible.builtin.command: >-
     gpg --show-keys --with-colons /usr/share/keyrings/githubcli-archive-keyring.gpg
@@ -15,7 +16,8 @@
   when:
     - system_installGithubCliRepo | bool
     - not ansible_check_mode
-# Ensure GitHub CLI keyring matches expected fingerprint for security
+
+# @docsible Enforces GPG fingerprint match
 - name: Assert GitHub CLI keyring fingerprint
   ansible.builtin.assert:
     that:
@@ -25,13 +27,12 @@
     - system_installGithubCliRepo | bool
     - not ansible_check_mode
     - githubcli_keyring_fingerprint is defined
-# Add GitHub CLI repository with signed-by option for package verification
+
+# @docsible Adds signed GitHub CLI APT repository
 - name: Add GitHub CLI repository
   ansible.builtin.apt_repository:
     repo: >-
       {{
-
-
         'deb [arch=' ~ ansible_facts['architecture'] ~
         ' signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] ' ~
         'https://cli.github.com/packages stable main'
@@ -39,7 +40,8 @@
     filename: github-cli
     state: present
   when: system_installGithubCliRepo | bool
-# Install lightweight debug packages
+
+# @docsible Installs network diagnostic tools (tcpdump, net-tools)
 - name: Install debug packages
   ansible.builtin.apt:
     name: "{{ packages_debug }}"
@@ -48,7 +50,8 @@
   when:
     - system_installDebugPackages | bool
     - packages_debug | default([]) | length > 0
-# Install developer/workstation packages
+
+# @docsible Installs development tools (make, gcc) if enabled
 - name: Install dev packages
   ansible.builtin.apt:
     name: "{{ packages_dev }}"

@@ -1,6 +1,6 @@
 galaxy_info:
   role_name: preflight
-  author: Roura
+  author: rc
   description: Pre-flight checks to ensure minimum system requirements are met.
   company: Personal
   license: MIT

@@ -1,4 +1,4 @@
-# @docsible Download and install gVisor runsc binary
+# @docsible Installs 'runsc' (gVisor Runtime) version {{ gvisor_version }}
 - name: Install runsc binary
   ansible.builtin.get_url:
     url: "https://storage.googleapis.com/gvisor/releases/release/{{ gvisor_version }}/x86_64/runsc"
@@ -7,4 +7,4 @@
     owner: root
     group: root
     checksum: "sha512:https://storage.googleapis.com/gvisor/releases/release/{{ gvisor_version }}/x86_64/runsc.sha512"
-  when: "'k3s_server' in group_names and (gvisor_install | default(true) | bool)"
+  when: "gvisor_install | default(true) | bool"

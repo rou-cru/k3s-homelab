@@ -46,13 +46,11 @@ Description: Pre-flight checks to ensure minimum system requirements are met.
 
 | Name | Module | Has Conditions | Comments |
 | ---- | ------ | -------------- | -------- |
-| [Set system hostname](tasks/main.yml#L2) | ansible.builtin.hostname | True | @docsible Set system hostname |
-| [Check connectivity](tasks/main.yml#L8) | ansible.builtin.uri | False | @docsible Verify network connectivity to K3s download endpoint |
-| [Fail on disconnect](tasks/main.yml#L18) | ansible.builtin.fail | True | @docsible Fail if network is unreachable |
-| [Check disk space](tasks/main.yml#L23) | ansible.builtin.shell | False | @docsible Check available disk space on root filesystem |
-| [Assert disk space](tasks/main.yml#L30) | ansible.builtin.assert | False | @docsible Validate minimum disk space requirement |
-| [Assert memory](tasks/main.yml#L41) | ansible.builtin.assert | False | @docsible Validate minimum memory requirement |
-| [Assert architecture](tasks/main.yml#L49) | ansible.builtin.assert | False | @docsible Validate x86_64 architecture |
+| [Set system hostname](tasks/main.yml#L2) | ansible.builtin.hostname | True | @docsible Sets persistent system hostname to match inventory |
+| [Check disk space](tasks/main.yml#L8) | ansible.builtin.shell | False | @docsible Retrieves available space on root filesystem (KB) |
+| [Assert disk space](tasks/main.yml#L16) | ansible.builtin.assert | False | @docsible Enforces minimum disk space requirement (Default: 20GB) |
+| [Assert memory](tasks/main.yml#L28) | ansible.builtin.assert | False | @docsible Enforces minimum RAM requirement (Default: 2GB) |
+| [Assert architecture](tasks/main.yml#L37) | ansible.builtin.assert | False | @docsible Enforces x86_64 CPU architecture |
 
 
 ## Task Flow Graphs
@@ -74,13 +72,11 @@ classDef includeVars stroke:#8e44ad,stroke-width:2px;
 classDef rescue stroke:#665352,stroke-width:2px;
 
   Start-->|Task| Set_system_hostname0[set system hostname<br>When: **not ansible check mode**]:::task
-  Set_system_hostname0-->|Task| Check_connectivity1[check connectivity]:::task
-  Check_connectivity1-->|Task| Fail_on_disconnect2[fail on disconnect<br>When: **preflight network check status is not defined or<br>preflight network check status    200**]:::task
-  Fail_on_disconnect2-->|Task| Check_disk_space3[check disk space]:::task
-  Check_disk_space3-->|Task| Assert_disk_space4[assert disk space]:::task
-  Assert_disk_space4-->|Task| Assert_memory5[assert memory]:::task
-  Assert_memory5-->|Task| Assert_architecture6[assert architecture]:::task
-  Assert_architecture6-->End
+  Set_system_hostname0-->|Task| Check_disk_space1[check disk space]:::task
+  Check_disk_space1-->|Task| Assert_disk_space2[assert disk space]:::task
+  Assert_disk_space2-->|Task| Assert_memory3[assert memory]:::task
+  Assert_memory3-->|Task| Assert_architecture4[assert architecture]:::task
+  Assert_architecture4-->End
 ```
 
 
@@ -88,7 +84,7 @@ classDef rescue stroke:#665352,stroke-width:2px;
 
 
 ## Author Information
-Roura
+rc
 
 ### License
 
