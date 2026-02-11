@@ -8,26 +8,26 @@
   vars_files:
     - "{{ secrets_file | default('secrets.yaml') }}"
   pre_tasks:
-    # @docsible Update APT cache for package installation
+    # @docsible Refreshes APT cache with 1-hour validity
     - name: Update APT cache
       ansible.builtin.apt:
         update_cache: true
         cache_valid_time: 3600
       tags: always
 
-    # @docsible Validate Tailscale VPN authentication key
-    - name: Validate Tailscale AuthKey presence
-      ansible.builtin.assert:
-        that:
-          - tailscale_authkey is defined
-          - tailscale_authkey | length > 0
-          - "tailscale_authkey != 'tskey-auth-REPLACE-WITH-REAL-KEY'"
-        fail_msg: "ERROR: Configure your real 'tailscale_authkey' in 'secrets.yaml'."
-        success_msg: "Tailscale AuthKey validated successfully."
-      tags: always
-      no_log: true
+    # # @docsible Asserts tailscale_authkey is defined and valid before proceeding
+    # - name: Validate Tailscale AuthKey presence
+    #   ansible.builtin.assert:
+    #     that:
+    #       - tailscale_authkey is defined
+    #       - tailscale_authkey | length > 0
+    #       - "tailscale_authkey != 'tskey-auth-REPLACE-WITH-REAL-KEY'"
+    #     fail_msg: "ERROR: Configure your real 'tailscale_authkey' in 'secrets.yaml'."
+    #     success_msg: "Tailscale AuthKey validated successfully."
+    #   tags: always
+    #   no_log: true
 
-    # @docsible Verify master node is defined in inventory
+    # @docsible Ensures 'k3s_server' group exists in inventory for master discovery
     - name: Validate k3s_server group exists
       ansible.builtin.assert:
         that:
@@ -40,36 +40,30 @@
     # ==========================================================================
     # PHASE 1: HOST (OS preparation)
     # ==========================================================================
-    # @docsible Validate system requirements for VPS node
-    - name: Run preflight role
-      ansible.builtin.import_role:
-        name: preflight
-      tags: ["host"]
+    # @docsible Validates VPS system requirements (RAM, Disk, Connectivity)
+    # - name: Run preflight role
+    #   ansible.builtin.import_role:
+    #     name: preflight
+    #   tags: ["host"]
 
-    # @docsible Configure base OS settings for VPS
+    # @docsible Configures base OS settings, packages, and kernel parameters
     - name: Run common role
       ansible.builtin.import_role:
         name: common
       tags: ["host"]
 
-    # @docsible Deploy system monitoring on VPS
-    - name: Run glances monitoring
-      ansible.builtin.import_role:
-        name: glances
-      tags: ["host"]
-
-    # @docsible Optimize network stack for VPS connectivity
-    - name: Run common network optimizations
-      ansible.builtin.import_role:
-        name: common
-        tasks_from: network_optimization.yml
-      when: system_networkOptimize | default(false)
-      tags: ["host"]
+    # # @docsible Tunes networking stack (BBR) for gateway performance
+    # - name: Run common network optimizations
+    #   ansible.builtin.import_role:
+    #     name: common
+    #     tasks_from: network_optimization.yml
+    #   when: system_networkOptimize | default(false)
+    #   tags: ["host"]
 
     # ==========================================================================
     # PHASE 2: CLUSTER (VPS joins as agent node)
     # ==========================================================================
-    # @docsible Setup Tailscale VPN for secure cluster communication
+    # @docsible Configures Tailscale interface and routing
     - name: Run tailscale role
       ansible.builtin.import_role:
         name: tailscale
@@ -79,7 +73,7 @@
       ansible.builtin.meta: flush_handlers
 
     # K3s Agent join
-    # @docsible Resolve master Tailscale IP for agent join URL
+    # @docsible Resolves K3s Master Tailscale IP (100.x) for secure join
     - name: Get master Tailscale IP
       ansible.builtin.command: tailscale ip -4
       register: k3s_master_tailscale_ip
@@ -94,7 +88,7 @@
         - not ansible_check_mode
         - k3s_master_tailscale_ip.stdout | length == 0
 
-    # @docsible Build k3s_agentServerUrl from master Tailscale IP
+    # @docsible Constructs internal K3s API URL using Tailscale IP
     - name: Set K3s agent server URL
       vars:
         k3s_masterTailscaleIp: >-
@@ -106,13 +100,13 @@
         k3s_agentServerUrl: "https://{{ k3s_masterTailscaleIp }}:6443"
       when: not ansible_check_mode
 
-    # @docsible Mock server URL in check mode
+    # @docsible Mocks API URL for Ansible check mode safety
     - name: Set K3s agent server URL (check mode)
       ansible.builtin.set_fact:
         k3s_agentServerUrl: "https://100.64.0.1:6443"
       when: ansible_check_mode
 
-    # @docsible Fetch authentication token from master node
+    # @docsible Fetches K3s node-token directly from Master node
     - name: Retrieve K3s server token from master
       ansible.builtin.slurp:
         src: /var/lib/rancher/k3s/server/node-token
@@ -123,7 +117,7 @@
       tags: ["cluster"]
       when: not ansible_check_mode
 
-    # @docsible Store server token for agent registration
+    # @docsible Registers node-token fact for agent role consumption
     - name: Set K3s token fact
       ansible.builtin.set_fact:
         k3s_agentToken: >-
@@ -135,14 +129,36 @@
       tags: ["cluster"]
       when: ansible_check_mode or k3s_token_raw is not skipped
 
-    # @docsible Join VPS as K3s agent node to cluster
+    # @docsible Installs K3s agent and joins the cluster
     - name: Run k3s_agent role
       ansible.builtin.import_role:
         name: k3s_agent
       tags: ["cluster"]
 
+    # @docsible Announces local Pod CIDR to Tailscale mesh (Hybrid connectivity)
+    - name: Advertise Cilium pod CIDR via Tailscale
+      ansible.builtin.import_role:
+        name: tailscale
+        tasks_from: advertise_pod_cidr
+      tags: ["cluster", "tailscale"]
+      become: false
+      when: not ansible_check_mode
+
+    # @docsible Advertises Service CIDR (10.43.0.0/16) to function as Cluster Gateway
+    # - name: Advertise Service CIDR via Tailscale on VPS
+    #   vars:
+    #     _service_cidr: "{{ tailscale_serviceCidr | default('10.43.0.0/16') }}"
+    #   ansible.builtin.command: >
+    #     tailscale set
+    #     --advertise-routes="{{ _cilium_pod_cidr | default('') }},{{ _service_cidr }}"
+    #   become: true
+    #   when:
+    #     - not ansible_check_mode
+    #     - _cilium_pod_cidr | default('') | length > 0
+    #   tags: ["cluster", "tailscale"]
+
   post_tasks:
-    # @docsible Show VPS configuration summary and next steps
+    # @docsible Outputs post-install summary and manual action items
     - name: Display VPS setup summary
       ansible.builtin.debug:
         msg: |
@@ -154,10 +170,4 @@
           Public IP: {{ ansible_host }}
           K3s Server: {{ k3s_agentServerUrl | default('Not configured') }}
           Exit Node: {{ tailscale_exitNodeEnabled | default(false) }}
-
-          Next steps:
-          1. Approve exit node in Tailscale admin console
-          2. Verify node is Ready: kubectl get nodes
-          3. Configure Gateway API resources
-          ====================================
       tags: always

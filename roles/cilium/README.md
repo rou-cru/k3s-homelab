@@ -84,16 +84,6 @@ Description: Installs and configures Cilium CNI for K3s clusters.
   
   
 
-  - **cilium_devices**
-    - **Required**: False
-    - **Type**: str
-    - **Default**: eth+ en+ ens+
-  
-    - **Description**: Device patterns for Cilium to attach to (space-separated patterns).
-  
-  
-  
-
 
 
 </details>
@@ -112,13 +102,10 @@ Description: Installs and configures Cilium CNI for K3s clusters.
 
 | Name | Module | Has Conditions | Comments |
 | ---- | ------ | -------------- | -------- |
-| [Create temporary values file](tasks/main.yml#L2) | ansible.builtin.tempfile | True | @docsible Create temporary values file |
-| [Ensure Cilium Helm repo](tasks/main.yml#L10) | kubernetes.core.helm_repository | True | @docsible Add Cilium Helm repository |
-| [Template Cilium values file](tasks/main.yml#L17) | ansible.builtin.template | True | @docsible Generate Cilium values from template |
-| [Install Cilium via Helm](tasks/main.yml#L25) | kubernetes.core.helm | True | @docsible Deploy Cilium CNI via Helm |
-| [Wait for Cilium DaemonSet to be created](tasks/main.yml#L38) | kubernetes.core.k8s_info | True | @docsible Wait for Cilium DaemonSet creation |
-| [Wait for cilium pods](tasks/main.yml#L51) | kubernetes.core.k8s_info | True | @docsible Wait for all Cilium pods to be ready |
-| [Remove temporary values file](tasks/main.yml#L69) | ansible.builtin.file | True | @docsible Cleanup temporary values file |
+| [Ensure Cilium Helm repo](tasks/main.yml#L2) | kubernetes.core.helm_repository | True | @docsible Registers Cilium Helm repository |
+| [Install Cilium via Helm](tasks/main.yml#L10) | kubernetes.core.helm | True | @docsible Installs Cilium (values.yaml + dynamic overrides) |
+| [Wait for Cilium DaemonSet to be created](tasks/main.yml#L25) | kubernetes.core.k8s_info | True | @docsible Waits for Cilium DaemonSet existence |
+| [Wait for cilium pods](tasks/main.yml#L38) | kubernetes.core.k8s_info | True | @docsible Waits for full Cilium DaemonSet rollout |
 
 
 ## Task Flow Graphs
@@ -139,14 +126,11 @@ classDef importRole stroke:#699ba7,stroke-width:2px;
 classDef includeVars stroke:#8e44ad,stroke-width:2px;
 classDef rescue stroke:#665352,stroke-width:2px;
 
-  Start-->|Task| Create_temporary_values_file0[create temporary values file<br>When: **not ansible check mode**]:::task
-  Create_temporary_values_file0-->|Task| Ensure_Cilium_Helm_repo1[ensure cilium helm repo<br>When: **not ansible check mode**]:::task
-  Ensure_Cilium_Helm_repo1-->|Task| Template_Cilium_values_file2[template cilium values file<br>When: **not ansible check mode**]:::task
-  Template_Cilium_values_file2-->|Task| Install_Cilium_via_Helm3[install cilium via helm<br>When: **not ansible check mode**]:::task
-  Install_Cilium_via_Helm3-->|Task| Wait_for_Cilium_DaemonSet_to_be_created4[wait for cilium daemonset to be created<br>When: **not ansible check mode**]:::task
-  Wait_for_Cilium_DaemonSet_to_be_created4-->|Task| Wait_for_cilium_pods5[wait for cilium pods<br>When: **not ansible check mode**]:::task
-  Wait_for_cilium_pods5-->|Task| Remove_temporary_values_file6[remove temporary values file<br>When: **not ansible check mode**]:::task
-  Remove_temporary_values_file6-->End
+  Start-->|Task| Ensure_Cilium_Helm_repo0[ensure cilium helm repo<br>When: **not ansible check mode**]:::task
+  Ensure_Cilium_Helm_repo0-->|Task| Install_Cilium_via_Helm1[install cilium via helm<br>When: **not ansible check mode**]:::task
+  Install_Cilium_via_Helm1-->|Task| Wait_for_Cilium_DaemonSet_to_be_created2[wait for cilium daemonset to be created<br>When: **not ansible check mode**]:::task
+  Wait_for_Cilium_DaemonSet_to_be_created2-->|Task| Wait_for_cilium_pods3[wait for cilium pods<br>When: **not ansible check mode**]:::task
+  Wait_for_cilium_pods3-->End
 ```
 
 
@@ -154,7 +138,7 @@ classDef rescue stroke:#665352,stroke-width:2px;
 
 
 ## Author Information
-Roura
+rc
 
 ### License
 

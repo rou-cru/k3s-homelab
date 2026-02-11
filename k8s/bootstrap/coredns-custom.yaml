@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: coredns-custom
+  namespace: kube-system
+data:
+  custom-dns.override: |
+    forward . 1.1.1.1 8.8.8.8 {
+      policy sequential
+      health_check 5s
+    }
+  tailscale.server: |
+    genet-wyvern.ts.net:53 {
+      errors
+      cache 30
+      forward . 100.100.100.100
+    }

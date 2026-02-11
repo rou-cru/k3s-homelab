@@ -10,25 +10,3 @@ argument_specs:
         type: str
         required: true
         description: Tailscale authentication key (tskey-auth-...).
-      tailscale_hostnamePrefix:
-        type: str
-        required: false
-        default: "k3s"
-        description: Prefix for the generated Tailscale hostname (e.g., k3s-hostname).
-      tailscale_tags:
-        type: str
-        required: false
-        default: ""
-        description: Comma-separated list of ACL tags to advertise (e.g., tag:k3s).
-      tailscale_acceptDns:
-        type: str
-        required: false
-        default: "true"
-        description: Whether to accept DNS configuration from the tailnet ("true"/"false").
-        choices: ["true", "false"]
-      tailscale_ssh:
-        type: str
-        required: false
-        default: "true"
-        description: Whether to enable Tailscale SSH ("true"/"false").
-        choices: ["true", "false"]

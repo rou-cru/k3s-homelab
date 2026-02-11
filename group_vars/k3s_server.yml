@@ -37,3 +37,10 @@ system_installK8sAnsibleDeps: true
 
 # Server lifecycle
 k3s_serverRecreate: true
+
+tailscale_advertiseServiceCidr: true
+
+# Tailscale peer IPs workaround kept disabled until connectivity baseline is recovered
+# tailscale_peerRoutes:
+#   - "100.108.70.45/32"   # VPS Tailscale IP
+#   - "10.0.1.0/24"        # VPS pod CIDR

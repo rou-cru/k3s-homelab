@@ -1,40 +1,27 @@
-# @docsible Create temporary values file
-- name: Create temporary values file
-  ansible.builtin.tempfile:
-    state: file
-    suffix: "-cilium-values.yaml"
-  register: cilium_values_tmp
-  check_mode: false
-  when: not ansible_check_mode
-# @docsible Add Cilium Helm repository
+# @docsible Registers Cilium Helm repository
 - name: Ensure Cilium Helm repo
   kubernetes.core.helm_repository:
     name: cilium
     repo_url: https://helm.cilium.io/
   register: cilium_repo_add
   when: not ansible_check_mode
-# @docsible Generate Cilium values from template
-- name: Template Cilium values file
-  ansible.builtin.template:
-    src: cilium-values.yaml.j2
-    dest: "{{ cilium_values_tmp.path }}"
-    mode: "0600"
-  check_mode: false
-  when: not ansible_check_mode
-# @docsible Deploy Cilium CNI via Helm
+
+# @docsible Installs Cilium (values.yaml + dynamic overrides)
 - name: Install Cilium via Helm
   kubernetes.core.helm:
     release_name: cilium
     chart_ref: cilium/{{ cilium_chartName }}
     release_namespace: "{{ cilium_namespace }}"
-    create_namespace: true
+    create_namespace: false
     values_files:
-      - "{{ cilium_values_tmp.path }}"
+      - "{{ k8s_manifestsDir }}/bootstrap/cilium/values.yaml"
+    values: "{{ lookup('template', playbook_dir + '/k8s/bootstrap/cilium/values-override.yaml.j2') | from_yaml }}"
     chart_version: "{{ cilium_chartVersion }}"
     kubeconfig: "{{ kubeconfig }}"
-    update_repo_cache: true # Ensure latest chart information
+    update_repo_cache: true
   when: not ansible_check_mode
-# @docsible Wait for Cilium DaemonSet creation
+
+# @docsible Waits for Cilium DaemonSet existence
 - name: Wait for Cilium DaemonSet to be created
   kubernetes.core.k8s_info:
     kind: DaemonSet
@@ -42,12 +29,12 @@
     namespace: "{{ cilium_namespace }}"
     kubeconfig: "{{ kubeconfig }}"
   register: cilium_ds_check
-  until: cilium_ds_check.resources | length > 0
+  until: cilium_ds_check.resources | default([]) | length > 0
   retries: "{{ cilium_waitRetries }}"
   delay: "{{ cilium_waitDelay }}"
   when: not ansible_check_mode
 
-# @docsible Wait for all Cilium pods to be ready
+# @docsible Waits for full Cilium DaemonSet rollout
 - name: Wait for cilium pods
   kubernetes.core.k8s_info:
     kind: DaemonSet
@@ -56,19 +43,12 @@
     kubeconfig: "{{ kubeconfig }}"
   register: cilium_ds
   until: >-
-    cilium_ds.resources | length > 0 and
+    cilium_ds.resources | default([]) | length > 0 and
     cilium_ds.resources[0].status.numberReady == cilium_ds.resources[0].status.desiredNumberScheduled and
     cilium_ds.resources[0].status.updatedNumberScheduled == cilium_ds.resources[0].status.desiredNumberScheduled
   retries: "{{ cilium_waitRetries }}"
   delay: "{{ cilium_waitDelay }}"
   when: not ansible_check_mode
 
-# NOTE: Gateway is deployed in cert_manager/acme.yml after certificates are ready
-
-# @docsible Cleanup temporary values file
-- name: Remove temporary values file
-  ansible.builtin.file:
-    path: "{{ cilium_values_tmp.path }}"
-    state: absent
-  changed_when: false
-  when: not ansible_check_mode
+# LB-IPAM Pool removed: Not needed with hostNetwork mode for edge nodes
+# Traffic reaches cilium-envoy directly via node's public IP (74.208.250.178)

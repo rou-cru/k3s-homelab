@@ -22,7 +22,10 @@ devtools_enabled: false
 # VPS-SPECIFIC REQUIREMENTS
 # ------------------------------------------------------------------------------
 # Exit node for egress gateway
-tailscale_exitNodeEnabled: true
+tailscale_exitNodeEnabled: false  # TEMP: disabled for debugging connectivity
+
+# k3s_agentNodeExternalIp: "74.208.250.178"
+# (REMOVED: Caused Cilium identity conflicts, see cilium-remote-node-masquerade-analysis.md)
 
 # ------------------------------------------------------------------------------
 # K3S AGENT CONFIGURATION (VPS is agent, not server)
@@ -41,5 +44,9 @@ k3s_agentNodeLabels:
   - "node.kubernetes.io/instance-type=vps"
   - "egress-gateway=vps"
 
-k3s_agentNodeTaints:
-  - "node.kubernetes.io/edge=true:NoSchedule"
+k3s_agentNodeTaints: []
+
+# Tailscale peer IPs workaround kept disabled until connectivity baseline is recovered
+# tailscale_peerRoutes:
+#   - "100.96.136.51/32"   # Master Tailscale IP
+#   - "10.0.0.0/24"        # Master pod CIDR
