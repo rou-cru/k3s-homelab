@@ -24,6 +24,8 @@ global:
 
 ## Argo Configs
 configs:
+  params:
+    server.insecure: true
   # General Argo CD configuration. Any values you put under `.configs.cm` are passed to argocd-cm ConfigMap.
   ## Ref: https://github.com/argoproj/argo-cd/blob/master/docs/operator-manual/argocd-cm.yaml
   cm:
@@ -118,8 +120,6 @@ server:
     limits:
       memory: 256Mi
 
-  # -- Run server without TLS
-  insecure: true
   # Server container ports
   containerPorts:
     # -- Server container port
@@ -128,6 +128,16 @@ server:
     metrics: 8083
   # -- Host Network for Server pods
   hostNetwork: false
+  # Keep Argo CD off the VPS networking node without pinning to a specific node.
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: node.kubernetes.io/instance-type
+                operator: NotIn
+                values:
+                  - vps
   # -- [DNS configuration]
   dnsConfig: {}
   # -- Alternative DNS policy for Server pods
@@ -204,15 +214,15 @@ server:
     nodePortHttps: 30443
     # -- Server service http port
     servicePortHttp: 80
-    # -- Server service https port (used for gRPC with insecure mode)
-    servicePortHttps: 8080
+    # -- Server service https port
+    servicePortHttps: 443
     # -- Server service http port name, can be used to route traffic via istio
     servicePortHttpName: http
     # -- Server service https port name, can be used to route traffic via istio
     servicePortHttpsName: https
     # -- Server service https port appProtocol
     ## Ref: https://kubernetes.io/docs/concepts/services-networking/service/#application-protocol
-    servicePortHttpsAppProtocol: "h2c"
+    servicePortHttpsAppProtocol: ""
     # -- The class of the load balancer implementation
     loadBalancerClass: ""
     # -- LoadBalancer will get created with the IP specified in this field

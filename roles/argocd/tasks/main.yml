@@ -30,15 +30,6 @@
   when: not ansible_check_mode
   tags: ["gitops"]
 
-# @docsible Deploys GRPCRoute for ArgoCD CLI
-- name: Create ArgoCD GRPCRoute
-  kubernetes.core.k8s:
-    state: present
-    src: "{{ k8s_manifestsDir }}/bootstrap/argocd/grpc-route.yaml"
-    kubeconfig: "{{ kubeconfig }}"
-  when: not ansible_check_mode
-  tags: ["gitops"]
-
 # @docsible Syncs Admin Password from Vault (ExternalSecret)
 - name: Create ArgoCD Admin Password ExternalSecret
   kubernetes.core.k8s:

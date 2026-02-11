@@ -41,7 +41,7 @@ k3s_agentKubeletArgs:
 k3s_agentNodeLabels:
   - "node.kubernetes.io/edge=true"
   - "topology.kubernetes.io/zone=vps"
-  - "node.kubernetes.io/instance-type=vps"
+  - "node.kubernetes.io/instance-type=vps"  # Used by workload nodeAffinity to avoid scheduling on VPS
   - "egress-gateway=vps"
 
 k3s_agentNodeTaints: []
