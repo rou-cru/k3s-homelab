@@ -1,11 +1,11 @@
-# @docsible Check if tailscaled binary is installed at expected path
+# @docsible Checks whether tailscaled binary is installed at the expected path
 - name: Check tailscale exists
   ansible.builtin.stat:
     path: /usr/sbin/tailscaled
   register: tailscale_binary_check
   changed_when: false
 
-# @docsible Get tailscale status JSON (only when binary exists)
+# @docsible Collects Tailscale status JSON when binary is present
 - name: Check Tailscale status
   ansible.builtin.command: tailscale status --json
   register: tailscale_status_json
@@ -14,7 +14,7 @@
   check_mode: false
   when: tailscale_binary_check.stat.exists
 
-# @docsible Parse Tailscale state: installed, daemon_running, is_authenticated
+# @docsible Derives Tailscale installation, daemon, and auth state facts
 - name: Determine Tailscale state
   vars:
     _tailscale_backend_state: >-
@@ -41,7 +41,7 @@
         not _tailscale_self_online
       }}
 
-# @docsible Display parsed state for debugging
+# @docsible Prints detected Tailscale state
 - name: Display detected state
   ansible.builtin.debug:
     msg:
@@ -50,7 +50,7 @@
       - "Authenticated: {{ tailscale_is_authenticated }}"
       - "Backend State: {{ tailscale_backend_state }}"
 
-# @docsible Download official Tailscale install script
+# @docsible Downloads the official Tailscale install script
 - name: Download Tailscale installer
   ansible.builtin.get_url:
     url: https://tailscale.com/install.sh
@@ -61,7 +61,7 @@
     - not tailscale_installed | bool
     - not ansible_check_mode
 
-# @docsible Execute install script (creates /usr/sbin/tailscaled)
+# @docsible Runs install script to create /usr/sbin/tailscaled
 - name: Run Tailscale installer
   ansible.builtin.command: /tmp/tailscale-install.sh
   args:
@@ -70,7 +70,7 @@
     - not tailscale_installed | bool
     - not ansible_check_mode
 
-# @docsible Enable and start tailscaled systemd service
+# @docsible Enables and starts tailscaled service
 - name: Start tailscaled service
   ansible.builtin.systemd:
     name: tailscaled
@@ -81,14 +81,14 @@
     - not tailscale_daemon_running | bool
     - not ansible_check_mode
 
-# @docsible Logout if backend state is inconsistent (Running but not Online)
+# @docsible Logs out from stale backend state (Running but not Online)
 - name: Logout Tailscale (reset state if inconsistent)
   ansible.builtin.command: tailscale logout
   when:
     - tailscale_needs_logout | bool
     - not ansible_check_mode
 
-# @docsible Authenticate with tailscale up (NO --reset to preserve routes)
+# @docsible Authenticates node with tailscale up without route reset
 - name: Authenticate Tailscale
   ansible.builtin.shell: |
     tailscale up \
@@ -104,7 +104,7 @@
     - not ansible_check_mode
   changed_when: tailscale_up.rc == 0
 
-# @docsible Configure DNS acceptance from admin console
+# @docsible Configures accept-dns from role variables
 - name: Configure accept-dns
   ansible.builtin.command: tailscale set --accept-dns={{ tailscale_acceptDns | default(true) | bool | lower }}
   when:
@@ -112,7 +112,7 @@
     - not ansible_check_mode
   changed_when: false
 
-# @docsible Enable route acceptance for Cilium Native Routing mesh
+# @docsible Enables accept-routes for Cilium native routing
 - name: Configure accept-routes
   ansible.builtin.command: tailscale set --accept-routes=true
   when:
@@ -120,7 +120,7 @@
     - not ansible_check_mode
   changed_when: false
 
-# @docsible Enable Tailscale SSH server on the node
+# @docsible Enables Tailscale SSH server on the node
 - name: Configure SSH
   ansible.builtin.command: tailscale set --ssh
   when:
@@ -128,7 +128,7 @@
     - not ansible_check_mode
   changed_when: false
 
-# @docsible Advertise as exit node if enabled in variables
+# @docsible Configures exit-node advertisement from role variables
 - name: Configure exit node advertisement
   ansible.builtin.command: tailscale set --advertise-exit-node={{ tailscale_exitNodeEnabled | bool | lower }}
   when:
@@ -136,7 +136,7 @@
     - not ansible_check_mode
   changed_when: false
 
-# @docsible Disable exit node advertisement when not enabled
+# @docsible Forces exit-node advertisement off when disabled
 - name: Disable exit node advertisement
   ansible.builtin.command: tailscale set --advertise-exit-node=false
   when:
@@ -145,7 +145,7 @@
     - not ansible_check_mode
   changed_when: false
 
-# @docsible Unset exit node usage when not using an exit node
+# @docsible Clears exit-node usage when client mode is disabled
 - name: Unset exit node
   ansible.builtin.command: tailscale set --exit-node=""
   when:
@@ -154,7 +154,7 @@
     - not ansible_check_mode
   changed_when: false
 
-# @docsible Advertise static subnet routes from inventory
+# @docsible Advertises static subnet routes from inventory values
 - name: Configure static routes
   ansible.builtin.command: tailscale set --advertise-routes="{{ tailscale_advertiseRoutes }}"
   when:
@@ -163,7 +163,7 @@
     - not ansible_check_mode
   changed_when: false
 
-# @docsible Clear static routes when none defined
+# @docsible Clears advertised subnet routes when none are configured
 - name: Clear static routes
   ansible.builtin.command: tailscale set --advertise-routes=""
   when:
@@ -172,7 +172,7 @@
     - not ansible_check_mode
   changed_when: false
 
-# @docsible Wait for valid CGNAT IP (100.x.x.x) assignment
+# @docsible Waits for a valid CGNAT Tailscale IPv4 assignment (100.x.x.x)
 - name: Wait for Tailscale IP
   ansible.builtin.shell: |
     set -o pipefail
@@ -190,7 +190,7 @@
   retries: 20
   delay: 3
 
-# @docsible Set IP_tailscale fact for use by other roles
+# @docsible Sets IP_tailscale fact for downstream roles
 - name: Set Tailscale IP fact
   ansible.builtin.set_fact:
     IP_tailscale: >-
@@ -199,20 +199,20 @@
     - tailscale_ip_cmd is not skipped
     - tailscale_ip_cmd.stdout is defined
 
-# @docsible Provide mock IP for check mode execution
+# @docsible Provides mock IP_tailscale during check mode
 - name: Set mock IP fact (check mode)
   ansible.builtin.set_fact:
     IP_tailscale: "100.64.0.1"
   when: ansible_check_mode
 
-# @docsible Verifies Tailscale ended in authenticated online state after bootstrap
+# @docsible Re-checks final Tailscale authenticated online state after bootstrap
 - name: Validate authenticated Tailscale state
   ansible.builtin.command: tailscale status --json
   register: tailscale_status_final
   changed_when: false
   when: not ansible_check_mode
 
-# @docsible Fails bootstrap when Tailscale is not online/authenticated
+# @docsible Fails bootstrap when Tailscale is not online and authenticated
 - name: Assert Tailscale is online
   ansible.builtin.assert:
     that:
@@ -221,7 +221,7 @@
     fail_msg: "Tailscale bootstrap failed: node is not authenticated/online in tailnet."
   when: not ansible_check_mode
 
-# @docsible Verify SSH connectivity over Tailscale network
+# @docsible Verifies SSH connectivity over the Tailscale address
 - name: Validate connectivity
   ansible.builtin.wait_for:
     host: "{{ IP_tailscale }}"
@@ -233,7 +233,7 @@
     - IP_tailscale | length > 0
     - not ansible_check_mode
 
-# @docsible Warn if Tailscale SSH is not reachable
+# @docsible Warns when Tailscale SSH connectivity is not reachable
 - name: Warn connectivity
   ansible.builtin.debug:
     msg: "⚠️  Tailscale connectivity failed: {{ IP_tailscale }}:22"

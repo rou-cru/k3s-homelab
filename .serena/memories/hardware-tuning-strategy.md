@@ -54,8 +54,8 @@ Balance entre:
 - Trade-off: Memoria no swappable
 
 **Swappiness**:
-- Reducida para evitar swap en workloads de larga duración
-- Mineros y plataforma prefieren OOM que swap
+- Estado actual: no hay ajuste explícito de `vm.swappiness` en roles.
+- Remediación pendiente: definir y aplicar tuning explícito en `roles/common/tasks/system_tuning.yml`.
 
 ### Red
 
@@ -76,21 +76,16 @@ Balance entre:
 
 ### Almacenamiento
 
-**I/O Scheduler**:
-- mq-deadline para SSDs (balance latency/throughput)
-- none para NVMe (hardware optimization suficiente)
-
-**Filesystem**:
-- ext4/XFS con opciones optimizadas
-- Noatime para reducir writes
+- Estado actual: no hay tuning explícito de scheduler (`mq-deadline`/`none`) ni `noatime` gestionado por roles.
+- Remediación pendiente: definir política por tipo de disco y aplicarla vía rol común para evitar drift manual.
 
 ### GPU
 
 **NVIDIA Specific**:
 - Persistence mode: Mantiene driver cargado (reduce latency)
 - Coolbits: Overclocking/fan control
-- Power limits: Ajuste de TDP para thermal/efficiency balance
-- Multi-Process Service (MPS): Compartir GPU entre procesos
+- Power limits: en RTX 4070 Mobile (GPU del master) no es posible ajustar `-pl`; el límite es por diseño de hardware.
+- MPS: deseado para mejorar multiplexación, pero requiere más investigación y experimentación con el hardware disponible.
 
 **Container Integration**:
 - Container toolkit: GPU access en containers

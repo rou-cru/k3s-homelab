@@ -14,7 +14,7 @@ Description: Configures NVIDIA GPUs for K3s, including drivers, container toolki
 
 
 <details>
-<summary><b> Argument Specifications in meta/argument_specs</b></summary>
+<summary><b>🧩 Argument Specifications in meta/argument_specs</b></summary>
 
 #### Key: main
 
@@ -155,6 +155,8 @@ Supports host setup, cluster setup, and headless X11 configurations.
 
 
 
+
+
 ### Tasks
 
 
@@ -162,26 +164,26 @@ Supports host setup, cluster setup, and headless X11 configurations.
 
 | Name | Module | Has Conditions | Tags | Comments |
 | ---- | ------ | -------------- | -----| -------- |
-| [NVIDIA GPU cluster setup](tasks/cluster.yml#L2) | block | True | cluster,nvidia | @docsible Block: NVIDIA GPU Cluster Integration |
+| [NVIDIA GPU cluster setup](tasks/cluster.yml#L2) | block | True | cluster,nvidia | @docsible Applies NVIDIA GPU cluster integration resources |
 | [Ensure NVIDIA Helm repo](tasks/cluster.yml#L6) | kubernetes.core.helm_repository | False |  | @docsible Registers NVIDIA Device Plugin Helm Repo |
 | [Apply NVIDIA RuntimeClass](tasks/cluster.yml#L12) | kubernetes.core.k8s | False |  | @docsible Registers 'nvidia' RuntimeClass |
-| [Install device plugin](tasks/cluster.yml#L19) | kubernetes.core.helm | False |  | @docsible Installs NVIDIA Device Plugin (Helm) |
+| [Install device plugin](tasks/cluster.yml#L19) | kubernetes.core.helm | False |  | @docsible Installs NVIDIA Device Plugin via Helm |
 | [Wait for daemonset](tasks/cluster.yml#L31) | kubernetes.core.k8s_info | False |  | @docsible Waits for Device Plugin DaemonSet |
-| [Check GPU resources](tasks/cluster.yml#L46) | kubernetes.core.k8s_info | False |  | @docsible Queries Node status for GPU capacity |
-| [Extract GPU capacities from nodes](tasks/cluster.yml#L54) | ansible.builtin.set_fact | False |  | @docsible Parses GPU capacity from Node status |
-| [Debug GPU resources](tasks/cluster.yml#L63) | ansible.builtin.debug | False |  | @docsible Displays detected GPU count |
+| [Check GPU resources](tasks/cluster.yml#L48) | kubernetes.core.k8s_info | False |  | @docsible Queries Node status for GPU capacity |
+| [Extract GPU capacities from nodes](tasks/cluster.yml#L56) | ansible.builtin.set_fact | False |  | @docsible Parses GPU capacity from Node status |
+| [Debug GPU resources](tasks/cluster.yml#L65) | ansible.builtin.debug | False |  | @docsible Prints detected GPU count |
 
 #### File: tasks/headless_optimization.yml
 
 | Name | Module | Has Conditions | Comments |
 | ---- | ------ | -------------- | -------- |
 | [Install X11 deps](tasks/headless_optimization.yml#L2) | ansible.builtin.apt | True | @docsible Installs Xorg for headless fan control |
-| [Configure xorg](tasks/headless_optimization.yml#L13) | ansible.builtin.template | True | @docsible Configures Xorg with Coolbits (Fan Control) |
+| [Configure xorg](tasks/headless_optimization.yml#L13) | ansible.builtin.template | True | @docsible Configures Xorg with Coolbits for fan control |
 | [Deploy persistence svc](tasks/headless_optimization.yml#L24) | ansible.builtin.copy | True | @docsible Deploys nvidia-persistenced service |
-| [Deploy Xorg svc](tasks/headless_optimization.yml#L35) | ansible.builtin.copy | True | @docsible Deploys Headless Xorg service |
+| [Deploy Xorg svc](tasks/headless_optimization.yml#L35) | ansible.builtin.copy | True | @docsible Deploys headless Xorg service |
 | [Reload systemd (nvidia)](tasks/headless_optimization.yml#L46) | ansible.builtin.systemd | True | @docsible Reloads systemd daemon |
 | [Start persistence svc](tasks/headless_optimization.yml#L54) | ansible.builtin.systemd | True | @docsible Starts nvidia-persistenced |
-| [Start Xorg svc](tasks/headless_optimization.yml#L62) | ansible.builtin.systemd | True | @docsible Starts Headless Xorg on Display :1 |
+| [Start Xorg svc](tasks/headless_optimization.yml#L62) | ansible.builtin.systemd | True | @docsible Starts headless Xorg on display :1 |
 | [Wait for X server](tasks/headless_optimization.yml#L72) | ansible.builtin.wait_for | True | @docsible Waits for X11 socket availability |
 
 #### File: tasks/host.yml
@@ -205,7 +207,7 @@ Supports host setup, cluster setup, and headless X11 configurations.
 | [Blacklist nouveau](tasks/host.yml#L120) | ansible.builtin.copy | True |  | @docsible Blacklists open-source Nouveau driver |
 | [Update initramfs](tasks/host.yml#L131) | ansible.builtin.command | True |  | @docsible Regenerates initramfs after Nouveau blacklist changes |
 | [Set utils package](tasks/host.yml#L139) | ansible.builtin.set_fact | True |  | @docsible Resolves nvidia-utils package name |
-| [Check broken packages](tasks/host.yml#L145) | ansible.builtin.shell | True |  | @docsible Checks for partially installed (broken) packages |
+| [Check broken packages](tasks/host.yml#L145) | ansible.builtin.shell | True |  | @docsible Checks whether broken packages are present |
 | [Fix broken packages](tasks/host.yml#L152) | ansible.builtin.shell | True |  | @docsible Purges broken NVIDIA packages to allow clean install |
 | [Install NVIDIA driver](tasks/host.yml#L166) | ansible.builtin.apt | True |  | @docsible Installs NVIDIA Driver and Utils |
 | [Reboot system (nvidia)](tasks/host.yml#L177) | ansible.builtin.reboot | True |  | @docsible Reboots system to load new kernel modules |
@@ -216,9 +218,9 @@ Supports host setup, cluster setup, and headless X11 configurations.
 | [Check NVIDIA driver status](tasks/host.yml#L230) | ansible.builtin.command | True |  | @docsible Verifies nvidia-smi functionality |
 | [Reboot to fix driver mismatch](tasks/host.yml#L240) | ansible.builtin.reboot | True |  | @docsible Reboots if driver version mismatch detected |
 | [Generate NVIDIA CDI specification](tasks/host.yml#L250) | ansible.builtin.command | True |  | @docsible Generates CDI specification |
-| [Register NVIDIA as an available runtime](tasks/host.yml#L258) | ansible.builtin.set_fact | True | host,nvidia | @docsible Registers 'nvidia' runtime for Containerd |
-| [Update runtime list with NVIDIA](tasks/host.yml#L265) | ansible.builtin.set_fact | True | host,nvidia | @docsible Adds NVIDIA runtime to k3s_commonContainerdAdditionalRuntimes |
-| [Import headless optimization](tasks/host.yml#L273) | ansible.builtin.import_tasks | True |  | @docsible Imports Headless X11 configuration tasks |
+| [Register NVIDIA as an available runtime](tasks/host.yml#L260) | ansible.builtin.set_fact | True | host,nvidia | @docsible Registers 'nvidia' runtime for Containerd |
+| [Update runtime list with NVIDIA](tasks/host.yml#L267) | ansible.builtin.set_fact | True | host,nvidia | @docsible Adds NVIDIA runtime to k3s_commonContainerdAdditionalRuntimes |
+| [Import headless optimization](tasks/host.yml#L275) | ansible.builtin.import_tasks | True |  | @docsible Imports Headless X11 configuration tasks |
 
 
 ## Task Flow Graphs
@@ -337,20 +339,20 @@ classDef rescue stroke:#665352,stroke-width:2px;
 ## Author Information
 rc
 
-### License
+#### License
 
 MIT
 
-### Minimum Ansible Version
+#### Minimum Ansible Version
 
 2.20.0
 
-### Platforms
+#### Platforms
 
 - **Ubuntu**: ['noble']
 
 
-### Dependencies
+#### Dependencies
 
 No dependencies specified.
 <!-- DOCSIBLE END -->

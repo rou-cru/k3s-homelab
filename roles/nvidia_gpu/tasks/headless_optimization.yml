@@ -9,7 +9,7 @@
     cache_valid_time: 3600
   when: nvidia_active | default(false) | bool
 
-# @docsible Configures Xorg with Coolbits (Fan Control)
+# @docsible Configures Xorg with Coolbits for fan control
 - name: Configure xorg
   ansible.builtin.template:
     src: xorg.conf.j2
@@ -31,7 +31,7 @@
   register: nvidia_persistenceService
   when: nvidia_active | default(false) | bool
 
-# @docsible Deploys Headless Xorg service
+# @docsible Deploys headless Xorg service
 - name: Deploy Xorg svc
   ansible.builtin.copy:
     src: nvidia-xorg.service
@@ -58,7 +58,7 @@
     state: started
   when: nvidia_active | default(false) | bool
 
-# @docsible Starts Headless Xorg on Display :1
+# @docsible Starts headless Xorg on display :1
 - name: Start Xorg svc
   ansible.builtin.systemd:
     name: nvidia-xorg.service

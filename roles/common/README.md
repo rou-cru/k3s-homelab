@@ -14,7 +14,7 @@ Description: Common system configurations and optimizations for K3s homelab.
 
 
 <details>
-<summary><b> Argument Specifications in meta/argument_specs</b></summary>
+<summary><b>🧩 Argument Specifications in meta/argument_specs</b></summary>
 
 #### Key: main
 
@@ -218,6 +218,8 @@ RoG hardware tweaks, and network optimizations.
 
 
 
+
+
 ### Tasks
 
 
@@ -225,18 +227,18 @@ RoG hardware tweaks, and network optimizations.
 
 | Name | Module | Has Conditions | Comments |
 | ---- | ------ | -------------- | -------- |
-| [Install uv (Python Tool Manager)](tasks/binaries.yml#L2) | block | True | @docsible Block: Install uv (Fast Python Package Manager) |
-| [Check if uv is installed](tasks/binaries.yml#L5) | ansible.builtin.stat | False | @docsible Checks for existing uv binary |
+| [Install uv (Python Tool Manager)](tasks/binaries.yml#L2) | block | True | @docsible Installs uv when enabled |
+| [Check if uv is installed](tasks/binaries.yml#L5) | ansible.builtin.stat | False | @docsible Skips uv install when binary already exists |
 | [Download and install uv](tasks/binaries.yml#L10) | ansible.builtin.get_url | True | @docsible Downloads uv installer |
-| [Run uv installer](tasks/binaries.yml#L19) | ansible.builtin.command | True | @docsible Executes uv installer |
-| [Install Kubectl (Official Binary)](tasks/binaries.yml#L34) | block | True | @docsible Block: Install kubectl |
+| [Run uv installer](tasks/binaries.yml#L19) | ansible.builtin.command | True | @docsible Installs uv to /usr/local/bin |
+| [Install Kubectl (Official Binary)](tasks/binaries.yml#L34) | block | True | @docsible Installs kubectl from upstream release metadata |
 | [Get latest stable kubectl version](tasks/binaries.yml#L37) | ansible.builtin.uri | False | @docsible Resolves latest stable kubectl version |
 | [Set kubectl version fact](tasks/binaries.yml#L44) | ansible.builtin.set_fact | False | @docsible Sets kubectl version fact |
 | [Get kubectl checksum](tasks/binaries.yml#L48) | ansible.builtin.uri | False | @docsible Fetches kubectl SHA256 checksum |
 | [Check current kubectl version](tasks/binaries.yml#L55) | ansible.builtin.command | False | @docsible Checks currently installed kubectl version |
 | [Download and install kubectl](tasks/binaries.yml#L61) | ansible.builtin.get_url | True | @docsible Downloads and installs kubectl binary |
-| [Install Helm (Official Script)](tasks/binaries.yml#L79) | block | True | @docsible Block: Install Helm 3 |
-| [Check if helm is installed](tasks/binaries.yml#L82) | ansible.builtin.stat | False | @docsible Checks for existing helm binary |
+| [Install Helm (Official Script)](tasks/binaries.yml#L79) | block | True | @docsible Installs Helm 3 and helm-diff plugin |
+| [Check if helm is installed](tasks/binaries.yml#L82) | ansible.builtin.stat | False | @docsible Skips Helm install when binary already exists |
 | [Install Helm](tasks/binaries.yml#L87) | ansible.builtin.get_url | True | @docsible Downloads Helm installer script |
 | [Run helm installer](tasks/binaries.yml#L98) | ansible.builtin.command | True | @docsible Executes Helm installer |
 | [Install helm-diff plugin](tasks/binaries.yml#L105) | ansible.builtin.command | True | @docsible Installs helm-diff plugin |
@@ -270,31 +272,31 @@ RoG hardware tweaks, and network optimizations.
 
 | Name | Module | Has Conditions | Tags | Comments |
 | ---- | ------ | -------------- | -----| -------- |
-| [Check if kubernetes package is installed](tasks/k8s_ansible_deps.yml#L2) | ansible.builtin.command | True |  | @docsible Checks for python-kubernetes package |
+| [Check if kubernetes package is installed](tasks/k8s_ansible_deps.yml#L2) | ansible.builtin.command | True |  | @docsible Checks whether python-kubernetes package is already installed |
 | [Install kubernetes.core deps via uv](tasks/k8s_ansible_deps.yml#L11) | ansible.builtin.command | True | k8s,deps | @docsible Installs kubernetes python library via uv |
 
 #### File: tasks/main.yml
 
 | Name | Module | Has Conditions | Comments |
 | ---- | ------ | -------------- | -------- |
-| [Disable swap](tasks/main.yml#L2) | ansible.builtin.command | True | @docsible Disables swap immediately (required for Kubelet) |
-| [Disable swap (fstab)](tasks/main.yml#L9) | ansible.builtin.replace | False | @docsible Persists swap disablement in /etc/fstab |
-| [Detect Ubuntu version](tasks/main.yml#L15) | ansible.builtin.set_fact | False | @docsible Detects Ubuntu version for HWE kernel selection |
-| [Define kernel package](tasks/main.yml#L19) | ansible.builtin.set_fact | True | @docsible Resolves appropriate HWE kernel package name |
-| [Install system base tools](tasks/main.yml#L24) | ansible.builtin.apt | False | @docsible Installs core utilities (curl, iptables, ethtool) |
-| [Install NetworkManager](tasks/main.yml#L34) | ansible.builtin.apt | True | @docsible Installs NetworkManager (if enabled in vars) |
+| [Disable swap](tasks/main.yml#L2) | ansible.builtin.command | True | @docsible Disables active swap immediately (required by kubelet) |
+| [Disable swap (fstab)](tasks/main.yml#L9) | ansible.builtin.replace | False | @docsible Persists swap disablement in /etc/fstab entries |
+| [Detect Ubuntu version](tasks/main.yml#L15) | ansible.builtin.set_fact | False | @docsible Detects Ubuntu version to resolve the HWE kernel package |
+| [Define kernel package](tasks/main.yml#L19) | ansible.builtin.set_fact | True | @docsible Resolves the target HWE kernel package name |
+| [Install system base tools](tasks/main.yml#L24) | ansible.builtin.apt | False | @docsible Installs required base system utilities |
+| [Install NetworkManager](tasks/main.yml#L34) | ansible.builtin.apt | True | @docsible Installs NetworkManager when enabled |
 | [Install ACPI daemon](tasks/main.yml#L40) | ansible.builtin.apt | True | @docsible Installs ACPI daemon for power event handling |
-| [Install dependencies](tasks/main.yml#L46) | ansible.builtin.include_tasks | False | @docsible Imports additional package dependencies |
-| [Install HWE kernel](tasks/main.yml#L49) | ansible.builtin.apt | True | @docsible Installs Hardware Enablement (HWE) Kernel |
-| [Install generic kernel](tasks/main.yml#L59) | ansible.builtin.apt | True | @docsible Falls back to generic kernel if HWE is unavailable |
-| [Register kernel change](tasks/main.yml#L69) | ansible.builtin.set_fact | False | @docsible Flags reboot requirement if kernel changed |
-| [Configure power](tasks/main.yml#L76) | ansible.builtin.include_tasks | False | @docsible Configures power management (lid switch, sleep masks) |
-| [Apply hardware tuning](tasks/main.yml#L79) | ansible.builtin.include_tasks | False | @docsible Applies hardware tuning (irqbalance, audio, RoG) |
-| [System Tuning](tasks/main.yml#L82) | ansible.builtin.include_tasks | False | @docsible Applies sysctl kernel tuning and limits |
-| [Install Cloud-Native Binaries](tasks/main.yml#L85) | ansible.builtin.include_tasks | False | @docsible Installs kubectl, helm, and uv |
-| [Ensure Helm config directory exists](tasks/main.yml#L89) | ansible.builtin.file | True | @docsible Creates Helm config directory structure |
-| [Add Helm Repositories](tasks/main.yml#L98) | kubernetes.core.helm_repository | True | @docsible Registers upstream Helm repositories |
-| [Install K8s Ansible deps](tasks/main.yml#L107) | ansible.builtin.include_tasks | True | @docsible Installs python-kubernetes via uv |
+| [Install dependencies](tasks/main.yml#L46) | ansible.builtin.include_tasks | False | @docsible Runs dependency subtasks (repo keys and extra packages) |
+| [Install HWE kernel](tasks/main.yml#L49) | ansible.builtin.apt | True | @docsible Installs the Ubuntu HWE kernel when available |
+| [Install generic kernel](tasks/main.yml#L59) | ansible.builtin.apt | True | @docsible Falls back to the generic kernel when HWE is unavailable |
+| [Register kernel change](tasks/main.yml#L69) | ansible.builtin.set_fact | False | @docsible Sets reboot-required fact when kernel packages changed |
+| [Configure power](tasks/main.yml#L76) | ansible.builtin.include_tasks | False | @docsible Runs power-management subtasks |
+| [Apply hardware tuning](tasks/main.yml#L79) | ansible.builtin.include_tasks | False | @docsible Runs hardware-tuning subtasks |
+| [System Tuning](tasks/main.yml#L82) | ansible.builtin.include_tasks | False | @docsible Runs sysctl and limits tuning subtasks |
+| [Install Cloud-Native Binaries](tasks/main.yml#L85) | ansible.builtin.include_tasks | False | @docsible Runs cloud binary install subtasks (uv, kubectl, helm) |
+| [Ensure Helm config directory exists](tasks/main.yml#L89) | ansible.builtin.file | True | @docsible Creates Helm config directory for the ansible user |
+| [Add Helm Repositories](tasks/main.yml#L98) | kubernetes.core.helm_repository | True | @docsible Registers configured upstream Helm repositories |
+| [Install K8s Ansible deps](tasks/main.yml#L107) | ansible.builtin.include_tasks | True | @docsible Runs kubernetes.core Python dependency subtasks |
 
 #### File: tasks/network_optimization.yml
 
@@ -401,10 +403,10 @@ classDef importRole stroke:#699ba7,stroke-width:2px;
 classDef includeVars stroke:#8e44ad,stroke-width:2px;
 classDef rescue stroke:#665352,stroke-width:2px;
 
-  Start-->|Task| Download_GitHub_CLI_keyring0[download GitHub CLI keyring<br>When: **system installgithubclirepo   bool**]:::task
-  Download_GitHub_CLI_keyring0-->|Task| Verify_GitHub_CLI_keyring_fingerprint1[verify GitHub CLI keyring fingerprint<br>When: **system installgithubclirepo   bool and not ansible<br>check mode**]:::task
-  Verify_GitHub_CLI_keyring_fingerprint1-->|Task| Assert_GitHub_CLI_keyring_fingerprint2[assert GitHub CLI keyring fingerprint<br>When: **system installgithubclirepo   bool and not ansible<br>check mode and githubcli keyring fingerprint is<br>defined**]:::task
-  Assert_GitHub_CLI_keyring_fingerprint2-->|Task| Add_GitHub_CLI_repository3[add GitHub CLI repository<br>When: **system installgithubclirepo   bool**]:::task
+  Start-->|Task| Download_GitHub_CLI_keyring0[download github cli keyring<br>When: **system installgithubclirepo   bool**]:::task
+  Download_GitHub_CLI_keyring0-->|Task| Verify_GitHub_CLI_keyring_fingerprint1[verify github cli keyring fingerprint<br>When: **system installgithubclirepo   bool and not ansible<br>check mode**]:::task
+  Verify_GitHub_CLI_keyring_fingerprint1-->|Task| Assert_GitHub_CLI_keyring_fingerprint2[assert github cli keyring fingerprint<br>When: **system installgithubclirepo   bool and not ansible<br>check mode and githubcli keyring fingerprint is<br>defined**]:::task
+  Assert_GitHub_CLI_keyring_fingerprint2-->|Task| Add_GitHub_CLI_repository3[add github cli repository<br>When: **system installgithubclirepo   bool**]:::task
   Add_GitHub_CLI_repository3-->|Task| Install_debug_packages4[install debug packages<br>When: **system installdebugpackages   bool and packages<br>debug   default       length   0**]:::task
   Install_debug_packages4-->|Task| Install_dev_packages5[install dev packages<br>When: **system installdevpackages   bool and packages dev <br> default       length   0**]:::task
   Install_dev_packages5-->End
@@ -585,20 +587,20 @@ classDef rescue stroke:#665352,stroke-width:2px;
 ## Author Information
 rc
 
-### License
+#### License
 
 MIT
 
-### Minimum Ansible Version
+#### Minimum Ansible Version
 
 2.20.0
 
-### Platforms
+#### Platforms
 
 - **Ubuntu**: ['noble']
 
 
-### Dependencies
+#### Dependencies
 
 No dependencies specified.
 <!-- DOCSIBLE END -->

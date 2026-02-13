@@ -14,7 +14,7 @@ Description: Install External Secrets Operator and configure an OCI Vault-backed
 
 
 <details>
-<summary><b> Argument Specifications in meta/argument_specs</b></summary>
+<summary><b>🧩 Argument Specifications in meta/argument_specs</b></summary>
 
 #### Key: main
 
@@ -106,6 +106,8 @@ ClusterSecretStore for external secret management.
 
 
 
+
+
 ### Tasks
 
 
@@ -114,8 +116,8 @@ ClusterSecretStore for external secret management.
 | Name | Module | Has Conditions | Tags | Comments |
 | ---- | ------ | -------------- | -----| -------- |
 | [Ensure External Secrets Helm repo](tasks/main.yml#L2) | kubernetes.core.helm_repository | True |  | @docsible Registers External Secrets Helm repository |
-| [Create external-secrets namespace](tasks/main.yml#L9) | kubernetes.core.k8s | True |  | @docsible Creates Namespace for External Secrets |
-| [Deploy External Secrets Operator](tasks/main.yml#L17) | kubernetes.core.helm | True | infra | @docsible Installs External Secrets Operator (Helm) |
+| [Create external-secrets namespace](tasks/main.yml#L9) | kubernetes.core.k8s | True |  | @docsible Creates namespace for External Secrets |
+| [Deploy External Secrets Operator](tasks/main.yml#L17) | kubernetes.core.helm | True | infra | @docsible Installs External Secrets Operator via Helm |
 | [Wait for external-secrets webhook CA bundle](tasks/main.yml#L34) | kubernetes.core.k8s_info | True | infra | @docsible Waits for Webhook CA Bundle Injection |
 | [Wait for external-secrets webhook to be ready](tasks/main.yml#L55) | kubernetes.core.k8s | True | infra | @docsible Waits for Webhook Deployment Readiness |
 | [Create OCI Auth Secret](tasks/main.yml#L71) | kubernetes.core.k8s | True | infra | @docsible Creates Secret for OCI/GCP Vault Authentication |
@@ -157,20 +159,20 @@ classDef rescue stroke:#665352,stroke-width:2px;
 ## Author Information
 rc
 
-### License
+#### License
 
 MIT
 
-### Minimum Ansible Version
+#### Minimum Ansible Version
 
 2.14
 
-### Platforms
+#### Platforms
 
 - **Ubuntu**: ['noble']
 
 
-### Dependencies
+#### Dependencies
 
 No dependencies specified.
 <!-- DOCSIBLE END -->

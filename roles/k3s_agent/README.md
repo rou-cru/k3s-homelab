@@ -14,11 +14,11 @@ Description: Install and configure K3s agent node to join existing cluster
 
 
 <details>
-<summary><b> Argument Specifications in meta/argument_specs</b></summary>
+<summary><b>🧩 Argument Specifications in meta/argument_specs</b></summary>
 
 #### Key: main
 
-**Description**:
+**Description**: 
 - Installs K3s in agent mode and joins an existing cluster
 - Configures Tailscale-based secure communication
 - Supports custom node labels and taints
@@ -108,6 +108,8 @@ Description: Install and configure K3s agent node to join existing cluster
 
 
 
+
+
 ### Tasks
 
 
@@ -115,24 +117,24 @@ Description: Install and configure K3s agent node to join existing cluster
 
 | Name | Module | Has Conditions | Comments |
 | ---- | ------ | -------------- | -------- |
-| [Validate Tailscale IP](tasks/main.yml#L2) | ansible.builtin.assert | False | @docsible Asserts IP_tailscale follows CGNAT range (100.x.x.x) |
-| [Verify K3s agent requirements](tasks/main.yml#L11) | ansible.builtin.assert | False | @docsible Asserts presence of K3s URL and Token |
-| [Check for runsc binary](tasks/main.yml#L21) | ansible.builtin.stat | False | @docsible Checks for gVisor (runsc) binary |
-| [Check for nvidia-container-runtime](tasks/main.yml#L27) | ansible.builtin.stat | False | @docsible Checks for NVIDIA Container Runtime |
+| [Validate Tailscale IP](tasks/main.yml#L2) | ansible.builtin.assert | False | @docsible Validates IP_tailscale follows CGNAT range (100.x.x.x) |
+| [Verify K3s agent requirements](tasks/main.yml#L11) | ansible.builtin.assert | False | @docsible Validates presence of K3s URL and Token |
+| [Check for runsc binary](tasks/main.yml#L21) | ansible.builtin.stat | False | @docsible Checks whether gVisor runsc binary is installed |
+| [Check for nvidia-container-runtime](tasks/main.yml#L27) | ansible.builtin.stat | False | @docsible Checks whether NVIDIA container runtime is installed |
 | [Build containerd runtime list](tasks/main.yml#L33) | ansible.builtin.set_fact | False | @docsible Constructs list of Containerd runtimes (runsc, nvidia) |
 | [Update containerd runtime list](tasks/main.yml#L38) | ansible.builtin.set_fact | False | @docsible Merges detected runtimes into k3s_commonContainerdAdditionalRuntimes |
 | [Run K3s Common](tasks/main.yml#L48) | ansible.builtin.import_role | False | @docsible Imports K3s Common role (binaries, systemd) |
 | [Deploy agent config](tasks/main.yml#L56) | ansible.builtin.template | True | @docsible Deploys K3s Agent config (config.yaml) |
-| [Install K3s agent](tasks/main.yml#L65) | ansible.builtin.shell | True | @docsible Executes K3s Agent installation |
+| [Install K3s agent](tasks/main.yml#L65) | ansible.builtin.shell | True | @docsible Installs K3s agent with configured flags |
 | [Create override dir](tasks/main.yml#L81) | ansible.builtin.file | False | @docsible Creates systemd override directory |
 | [Create override](tasks/main.yml#L88) | ansible.builtin.copy | False | @docsible Deploys systemd ExecStart override |
 | [Reload systemd](tasks/main.yml#L99) | ansible.builtin.systemd | False | @docsible Reloads systemd daemon |
 | [Start K3s agent](tasks/main.yml#L104) | ansible.builtin.systemd | True | @docsible Starts k3s-agent.service |
 | [Flush handlers](tasks/main.yml#L112) | ansible.builtin.meta | False | @docsible Flushes handlers |
 | [Wait for node to be ready](tasks/main.yml#L116) | kubernetes.core.k8s_info | True | @docsible Waits for Node "Ready" status in API |
-| [Apply node labels](tasks/main.yml#L135) | kubernetes.core.k8s | True | @docsible Applies Node Labels |
-| [Apply node taints](tasks/main.yml#L150) | kubernetes.core.k8s_taint | True | @docsible Applies Node Taints |
-| [Show agent join status](tasks/main.yml#L167) | ansible.builtin.debug | False | @docsible Displays Join Status |
+| [Apply node labels](tasks/main.yml#L135) | kubernetes.core.k8s | True | @docsible Applies node labels |
+| [Apply node taints](tasks/main.yml#L150) | kubernetes.core.k8s_taint | True | @docsible Applies node taints |
+| [Show agent join status](tasks/main.yml#L167) | ansible.builtin.debug | False | @docsible Displays K3s agent join status |
 
 
 ## Task Flow Graphs
@@ -181,20 +183,20 @@ classDef rescue stroke:#665352,stroke-width:2px;
 ## Author Information
 rc
 
-### License
+#### License
 
 MIT
 
-### Minimum Ansible Version
+#### Minimum Ansible Version
 
 2.14
 
-### Platforms
+#### Platforms
 
 - **Ubuntu**: ['noble']
 
 
-### Dependencies
+#### Dependencies
 
 No dependencies specified.
 <!-- DOCSIBLE END -->

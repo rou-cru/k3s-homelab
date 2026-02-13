@@ -1,4 +1,4 @@
-# @docsible Installs 'runsc' (gVisor Runtime) version {{ gvisor_version }}
+# @docsible Installs runsc gVisor runtime version {{ gvisor_version }}
 - name: Install runsc binary
   ansible.builtin.get_url:
     url: "https://storage.googleapis.com/gvisor/releases/release/{{ gvisor_version }}/x86_64/runsc"

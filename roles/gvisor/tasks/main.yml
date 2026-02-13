@@ -1,5 +1,5 @@
 ---
-# @docsible Downloads 'runsc' binary (latest release)
+# @docsible Downloads runsc binary from the latest release
 - name: Download runsc
   ansible.builtin.get_url:
     url: https://storage.googleapis.com/gvisor/releases/release/latest/x86_64/runsc
@@ -9,7 +9,7 @@
     group: root
     checksum: sha512:https://storage.googleapis.com/gvisor/releases/release/latest/x86_64/runsc.sha512
 
-# @docsible Removes 'runsc' binary (Cleanup Task)
+# @docsible Removes runsc binary during cleanup
 - name: Remove runsc (cleanup)
   ansible.builtin.file:
     path: /usr/local/bin/runsc

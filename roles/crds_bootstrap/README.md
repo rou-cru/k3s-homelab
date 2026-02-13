@@ -14,7 +14,7 @@ Description: Bootstrap cluster-wide CRDs (Gateway API and Prometheus Operator) f
 
 
 <details>
-<summary><b> Argument Specifications in meta/argument_specs</b></summary>
+<summary><b>🧩 Argument Specifications in meta/argument_specs</b></summary>
 
 #### Key: main
 
@@ -76,6 +76,8 @@ required by various Helm charts and operators.
 
 
 
+
+
 ### Tasks
 
 
@@ -86,7 +88,7 @@ required by various Helm charts and operators.
 | [Install Gateway API CRDs](tasks/main.yml#L2) | kubernetes.core.k8s | True | cluster | @docsible Installs Experimental Gateway API CRDs (v{{ gateway_apiVersion }}) |
 | [Wait for Gateway API CRDs to be established](tasks/main.yml#L11) | kubernetes.core.k8s_info | True | cluster | @docsible Waits for Gateway CRDs to be registered in API |
 | [Add Prometheus Community Helm repo](tasks/main.yml#L26) | kubernetes.core.helm_repository | True | cluster | @docsible Registers Prometheus Community Helm repository |
-| [Create monitoring namespace](tasks/main.yml#L35) | kubernetes.core.k8s | True |  | @docsible Creates 'monitoring' namespace for CRDs |
+| [Create monitoring namespace](tasks/main.yml#L35) | kubernetes.core.k8s | True |  | @docsible Creates monitoring namespace for CRD workloads |
 | [Install Prometheus Operator CRDs](tasks/main.yml#L43) | kubernetes.core.helm | True | cluster | @docsible Installs Prometheus Operator CRDs (ServiceMonitor, etc.) |
 
 
@@ -123,20 +125,20 @@ classDef rescue stroke:#665352,stroke-width:2px;
 ## Author Information
 rc
 
-### License
+#### License
 
 MIT
 
-### Minimum Ansible Version
+#### Minimum Ansible Version
 
 2.14
 
-### Platforms
+#### Platforms
 
 - **Ubuntu**: ['noble']
 
 
-### Dependencies
+#### Dependencies
 
 No dependencies specified.
 <!-- DOCSIBLE END -->

@@ -5,7 +5,7 @@
     repo_url: https://charts.external-secrets.io
   when: not ansible_check_mode
 
-# @docsible Creates Namespace for External Secrets
+# @docsible Creates namespace for External Secrets
 - name: Create external-secrets namespace
   kubernetes.core.k8s:
     state: present
@@ -13,7 +13,7 @@
     kubeconfig: "{{ kubeconfig }}"
   when: not ansible_check_mode
 
-# @docsible Installs External Secrets Operator (Helm)
+# @docsible Installs External Secrets Operator via Helm
 - name: Deploy External Secrets Operator
   kubernetes.core.helm:
     name: external-secrets

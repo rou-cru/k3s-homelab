@@ -52,6 +52,13 @@ Reservado para uso especifico por namespace en cargas que no son IT interno
 
 ### Transit Encryption
 
-- OCI Vault API: TLS 1.3
-- Kubernetes API: TLS 1.3
-- etcd: Encrypted at rest
+- OCI Vault API: TLS
+- Kubernetes API: TLS
+- etcd: encrypted at rest (`roles/k3s_server/templates/config.yaml.j2`)
+
+## Archivos Clave
+
+- `k8s/bootstrap/external-secrets/cluster-secret-store.yaml.j2`: define provider OCI Vault (`oracle`) y lookup de `vault/region/user/tenancy`.
+- `k8s/bootstrap/external-secrets/oracle-secret.yaml.j2`: crea secret bootstrap con `privatekey` y `fingerprint`.
+- `roles/external_secrets/tasks/main.yml`: instala ESO y aplica bootstrap de secretos/ClusterSecretStore.
+- `k8s/bootstrap/gateway/cloudflare-origin-ca.yaml`: ejemplo de consumo real de ESO hacia secret TLS en cluster.

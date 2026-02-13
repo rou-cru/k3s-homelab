@@ -14,7 +14,7 @@ Description: Install gVisor runsc and register a RuntimeClass for K3s server wor
 
 
 <details>
-<summary><b> Argument Specifications in meta/argument_specs</b></summary>
+<summary><b>🧩 Argument Specifications in meta/argument_specs</b></summary>
 
 #### Key: main
 
@@ -56,6 +56,8 @@ a RuntimeClass for sandboxed workloads in K3s.
 
 
 
+
+
 ### Tasks
 
 
@@ -63,14 +65,14 @@ a RuntimeClass for sandboxed workloads in K3s.
 
 | Name | Module | Has Conditions | Comments |
 | ---- | ------ | -------------- | -------- |
-| [Install runsc binary](tasks/host.yml#L2) | ansible.builtin.get_url | True | @docsible Installs 'runsc' (gVisor Runtime) version {{ gvisor_version }} |
+| [Install runsc binary](tasks/host.yml#L2) | ansible.builtin.get_url | True | @docsible Installs runsc gVisor runtime version {{ gvisor_version }} |
 
 #### File: tasks/main.yml
 
 | Name | Module | Has Conditions | Tags | Comments |
 | ---- | ------ | -------------- | -----| -------- |
-| [Download runsc](tasks/main.yml#L3) | ansible.builtin.get_url | False |  | @docsible Downloads 'runsc' binary (latest release) |
-| [Remove runsc (cleanup)](tasks/main.yml#L13) | ansible.builtin.file | False | cleanup,never | @docsible Removes 'runsc' binary (Cleanup Task) |
+| [Download runsc](tasks/main.yml#L3) | ansible.builtin.get_url | False |  | @docsible Downloads runsc binary from the latest release |
+| [Remove runsc (cleanup)](tasks/main.yml#L13) | ansible.builtin.file | False | cleanup,never | @docsible Removes runsc binary during cleanup |
 
 #### File: tasks/runtimeclass.yml
 
@@ -147,20 +149,20 @@ classDef rescue stroke:#665352,stroke-width:2px;
 ## Author Information
 rc
 
-### License
+#### License
 
 MIT
 
-### Minimum Ansible Version
+#### Minimum Ansible Version
 
 2.14
 
-### Platforms
+#### Platforms
 
 - **Ubuntu**: ['noble']
 
 
-### Dependencies
+#### Dependencies
 
-- k3s_common (or k3s_server), to ensure K3s is present before RuntimeClass deploy
+No dependencies specified.
 <!-- DOCSIBLE END -->

@@ -21,6 +21,8 @@ Description: Deploys Kubernetes Gateway API resources including namespace, Refer
 
 
 
+
+
 ### Tasks
 
 
@@ -28,8 +30,8 @@ Description: Deploys Kubernetes Gateway API resources including namespace, Refer
 
 | Name | Module | Has Conditions | Tags | Comments |
 | ---- | ------ | -------------- | -----| -------- |
-| [Create networking namespace](tasks/main.yml#L2) | kubernetes.core.k8s | True | infra,networking | @docsible Creates 'networking' namespace (Privileged for Gateway) |
-| [Deploy public Gateway](tasks/main.yml#L19) | kubernetes.core.k8s | True | infra,networking | @docsible Deploys Public Gateway (Static Manifest) |
+| [Create networking namespace](tasks/main.yml#L2) | kubernetes.core.k8s | True | infra,networking | @docsible Creates networking namespace for Gateway resources |
+| [Deploy public Gateway](tasks/main.yml#L19) | kubernetes.core.k8s | True | infra,networking | @docsible Applies public Gateway static manifest |
 | [Deploy Cloudflare Origin CA ExternalSecret](tasks/main.yml#L28) | kubernetes.core.k8s | True | infra,networking | @docsible Deploys Cloudflare Origin CA ExternalSecret |
 
 
@@ -64,20 +66,20 @@ classDef rescue stroke:#665352,stroke-width:2px;
 ## Author Information
 rc
 
-### License
+#### License
 
 MIT
 
-### Minimum Ansible Version
+#### Minimum Ansible Version
 
 2.14
 
-### Platforms
+#### Platforms
 
 - **Ubuntu**: ['noble']
 
 
-### Dependencies
+#### Dependencies
 
 No dependencies specified.
 <!-- DOCSIBLE END -->
