@@ -5,7 +5,7 @@
     repo_url: https://argoproj.github.io/argo-helm
   when: not ansible_check_mode
 
-# @docsible Creates 'argocd' namespace
+# @docsible Creates argocd namespace
 - name: Create argocd namespace
   kubernetes.core.k8s:
     state: present
@@ -13,7 +13,7 @@
     kubeconfig: "{{ kubeconfig }}"
   when: not ansible_check_mode
 
-# @docsible Installs ArgoCD (Helm)
+# @docsible Installs ArgoCD via Helm
 - name: Deploy ArgoCD
   kubernetes.core.helm:
     name: argocd
@@ -100,7 +100,7 @@
   when: not ansible_check_mode
   tags: ["gitops"]
 
-# @docsible Restarts ArgoCD Server (Applies new password)
+# @docsible Restarts ArgoCD server to apply updated admin password
 - name: Restart ArgoCD Server to pick up new password
   kubernetes.core.k8s:
     state: present

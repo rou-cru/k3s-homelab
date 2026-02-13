@@ -14,7 +14,7 @@ Description: Installs development tools and useful CLIs for K3s environments.
 
 
 <details>
-<summary><b> Argument Specifications in meta/argument_specs</b></summary>
+<summary><b>🧩 Argument Specifications in meta/argument_specs</b></summary>
 
 #### Key: main
 
@@ -56,6 +56,8 @@ Kubernetes CLIs (kubectl, helm, k9s), Python tools (uv, pipx), and AI CLIs.
 
 
 
+
+
 ### Tasks
 
 
@@ -71,12 +73,12 @@ Kubernetes CLIs (kubectl, helm, k9s), Python tools (uv, pipx), and AI CLIs.
 | [Install nvitop](tasks/main.yml#L55) | ansible.builtin.command | True | @docsible Installs nvitop (GPU process monitor) via uv |
 | [Install Kimi](tasks/main.yml#L65) | ansible.builtin.command | True | @docsible Installs Kimi CLI (AI assistant) via uv |
 | [Install AI tools](tasks/main.yml#L73) | ansible.builtin.shell | True | @docsible Installs Global AI CLI tools (Claude, Gemini, OpenAI) |
-| [Install Docker](tasks/main.yml#L88) | block | True | @docsible Block: Install Docker CLI (Optional) |
+| [Install Docker](tasks/main.yml#L88) | block | True | @docsible Installs Docker CLI when devtools_installDocker is enabled |
 | [Add Docker key](tasks/main.yml#L94) | ansible.builtin.shell | False | @docsible Adds Docker GPG key |
 | [Add Docker repo](tasks/main.yml#L102) | ansible.builtin.apt_repository | False | @docsible Adds Docker APT repository |
 | [Install Docker CLI](tasks/main.yml#L119) | ansible.builtin.apt | False | @docsible Installs Docker CLI packages |
 | [Show Docker warning](tasks/main.yml#L128) | ansible.builtin.debug | False | @docsible Warns about Docker/containerd co-existence |
-| [Install Vagrant and libvirt](tasks/main.yml#L142) | block | True | @docsible Block: Install Vagrant & Libvirt (Test Environment) |
+| [Install Vagrant and libvirt](tasks/main.yml#L142) | block | True | @docsible Installs Vagrant and libvirt test stack when enabled |
 | [Set HashiCorp repo release](tasks/main.yml#L148) | ansible.builtin.set_fact | False | @docsible Resolves HashiCorp repo release codename |
 | [Set HashiCorp repo architecture](tasks/main.yml#L153) | ansible.builtin.set_fact | False | @docsible Resolves HashiCorp repo architecture |
 | [Validate HashiCorp repo architecture](tasks/main.yml#L164) | ansible.builtin.assert | False | @docsible Validates architecture support |
@@ -87,9 +89,9 @@ Kubernetes CLIs (kubectl, helm, k9s), Python tools (uv, pipx), and AI CLIs.
 | [Ensure libvirtd service is enabled and started](tasks/main.yml#L221) | ansible.builtin.systemd | False | @docsible Starts libvirtd service |
 | [Add ansible_user to libvirt group](tasks/main.yml#L227) | ansible.builtin.user | False | @docsible Adds ansible user to libvirt group |
 | [Add root to libvirt group](tasks/main.yml#L233) | ansible.builtin.user | False | @docsible Adds root user to libvirt group |
-| [Check installed Vagrant plugins](tasks/main.yml#L239) | ansible.builtin.command | False | @docsible Checks for installed Vagrant plugins |
+| [Check installed Vagrant plugins](tasks/main.yml#L239) | ansible.builtin.command | False | @docsible Reads installed Vagrant plugins |
 | [Install vagrant-libvirt plugin](tasks/main.yml#L244) | ansible.builtin.command | True | @docsible Installs vagrant-libvirt plugin |
-| [Show Vagrant installation success](tasks/main.yml#L253) | ansible.builtin.debug | False | @docsible Confirms Vagrant installation |
+| [Show Vagrant installation success](tasks/main.yml#L253) | ansible.builtin.debug | False | @docsible Prints Vagrant installation success message |
 
 
 ## Task Flow Graphs
@@ -157,20 +159,20 @@ classDef rescue stroke:#665352,stroke-width:2px;
 ## Author Information
 rc
 
-### License
+#### License
 
 MIT
 
-### Minimum Ansible Version
+#### Minimum Ansible Version
 
 2.20.0
 
-### Platforms
+#### Platforms
 
 - **Ubuntu**: ['noble']
 
 
-### Dependencies
+#### Dependencies
 
 No dependencies specified.
 <!-- DOCSIBLE END -->

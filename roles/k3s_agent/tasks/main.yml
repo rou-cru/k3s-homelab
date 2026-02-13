@@ -1,4 +1,4 @@
-# @docsible Asserts IP_tailscale follows CGNAT range (100.x.x.x)
+# @docsible Validates IP_tailscale follows CGNAT range (100.x.x.x)
 - name: Validate Tailscale IP
   ansible.builtin.assert:
     that:
@@ -7,7 +7,7 @@
       - IP_tailscale is match('^100\.')
     fail_msg: "ERROR: Invalid IP_tailscale ({{ IP_tailscale | default('undefined') }}). Must be 100.x.x.x"
 
-# @docsible Asserts presence of K3s URL and Token
+# @docsible Validates presence of K3s URL and Token
 - name: Verify K3s agent requirements
   ansible.builtin.assert:
     that:
@@ -17,13 +17,13 @@
       - k3s_agentToken | length > 0
     fail_msg: "ERROR: k3s_agentServerUrl and k3s_agentToken are required"
 
-# @docsible Checks for gVisor (runsc) binary
+# @docsible Checks whether gVisor runsc binary is installed
 - name: Check for runsc binary
   ansible.builtin.stat:
     path: /usr/local/bin/runsc
   register: k3s_runsc_stat
 
-# @docsible Checks for NVIDIA Container Runtime
+# @docsible Checks whether NVIDIA container runtime is installed
 - name: Check for nvidia-container-runtime
   ansible.builtin.stat:
     path: /usr/bin/nvidia-container-runtime
@@ -61,7 +61,7 @@
   notify: Restart k3s-agent
   when: not ansible_check_mode
 
-# @docsible Executes K3s Agent installation
+# @docsible Installs K3s agent with configured flags
 - name: Install K3s agent
   ansible.builtin.shell: |
     set -o pipefail
@@ -131,7 +131,7 @@
   delay: "{{ k3s_agentReadyzDelay }}"
   when: not ansible_check_mode
 
-# @docsible Applies Node Labels
+# @docsible Applies node labels
 - name: Apply node labels
   kubernetes.core.k8s:
     kind: Node
@@ -146,7 +146,7 @@
     - k3s_agentNodeLabels | length > 0
     - not ansible_check_mode
 
-# @docsible Applies Node Taints
+# @docsible Applies node taints
 - name: Apply node taints
   kubernetes.core.k8s_taint:
     name: "{{ ansible_facts['hostname'] }}"
@@ -163,7 +163,7 @@
     - k3s_agentNodeTaints | length > 0
     - not ansible_check_mode
 
-# @docsible Displays Join Status
+# @docsible Displays K3s agent join status
 - name: Show agent join status
   ansible.builtin.debug:
     msg: "✅ K3s agent {{ ansible_facts['hostname'] }} joined cluster at {{ k3s_agentServerUrl }}"

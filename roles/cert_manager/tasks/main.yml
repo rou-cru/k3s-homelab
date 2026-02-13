@@ -6,7 +6,7 @@
     force_update: true
   when: not ansible_check_mode
 
-# @docsible Creates Namespace for Cert-Manager
+# @docsible Creates namespace for cert-manager
 - name: Create cert-manager namespace
   kubernetes.core.k8s:
     state: present
@@ -14,7 +14,7 @@
     kubeconfig: "{{ kubeconfig }}"
   when: not ansible_check_mode
 
-# @docsible Installs Cert-Manager (Helm)
+# @docsible Installs cert-manager via Helm
 - name: Deploy cert-manager
   kubernetes.core.helm:
     name: cert-manager
@@ -30,7 +30,7 @@
   when: not ansible_check_mode
   tags: ["infra"]
 
-# @docsible Waits for Webhook availability (Required for CRDs)
+# @docsible Waits for cert-manager webhook availability required by CRDs
 - name: Wait for cert-manager webhook to be available
   kubernetes.core.k8s:
     api_version: apps/v1
@@ -46,7 +46,7 @@
   when: not ansible_check_mode
   tags: ["infra"]
 
-# @docsible Creates Self-Signed Bootstrap Issuer
+# @docsible Creates self-signed bootstrap ClusterIssuer
 - name: Create cert-manager self-signed ClusterIssuer
   kubernetes.core.k8s:
     state: present
@@ -55,7 +55,7 @@
   when: not ansible_check_mode
   tags: ["infra"]
 
-# @docsible Generates Root CA Certificate
+# @docsible Generates root CA certificate
 - name: Create cert-manager CA certificate
   kubernetes.core.k8s:
     state: present
@@ -64,7 +64,7 @@
   when: not ansible_check_mode
   tags: ["infra"]
 
-# @docsible Waits for Root CA Secret
+# @docsible Waits for root CA secret
 - name: Wait for cert-manager CA secret
   kubernetes.core.k8s_info:
     api_version: v1
@@ -80,7 +80,7 @@
   when: not ansible_check_mode
   tags: ["infra"]
 
-# @docsible Creates CA-based ClusterIssuer (Internal PKI)
+# @docsible Creates CA-based ClusterIssuer for internal PKI
 - name: Create cert-manager CA ClusterIssuer
   kubernetes.core.k8s:
     state: present

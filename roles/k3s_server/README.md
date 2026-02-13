@@ -14,7 +14,7 @@ Description: Installs and configures K3s Kubernetes server for homelab usage.
 
 
 <details>
-<summary><b> Argument Specifications in meta/argument_specs</b></summary>
+<summary><b>🧩 Argument Specifications in meta/argument_specs</b></summary>
 
 #### Key: main
 
@@ -137,6 +137,8 @@ and local context merging.
 
 
 
+
+
 ### Tasks
 
 
@@ -144,43 +146,43 @@ and local context merging.
 
 | Name | Module | Has Conditions | Comments |
 | ---- | ------ | -------------- | -------- |
-| [Validate Tailscale IP](tasks/main.yml#L2) | ansible.builtin.assert | False | @docsible Asserts IP_tailscale follows CGNAT range (100.x.x.x) |
-| [Verify K3s server version](tasks/main.yml#L11) | ansible.builtin.assert | False | @docsible Asserts k3s_serverVersion is defined |
-| [Check for runsc binary](tasks/main.yml#L19) | ansible.builtin.stat | False | @docsible Checks for gVisor (runsc) binary |
-| [Check for nvidia-container-runtime](tasks/main.yml#L25) | ansible.builtin.stat | False | @docsible Checks for NVIDIA Container Runtime |
-| [Build containerd runtime list](tasks/main.yml#L31) | ansible.builtin.set_fact | False | @docsible Constructs list of Containerd runtimes (runsc, nvidia) |
+| [Validate Tailscale IP](tasks/main.yml#L2) | ansible.builtin.assert | False | @docsible Validates IP_tailscale follows CGNAT range (100.x.x.x) |
+| [Verify K3s server version](tasks/main.yml#L11) | ansible.builtin.assert | False | @docsible Validates k3s_serverVersion is defined |
+| [Check for runsc binary](tasks/main.yml#L19) | ansible.builtin.stat | False | @docsible Checks whether gVisor runsc binary is installed |
+| [Check for nvidia-container-runtime](tasks/main.yml#L25) | ansible.builtin.stat | False | @docsible Checks whether NVIDIA container runtime is installed |
+| [Build containerd runtime list](tasks/main.yml#L31) | ansible.builtin.set_fact | False | @docsible Builds base list of detected containerd runtimes |
 | [Update containerd runtime list](tasks/main.yml#L36) | ansible.builtin.set_fact | False | @docsible Merges detected runtimes into k3s_commonContainerdAdditionalRuntimes |
-| [Run K3s Common](tasks/main.yml#L46) | ansible.builtin.import_role | False | @docsible Imports K3s Common role (binaries, systemd) |
-| [Ensure K3s log directory exists](tasks/main.yml#L54) | ansible.builtin.file | False | @docsible Creates K3s log directory structure |
-| [Ensure K3s audit log file exists with restrictive permissions](tasks/main.yml#L61) | ansible.builtin.file | False | @docsible Creates empty audit log file (0600) |
-| [Deploy K3s audit policy](tasks/main.yml#L71) | ansible.builtin.template | False | @docsible Deploys K8s Audit Policy configuration |
-| [Deploy server config](tasks/main.yml#L78) | ansible.builtin.template | True | @docsible Deploys K3s Server config (config.yaml) |
-| [Download K3s install script](tasks/main.yml#L87) | ansible.builtin.get_url | True | @docsible Downloads K3s official install script |
-| [Install K3s server](tasks/main.yml#L95) | ansible.builtin.shell | True | @docsible Executes K3s Server installation |
-| [Create override dir](tasks/main.yml#L108) | ansible.builtin.file | False | @docsible Creates systemd override directory |
-| [Create override](tasks/main.yml#L115) | ansible.builtin.copy | False | @docsible Deploys systemd ExecStart override |
+| [Run K3s Common](tasks/main.yml#L46) | ansible.builtin.import_role | False | @docsible Imports k3s_common role for shared K3s host setup |
+| [Ensure K3s log directory exists](tasks/main.yml#L54) | ansible.builtin.file | False | @docsible Ensures K3s log directory exists |
+| [Ensure K3s audit log file exists with restrictive permissions](tasks/main.yml#L61) | ansible.builtin.file | False | @docsible Ensures K3s audit log file exists with mode 0600 |
+| [Deploy K3s audit policy](tasks/main.yml#L71) | ansible.builtin.template | False | @docsible Renders Kubernetes audit policy for K3s server |
+| [Deploy server config](tasks/main.yml#L78) | ansible.builtin.template | True | @docsible Renders K3s server config.yaml |
+| [Download K3s install script](tasks/main.yml#L87) | ansible.builtin.get_url | True | @docsible Downloads official K3s install script |
+| [Install K3s server](tasks/main.yml#L95) | ansible.builtin.shell | True | @docsible Installs K3s server with configured flags |
+| [Create override dir](tasks/main.yml#L108) | ansible.builtin.file | False | @docsible Ensures systemd override directory for k3s exists |
+| [Create override](tasks/main.yml#L115) | ansible.builtin.copy | False | @docsible Writes systemd ExecStart override for k3s |
 | [Reload systemd (k3s)](tasks/main.yml#L126) | ansible.builtin.systemd | False | @docsible Reloads systemd daemon |
-| [Start K3s](tasks/main.yml#L131) | ansible.builtin.systemd | True | @docsible Starts k3s.service |
-| [Flush handlers](tasks/main.yml#L139) | ansible.builtin.meta | False | @docsible Flushes handlers (restarts services) |
-| [Wait for node-token](tasks/main.yml#L143) | ansible.builtin.wait_for | True | @docsible Waits for K3s node-token generation |
-| [Wait for kubeconfig](tasks/main.yml#L150) | ansible.builtin.wait_for | True | @docsible Waits for K3s kubeconfig generation |
-| [Read kubeconfig](tasks/main.yml#L157) | ansible.builtin.slurp | True | @docsible Reads raw kubeconfig |
-| [Build canonical config](tasks/main.yml#L165) | ansible.builtin.set_fact | True | @docsible Generates Tailscale-aware kubeconfig (Replaces 127.0.0.1) |
+| [Start K3s](tasks/main.yml#L131) | ansible.builtin.systemd | True | @docsible Enables and starts k3s.service |
+| [Flush handlers](tasks/main.yml#L139) | ansible.builtin.meta | False | @docsible Flushes pending handlers (service restarts) |
+| [Wait for node-token](tasks/main.yml#L143) | ansible.builtin.wait_for | True | @docsible Waits for K3s node-token file generation |
+| [Wait for kubeconfig](tasks/main.yml#L150) | ansible.builtin.wait_for | True | @docsible Waits for K3s kubeconfig file generation |
+| [Read kubeconfig](tasks/main.yml#L157) | ansible.builtin.slurp | True | @docsible Reads raw server kubeconfig |
+| [Build canonical config](tasks/main.yml#L165) | ansible.builtin.set_fact | True | @docsible Builds Tailscale-aware kubeconfig endpoint |
 | [Write server config](tasks/main.yml#L173) | ansible.builtin.copy | True | @docsible Writes canonical kubeconfig to /etc/rancher/k3s/k3s-tailscale.yaml |
-| [Create user kube dir](tasks/main.yml#L183) | ansible.builtin.file | True | @docsible Creates ~/.kube directory for ansible user |
-| [Write user config](tasks/main.yml#L193) | ansible.builtin.copy | True | @docsible Deploys kubeconfig to ansible user home |
-| [Read node-token](tasks/main.yml#L203) | ansible.builtin.slurp | True | @docsible Reads node-token |
-| [Set node-token fact](tasks/main.yml#L210) | ansible.builtin.set_fact | True | @docsible Sets k3s_server_node_token fact |
-| [Wait for apiserver](tasks/main.yml#L216) | kubernetes.core.k8s_info | True | @docsible Waits for API Server readiness |
-| [Label master node](tasks/main.yml#L229) | kubernetes.core.k8s | True | @docsible Labels node as control-plane/master |
-| [Remove Traefik resources if disabled](tasks/main.yml#L243) | kubernetes.core.k8s | True | @docsible Purges Traefik HelmChart if disabled |
-| [Apply CoreDNS custom ConfigMap](tasks/main.yml#L259) | kubernetes.core.k8s | True | @docsible Applies CoreDNS custom configuration (upstream DNS + Tailscale MagicDNS) |
-| [Copy local config](tasks/main.yml#L268) | block | True | @docsible Block: Download Kubeconfig to Controller |
-| [Create local dir](tasks/main.yml#L277) | ansible.builtin.file | False | @docsible Creates local .kube directory |
-| [Fetch config](tasks/main.yml#L284) | ansible.builtin.slurp | False | @docsible Fetches k3s-tailscale.yaml |
-| [Parse config](tasks/main.yml#L292) | ansible.builtin.set_fact | False | @docsible Renames context to k3s-{{ hostname }} |
-| [Write local config](tasks/main.yml#L303) | ansible.builtin.copy | False | @docsible Saves final kubeconfig locally |
-| [Show config info](tasks/main.yml#L310) | ansible.builtin.debug | False | @docsible Displays local kubeconfig path |
+| [Create user kube dir](tasks/main.yml#L183) | ansible.builtin.file | True | @docsible Ensures kubeconfig directory exists for ansible user |
+| [Write user config](tasks/main.yml#L193) | ansible.builtin.copy | True | @docsible Writes kubeconfig to ansible user home path |
+| [Read node-token](tasks/main.yml#L203) | ansible.builtin.slurp | True | @docsible Reads generated K3s node-token |
+| [Set node-token fact](tasks/main.yml#L210) | ansible.builtin.set_fact | True | @docsible Sets k3s_server_node_token fact from node-token file |
+| [Wait for apiserver](tasks/main.yml#L216) | kubernetes.core.k8s_info | True | @docsible Waits for Kubernetes API server readiness |
+| [Label master node](tasks/main.yml#L229) | kubernetes.core.k8s | True | @docsible Labels node with control-plane and master roles |
+| [Remove Traefik resources if disabled](tasks/main.yml#L243) | kubernetes.core.k8s | True | @docsible Removes Traefik HelmChart resources when disabled |
+| [Apply CoreDNS custom ConfigMap](tasks/main.yml#L259) | kubernetes.core.k8s | True | @docsible Applies CoreDNS custom ConfigMap for upstream and MagicDNS forwarding |
+| [Copy local config](tasks/main.yml#L268) | block | True | @docsible Copies kubeconfig to controller host when enabled |
+| [Create local dir](tasks/main.yml#L277) | ansible.builtin.file | False | @docsible Ensures local kubeconfig directory exists |
+| [Fetch config](tasks/main.yml#L284) | ansible.builtin.slurp | False | @docsible Fetches k3s-tailscale.yaml from server node |
+| [Parse config](tasks/main.yml#L292) | ansible.builtin.set_fact | False | @docsible Rewrites kubeconfig context names to k3s-{{ hostname }} |
+| [Write local config](tasks/main.yml#L303) | ansible.builtin.copy | False | @docsible Writes final kubeconfig on controller |
+| [Show config info](tasks/main.yml#L310) | ansible.builtin.debug | False | @docsible Prints resulting local kubeconfig path |
 
 
 ## Task Flow Graphs
@@ -253,20 +255,20 @@ classDef rescue stroke:#665352,stroke-width:2px;
 ## Author Information
 rc
 
-### License
+#### License
 
 MIT
 
-### Minimum Ansible Version
+#### Minimum Ansible Version
 
 2.20.0
 
-### Platforms
+#### Platforms
 
 - **Ubuntu**: ['noble']
 
 
-### Dependencies
+#### Dependencies
 
 No dependencies specified.
 <!-- DOCSIBLE END -->

@@ -1,4 +1,4 @@
-# @docsible Creates 'networking' namespace (Privileged for Gateway)
+# @docsible Creates networking namespace for Gateway resources
 - name: Create networking namespace
   kubernetes.core.k8s:
     name: networking
@@ -15,7 +15,7 @@
   when: not ansible_check_mode
   tags: ["infra", "networking"]
 
-# @docsible Deploys Public Gateway (Static Manifest)
+# @docsible Applies public Gateway static manifest
 - name: Deploy public Gateway
   kubernetes.core.k8s:
     state: present

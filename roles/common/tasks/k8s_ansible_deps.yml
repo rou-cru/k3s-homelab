@@ -1,4 +1,4 @@
-# @docsible Checks for python-kubernetes package
+# @docsible Checks whether python-kubernetes package is already installed
 - name: Check if kubernetes package is installed
   ansible.builtin.command:
     cmd: /usr/local/bin/uv pip show kubernetes

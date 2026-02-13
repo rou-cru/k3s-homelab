@@ -33,7 +33,7 @@ El proyecto utiliza una arquitectura de red híbrida que combina tres tecnologí
 - Funciones:
   - GatewayClass proporcionada por Cilium
   - HTTPRoutes para enrutar tráfico
-  - TLS: Cloudflare Origin CA (15 años) via External Secrets desde OCI Vault
+  - TLS: Cloudflare Origin CA via External Secrets desde OCI Vault
   - Cloudflare Proxy activo para TLS termination público
 - Relación con otros componentes:
   - Depende de Cilium para implementación del datapath

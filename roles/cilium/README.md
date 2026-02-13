@@ -14,7 +14,7 @@ Description: Installs and configures Cilium CNI for K3s clusters.
 
 
 <details>
-<summary><b> Argument Specifications in meta/argument_specs</b></summary>
+<summary><b>🧩 Argument Specifications in meta/argument_specs</b></summary>
 
 #### Key: main
 
@@ -95,6 +95,8 @@ Description: Installs and configures Cilium CNI for K3s clusters.
 
 
 
+
+
 ### Tasks
 
 
@@ -140,20 +142,20 @@ classDef rescue stroke:#665352,stroke-width:2px;
 ## Author Information
 rc
 
-### License
+#### License
 
 MIT
 
-### Minimum Ansible Version
+#### Minimum Ansible Version
 
 2.20.0
 
-### Platforms
+#### Platforms
 
 - **Ubuntu**: ['noble']
 
 
-### Dependencies
+#### Dependencies
 
 No dependencies specified.
 <!-- DOCSIBLE END -->

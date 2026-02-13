@@ -14,7 +14,7 @@ Description: Install cert-manager on K3s and bootstrap a self-signed CA with Clu
 
 
 <details>
-<summary><b> Argument Specifications in meta/argument_specs</b></summary>
+<summary><b>🧩 Argument Specifications in meta/argument_specs</b></summary>
 
 #### Key: main
 
@@ -116,6 +116,8 @@ a self-signed CA with ClusterIssuers for cluster-wide TLS.
 
 
 
+
+
 ### Tasks
 
 
@@ -130,13 +132,13 @@ a self-signed CA with ClusterIssuers for cluster-wide TLS.
 | Name | Module | Has Conditions | Tags | Comments |
 | ---- | ------ | -------------- | -----| -------- |
 | [Ensure Jetstack Helm repo](tasks/main.yml#L2) | kubernetes.core.helm_repository | True |  | @docsible Registers Jetstack Helm repository |
-| [Create cert-manager namespace](tasks/main.yml#L10) | kubernetes.core.k8s | True |  | @docsible Creates Namespace for Cert-Manager |
-| [Deploy cert-manager](tasks/main.yml#L18) | kubernetes.core.helm | True | infra | @docsible Installs Cert-Manager (Helm) |
-| [Wait for cert-manager webhook to be available](tasks/main.yml#L34) | kubernetes.core.k8s | True | infra | @docsible Waits for Webhook availability (Required for CRDs) |
-| [Create cert-manager self-signed ClusterIssuer](tasks/main.yml#L50) | kubernetes.core.k8s | True | infra | @docsible Creates Self-Signed Bootstrap Issuer |
-| [Create cert-manager CA certificate](tasks/main.yml#L59) | kubernetes.core.k8s | True | infra | @docsible Generates Root CA Certificate |
-| [Wait for cert-manager CA secret](tasks/main.yml#L68) | kubernetes.core.k8s_info | True | infra | @docsible Waits for Root CA Secret |
-| [Create cert-manager CA ClusterIssuer](tasks/main.yml#L84) | kubernetes.core.k8s | True | infra | @docsible Creates CA-based ClusterIssuer (Internal PKI) |
+| [Create cert-manager namespace](tasks/main.yml#L10) | kubernetes.core.k8s | True |  | @docsible Creates namespace for cert-manager |
+| [Deploy cert-manager](tasks/main.yml#L18) | kubernetes.core.helm | True | infra | @docsible Installs cert-manager via Helm |
+| [Wait for cert-manager webhook to be available](tasks/main.yml#L34) | kubernetes.core.k8s | True | infra | @docsible Waits for cert-manager webhook availability required by CRDs |
+| [Create cert-manager self-signed ClusterIssuer](tasks/main.yml#L50) | kubernetes.core.k8s | True | infra | @docsible Creates self-signed bootstrap ClusterIssuer |
+| [Create cert-manager CA certificate](tasks/main.yml#L59) | kubernetes.core.k8s | True | infra | @docsible Generates root CA certificate |
+| [Wait for cert-manager CA secret](tasks/main.yml#L68) | kubernetes.core.k8s_info | True | infra | @docsible Waits for root CA secret |
+| [Create cert-manager CA ClusterIssuer](tasks/main.yml#L84) | kubernetes.core.k8s | True | infra | @docsible Creates CA-based ClusterIssuer for internal PKI |
 
 
 ## Task Flow Graphs
@@ -194,20 +196,20 @@ classDef rescue stroke:#665352,stroke-width:2px;
 ## Author Information
 rc
 
-### License
+#### License
 
 MIT
 
-### Minimum Ansible Version
+#### Minimum Ansible Version
 
 2.14
 
-### Platforms
+#### Platforms
 
 - **Ubuntu**: ['noble']
 
 
-### Dependencies
+#### Dependencies
 
 No dependencies specified.
 <!-- DOCSIBLE END -->

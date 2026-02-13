@@ -1,4 +1,4 @@
-# @docsible Block: NVIDIA GPU Cluster Integration
+# @docsible Applies NVIDIA GPU cluster integration resources
 - name: NVIDIA GPU cluster setup
   tags: ["cluster", "nvidia"]
   block:
@@ -15,7 +15,7 @@
         kubeconfig: "{{ kubeconfig }}"
         state: present
 
-    # @docsible Installs NVIDIA Device Plugin (Helm)
+    # @docsible Installs NVIDIA Device Plugin via Helm
     - name: Install device plugin
       kubernetes.core.helm:
         release_name: nvidia-device-plugin
@@ -61,19 +61,19 @@
              | map(attribute='nvidia.com/gpu', default='0')
              | list }}
 
-    # @docsible Displays detected GPU count
+    # @docsible Prints detected GPU count
     - name: Debug GPU resources
       ansible.builtin.debug:
         msg: "GPU resources detected: {{ gpu_resources | join(', ') }}"
         verbosity: 1
   when: not ansible_check_mode
   rescue:
-    # @docsible Reports Cluster Setup Failure
+    # @docsible Reports cluster setup failure
     - name: Report NVIDIA GPU cluster setup failure
       ansible.builtin.debug:
         msg: >-
           NVIDIA GPU cluster setup failed at {{ ansible_failed_task.name }}: {{ ansible_failed_result | to_json }}
-    # @docsible Fails execution on error
+    # @docsible Fails execution when cluster setup errors
     - name: Fail NVIDIA GPU cluster setup
       ansible.builtin.fail:
         msg: "NVIDIA GPU cluster setup failed"

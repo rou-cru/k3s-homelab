@@ -14,7 +14,7 @@ Description: Deploy mining workloads (Honeygain, CPU miner, GPU miner) on K3s us
 
 
 <details>
-<summary><b> Argument Specifications in meta/argument_specs</b></summary>
+<summary><b>🧩 Argument Specifications in meta/argument_specs</b></summary>
 
 #### Key: main
 
@@ -164,15 +164,15 @@ resources from bootstrap manifests using kubectl kustomize apply.
 | Name | Module | Has Conditions | Comments |
 | ---- | ------ | -------------- | -------- |
 | [Validate mining wallet configuration](tasks/main.yml#L2) | ansible.builtin.assert | True | @docsible Validates mining wallet when CPU or GPU miners are enabled |
-| [Build control plane miner labels](tasks/main.yml#L13) | ansible.builtin.set_fact | False | @docsible Builds control-plane node labels for miner scheduling |
-| [Get control plane nodes for mining labeling](tasks/main.yml#L24) | kubernetes.core.k8s_info | True | @docsible Collects control-plane nodes for miner label application |
-| [Label control plane nodes for mining workloads](tasks/main.yml#L36) | kubernetes.core.k8s | True | @docsible Applies miner labels to control-plane nodes |
+| [Build control plane miner labels](tasks/main.yml#L13) | ansible.builtin.set_fact | False | @docsible Builds control-plane labels for miner scheduling |
+| [Get control plane nodes for mining labeling](tasks/main.yml#L24) | kubernetes.core.k8s_info | True | @docsible Collects control-plane nodes targeted for miner labels |
+| [Label control plane nodes for mining workloads](tasks/main.yml#L36) | kubernetes.core.k8s | True | @docsible Applies miner labels to selected control-plane nodes |
 | [Apply miners namespace](tasks/main.yml#L52) | kubernetes.core.k8s | True | @docsible Ensures miners namespace exists before workload deployment |
-| [Generate Honeygain config env](tasks/main.yml#L60) | ansible.builtin.copy | True | @docsible Renders Honeygain non-secret Kustomize env bridge |
-| [Generate Honeygain secret env](tasks/main.yml#L70) | ansible.builtin.copy | True | @docsible Renders Honeygain secret Kustomize env bridge |
-| [Generate mining wallets env](tasks/main.yml#L80) | ansible.builtin.copy | True | @docsible Renders mining wallet secret bridge for Kustomize |
-| [Build miner deployment targets](tasks/main.yml#L91) | ansible.builtin.set_fact | False | @docsible Builds enabled Kustomize deployment targets for miner stack |
-| [Deploy miner overlays via Kustomize](tasks/main.yml#L111) | ansible.builtin.command | True | @docsible Applies enabled miner Kustomize overlays |
+| [Generate Honeygain config env](tasks/main.yml#L60) | ansible.builtin.copy | True | @docsible Renders Honeygain non-secret env file for Kustomize |
+| [Generate Honeygain secret env](tasks/main.yml#L70) | ansible.builtin.copy | True | @docsible Renders Honeygain secret env file for Kustomize |
+| [Generate mining wallets env](tasks/main.yml#L80) | ansible.builtin.copy | True | @docsible Renders mining wallet secret env file for Kustomize |
+| [Build miner deployment targets](tasks/main.yml#L91) | ansible.builtin.set_fact | False | @docsible Builds enabled Kustomize targets for miner stack deployment |
+| [Deploy miner overlays via Kustomize](tasks/main.yml#L111) | ansible.builtin.command | True | @docsible Applies enabled miner overlays via kubectl kustomize |
 
 
 ## Task Flow Graphs
@@ -213,20 +213,20 @@ classDef rescue stroke:#665352,stroke-width:2px;
 ## Author Information
 rc
 
-### License
+#### License
 
 MIT
 
-### Minimum Ansible Version
+#### Minimum Ansible Version
 
 2.14
 
-### Platforms
+#### Platforms
 
 - **Ubuntu**: ['noble']
 
 
-### Dependencies
+#### Dependencies
 
 No dependencies specified.
 <!-- DOCSIBLE END -->

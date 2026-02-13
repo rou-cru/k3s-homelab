@@ -1,16 +1,16 @@
-# @docsible Check for existing server uninstall script
+# @docsible Checks whether the K3s server uninstall script exists
 - name: Check K3s uninstall script
   ansible.builtin.stat:
     path: /usr/local/bin/k3s-uninstall.sh
   register: k3s_server_uninstall_script
 
-# @docsible Check for existing agent uninstall script
+# @docsible Checks whether the K3s agent uninstall script exists
 - name: Check K3s agent uninstall script
   ansible.builtin.stat:
     path: /usr/local/bin/k3s-agent-uninstall.sh
   register: k3s_agent_uninstall_script
 
-# @docsible Uninstall K3s server if recreate requested
+# @docsible Uninstalls K3s server when recreate mode is enabled
 - name: Uninstall K3s (Server)
   ansible.builtin.command: /usr/local/bin/k3s-uninstall.sh
   when:
@@ -19,7 +19,7 @@
     - not ansible_check_mode
   changed_when: true
 
-# @docsible Uninstall K3s agent if recreate requested
+# @docsible Uninstalls K3s agent when recreate mode is enabled
 - name: Uninstall K3s (Agent)
   ansible.builtin.command: /usr/local/bin/k3s-agent-uninstall.sh
   when:
@@ -28,7 +28,7 @@
     - not ansible_check_mode
   changed_when: true
 
-# @docsible Remove K3s data directories
+# @docsible Removes K3s and CNI data directories during recreate
 - name: Cleanup K3s directories
   ansible.builtin.file:
     path: "{{ item }}"
@@ -42,14 +42,14 @@
   when:
     - k3s_recreate | bool
 
-# @docsible Create K3s configuration directory
+# @docsible Ensures K3s configuration directory exists
 - name: Ensure K3s config directory exists
   ansible.builtin.file:
     path: /etc/rancher/k3s
     state: directory
     mode: "0750"
 
-# @docsible Configure container registry authentication
+# @docsible Renders container registry authentication for K3s
 - name: Configure K3s registry auth
   ansible.builtin.template:
     src: registries.yaml.j2
@@ -61,7 +61,7 @@
     - k3s_commonRegistryAuths is defined
     - k3s_commonRegistryAuths | length > 0
 
-# @docsible Removes stale registry auth file when no registry auths are configured
+# @docsible Removes stale registry auth file when no auth entries are configured
 - name: Remove K3s registry auth when unset
   ansible.builtin.file:
     path: /etc/rancher/k3s/registries.yaml
@@ -70,28 +70,28 @@
   when:
     - k3s_commonRegistryAuths is not defined or k3s_commonRegistryAuths | length == 0
 
-# @docsible Create CNI configuration directory
+# @docsible Ensures CNI configuration directory exists
 - name: Ensure CNI config directory exists
   ansible.builtin.file:
     path: "{{ k3s_cniConfDir }}"
     state: directory
     mode: "0750"
 
-# @docsible Create CNI binaries directory
+# @docsible Ensures CNI binaries directory exists
 - name: Ensure CNI bin directory exists
   ansible.builtin.file:
     path: "{{ k3s_cniBinDir }}"
     state: directory
     mode: "0750"
 
-# @docsible Create containerd configuration directory
+# @docsible Ensures containerd configuration directory exists
 - name: Ensure K3s agent etc directory exists (for containerd)
   ansible.builtin.file:
     path: /var/lib/rancher/k3s/agent/etc/containerd
     state: directory
     mode: "0750"
 
-# @docsible Deploy containerd configuration template
+# @docsible Renders containerd configuration template for K3s
 - name: Deploy containerd configuration template
   ansible.builtin.template:
     src: containerd-config.toml.tmpl.j2

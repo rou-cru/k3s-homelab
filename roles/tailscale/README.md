@@ -14,7 +14,7 @@ Description: Installs and configures Tailscale VPN client.
 
 
 <details>
-<summary><b> Argument Specifications in meta/argument_specs</b></summary>
+<summary><b>🧩 Argument Specifications in meta/argument_specs</b></summary>
 
 #### Key: main
 
@@ -46,6 +46,8 @@ settings like DNS acceptance and SSH access.
 
 
 
+
+
 ### Tasks
 
 
@@ -62,28 +64,30 @@ settings like DNS acceptance and SSH access.
 
 | Name | Module | Has Conditions | Comments |
 | ---- | ------ | -------------- | -------- |
-| [Check tailscale exists](tasks/main.yml#L2) | ansible.builtin.stat | False | @docsible Check if tailscaled binary is installed at expected path |
-| [Check Tailscale status](tasks/main.yml#L9) | ansible.builtin.command | True | @docsible Get tailscale status JSON (only when binary exists) |
-| [Determine Tailscale state](tasks/main.yml#L18) | ansible.builtin.set_fact | False | @docsible Parse Tailscale state: installed, daemon_running, is_authenticated |
-| [Display detected state](tasks/main.yml#L45) | ansible.builtin.debug | False | @docsible Display parsed state for debugging |
-| [Download Tailscale installer](tasks/main.yml#L54) | ansible.builtin.get_url | True | @docsible Download official Tailscale install script |
-| [Run Tailscale installer](tasks/main.yml#L65) | ansible.builtin.command | True | @docsible Execute install script (creates /usr/sbin/tailscaled) |
-| [Start tailscaled service](tasks/main.yml#L74) | ansible.builtin.systemd | True | @docsible Enable and start tailscaled systemd service |
-| [Logout Tailscale (reset state if inconsistent)](tasks/main.yml#L85) | ansible.builtin.command | True | @docsible Logout if backend state is inconsistent (Running but not Online) |
-| [Authenticate Tailscale](tasks/main.yml#L92) | ansible.builtin.shell | True | @docsible Authenticate with tailscale up (NO --reset to preserve routes) |
-| [Configure accept-dns](tasks/main.yml#L108) | ansible.builtin.command | True | @docsible Configure DNS acceptance from admin console |
-| [Configure accept-routes](tasks/main.yml#L116) | ansible.builtin.command | True | @docsible Enable route acceptance for Cilium Native Routing mesh |
-| [Configure SSH](tasks/main.yml#L124) | ansible.builtin.command | True | @docsible Enable Tailscale SSH server on the node |
-| [Configure exit node advertisement](tasks/main.yml#L132) | ansible.builtin.command | True | @docsible Advertise as exit node if enabled in variables |
-| [Disable exit node advertisement](tasks/main.yml#L140) | ansible.builtin.command | True | @docsible Disable exit node advertisement when not enabled |
-| [Unset exit node](tasks/main.yml#L149) | ansible.builtin.command | True | @docsible Unset exit node usage when not using an exit node |
-| [Configure static routes](tasks/main.yml#L158) | ansible.builtin.command | True | @docsible Advertise static subnet routes from inventory |
-| [Clear static routes](tasks/main.yml#L167) | ansible.builtin.command | True | @docsible Clear static routes when none defined |
-| [Wait for Tailscale IP](tasks/main.yml#L176) | ansible.builtin.shell | True | @docsible Wait for valid CGNAT IP (100.x.x.x) assignment |
-| [Set Tailscale IP fact](tasks/main.yml#L194) | ansible.builtin.set_fact | True | @docsible Set IP_tailscale fact for use by other roles |
-| [Set mock IP fact (check mode)](tasks/main.yml#L203) | ansible.builtin.set_fact | True | @docsible Provide mock IP for check mode execution |
-| [Validate connectivity](tasks/main.yml#L209) | ansible.builtin.wait_for | True | @docsible Verify SSH connectivity over Tailscale network |
-| [Warn connectivity](tasks/main.yml#L221) | ansible.builtin.debug | True | @docsible Warn if Tailscale SSH is not reachable |
+| [Check tailscale exists](tasks/main.yml#L2) | ansible.builtin.stat | False | @docsible Checks whether tailscaled binary is installed at the expected path |
+| [Check Tailscale status](tasks/main.yml#L9) | ansible.builtin.command | True | @docsible Collects Tailscale status JSON when binary is present |
+| [Determine Tailscale state](tasks/main.yml#L18) | ansible.builtin.set_fact | False | @docsible Derives Tailscale installation, daemon, and auth state facts |
+| [Display detected state](tasks/main.yml#L45) | ansible.builtin.debug | False | @docsible Prints detected Tailscale state |
+| [Download Tailscale installer](tasks/main.yml#L54) | ansible.builtin.get_url | True | @docsible Downloads the official Tailscale install script |
+| [Run Tailscale installer](tasks/main.yml#L65) | ansible.builtin.command | True | @docsible Runs install script to create /usr/sbin/tailscaled |
+| [Start tailscaled service](tasks/main.yml#L74) | ansible.builtin.systemd | True | @docsible Enables and starts tailscaled service |
+| [Logout Tailscale (reset state if inconsistent)](tasks/main.yml#L85) | ansible.builtin.command | True | @docsible Logs out from stale backend state (Running but not Online) |
+| [Authenticate Tailscale](tasks/main.yml#L92) | ansible.builtin.shell | True | @docsible Authenticates node with tailscale up without route reset |
+| [Configure accept-dns](tasks/main.yml#L108) | ansible.builtin.command | True | @docsible Configures accept-dns from role variables |
+| [Configure accept-routes](tasks/main.yml#L116) | ansible.builtin.command | True | @docsible Enables accept-routes for Cilium native routing |
+| [Configure SSH](tasks/main.yml#L124) | ansible.builtin.command | True | @docsible Enables Tailscale SSH server on the node |
+| [Configure exit node advertisement](tasks/main.yml#L132) | ansible.builtin.command | True | @docsible Configures exit-node advertisement from role variables |
+| [Disable exit node advertisement](tasks/main.yml#L140) | ansible.builtin.command | True | @docsible Forces exit-node advertisement off when disabled |
+| [Unset exit node](tasks/main.yml#L149) | ansible.builtin.command | True | @docsible Clears exit-node usage when client mode is disabled |
+| [Configure static routes](tasks/main.yml#L158) | ansible.builtin.command | True | @docsible Advertises static subnet routes from inventory values |
+| [Clear static routes](tasks/main.yml#L167) | ansible.builtin.command | True | @docsible Clears advertised subnet routes when none are configured |
+| [Wait for Tailscale IP](tasks/main.yml#L176) | ansible.builtin.shell | True | @docsible Waits for a valid CGNAT Tailscale IPv4 assignment (100.x.x.x) |
+| [Set Tailscale IP fact](tasks/main.yml#L194) | ansible.builtin.set_fact | True | @docsible Sets IP_tailscale fact for downstream roles |
+| [Set mock IP fact (check mode)](tasks/main.yml#L203) | ansible.builtin.set_fact | True | @docsible Provides mock IP_tailscale during check mode |
+| [Validate authenticated Tailscale state](tasks/main.yml#L209) | ansible.builtin.command | True | @docsible Re-checks final Tailscale authenticated online state after bootstrap |
+| [Assert Tailscale is online](tasks/main.yml#L216) | ansible.builtin.assert | True | @docsible Fails bootstrap when Tailscale is not online and authenticated |
+| [Validate connectivity](tasks/main.yml#L225) | ansible.builtin.wait_for | True | @docsible Verifies SSH connectivity over the Tailscale address |
+| [Warn connectivity](tasks/main.yml#L237) | ansible.builtin.debug | True | @docsible Warns when Tailscale SSH connectivity is not reachable |
 
 
 ## Task Flow Graphs
@@ -146,9 +150,11 @@ classDef rescue stroke:#665352,stroke-width:2px;
   Clear_static_routes16-->|Task| Wait_for_Tailscale_IP17[wait for tailscale ip<br>When: **not ansible check mode**]:::task
   Wait_for_Tailscale_IP17-->|Task| Set_Tailscale_IP_fact18[set tailscale ip fact<br>When: **tailscale ip cmd is not skipped and tailscale ip<br>cmd stdout is defined**]:::task
   Set_Tailscale_IP_fact18-->|Task| Set_mock_IP_fact__check_mode_19[set mock ip fact  check mode <br>When: **ansible check mode**]:::task
-  Set_mock_IP_fact__check_mode_19-->|Task| Validate_connectivity20[validate connectivity<br>When: **ip tailscale is defined and ip tailscale   length <br> 0 and not ansible check mode**]:::task
-  Validate_connectivity20-->|Task| Warn_connectivity21[warn connectivity<br>When: **tailscale connectivity check failed   default<br>false**]:::task
-  Warn_connectivity21-->End
+  Set_mock_IP_fact__check_mode_19-->|Task| Validate_authenticated_Tailscale_state20[validate authenticated tailscale state<br>When: **not ansible check mode**]:::task
+  Validate_authenticated_Tailscale_state20-->|Task| Assert_Tailscale_is_online21[assert tailscale is online<br>When: **not ansible check mode**]:::task
+  Assert_Tailscale_is_online21-->|Task| Validate_connectivity22[validate connectivity<br>When: **ip tailscale is defined and ip tailscale   length <br> 0 and not ansible check mode**]:::task
+  Validate_connectivity22-->|Task| Warn_connectivity23[warn connectivity<br>When: **tailscale connectivity check failed   default<br>false**]:::task
+  Warn_connectivity23-->End
 ```
 
 
@@ -158,20 +164,20 @@ classDef rescue stroke:#665352,stroke-width:2px;
 ## Author Information
 rc
 
-### License
+#### License
 
 MIT
 
-### Minimum Ansible Version
+#### Minimum Ansible Version
 
 2.20.0
 
-### Platforms
+#### Platforms
 
 - **Ubuntu**: ['noble']
 
 
-### Dependencies
+#### Dependencies
 
 No dependencies specified.
 <!-- DOCSIBLE END -->

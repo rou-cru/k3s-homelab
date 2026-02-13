@@ -1,7 +1,7 @@
-# @docsible Block: Install uv (Fast Python Package Manager)
+# @docsible Installs uv when enabled
 - name: Install uv (Python Tool Manager)
   block:
-    # @docsible Checks for existing uv binary
+    # @docsible Skips uv install when binary already exists
     - name: Check if uv is installed
       ansible.builtin.stat:
         path: /usr/local/bin/uv
@@ -15,7 +15,7 @@
         timeout: 60
       when: not uv_binary.stat.exists
       changed_when: false
-    # @docsible Executes uv installer
+    # @docsible Installs uv to /usr/local/bin
     - name: Run uv installer
       ansible.builtin.command: /tmp/uv-install.sh
       environment:
@@ -30,7 +30,7 @@
     - name: Report uv installation failure
       ansible.builtin.fail:
         msg: "Failed to install uv tool manager"
-# @docsible Block: Install kubectl
+# @docsible Installs kubectl from upstream release metadata
 - name: Install Kubectl (Official Binary)
   block:
     # @docsible Resolves latest stable kubectl version
@@ -75,10 +75,10 @@
     - name: Report kubectl installation failure
       ansible.builtin.fail:
         msg: "Failed to install kubectl binary"
-# @docsible Block: Install Helm 3
+# @docsible Installs Helm 3 and helm-diff plugin
 - name: Install Helm (Official Script)
   block:
-    # @docsible Checks for existing helm binary
+    # @docsible Skips Helm install when binary already exists
     - name: Check if helm is installed
       ansible.builtin.stat:
         path: /usr/local/bin/helm

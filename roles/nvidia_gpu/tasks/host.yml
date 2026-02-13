@@ -141,7 +141,7 @@
     nvidia_utilsPackage: "nvidia-utils-{{ nvidia_driverTarget | regex_replace('^nvidia-driver-', '') }}"
   when: nvidia_active | default(false) | bool
 
-# @docsible Checks for partially installed (broken) packages
+# @docsible Checks whether broken packages are present
 - name: Check broken packages
   ansible.builtin.shell: dpkg -l | grep nvidia | grep -c ^iU || true
   register: nvidia_brokenCheck

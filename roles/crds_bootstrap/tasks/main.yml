@@ -31,7 +31,7 @@
   when: not ansible_check_mode
   tags: ["cluster"]
 
-# @docsible Creates 'monitoring' namespace for CRDs
+# @docsible Creates monitoring namespace for CRD workloads
 - name: Create monitoring namespace
   kubernetes.core.k8s:
     state: present
