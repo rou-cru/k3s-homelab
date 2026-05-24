@@ -165,7 +165,7 @@ MIT
 
 #### Minimum Ansible Version
 
-2.14
+2.20.0
 
 #### Platforms
 

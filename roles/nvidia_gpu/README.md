@@ -87,7 +87,7 @@ Supports host setup, cluster setup, and headless X11 configurations.
   - **nvidia_devicePluginVersion**
     - **Required**: False
     - **Type**: str
-    - **Default**: none
+    - **Default**: 0.19.0
   
     - **Description**: Version of the NVIDIA device plugin Helm chart.
   

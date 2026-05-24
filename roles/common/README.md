@@ -289,14 +289,13 @@ RoG hardware tweaks, and network optimizations.
 | [Install dependencies](tasks/main.yml#L46) | ansible.builtin.include_tasks | False | @docsible Runs dependency subtasks (repo keys and extra packages) |
 | [Install HWE kernel](tasks/main.yml#L49) | ansible.builtin.apt | True | @docsible Installs the Ubuntu HWE kernel when available |
 | [Install generic kernel](tasks/main.yml#L59) | ansible.builtin.apt | True | @docsible Falls back to the generic kernel when HWE is unavailable |
-| [Register kernel change](tasks/main.yml#L69) | ansible.builtin.set_fact | False | @docsible Sets reboot-required fact when kernel packages changed |
-| [Configure power](tasks/main.yml#L76) | ansible.builtin.include_tasks | False | @docsible Runs power-management subtasks |
-| [Apply hardware tuning](tasks/main.yml#L79) | ansible.builtin.include_tasks | False | @docsible Runs hardware-tuning subtasks |
-| [System Tuning](tasks/main.yml#L82) | ansible.builtin.include_tasks | False | @docsible Runs sysctl and limits tuning subtasks |
-| [Install Cloud-Native Binaries](tasks/main.yml#L85) | ansible.builtin.include_tasks | False | @docsible Runs cloud binary install subtasks (uv, kubectl, helm) |
-| [Ensure Helm config directory exists](tasks/main.yml#L89) | ansible.builtin.file | True | @docsible Creates Helm config directory for the ansible user |
-| [Add Helm Repositories](tasks/main.yml#L98) | kubernetes.core.helm_repository | True | @docsible Registers configured upstream Helm repositories |
-| [Install K8s Ansible deps](tasks/main.yml#L107) | ansible.builtin.include_tasks | True | @docsible Runs kubernetes.core Python dependency subtasks |
+| [Configure power](tasks/main.yml#L69) | ansible.builtin.include_tasks | False | @docsible Runs power-management subtasks |
+| [Apply hardware tuning](tasks/main.yml#L72) | ansible.builtin.include_tasks | False | @docsible Runs hardware-tuning subtasks |
+| [System Tuning](tasks/main.yml#L75) | ansible.builtin.include_tasks | False | @docsible Runs sysctl and limits tuning subtasks |
+| [Install Cloud-Native Binaries](tasks/main.yml#L78) | ansible.builtin.include_tasks | False | @docsible Runs cloud binary install subtasks (uv, kubectl, helm) |
+| [Ensure Helm config directory exists](tasks/main.yml#L82) | ansible.builtin.file | True | @docsible Creates Helm config directory for the ansible user |
+| [Add Helm Repositories](tasks/main.yml#L91) | kubernetes.core.helm_repository | True | @docsible Registers configured upstream Helm repositories |
+| [Install K8s Ansible deps](tasks/main.yml#L100) | ansible.builtin.include_tasks | True | @docsible Runs kubernetes.core Python dependency subtasks |
 
 #### File: tasks/network_optimization.yml
 
@@ -307,12 +306,11 @@ RoG hardware tweaks, and network optimizations.
 | [Blacklist generic driver](tasks/network_optimization.yml#L12) | ansible.builtin.copy | False | @docsible Blacklists kernel r8169 driver |
 | [Ensure pcie_aspm=off in GRUB](tasks/network_optimization.yml#L20) | ansible.builtin.replace | False | @docsible Disables PCIe ASPM in GRUB to prevent NIC drops |
 | [Update GRUB](tasks/network_optimization.yml#L27) | ansible.builtin.command | True | @docsible Regenerates GRUB configuration |
-| [Register driver change](tasks/network_optimization.yml#L34) | ansible.builtin.set_fact | False | @docsible Flags reboot requirement for driver switch |
-| [Detect primary ethernet interface](tasks/network_optimization.yml#L53) | ansible.builtin.set_fact | True | @docsible Identifies primary physical ethernet interface (skips Virtual/CNI) |
-| [Deploy optimization script](tasks/network_optimization.yml#L83) | ansible.builtin.template | False | @docsible Deploys ethtool network optimization script |
-| [Deploy optimization service](tasks/network_optimization.yml#L90) | ansible.builtin.copy | False | @docsible Installs network optimization systemd service |
-| [Reload systemd daemon for network optimization](tasks/network_optimization.yml#L97) | ansible.builtin.systemd | True | @docsible Reloads systemd |
-| [Start optimization service](tasks/network_optimization.yml#L105) | ansible.builtin.systemd | True | @docsible Starts network optimization service |
+| [Detect primary ethernet interface](tasks/network_optimization.yml#L45) | ansible.builtin.set_fact | True | @docsible Identifies primary physical ethernet interface (skips Virtual/CNI) |
+| [Deploy optimization script](tasks/network_optimization.yml#L75) | ansible.builtin.template | False | @docsible Deploys ethtool network optimization script |
+| [Deploy optimization service](tasks/network_optimization.yml#L82) | ansible.builtin.copy | False | @docsible Installs network optimization systemd service |
+| [Reload systemd daemon for network optimization](tasks/network_optimization.yml#L89) | ansible.builtin.systemd | True | @docsible Reloads systemd |
+| [Start optimization service](tasks/network_optimization.yml#L97) | ansible.builtin.systemd | True | @docsible Starts network optimization service |
 
 #### File: tasks/power_management.yml
 
@@ -329,15 +327,14 @@ RoG hardware tweaks, and network optimizations.
 | [Install performance tools](tasks/system_tuning.yml#L2) | ansible.builtin.apt | True |  | @docsible Installs cpufrequtils for governor control |
 | [Set CPU governor](tasks/system_tuning.yml#L10) | ansible.builtin.lineinfile | True |  | @docsible Sets CPU governor to 'schedutil' |
 | [Enable BBR and Network Tuning](tasks/system_tuning.yml#L21) | ansible.posix.sysctl | False |  | @docsible Enables TCP BBR congestion control and optimizations |
-| [Akash Provider sysctl tuning](tasks/system_tuning.yml#L39) | ansible.posix.sysctl | True |  | @docsible Tunes sysctl for high-concurrency Akash workloads |
-| [Increase FD limits](tasks/system_tuning.yml#L54) | community.general.pam_limits | False |  | @docsible Increases PAM file descriptor limits (soft/hard) |
-| [Increase file-max](tasks/system_tuning.yml#L65) | ansible.posix.sysctl | False |  | @docsible Increases system-wide fs.file-max |
-| [Increase inotify watches](tasks/system_tuning.yml#L73) | ansible.posix.sysctl | False |  | @docsible Increases fs.inotify.max_user_instances |
-| [Increase user watches](tasks/system_tuning.yml#L81) | ansible.posix.sysctl | False |  | @docsible Increases fs.inotify.max_user_watches |
-| [Enable watchdog](tasks/system_tuning.yml#L89) | ansible.builtin.lineinfile | False |  | @docsible Enables RuntimeWatchdogSec for system recovery |
-| [Configure hugepages](tasks/system_tuning.yml#L97) | ansible.posix.sysctl | True | host | @docsible Allocates HugePages for mining efficiency |
-| [Load MSR module](tasks/system_tuning.yml#L107) | community.general.modprobe | True | host | @docsible Loads msr kernel module for CPU mining (RandomX) |
-| [Configure Nvidia modules load](tasks/system_tuning.yml#L116) | ansible.builtin.copy | True | host,nvidia | @docsible Pre-loads NVIDIA kernel modules |
+| [Increase FD limits](tasks/system_tuning.yml#L39) | community.general.pam_limits | False |  | @docsible Increases PAM file descriptor limits (soft/hard) |
+| [Increase file-max](tasks/system_tuning.yml#L50) | ansible.posix.sysctl | False |  | @docsible Increases system-wide fs.file-max |
+| [Increase inotify watches](tasks/system_tuning.yml#L58) | ansible.posix.sysctl | False |  | @docsible Increases fs.inotify.max_user_instances |
+| [Increase user watches](tasks/system_tuning.yml#L66) | ansible.posix.sysctl | False |  | @docsible Increases fs.inotify.max_user_watches |
+| [Enable watchdog](tasks/system_tuning.yml#L74) | ansible.builtin.lineinfile | False |  | @docsible Enables RuntimeWatchdogSec for system recovery |
+| [Configure hugepages](tasks/system_tuning.yml#L82) | ansible.posix.sysctl | True | host | @docsible Allocates HugePages for mining efficiency |
+| [Load MSR module](tasks/system_tuning.yml#L92) | community.general.modprobe | True | host | @docsible Loads msr kernel module for CPU mining (RandomX) |
+| [Configure Nvidia modules load](tasks/system_tuning.yml#L101) | ansible.builtin.copy | True | host,nvidia | @docsible Pre-loads NVIDIA kernel modules |
 
 
 ## Task Flow Graphs
@@ -484,15 +481,14 @@ classDef rescue stroke:#665352,stroke-width:2px;
   Install_ACPI_daemon6-->|Include task| Install_dependencies_dependencies_yml_7[install dependencies<br>include_task: dependencies yml]:::includeTasks
   Install_dependencies_dependencies_yml_7-->|Task| Install_HWE_kernel8[install hwe kernel<br>When: **hwe kernel package is defined and system<br>installhwekernel   bool**]:::task
   Install_HWE_kernel8-->|Task| Install_generic_kernel9[install generic kernel<br>When: **common hwe kernel install is skipped  or  common<br>hwe kernel install is failed  or  hwe kernel<br>package is not defined**]:::task
-  Install_generic_kernel9-->|Task| Register_kernel_change10[register kernel change]:::task
-  Register_kernel_change10-->|Include task| Configure_power_power_management_yml_11[configure power<br>include_task: power management yml]:::includeTasks
-  Configure_power_power_management_yml_11-->|Include task| Apply_hardware_tuning_hardware_tuning_yml_12[apply hardware tuning<br>include_task: hardware tuning yml]:::includeTasks
-  Apply_hardware_tuning_hardware_tuning_yml_12-->|Include task| System_Tuning_system_tuning_yml_13[system tuning<br>include_task: system tuning yml]:::includeTasks
-  System_Tuning_system_tuning_yml_13-->|Include task| Install_Cloud_Native_Binaries_binaries_yml_14[install cloud native binaries<br>include_task: binaries yml]:::includeTasks
-  Install_Cloud_Native_Binaries_binaries_yml_14-->|Task| Ensure_Helm_config_directory_exists15[ensure helm config directory exists<br>When: **system installcloudbinaries   bool**]:::task
-  Ensure_Helm_config_directory_exists15-->|Task| Add_Helm_Repositories16[add helm repositories<br>When: **system installcloudbinaries   bool**]:::task
-  Add_Helm_Repositories16-->|Include task| Install_K8s_Ansible_deps_k8s_ansible_deps_yml_17[install k8s ansible deps<br>When: **system installk8sansibledeps   bool and system<br>installcloudbinaries   bool**<br>include_task: k8s ansible deps yml]:::includeTasks
-  Install_K8s_Ansible_deps_k8s_ansible_deps_yml_17-->End
+  Install_generic_kernel9-->|Include task| Configure_power_power_management_yml_10[configure power<br>include_task: power management yml]:::includeTasks
+  Configure_power_power_management_yml_10-->|Include task| Apply_hardware_tuning_hardware_tuning_yml_11[apply hardware tuning<br>include_task: hardware tuning yml]:::includeTasks
+  Apply_hardware_tuning_hardware_tuning_yml_11-->|Include task| System_Tuning_system_tuning_yml_12[system tuning<br>include_task: system tuning yml]:::includeTasks
+  System_Tuning_system_tuning_yml_12-->|Include task| Install_Cloud_Native_Binaries_binaries_yml_13[install cloud native binaries<br>include_task: binaries yml]:::includeTasks
+  Install_Cloud_Native_Binaries_binaries_yml_13-->|Task| Ensure_Helm_config_directory_exists14[ensure helm config directory exists<br>When: **system installcloudbinaries   bool**]:::task
+  Ensure_Helm_config_directory_exists14-->|Task| Add_Helm_Repositories15[add helm repositories<br>When: **system installcloudbinaries   bool**]:::task
+  Add_Helm_Repositories15-->|Include task| Install_K8s_Ansible_deps_k8s_ansible_deps_yml_16[install k8s ansible deps<br>When: **system installk8sansibledeps   bool and system<br>installcloudbinaries   bool**<br>include_task: k8s ansible deps yml]:::includeTasks
+  Install_K8s_Ansible_deps_k8s_ansible_deps_yml_16-->End
 ```
 
 
@@ -515,9 +511,8 @@ classDef rescue stroke:#665352,stroke-width:2px;
   Install_Realtek_driver0-->|Task| Blacklist_generic_driver1[blacklist generic driver]:::task
   Blacklist_generic_driver1-->|Task| Ensure_pcie_aspm_off_in_GRUB2[ensure pcie aspm off in grub]:::task
   Ensure_pcie_aspm_off_in_GRUB2-->|Task| Update_GRUB3[update grub<br>When: **common grub aspm changed and not ansible check<br>mode**]:::task
-  Update_GRUB3-->|Task| Register_driver_change4[register driver change]:::task
-  Register_driver_change4-.->|End of Block| Realtek_optimizations0_block_start_0
-  Register_driver_change4-->|Rescue Start| Realtek_optimizations0_rescue_start_0[realtek optimizations<br>When: **hardware rogserver   default false    bool**]:::rescue
+  Update_GRUB3-.->|End of Block| Realtek_optimizations0_block_start_0
+  Update_GRUB3-->|Rescue Start| Realtek_optimizations0_rescue_start_0[realtek optimizations<br>When: **hardware rogserver   default false    bool**]:::rescue
   Realtek_optimizations0_rescue_start_0-->|Task| Report_RoG_Realtek_optimization_failure0[report rog realtek optimization failure]:::task
   Report_RoG_Realtek_optimization_failure0-->|Task| Fail_RoG_Realtek_optimization1[fail rog realtek optimization]:::task
   Fail_RoG_Realtek_optimization1-.->|End of Rescue Block| Realtek_optimizations0_block_start_0
@@ -568,16 +563,15 @@ classDef rescue stroke:#665352,stroke-width:2px;
   Start-->|Task| Install_performance_tools0[install performance tools<br>When: **ansible facts  virtualization role       guest**]:::task
   Install_performance_tools0-->|Task| Set_CPU_governor1[set cpu governor<br>When: **ansible facts  virtualization role       guest**]:::task
   Set_CPU_governor1-->|Task| Enable_BBR_and_Network_Tuning2[enable bbr and network tuning]:::task
-  Enable_BBR_and_Network_Tuning2-->|Task| Akash_Provider_sysctl_tuning3[akash provider sysctl tuning<br>When: **akash provider enabled   default false**]:::task
-  Akash_Provider_sysctl_tuning3-->|Task| Increase_FD_limits4[increase fd limits]:::task
-  Increase_FD_limits4-->|Task| Increase_file_max5[increase file max]:::task
-  Increase_file_max5-->|Task| Increase_inotify_watches6[increase inotify watches]:::task
-  Increase_inotify_watches6-->|Task| Increase_user_watches7[increase user watches]:::task
-  Increase_user_watches7-->|Task| Enable_watchdog8[enable watchdog]:::task
-  Enable_watchdog8-->|Task| Configure_hugepages9[configure hugepages<br>When: **mining cpuenabled   default false  or mining<br>gpuenabled   default false**]:::task
-  Configure_hugepages9-->|Task| Load_MSR_module10[load msr module<br>When: **mining cpuenabled   default false**]:::task
-  Load_MSR_module10-->|Task| Configure_Nvidia_modules_load11[configure nvidia modules load<br>When: **mining gpuenabled   default false**]:::task
-  Configure_Nvidia_modules_load11-->End
+  Enable_BBR_and_Network_Tuning2-->|Task| Increase_FD_limits3[increase fd limits]:::task
+  Increase_FD_limits3-->|Task| Increase_file_max4[increase file max]:::task
+  Increase_file_max4-->|Task| Increase_inotify_watches5[increase inotify watches]:::task
+  Increase_inotify_watches5-->|Task| Increase_user_watches6[increase user watches]:::task
+  Increase_user_watches6-->|Task| Enable_watchdog7[enable watchdog]:::task
+  Enable_watchdog7-->|Task| Configure_hugepages8[configure hugepages<br>When: **mining cpuenabled   default false  or mining<br>gpuenabled   default false**]:::task
+  Configure_hugepages8-->|Task| Load_MSR_module9[load msr module<br>When: **mining cpuenabled   default false**]:::task
+  Load_MSR_module9-->|Task| Configure_Nvidia_modules_load10[configure nvidia modules load<br>When: **mining gpuenabled   default false**]:::task
+  Configure_Nvidia_modules_load10-->End
 ```
 
 

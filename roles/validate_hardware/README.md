@@ -2,7 +2,7 @@
 
 # 📃 Role overview
 
-## preflight
+## validate_hardware
 
 
 
