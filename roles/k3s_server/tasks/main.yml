@@ -15,32 +15,10 @@
       - k3s_serverVersion | length > 0
     fail_msg: "ERROR: k3s_serverVersion must be defined"
 
-# @docsible Checks whether gVisor runsc binary is installed
-- name: Check for runsc binary
-  ansible.builtin.stat:
-    path: /usr/local/bin/runsc
-  register: k3s_runsc_stat
-
-# @docsible Checks whether NVIDIA container runtime is installed
-- name: Check for nvidia-container-runtime
-  ansible.builtin.stat:
-    path: /usr/bin/nvidia-container-runtime
-  register: k3s_nvidia_runtime_stat
-
-# @docsible Builds base list of detected containerd runtimes
-- name: Build containerd runtime list
-  ansible.builtin.set_fact:
-    _current_runtimes: "{{ ansible_facts['k3s_commonContainerdAdditionalRuntimes'] | default([]) }}"
-
-# @docsible Merges detected runtimes into k3s_commonContainerdAdditionalRuntimes
-- name: Update containerd runtime list
-  ansible.builtin.set_fact:
-    k3s_commonContainerdAdditionalRuntimes: >-
-      {{
-        _current_runtimes
-        | union(['runsc'] if k3s_runsc_stat.stat.exists else [])
-        | union(['nvidia'] if k3s_nvidia_runtime_stat.stat.exists else [])
-      }}
+# @docsible Detects containerd runtimes (runsc/nvidia) shared across server and agent
+- name: Run k3s runtime discovery role
+  ansible.builtin.import_role:
+    name: k3s_runtime_discovery
 
 # @docsible Imports k3s_common role for shared K3s host setup
 - name: Run K3s Common

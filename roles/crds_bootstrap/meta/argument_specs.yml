@@ -10,7 +10,7 @@ argument_specs:
       gateway_apiVersion:
         type: str
         required: false
-        default: "v1.2.0"
+        default: "v1.5.1"
         description: Gateway API CRDs version to install.
       prometheus_operatorCrdsNamespace:
         type: str
@@ -19,7 +19,8 @@ argument_specs:
         description: Namespace for Prometheus Operator CRDs.
       prometheus_operatorCrdsVersion:
         type: str
-        required: true
+        required: false
+        default: "28.0.1"
         description: Prometheus Operator CRDs Helm chart version.
       kubeconfig:
         type: str

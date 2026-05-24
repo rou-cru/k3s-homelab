@@ -30,14 +30,6 @@
         - common_grub_aspm.changed
         - not ansible_check_mode
       changed_when: true
-    # @docsible Flags reboot requirement for driver switch
-    - name: Register driver change
-      ansible.builtin.set_fact:
-        system_networkDriverChanged: >-
-          {{ common_r8168_install.changed or
-             common_r8169_blacklist.changed or
-             common_grub_aspm.changed }}
-
   rescue:
     # @docsible Debugs Realtek optimization failures
     - name: Report RoG/Realtek optimization failure

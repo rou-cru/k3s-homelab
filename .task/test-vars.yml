@@ -1,6 +1,1 @@
-system_primaryInterface: eth0
-hardware_rogServer: true
-hardware_radioBlockEnabled: true
-hardware_audioOptimizationEnabled: true
-hardware_batteryChargeThreshold: 80
-hardware_thermalPolicy: 1
+system_primaryInterface: ""

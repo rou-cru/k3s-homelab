@@ -5,10 +5,6 @@ version = "0.1.0"
 
 dependencies = [
   "docsible>=0.7.17",
-  "molecule>=24.0.0",
-  "molecule-plugins[vagrant]>=23.5.0",
-  "python-vagrant>=1.0.0",
-  "pytest-testinfra>=10.0.0",
   "kubernetes>=24.2.0",
   "PyYAML>=6.0.1",
   "jsonpatch>=1.33",

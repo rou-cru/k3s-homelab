@@ -31,7 +31,8 @@ rbac:
   # -- Enable creation of Resource-Based Access Control configuration.
   create: true
 
-# -- Configure iptables--random-fully. Disabled by default. View https://github.com/cilium/cilium/issues/13037 for more information.
+# -- Configure iptables--random-fully. Disabled by default.
+# See https://github.com/cilium/cilium/issues/13037 for more information.
 iptablesRandomFully: false
 
 # -- Configure termination grace period for cilium-agent DaemonSet.
@@ -372,7 +373,8 @@ envoyConfig:
     create: true
     # -- The name of the secret namespace to which Cilium agents are given read access.
     name: cilium-secrets
-  # -- Interval in which an attempt is made to reconcile failed EnvoyConfigs. If the duration is zero, the retry is deactivated.
+  # -- Interval in which an attempt is made to reconcile failed EnvoyConfigs.
+  # If the duration is zero, the retry is deactivated.
   retryInterval: 15s
 
 ingressController:
@@ -384,22 +386,30 @@ gatewayAPI:
   # -- Enable support for Gateway API in cilium
   # This will automatically set enable-envoy-config as well.
   enabled: true
-  # -- Enable proxy protocol for all GatewayAPI listeners. Note that _only_ Proxy protocol traffic will be accepted once this is enabled.
+  # -- Enable proxy protocol for all GatewayAPI listeners.
+  # Note that _only_ Proxy protocol traffic is accepted once this is enabled.
   enableProxyProtocol: false
   # -- Enable Backend Protocol selection support (GEP-1911) for Gateway API via appProtocol.
   enableAppProtocol: true
-  # -- Enable ALPN for all listeners configured with Gateway API. ALPN will attempt HTTP/2, then HTTP 1.1.
-  # Note that this will also enable `appProtocol` support, and services that wish to use HTTP/2 will need to indicate that via their `appProtocol`.
+  # -- Enable ALPN for all listeners configured with Gateway API.
+  # ALPN will attempt HTTP/2, then HTTP 1.1.
+  # This also enables `appProtocol` support, and services that wish
+  # to use HTTP/2 must indicate that via their `appProtocol`.
   enableAlpn: true
-  # -- The number of additional GatewayAPI proxy hops from the right side of the HTTP header to trust when determining the origin client's IP address.
+  # -- Number of additional GatewayAPI proxy hops from the right side of
+  # the HTTP header to trust when determining the origin client IP address.
   xffNumTrustedHops: 0
-  # -- Control how traffic from external sources is routed to the LoadBalancer Kubernetes Service for all Cilium GatewayAPI Gateway instances. Valid values are "Cluster" and "Local".
+  # -- Control how traffic from external sources is routed to the
+  # LoadBalancer Kubernetes Service for Cilium GatewayAPI instances.
+  # Valid values are "Cluster" and "Local".
   # Note that this value will be ignored when `hostNetwork.enabled == true`.
   externalTrafficPolicy: Cluster
   gatewayClass:
     # -- Enable creation of GatewayClass resource
-    # The default value is 'auto' which decides according to presence of gateway.networking.k8s.io/v1/GatewayClass in the cluster.
-    # Other possible values are 'true' and 'false', which will either always or never create the GatewayClass, respectively.
+    # The default value is 'auto', decided according to the presence of
+    # gateway.networking.k8s.io/v1/GatewayClass in the cluster.
+    # Other values are 'true' and 'false', which always or never create
+    # the GatewayClass, respectively.
     create: 'true'
   # -- SecretsNamespace is the namespace in which envoy SDS will retrieve TLS secrets from.
   secretsNamespace:
@@ -764,8 +774,10 @@ nodePort:
   # @schema
   # type: [null, string, array]
   # @schema
-  # -- List of CIDRs for choosing which IP addresses assigned to native devices are used for NodePort load-balancing.
-  # By default this is empty and the first suitable, preferably private, IPv4 and IPv6 address assigned to each device is used.
+  # -- List of CIDRs for choosing which IP addresses assigned to native
+  # devices are used for NodePort load-balancing.
+  # By default this is empty and the first suitable (preferably private)
+  # IPv4 and IPv6 address assigned to each device is used.
   addresses: ["0.0.0.0/0", "::/0"]
   # -- Set to true to prevent applications binding to service ports.
   bindProtection: true
@@ -809,13 +821,15 @@ envoy:
   enabled: true
   # -- (int)
   # Set Envoy'--base-id' to use when allocating shared memory regions.
-  # Only needs to be changed if multiple Envoy instances will run on the same node and may have conflicts. Supported values: 0 - 4294967295. Defaults to '0'
+  # Only needs changing if multiple Envoy instances run on the same node
+  # and may conflict. Supported values: 0 - 4294967295. Default is '0'.
   baseID: 0
   log:
     # @schema
     # type: [null, string]
     # @schema
-    # -- The format string to use for laying out the log message metadata of Envoy. If specified, Envoy will use text format output.
+    # -- The format string to lay out Envoy log metadata.
+    # If specified, Envoy uses text format output.
     # This setting is mutually exclusive with envoy.log.format_json.
     format: ~
     # @schema
@@ -867,22 +881,28 @@ envoy:
   # -- Set Envoy upstream HTTP idle connection timeout seconds.
   # Does not apply to connections with pending requests. Default 60s
   idleTimeoutDurationSeconds: 60
-  # -- Set Envoy the amount of time that the connection manager will allow a stream to exist with no upstream or downstream activity.
+  # -- Set the amount of time that the connection manager allows a stream
+  # to exist with no upstream or downstream activity.
   # default 5 minutes
   streamIdleTimeoutDurationSeconds: 300
-  # -- Number of trusted hops regarding the x-forwarded-for and related HTTP headers for the ingress L7 policy enforcement Envoy listeners.
+  # -- Number of trusted hops for x-forwarded-for and related HTTP headers
+  # for ingress L7 policy enforcement Envoy listeners.
   xffNumTrustedHopsL7PolicyIngress: 0
-  # -- Number of trusted hops regarding the x-forwarded-for and related HTTP headers for the egress L7 policy enforcement Envoy listeners.
+  # -- Number of trusted hops for x-forwarded-for and related HTTP headers
+  # for egress L7 policy enforcement Envoy listeners.
   xffNumTrustedHopsL7PolicyEgress: 0
-  # -- For cases when CiliumEnvoyConfig is not used directly (Ingress, Gateway), configures Cilium BPF Metadata listener filter
-  # to use the original source address when extracting the metadata for a request.
+  # -- When CiliumEnvoyConfig is not used directly (Ingress, Gateway),
+  # configure the Cilium BPF Metadata listener filter to use the original
+  # source address when extracting request metadata.
   useOriginalSourceAddress: false
   # @schema
   # type: [null, string]
   # @schema
   # -- Max duration to wait for endpoint policies to be restored on restart. Default "3m".
   policyRestoreTimeoutDuration: null
-  # -- Time in seconds to block Envoy worker thread while an upstream HTTP connection is closing. If set to 0, the connection is closed immediately (with TCP RST). If set to -1, the connection is closed asynchronously in the background.
+  # -- Time in seconds to block an Envoy worker thread while an upstream
+  # HTTP connection is closing. If set to 0, it closes immediately (TCP RST).
+  # If set to -1, it closes asynchronously in the background.
   httpUpstreamLingerTimeout: null
   # -- TCP port for the health API.
   healthPort: 9878
@@ -982,7 +1002,8 @@ envoy:
     enabled: true
     serviceMonitor:
       # -- Enable service monitors.
-      # This requires the prometheus CRDs to be available (see https://github.com/prometheus-operator/prometheus-operator/blob/main/example/prometheus-operator-crd/monitoring.coreos.com_servicemonitors.yaml)
+      # This requires Prometheus CRDs to be available:
+      # https://github.com/prometheus-operator/prometheus-operator/blob/main/example/prometheus-operator-crd/monitoring.coreos.com_servicemonitors.yaml
       # Note that this setting applies to both cilium-envoy _and_ cilium-agent
       # with Envoy enabled.
       enabled: true
@@ -1089,7 +1110,7 @@ operator:
   tolerations:
     - key: "node-role.kubernetes.io/control-plane"
       operator: Exists
-    - key: "node-role.kubernetes.io/master" #deprecated
+    - key: "node-role.kubernetes.io/master" # deprecated
       operator: Exists
     - key: "node.kubernetes.io/not-ready"
       operator: Exists
@@ -1129,7 +1150,8 @@ operator:
     port: 9963
     serviceMonitor:
       # -- Enable service monitors.
-      # This requires the prometheus CRDs to be available (see https://github.com/prometheus-operator/prometheus-operator/blob/main/example/prometheus-operator-crd/monitoring.coreos.com_servicemonitors.yaml)
+      # This requires Prometheus CRDs to be available:
+      # https://github.com/prometheus-operator/prometheus-operator/blob/main/example/prometheus-operator-crd/monitoring.coreos.com_servicemonitors.yaml
       enabled: true
   # -- Grafana dashboards for cilium-operator
   # grafana can import dashboards based on the label and value
@@ -1153,17 +1175,21 @@ cgroup:
   hostRoot: /run/cilium/cgroupv2
 # -- Configure sysctl override described in #20072.
 sysctlfix:
-  # -- Enable the sysctl override. When enabled, the init container will mount the /proc of the host so that the `sysctlfix` utility can execute.
+  # -- Enable the sysctl override. When enabled, the init container mounts
+  # host /proc so that the `sysctlfix` utility can execute.
   enabled: true
 # -- Configure whether to unload DNS policy rules on graceful shutdown
 # dnsPolicyUnloadOnShutdown: false
 
 dnsProxy:
-  # -- Timeout (in seconds) when closing the connection between the DNS proxy and the upstream server. If set to 0, the connection is closed immediately (with TCP RST). If set to -1, the connection is closed asynchronously in the background.
+  # -- Timeout (in seconds) when closing the connection between the DNS
+  # proxy and the upstream server. If set to 0, closure is immediate (TCP RST).
+  # If set to -1, closure happens asynchronously in the background.
   socketLingerTimeout: 10
   # -- DNS response code for rejecting DNS requests, available options are '[nameError refused]'.
   dnsRejectResponseCode: refused
-  # -- Allow the DNS proxy to compress responses to endpoints that are larger than 512 Bytes or the EDNS0 option, if present.
+  # -- Allow the DNS proxy to compress responses to endpoints larger than
+  # 512 Bytes or larger than the EDNS0 option, if present.
   enableDnsCompression: true
   # -- Maximum number of IPs to maintain per FQDN name for each endpoint.
   endpointMaxIpPerHostname: 1000
@@ -1180,7 +1206,8 @@ dnsProxy:
   preCache: ""
   # -- Global port on which the in-agent DNS proxy should listen. Default 0 is a OS-assigned port.
   proxyPort: 0
-  # -- The maximum time the DNS proxy holds an allowed DNS response before sending it along. Responses are sent as soon as the datapath is updated with the new IP information.
+  # -- Maximum time the DNS proxy holds an allowed DNS response before
+  # sending it along. Responses are sent as soon as datapath is updated.
   proxyResponseMaxDelay: 100ms
   # -- DNS proxy operation mode (true/false, or unset to use version dependent defaults)
   # enableTransparentMode: true

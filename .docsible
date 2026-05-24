@@ -2,14 +2,12 @@
 # Docsible project configuration for k3s-homelab
 # See: https://github.com/docsible/docsible
 
-# Custom template for standardized branding
-template: docs/templates/README.md.j2
 
 # Output filename (default)
 output: README.md
 
 # Generate Mermaid task flow graphs
-graph: true
+graph: false
 
 # Don't create backup files
 no_backup: true

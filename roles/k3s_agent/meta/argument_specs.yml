@@ -10,7 +10,7 @@ argument_specs:
     options:
       k3s_agentVersion:
         type: str
-        default: "v1.35.0+k3s1"
+        default: "v1.35.3+k3s1"
         description: K3s version to install (should match server version)
       k3s_agentServerUrl:
         type: str

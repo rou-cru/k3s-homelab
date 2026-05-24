@@ -18,7 +18,8 @@ global:
     format: json
     # -- Set the global logging level. One of: `debug`, `info`, `warn` or `error`
     level: warn
-  # -- Add Prometheus scrape annotations to all metrics services. This can be used as an alternative to the ServiceMonitors.
+  # -- Add Prometheus scrape annotations to all metrics services.
+  # This can be used as an alternative to the ServiceMonitors.
   addPrometheusAnnotations: true
 
 
@@ -86,7 +87,9 @@ controller:
   metrics:
     # -- Deploy metrics service
     enabled: true
-    # -- Prometheus ServiceMonitor scrapeTimeout. If empty, Prometheus uses the global scrape timeout unless it is less than the target's scrape interval value in which the latter is used.
+    # -- Prometheus ServiceMonitor scrapeTimeout.
+    # If empty, Prometheus uses the global scrape timeout unless it is
+    # less than the target's scrape interval value in which the latter is used.
     scrapeTimeout: ""
     applicationLabels:
       # -- Enables additional labels in argocd_app_labels metric
@@ -250,7 +253,6 @@ server:
     # -- Server service https port name, can be used to route traffic via istio
     servicePortHttpsName: https
     # -- Server service https port appProtocol
-    ## Ref: https://kubernetes.io/docs/concepts/services-networking/service/#application-protocol
     servicePortHttpsAppProtocol: ""
     # -- The class of the load balancer implementation
     loadBalancerClass: ""
@@ -262,11 +264,10 @@ server:
     loadBalancerSourceRanges: []
     # -- Server service external IPs
     externalIPs: []
-    # -- Denotes if this Service desires to route external traffic to node-local or cluster-wide endpoints
-    ## Ref: https://kubernetes.io/docs/tasks/access-application-cluster/create-external-load-balancer/#preserving-the-client-source-ip
+    # -- Denotes if this Service desires to route external traffic
+    # to node-local or cluster-wide endpoints.
     externalTrafficPolicy: Cluster
     # -- Used to maintain session affinity. Supports `ClientIP` and `None`
-    ## Ref: https://kubernetes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies
     sessionAffinity: None
   ## Server metrics service configuration
   metrics:
@@ -433,7 +434,6 @@ repoServer:
     # -- Configures the scaling behavior of the target in both Up and Down directions.
     behavior: {}
     # -- Configures custom HPA metrics for the Argo CD repo server
-    # Ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
     metrics: []
   ## Repo server image
   image:
@@ -475,7 +475,8 @@ repoServer:
     port: 8081
     # -- Repo server service port name
     portName: tcp-repo-server
-    # -- Traffic distribution preference for the repo server service. If the field is not set, the implementation will apply its default routing strategy.
+    # -- Traffic distribution preference for the repo server service.
+    # If the field is not set, the implementation applies its default routing strategy.
     trafficDistribution: ""
   ## Repo server metrics service configuration
   metrics:
@@ -623,7 +624,8 @@ notifications:
   # @default -- `""` (defaults to global.runtimeClassName)
   runtimeClassName: ""
   # -- Define user-defined context
-  ## For more information: https://argo-cd.readthedocs.io/en/stable/operator-manual/notifications/templates/#defining-user-defined-context
+  ## For more information:
+  ## https://argo-cd.readthedocs.io/en/stable/operator-manual/notifications/templates/#defining-user-defined-context
   context: {}
     # region: east
     # environmentName: staging

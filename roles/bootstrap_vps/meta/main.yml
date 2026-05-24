@@ -1,7 +1,8 @@
----
 galaxy_info:
+  role_name: bootstrap_vps
   author: rc
-  description: Install and configure K3s agent node to join existing cluster
+  description: Orchestrator role that calls other roles for VPS agent join.
+  company: Personal
   license: MIT
   min_ansible_version: "2.20.0"
   platforms:
@@ -9,9 +10,8 @@ galaxy_info:
       versions:
         - noble
   galaxy_tags:
-    - kubernetes
     - k3s
-    - agent
-    - cluster
-
+    - kubernetes
+    - bootstrap
+    - homelab
 dependencies: []
