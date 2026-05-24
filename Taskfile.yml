@@ -4,6 +4,8 @@ vars:
   DEFAULTS_FILE: group_vars/all.yml
   TEST_VARS_FILE: .task/test-vars.yml
   OUTPUT_DIR: .task/rendered
+  CILIUM_VERSION:
+    sh: yq e '.cilium_chartVersion' group_vars/all.yml
 tasks:
   default:
     desc: "Show available tasks"
@@ -48,13 +50,13 @@ tasks:
   docs:generate:
     desc: "Generate Docsible documentation for roles and playbooks"
     cmds:
-      - echo "📖 Generating documentation for all roles..."
+      - echo "Generating documentation for all roles..."
       - |
         for role in roles/*/; do
           echo "Processing $role..."
           .venv/bin/docsible --role "$role" --graph --comments --task-line --no-backup --no-docsible
         done
-      - echo "📘 Generating playbook docs via Docsible wrappers..."
+      - echo "Generating playbook docs via Docsible wrappers..."
       - |
         .venv/bin/docsible \
           --role docs/playbooks/site \
@@ -75,7 +77,7 @@ tasks:
           --no-backup \
           --no-docsible \
           --output ../../generated/site-vps.md
-      - echo "🧭 Building consolidated playbook guide..."
+      - echo "Building consolidated playbook guide..."
       - |
         cat > docs/generated/playbook-master.md <<'EOF'
         # Playbook Master Guide
@@ -92,11 +94,11 @@ tasks:
 
         | Goal | Insert In | Why |
         | ---- | --------- | --- |
-        | Host prerequisites on master | `site.yaml` Play `Setup K3s Master Node`, PHASE 1 | Runs before cluster initialization |
-        | Cluster bootstrap sequencing | `site.yaml` Play `Setup K3s Master Node`, PHASE 2 | Defines control-plane bring-up order |
-        | Infra platform services | `site.yaml` Play `Setup K3s Master Node`, PHASE 3 | Cert-manager, secrets, gateway stack |
+        | Host prerequisites | `site.yaml` play `Setup K3s Master Node` phase 1 | Runs before cluster init |
+        | Cluster sequencing | `site.yaml` play `Setup K3s Master Node` phase 2 | Defines control-plane order |
+        | Infra platform | `site.yaml` play `Setup K3s Master Node` phase 3 | Cert-manager, secrets, gateway |
         | GitOps controller changes | `site.yaml` Play `Deploy ArgoCD GitOps` | ArgoCD deployment and sync behavior |
-        | VPS edge/agent behavior | `site-vps.yaml` Play `Setup K3s VPS Agent Node` | Agent join and route advertisement |
+        | VPS edge/agent behavior | `site-vps.yaml` Play `Setup K3s VPS Agent Node` | Agent join and route ads |
 
         ## Role Docs
 
@@ -114,23 +116,23 @@ tasks:
         - `roles/k3s_server/README.md`
         - `roles/miners/README.md`
         - `roles/nvidia_gpu/README.md`
-        - `roles/preflight/README.md`
+        - `roles/validate_hardware/README.md`
         - `roles/tailscale/README.md`
         EOF
-      - echo "✅ Documentation generated."
+      - echo "Documentation generated."
   k8s:bootstrap:cilium:
     desc: "Deploy/Upgrade Cilium CNI directly via Helm"
     cmds:
       - echo "Deploying Cilium"
       - |
         helm upgrade --install cilium cilium/cilium \
-          --version 1.19.0 \
+          --version {{.CILIUM_VERSION}} \
           --namespace kube-system \
           --values k8s/bootstrap/cilium/values.yaml \
           --set k8sServiceHost=100.96.136.51 \
           --wait \
           --timeout 10m
-      - echo "✅ Cilium deployment updated."
+      - echo "Cilium deployment updated."
       # -           --set ipv4NativeRoutingCIDR=10.0.0.0/8 \
 
   validate:
@@ -273,13 +275,13 @@ tasks:
   ci-full:
     desc: "Run full CI pipeline (validate + format check)"
     cmds:
-      - echo "🔍 Running full CI pipeline..."
+      - echo "Running full CI pipeline..."
       - task: validate
       - task: ci-format-check
   ci-quick:
     desc: "Quick validation (ansible-playbook syntax + bash syntax)"
     cmds:
-      - echo "⚡ Running quick checks..."
+      - echo "Running quick checks..."
       - task: validate-ansible-syntax
       - task: validate-bash
   ci-format-check:
@@ -292,7 +294,7 @@ tasks:
     desc: "Clean rendered files and cache"
     cmds:
       - rm -rf {{.OUTPUT_DIR}}/ .task/checksum/
-      - echo "✓ Cleaned {{.OUTPUT_DIR}}/ and cache"
+      - echo "Cleaned {{.OUTPUT_DIR}}/ and cache"
   secrets:init:
     desc: "Initialize Vault password file if missing"
     status:
@@ -300,7 +302,7 @@ tasks:
     cmds:
       - openssl rand -base64 32 > .ansible_vault_pass
       - chmod 600 .ansible_vault_pass
-      - echo "🔑 Generated .ansible_vault_pass"
+      - echo "Generated .ansible_vault_pass"
   secrets:set:
     desc: "Encrypt and set a secret (usage: task secrets:set -- KEY VALUE)"
     deps:
@@ -319,14 +321,14 @@ tasks:
         # Use a temporary file to hold the encrypted string
         ansible-vault encrypt_string --vault-password-file .ansible_vault_pass \
           "{{.VAL}}" --name "{{.KEY}}" >> secrets.yaml
-      - echo "✅ Added {{.KEY}} to secrets.yaml"
+      - echo "Added {{.KEY}} to secrets.yaml"
   secrets:setup:
     desc: "Interactive setup for all required secrets"
     deps:
       - secrets:init
     cmds:
       - |
-        echo "🔐 Starting Interactive Secrets Setup"
+        echo "Starting Interactive Secrets Setup"
         echo "You will be asked for: tailscale_authkey, ansible_become_password, honeygain_pass"
         echo "---------------------------------------------------------------------------------------------------"
 
@@ -341,7 +343,7 @@ tasks:
         echo ""
         [ -n "$honey_pass" ] && task secrets:set -- honeygain_pass "$honey_pass"
 
-        echo "🎉 Setup complete! secrets.yaml is ready."
+        echo "Setup complete! secrets.yaml is ready."
   build:miners:cpu:
     desc: "Build custom CPU miner image"
     cmds:
@@ -375,58 +377,3 @@ tasks:
     cmds:
       - task: build:miners
       - task: push:miners
-  test:preflight:
-    desc: "Run Molecule tests for preflight role (Vagrant)"
-    preconditions:
-      - sh: command -v molecule
-        msg: "molecule not found. Run: devbox shell && uv sync"
-      - sh: command -v vagrant
-        msg: "vagrant not found. Run playbook first: ansible-playbook site.yaml -K"
-      - sh: systemctl is-active --quiet libvirtd
-        msg: "libvirtd not running. Run playbook first: ansible-playbook site.yaml -K"
-    cmds:
-      - cd molecule/preflight && molecule test
-  test:converge:preflight:
-    desc: "Run Molecule converge only (faster iteration)"
-    preconditions:
-      - sh: command -v molecule
-        msg: "molecule not found. Run: devbox shell && uv sync"
-      - sh: command -v vagrant
-        msg: "vagrant not found. Run playbook first: ansible-playbook site.yaml -K"
-      - sh: systemctl is-active --quiet libvirtd
-        msg: "libvirtd not running. Run playbook first: ansible-playbook site.yaml -K"
-    cmds:
-      - cd molecule/preflight && molecule converge
-  test:verify:preflight:
-    desc: "Run Molecule verify only (after converge)"
-    preconditions:
-      - sh: command -v molecule
-        msg: "molecule not found. Run: devbox shell && uv sync"
-      - sh: command -v vagrant
-        msg: "vagrant not found. Run playbook first: ansible-playbook site.yaml -K"
-      - sh: systemctl is-active --quiet libvirtd
-        msg: "libvirtd not running. Run playbook first: ansible-playbook site.yaml -K"
-    cmds:
-      - cd molecule/preflight && molecule verify
-  test:destroy:
-    desc: "Destroy all Molecule test instances"
-    preconditions:
-      - sh: command -v molecule
-        msg: "molecule not found. Run: devbox shell && uv sync"
-    cmds:
-      - cd molecule/preflight && molecule destroy
-  test:all:
-    desc: "Run all Molecule tests (all roles)"
-    cmds:
-      - task: test:preflight
-  test:init:
-    desc: "Initialize Molecule scenario for a role (usage: task test:init -- ROLE_NAME)"
-    preconditions:
-      - sh: command -v molecule
-        msg: "molecule not found. Run: devbox shell && uv sync"
-      - sh: '[ {{len .CLI_ARGS}} -eq 1 ]'
-        msg: "Usage: task test:init -- ROLE_NAME"
-    vars:
-      ROLE: "{{index .CLI_ARGS 0}}"
-    cmds:
-      - cd molecule && molecule init scenario {{.ROLE}} --driver-name vagrant

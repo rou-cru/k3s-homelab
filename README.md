@@ -84,7 +84,7 @@ k3s-homelab/
 │   ├── gvisor/             # gVisor runtime
 │   ├── tailscale/          # Tailscale mesh networking
 │   ├── miners/             # Mining workload deployments
-│   ├── preflight/          # Hardware/resource validation
+│   ├── validate_hardware/  # Hardware/resource validation
 │   └── common/             # System-level setup
 ├── k8s/
 │   ├── bootstrap/          # Raw Kubernetes manifests for bootstrap

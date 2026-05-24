@@ -1,7 +1,7 @@
 galaxy_info:
-  role_name: preflight
+  role_name: bootstrap_master
   author: rc
-  description: Pre-flight checks to ensure minimum system requirements are met.
+  description: Orchestrator role that calls other roles in sequence for master node bootstrap.
   company: Personal
   license: MIT
   min_ansible_version: "2.20.0"
@@ -12,8 +12,6 @@ galaxy_info:
   galaxy_tags:
     - k3s
     - kubernetes
-    - preflight
-    - checks
-    - validation
+    - bootstrap
     - homelab
 dependencies: []

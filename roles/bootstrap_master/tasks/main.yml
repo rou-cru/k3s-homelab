@@ -1,0 +1,156 @@
+# @docsible Orchestrates master bootstrap phases while preserving execution order
+
+# @docsible Validates hardware constraints (RAM/Disk) and system readiness
+- name: Validate hardware requirements
+  ansible.builtin.import_role:
+    name: validate_hardware
+  tags: ["host"]
+
+# @docsible Configures kernel (BBR, hugepages), limits, and base packages
+- name: Run common role
+  ansible.builtin.import_role:
+    name: common
+  tags: ["host"]
+
+# @docsible Applies advanced sysctl networking tuning (BBR, buffer sizes)
+- name: Run common network optimizations
+  ansible.builtin.import_role:
+    name: common
+    tasks_from: network_optimization.yml
+  when: system_networkOptimize | default(true)
+  tags: ["host"]
+
+# @docsible Installs kubectl, helm, and dev utilities (if enabled)
+- name: Run developer tools role
+  ansible.builtin.import_role:
+    name: developer_tools
+  when: devtools_enabled | default(true) | bool
+  tags: ["host"]
+
+# @docsible Installs gVisor runsc for sandboxed container runtime
+- name: Run gvisor host role
+  ansible.builtin.import_role:
+    name: gvisor
+    tasks_from: host.yml
+  when: not ansible_check_mode
+  tags: ["host", "gvisor"]
+
+# @docsible Installs NVIDIA drivers, container toolkit, and configures X11 for fan control
+- name: Run NVIDIA GPU host role
+  ansible.builtin.import_role:
+    name: nvidia_gpu
+    tasks_from: host.yml
+  when: nvidia_setupMode != 'false'
+  tags: ["host", "nvidia"]
+
+# @docsible Ensures kernel modules/sysctl changes are active before K8s init
+- name: Flush host handlers before cluster init
+  ansible.builtin.meta: flush_handlers
+
+# @docsible Removes {{ k8s_manifestsDir }} to ensure a clean manifest sync slate
+- name: Clean remote manifests directory
+  ansible.builtin.file:
+    path: "{{ k8s_manifestsDir }}"
+    state: absent
+  tags: ["cluster"]
+
+# @docsible Synchronizes local k8s/ directory to master node for bootstrap operations
+- name: Copy Kustomize bases to remote
+  ansible.builtin.copy:
+    src: k8s/
+    dest: "{{ k8s_manifestsDir }}/"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    directory_mode: "0755"
+    mode: "0644"
+  tags: ["cluster", "miners", "infra", "gitops"]
+
+# @docsible Configures Tailscale mesh networking before cluster start
+- name: Run tailscale role
+  ansible.builtin.import_role:
+    name: tailscale
+  tags: ["cluster", "tailscale"]
+
+# @docsible Bootstraps K3s control plane with disabled Traefik/ServiceLB
+- name: Run k3s server role
+  ansible.builtin.import_role:
+    name: k3s_server
+  tags: ["cluster"]
+
+# @docsible Registers runsc RuntimeClass in the cluster
+- name: Run gvisor RuntimeClass
+  ansible.builtin.import_role:
+    name: gvisor
+    tasks_from: runtimeclass.yml
+  become: false
+  when: not ansible_check_mode
+  tags: ["cluster", "gvisor"]
+
+# @docsible Applies essential CRDs required by addons
+- name: Run crds_bootstrap role
+  ansible.builtin.import_role:
+    name: crds_bootstrap
+  become: false
+  when: not ansible_check_mode
+  tags: ["cluster"]
+
+# @docsible Deploys Cilium CNI (Helm) with kube-proxy replacement
+- name: Run cilium role
+  ansible.builtin.import_role:
+    name: cilium
+  become: false
+  when: not ansible_check_mode
+  tags: ["cluster"]
+
+# @docsible Configures Tailscale to advertise K8s Pod CIDRs (post-Cilium)
+- name: Advertise Cilium pod CIDR via Tailscale
+  ansible.builtin.import_role:
+    name: tailscale
+    tasks_from: advertise_pod_cidr
+  become: false
+  when: not ansible_check_mode
+  tags: ["cluster", "tailscale"]
+
+# @docsible Deploys NVIDIA Device Plugin and GPU Feature Discovery
+- name: Run NVIDIA GPU cluster role
+  ansible.builtin.import_role:
+    name: nvidia_gpu
+    tasks_from: cluster.yml
+  become: false
+  when:
+    - nvidia_active | default(false) | bool
+    - not ansible_check_mode
+  tags: ["cluster", "nvidia"]
+
+# @docsible Installs cert-manager via Helm for TLS certificate management
+- name: Run cert-manager role
+  ansible.builtin.import_role:
+    name: cert_manager
+  become: false
+  when: not ansible_check_mode
+  tags: ["infra"]
+
+# @docsible Deploys External Secrets Operator
+- name: Run external-secrets role
+  ansible.builtin.import_role:
+    name: external_secrets
+  become: false
+  when: not ansible_check_mode
+  tags: ["infra"]
+
+# @docsible Configures Cert-Manager Issuers (depends on ESO)
+- name: Configure ACME Issuers
+  ansible.builtin.import_role:
+    name: cert_manager
+    tasks_from: configure_issuers.yml
+  become: false
+  when: not ansible_check_mode
+  tags: ["infra"]
+
+# @docsible Configures Gateway API infrastructure
+- name: Run gateway role
+  ansible.builtin.import_role:
+    name: gateway
+  become: false
+  when: not ansible_check_mode
+  tags: ["infra", "networking"]
