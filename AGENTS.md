@@ -1,10 +1,14 @@
 # AGENTS.md — k3s-homelab
 
+## SDD pending to apply
+
+Engram: sdd/consolidation-phase2/tasks
+
 ## ⚠️ Security
 
 - `secrets.yaml` contains **real credentials** (Tailscale auth keys, Docker Hub tokens, passwords). It is gitignored but lives on disk. Never commit, log, or echo its contents.
 - `.ansible_vault_pass` is the vault password file — also gitignored, never expose.
-- `inventory.ini` has real IPs (LAN `192.168.1.80`, VPS `74.208.250.178`). Do not commit changes to these.
+- `inventory.ini` has real IPs (LAN `192.168.1.71`, VPS `74.208.250.178`). Do not commit changes to these.
 
 ## Quick Commands
 

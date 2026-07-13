@@ -1,8 +1,10 @@
 # @docsible Installs Experimental Gateway API CRDs (v{{ gateway_apiVersion }})
 - name: Install Gateway API CRDs
   kubernetes.core.k8s:
-    state: apply
-    server_side_apply: true
+    state: present
+    apply: true
+    server_side_apply:
+      field_manager: ansible
     src: >-
       https://github.com/kubernetes-sigs/gateway-api/releases/download/{{
       gateway_apiVersion }}/experimental-install.yaml

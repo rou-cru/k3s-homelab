@@ -1,45 +1,49 @@
-# @docsible Block: Realtek NIC driver replacement (r8169 -> r8168-dkms)
-- name: Realtek optimizations
-  when: hardware_rogServer | default(false) | bool
-  block:
-    # @docsible Installs r8168-dkms driver
-    - name: Install Realtek driver
-      ansible.builtin.apt:
-        name: r8168-dkms
-        state: present
-      register: common_r8168_install
-    # @docsible Blacklists kernel r8169 driver
-    - name: Blacklist generic driver
-      ansible.builtin.copy:
-        dest: /etc/modprobe.d/blacklist-r8169.conf
-        content: |
-          blacklist r8169
-        mode: "0640"
-      register: common_r8169_blacklist
-    # @docsible Disables PCIe ASPM in GRUB to prevent NIC drops
-    - name: Ensure pcie_aspm=off in GRUB
-      ansible.builtin.replace:
-        path: /etc/default/grub
-        regexp: '^GRUB_CMDLINE_LINUX_DEFAULT="(?!.*pcie_aspm=off)(.*)"'
-        replace: 'GRUB_CMDLINE_LINUX_DEFAULT="\1 pcie_aspm=off"'
-      register: common_grub_aspm
-    # @docsible Regenerates GRUB configuration
-    - name: Update GRUB # noqa: no-handler
-      ansible.builtin.command: update-grub
-      when:
-        - common_grub_aspm.changed
-        - not ansible_check_mode
-      changed_when: true
-  rescue:
-    # @docsible Debugs Realtek optimization failures
-    - name: Report RoG/Realtek optimization failure
-      ansible.builtin.debug:
-        msg: >-
-          RoG/Realtek optimization failed at {{ ansible_failed_task.name }}: {{ ansible_failed_result | to_json }}
-    # @docsible Fails execution if NIC tuning fails
-    - name: Fail RoG/Realtek optimization
-      ansible.builtin.fail:
-        msg: "RoG/Realtek optimization failed"
+# NOTE: Realtek driver swap block temporarily disabled while investigating a total network
+# loss on k3s-master after bootstrap (suspects: r8168-dkms vs HWE kernel, pcie_aspm=off).
+# r8169 on kernel 6.8 works fine on this NIC (RTL8168h, verified 2026-07-13). Re-enable
+# incrementally, with console access at hand, once the rest of the bootstrap is proven stable.
+# # @docsible Block: Realtek NIC driver replacement (r8169 -> r8168-dkms)
+# - name: Realtek optimizations
+#   when: hardware_rogServer | default(false) | bool
+#   block:
+#     # @docsible Installs r8168-dkms driver
+#     - name: Install Realtek driver
+#       ansible.builtin.apt:
+#         name: r8168-dkms
+#         state: present
+#       register: common_r8168_install
+#     # @docsible Blacklists kernel r8169 driver
+#     - name: Blacklist generic driver
+#       ansible.builtin.copy:
+#         dest: /etc/modprobe.d/blacklist-r8169.conf
+#         content: |
+#           blacklist r8169
+#         mode: "0640"
+#       register: common_r8169_blacklist
+#     # @docsible Disables PCIe ASPM in GRUB to prevent NIC drops
+#     - name: Ensure pcie_aspm=off in GRUB
+#       ansible.builtin.replace:
+#         path: /etc/default/grub
+#         regexp: '^GRUB_CMDLINE_LINUX_DEFAULT="(?!.*pcie_aspm=off)(.*)"'
+#         replace: 'GRUB_CMDLINE_LINUX_DEFAULT="\1 pcie_aspm=off"'
+#       register: common_grub_aspm
+#     # @docsible Regenerates GRUB configuration
+#     - name: Update GRUB # noqa: no-handler
+#       ansible.builtin.command: update-grub
+#       when:
+#         - common_grub_aspm.changed
+#         - not ansible_check_mode
+#       changed_when: true
+#   rescue:
+#     # @docsible Debugs Realtek optimization failures
+#     - name: Report RoG/Realtek optimization failure
+#       ansible.builtin.debug:
+#         msg: >-
+#           RoG/Realtek optimization failed at {{ ansible_failed_task.name }}: {{ ansible_failed_result | to_json }}
+#     # @docsible Fails execution if NIC tuning fails
+#     - name: Fail RoG/Realtek optimization
+#       ansible.builtin.fail:
+#         msg: "RoG/Realtek optimization failed"
 
 # @docsible Identifies primary physical ethernet interface (skips Virtual/CNI)
 - name: Detect primary ethernet interface

@@ -6,7 +6,7 @@ After=nvidia-persistence.service
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/X :1 -config /etc/X11/xorg.conf
+ExecStart=/usr/bin/X :1 -config /etc/X11/xorg.conf -novtswitch -sharevts
 Restart=on-failure
 RestartSec=5s
 StandardOutput=journal
