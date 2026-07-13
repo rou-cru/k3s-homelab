@@ -3,7 +3,7 @@ galaxy_info:
   author: rc
   description: Install and configure K3s agent node to join existing cluster
   license: MIT
-  min_ansible_version: "2.14"
+  min_ansible_version: "2.20.0"
   platforms:
     - name: Ubuntu
       versions:

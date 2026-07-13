@@ -10,10 +10,9 @@ global_waitRetries: 60
 global_waitDelay: 10
 
 ## K3s
-k3s_version: "v1.35.0+k3s1"
+k3s_version: "v1.35.3+k3s1"
 k3s_cniBinDir: "/opt/cni/bin"
 k3s_cniConfDir: "/etc/cni/net.d"
-k3s_recreate: false  # Set to true only for full cluster rebuild
 
 ### Containerd
 k3s_commonContainerdOptimized: true
@@ -87,10 +86,10 @@ system_helmRepositories:
 
 # ---- CONSTANTS - VERSIONS -----------------------------------------------------------
 # Chart versions
-cilium_chartVersion: "1.19.0"
-gateway_apiVersion: "v1.2.0"
-prometheus_operatorCrdsVersion: "26.0.0"
-gvisor_version: "20231204.0"
+cilium_chartVersion: "1.19.3"
+gateway_apiVersion: "v1.5.1"
+prometheus_operatorCrdsVersion: "28.0.1"
+gvisor_version: "20260413.0"
 
 # ---- K3S SERVER ROLE ---------------------------------------------------------------
 k3s_serverVersion: "{{ k3s_version }}"
@@ -143,7 +142,6 @@ tailscale_serviceCidr: "10.43.0.0/16"
 tailscale_advertiseServiceCidr: false
 
 
-
 # ---- GVISOR ------------------------------------------------------------------------
 gvisor_install: true
 
@@ -155,7 +153,7 @@ devtools_installVagrant: true
 
 # ---- CERT MANAGER ------------------------------------------------------------------
 certManager_namespace: "cert-manager"
-certManager_chartVersion: ""
+certManager_chartVersion: "v1.20.2"
 certManager_selfsignedIssuerName: "k3s-selfsigned-issuer"
 certManager_caCertificateName: "k3s-ca"
 certManager_caSecretName: "k3s-ca-secret"
@@ -171,7 +169,7 @@ wildcard_domain: "roura.xyz"
 
 # ---- ARGOCD ------------------------------------------------------------------------
 argocd_namespace: "argocd"
-argocd_chartVersion: ""
+argocd_chartVersion: "9.4.17"
 argocd_installCrds: true
 argocd_haEnabled: false
 argocd_dexEnabled: false
@@ -184,6 +182,7 @@ oci_configFile: "{{ playbook_dir }}/.oci"
 externalSecrets_namespace: "external-secrets"
 externalSecrets_serviceMonitorEnabled: true
 externalSecrets_grafanaDashboardEnabled: false
+externalSecrets_chartVersion: "2.3.0"
 externalSecrets_webhookIssuerName: "k3s-ca-issuer"
 
 # ---- CRDS BOOTSTRAP ----------------------------------------------------------------
@@ -192,29 +191,6 @@ prometheus_operatorCrdsNamespace: "monitoring"
 # ---- PREFLIGHT -----------------------------------------------------------------------
 preflight_minRamMb: 2048
 preflight_minDiskGb: 20
-
-# ---- AKASH (disabled by default - specialized use case) ----------------------------
-akash_nodeMoniker: "homelab-provider"
-akash_walletAddress: ""
-akash_keyringBackend: "os"
-akash_chainId: "akashnet-2"
-akash_nodeRpc: "https://rpc.akashnet.net:443"
-akash_providerDomain: ""
-akash_bidPriceScript: ""
-akash_providerAttributes:
-  - key: host
-    value: akash
-  - key: tier
-    value: community
-  - key: organization
-    value: homelab
-akash_gpuVendor: "nvidia"
-akash_gpuModel: "rtx4070"
-akash_ingressNginxVersion: "4.11.3"
-akash_hostnameOperatorVersion: "1.0.0"
-akash_inventoryOperatorVersion: "1.0.0"
-akash_providerVersion: "6.0.0"
-akash_gpuEnabled: true
 
 # ---- MINING CONFIGURATION ------------------------------------------------------------
 honeygainDevice: "bandwidth-miner"

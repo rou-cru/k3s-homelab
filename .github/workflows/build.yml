@@ -17,3 +17,45 @@ jobs:
         uses: SonarSource/sonarqube-scan-action@v6
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  validate:
+    name: Validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install validation tools
+        run: |
+          pip install ansible yamllint j2cli
+          sudo apt-get update
+          sudo apt-get install -y shellcheck
+
+      - name: Render Jinja2 templates
+        run: |
+          mkdir -p .task/rendered
+          j2 roles/common/templates/apply-rog-tweaks.sh.j2 \
+            group_vars/k3s_server.yml > .task/rendered/apply-rog-tweaks.sh
+          touch .task/test-vars.yml
+          j2 roles/common/templates/optimize-network.sh.j2 \
+            .task/test-vars.yml > .task/rendered/optimize-network.sh
+
+      - name: Run yamllint
+        run: yamllint .
+
+      - name: Run Ansible syntax check
+        run: |
+          cp secrets.example.yaml secrets.yaml
+          ansible-playbook --syntax-check site.yaml -e secrets_file=secrets.yaml
+          ansible-playbook --syntax-check site-vps.yaml -e secrets_file=secrets.yaml
+
+      - name: Run shellcheck on rendered scripts
+        run: |
+          bash -n .task/rendered/apply-rog-tweaks.sh
+          shellcheck .task/rendered/apply-rog-tweaks.sh
+          bash -n .task/rendered/optimize-network.sh
+          shellcheck .task/rendered/optimize-network.sh

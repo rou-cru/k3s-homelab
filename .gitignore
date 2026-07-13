@@ -46,19 +46,11 @@ secrets.yaml
 secrets.yml
 secrets.json
 
-# Molecule
-.molecule/
-molecule/**/.cache/
-molecule/**/pytest_cache/
-molecule/**/__pycache__/
-
 # Vagrant
 .vagrant/
 *.box
 .oci
 oci-key.pem
 oci-key-public.pem
-.codex/sessions/2026/02/11
-.codex/tmp/arg0/codex-arg0Enr7fc
 .gemini
 .mcp.json

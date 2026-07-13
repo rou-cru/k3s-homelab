@@ -193,6 +193,16 @@
     mode: "0755"
   when: nvidia_active | default(false) | bool
 
+# @docsible Downloads and dearmors the toolkit repository GPG key
+- name: Install toolkit GPG key
+  ansible.builtin.shell: |
+    set -o pipefail
+    curl -fsSL {{ nvidia_toolkitGpgUrl }} | gpg --dearmor -o /etc/apt/keyrings/nvidia-container-toolkit.gpg
+  args:
+    creates: /etc/apt/keyrings/nvidia-container-toolkit.gpg
+    executable: /bin/bash
+  when: nvidia_active | default(false) | bool
+
 # @docsible Adds NVIDIA Container Toolkit repository
 - name: Write toolkit repo
   ansible.builtin.copy:
@@ -207,12 +217,13 @@
   when: nvidia_active | default(false) | bool
 
 # @docsible Installs NVIDIA Container Toolkit
+# No cache_valid_time here: the repo file above may have just been added, and a recent
+# apt update from pre_tasks would otherwise mark the cache valid and skip fetching it.
 - name: Install toolkit
   ansible.builtin.apt:
     name: nvidia-container-toolkit
     state: present
     update_cache: true
-    cache_valid_time: 3600
   when: nvidia_active | default(false) | bool
   register: nvidia_toolkitInstall
 

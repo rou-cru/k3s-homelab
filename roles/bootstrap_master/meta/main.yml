@@ -1,0 +1,17 @@
+galaxy_info:
+  role_name: bootstrap_master
+  author: rc
+  description: Orchestrator role that calls other roles in sequence for master node bootstrap.
+  company: Personal
+  license: MIT
+  min_ansible_version: "2.20.0"
+  platforms:
+    - name: Ubuntu
+      versions:
+        - noble
+  galaxy_tags:
+    - k3s
+    - kubernetes
+    - bootstrap
+    - homelab
+dependencies: []

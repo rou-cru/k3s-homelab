@@ -18,7 +18,7 @@ hardware_intelPstateNoTurbo: 1
 nvidia_setup: "auto"
 nvidia_driverPackage: "auto"
 nvidia_driverFallback: "nvidia-driver-535"
-nvidia_devicePluginVersion: "0.14.3"
+nvidia_devicePluginVersion: "0.19.0"
 nvidia_toolkitRepoUrl: "https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list"
 nvidia_toolkitGpgUrl: "https://nvidia.github.io/libnvidia-container/gpgkey"
 nvidia_devicePluginRepo: "https://nvidia.github.io/k8s-device-plugin"

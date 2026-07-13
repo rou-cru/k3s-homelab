@@ -8,7 +8,7 @@ argument_specs:
       cilium_chartVersion:
         type: str
         required: false
-        default: "1.18.5"
+        default: "1.19.3"
         description: Version of the Cilium Helm chart to install.
       cilium_chartName:
         type: str

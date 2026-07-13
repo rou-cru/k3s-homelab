@@ -47,7 +47,7 @@
 # @docsible Installs Devbox (Nix wrapper)
 - name: Install Devbox
   ansible.builtin.shell: |
-    curl -fsSL https://get.jetpack.io/devbox | bash
+    curl -fsSL https://get.jetpack.io/devbox | bash -s -- -f
   args:
     creates: /usr/local/bin/devbox
   when: not ansible_check_mode
@@ -98,6 +98,7 @@
           gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
       args:
         creates: /usr/share/keyrings/docker-archive-keyring.gpg
+        executable: /bin/bash
     # @docsible Adds Docker APT repository
     - name: Add Docker repo
       ansible.builtin.apt_repository:

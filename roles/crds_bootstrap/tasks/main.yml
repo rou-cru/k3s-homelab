@@ -2,7 +2,12 @@
 - name: Install Gateway API CRDs
   kubernetes.core.k8s:
     state: present
-    src: "https://github.com/kubernetes-sigs/gateway-api/releases/download/{{ gateway_apiVersion }}/experimental-install.yaml"
+    apply: true
+    server_side_apply:
+      field_manager: ansible
+    src: >-
+      https://github.com/kubernetes-sigs/gateway-api/releases/download/{{
+      gateway_apiVersion }}/experimental-install.yaml
     kubeconfig: "{{ kubeconfig }}"
   when: not ansible_check_mode
   tags: ["cluster"]

@@ -28,7 +28,7 @@ required by various Helm charts and operators.
   - **gateway_apiVersion**
     - **Required**: False
     - **Type**: str
-    - **Default**: v1.2.0
+    - **Default**: v1.5.1
   
     - **Description**: Gateway API CRDs version to install.
   
@@ -46,9 +46,9 @@ required by various Helm charts and operators.
   
 
   - **prometheus_operatorCrdsVersion**
-    - **Required**: True
+    - **Required**: False
     - **Type**: str
-    - **Default**: none
+    - **Default**: 28.0.1
   
     - **Description**: Prometheus Operator CRDs Helm chart version.
   
@@ -86,10 +86,10 @@ required by various Helm charts and operators.
 | Name | Module | Has Conditions | Tags | Comments |
 | ---- | ------ | -------------- | -----| -------- |
 | [Install Gateway API CRDs](tasks/main.yml#L2) | kubernetes.core.k8s | True | cluster | @docsible Installs Experimental Gateway API CRDs (v{{ gateway_apiVersion }}) |
-| [Wait for Gateway API CRDs to be established](tasks/main.yml#L11) | kubernetes.core.k8s_info | True | cluster | @docsible Waits for Gateway CRDs to be registered in API |
-| [Add Prometheus Community Helm repo](tasks/main.yml#L26) | kubernetes.core.helm_repository | True | cluster | @docsible Registers Prometheus Community Helm repository |
-| [Create monitoring namespace](tasks/main.yml#L35) | kubernetes.core.k8s | True |  | @docsible Creates monitoring namespace for CRD workloads |
-| [Install Prometheus Operator CRDs](tasks/main.yml#L43) | kubernetes.core.helm | True | cluster | @docsible Installs Prometheus Operator CRDs (ServiceMonitor, etc.) |
+| [Wait for Gateway API CRDs to be established](tasks/main.yml#L14) | kubernetes.core.k8s_info | True | cluster | @docsible Waits for Gateway CRDs to be registered in API |
+| [Add Prometheus Community Helm repo](tasks/main.yml#L29) | kubernetes.core.helm_repository | True | cluster | @docsible Registers Prometheus Community Helm repository |
+| [Create monitoring namespace](tasks/main.yml#L38) | kubernetes.core.k8s | True |  | @docsible Creates monitoring namespace for CRD workloads |
+| [Install Prometheus Operator CRDs](tasks/main.yml#L46) | kubernetes.core.helm | True | cluster | @docsible Installs Prometheus Operator CRDs (ServiceMonitor, etc.) |
 
 
 ## Task Flow Graphs
@@ -131,7 +131,7 @@ MIT
 
 #### Minimum Ansible Version
 
-2.14
+2.20.0
 
 #### Platforms
 

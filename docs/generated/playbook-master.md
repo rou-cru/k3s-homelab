@@ -12,11 +12,11 @@ End-to-end execution map for this repository using generated Docsible documentat
 
 | Goal | Insert In | Why |
 | ---- | --------- | --- |
-| Host prerequisites on master | `site.yaml` Play `Setup K3s Master Node`, PHASE 1 | Runs before cluster initialization |
-| Cluster bootstrap sequencing | `site.yaml` Play `Setup K3s Master Node`, PHASE 2 | Defines control-plane bring-up order |
-| Infra platform services | `site.yaml` Play `Setup K3s Master Node`, PHASE 3 | Cert-manager, secrets, gateway stack |
+| Host prerequisites | `site.yaml` play `Setup K3s Master Node` phase 1 | Runs before cluster init |
+| Cluster sequencing | `site.yaml` play `Setup K3s Master Node` phase 2 | Defines control-plane order |
+| Infra platform | `site.yaml` play `Setup K3s Master Node` phase 3 | Cert-manager, secrets, gateway |
 | GitOps controller changes | `site.yaml` Play `Deploy ArgoCD GitOps` | ArgoCD deployment and sync behavior |
-| VPS edge/agent behavior | `site-vps.yaml` Play `Setup K3s VPS Agent Node` | Agent join and route advertisement |
+| VPS edge/agent behavior | `site-vps.yaml` Play `Setup K3s VPS Agent Node` | Agent join and route ads |
 
 ## Role Docs
 
@@ -34,5 +34,5 @@ End-to-end execution map for this repository using generated Docsible documentat
 - `roles/k3s_server/README.md`
 - `roles/miners/README.md`
 - `roles/nvidia_gpu/README.md`
-- `roles/preflight/README.md`
+- `roles/validate_hardware/README.md`
 - `roles/tailscale/README.md`

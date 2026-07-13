@@ -1,5 +1,7 @@
 # Base values for NVIDIA Device Plugin
 
+enableNodeFeatureApi: true
+
 config:
   fallbackStrategies: ["named", "single"]
 
@@ -70,3 +72,4 @@ nfd:
 gfd:
   enabled: true
   nameOverride: gpu-feature-discovery
+  sleepInterval: infinite

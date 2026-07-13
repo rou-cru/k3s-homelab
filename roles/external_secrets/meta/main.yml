@@ -5,7 +5,7 @@ galaxy_info:
     ClusterSecretStore (requires cert-manager).
   author: rc
   license: MIT
-  min_ansible_version: "2.14"
+  min_ansible_version: "2.20.0"
   platforms:
     - name: Ubuntu
       versions:

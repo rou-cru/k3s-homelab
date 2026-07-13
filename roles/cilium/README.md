@@ -27,7 +27,7 @@ Description: Installs and configures Cilium CNI for K3s clusters.
   - **cilium_chartVersion**
     - **Required**: False
     - **Type**: str
-    - **Default**: 1.18.5
+    - **Default**: 1.19.3
   
     - **Description**: Version of the Cilium Helm chart to install.
   

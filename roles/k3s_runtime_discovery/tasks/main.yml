@@ -1,0 +1,28 @@
+# @docsible Detects available containerd runtimes and merges them into K3s runtime list
+
+# @docsible Checks whether gVisor runsc binary is installed
+- name: Check for runsc binary
+  ansible.builtin.stat:
+    path: /usr/local/bin/runsc
+  register: k3s_runsc_stat
+
+# @docsible Checks whether NVIDIA container runtime is installed
+- name: Check for nvidia-container-runtime
+  ansible.builtin.stat:
+    path: /usr/bin/nvidia-container-runtime
+  register: k3s_nvidia_runtime_stat
+
+# @docsible Builds base list of detected containerd runtimes
+- name: Build containerd runtime list
+  ansible.builtin.set_fact:
+    _current_runtimes: "{{ ansible_facts['k3s_commonContainerdAdditionalRuntimes'] | default([]) }}"
+
+# @docsible Merges detected runtimes into k3s_commonContainerdAdditionalRuntimes
+- name: Update containerd runtime list
+  ansible.builtin.set_fact:
+    k3s_commonContainerdAdditionalRuntimes: >-
+      {{
+        _current_runtimes
+        | union(['runsc'] if k3s_runsc_stat.stat.exists else [])
+        | union(['nvidia'] if k3s_nvidia_runtime_stat.stat.exists else [])
+      }}
